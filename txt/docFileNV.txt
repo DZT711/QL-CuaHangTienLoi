@@ -1,0 +1,15 @@
+nguyen van a
+nv1
+2000000
+nguyen van b
+nv2
+3000000
+nguyen van c
+nv3
+4000000
+nguyen van d
+nv4
+5000000
+nguyen van e
+nv5
+3000000

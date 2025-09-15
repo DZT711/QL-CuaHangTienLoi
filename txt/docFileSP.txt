@@ -1,0 +1,5 @@
+doGiaDung,ms1,chao,10,10,nhom
+doGiaDung,ms2,choi,100,20,long ga
+doGiaDung,ms1,noi,150,20,sat
+doUong,ms3,7up,30,10,100
+doUong,ms4,coca,10,10,100

@@ -1,0 +1,34 @@
+- Mục đích duyệt qua từng đối tượng hóa đơn trong danhSacHHoaDons, nếu mã hóa đơn của bất kỳ đối tượng hoadon nào trùng với maHD đầu vào,
+trả về true(đúng )
+- private phương thức này chỉ gọi trong cùng lớp chứa nó, với kiểu trả về boolean, vòng lặp for duyệt qua từng hoadon trong danhsachhoadon
+(ktra từng đối tượng hóa đơn trong danh sách để so sánh mã hóa đơn ), hd.getKhachhang(): Gọi phương thức getKhachhang() của đối tượng hoaDon 
+để lấy đối tượng khách hàng của hóa đơn đó, sau đó gọi getMaKh để lấy mã khách hàng, và ktra equal so sánh mã khách hàng của đối tượng
+khyasch hàng với mã khách hàng đầu vảo maKH
+
+- FileReader fr = new FileReader("docFileHD.txt");: Tạo một đối tượng FileReader để đọc dữ liệu từ file "docFileHD.txt". ( Ưu điểm: Đơn giản 
+và dễ sử dụng cho việc đọc dữ liệu từ một file văn bản nhỏ. ) ,Cách thức hoạt động: FileReader đọc dữ liệu từ file một ký tự một lần.
+- BufferedReader br = new BufferedReader(fr);: Tạo một đối tượng BufferedReader để đọc từng dòng dữ liệu từ FileReader. ( Ưu điểm: Hiệu suất
+ cao hơn khi đọc dữ liệu từ file lớn hoặc đọc từng dòng, vì nó giảm số lượng thao tác đọc từ ổ đĩa. )
+, Cách thức hoạt động: BufferedReader đọc một lượng lớn dữ liệu từ file vào bộ đệm một lần, sau đó trả về từng dòng hoặc từng 
+phần dữ liệu từ bộ đệm.
+-String line = null;: Khởi tạo biến line để lưu trữ từng dòng dữ liệu đọc được từ file.
+outerLoop: while (true) { ... }: Vòng lặp vô hạn, sẽ chỉ dừng lại khi gặp break bên trong vòng lặp.
+line = br.readLine();: Đọc một dòng dữ liệu từ file và gán cho biến line.
+if (line == null) break;: Nếu không còn dòng dữ liệu nào để đọc (tức là line là null), thoát khỏi vòng lặp.
+String[] txt = line.split(",");: Tách dòng dữ liệu thành các phần tử bằng dấu phẩy.
+String maHD = txt[0];: Lấy mã hóa đơn từ phần tử đầu tiên.
+
+String maKH = txt[1];: Lấy mã khách hàng từ phần tử thứ hai.
+
+String maNV = txt[2];: Lấy mã nhân viên từ phần tử thứ ba.
+
+if (isMaHDTrung(maHD)) continue outerLoop;: Nếu mã hóa đơn trùng lặp, bỏ qua vòng lặp hiện tại và tiếp tục vòng lặp ngoài (outerLoop), 
+kiểu như đọc dòng dữ liệu tiếp theo á.
+if (!DSNV.isMaNVTonTai(maNV)) continue outerLoop;: Nếu mã nhân viên không tồn tại, bỏ qua vòng lặp hiện tại và tiếp tục vòng lặp ngoài.
+if (!DSKH.isMaKHTonTai(maKH)) continue outerLoop;: Nếu mã khách hàng không tồn tại, bỏ qua vòng lặp hiện tại và tiếp tục vòng lặp ngoài.
+khachHang kh = DSKH.getKH(maKH);: Lấy đối tượng khachHang dựa trên mã khách hàng.
+br.close(); fr.close();: Đóng BufferedReader và FileReader sau khi hoàn thành việc đọc file.
+catch (Exception e) { e.printStackTrace(); }: Bắt mọi ngoại lệ có thể xảy ra và in ra thông báo lỗi.
+
+
+-Vòng for chạy từ 0 đến n-1 để nhập từng hóa đơn
