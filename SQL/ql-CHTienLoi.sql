@@ -1,99 +1,79 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
---
--- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th9 15, 2025 lúc 05:28 AM
--- Phiên bản máy phục vụ: 10.4.32-MariaDB
--- Phiên bản PHP: 8.2.12
+CREATE TABLE SANPHAM (
+  MaSP VARCHAR(20) PRIMARY KEY,
+  TenSP NVARCHAR(100) NOT NULL,
+  SoLuongTon INT NOT NULL,
+  Gia DECIMAL(10,2) NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
 
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
-SET time_zone = "+00:00";
+CREATE TABLE KHACHHANG (
+  MaKH VARCHAR(20) PRIMARY KEY,
+  TenKH NVARCHAR(100) NOT NULL,
+  TongTienDaChi DECIMAL(12,2) DEFAULT 0,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
 
+CREATE TABLE NHANVIEN (
+  MaNV VARCHAR(20) PRIMARY KEY,
+  TenNV NVARCHAR(100) NOT NULL,
+  Luong DECIMAL(12,2) NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
+CREATE TABLE HOADON (
+  MaHD VARCHAR(20) PRIMARY KEY,
+  MaKH VARCHAR(20) NOT NULL,
+  MaNV VARCHAR(20) NOT NULL,
+  NgayLapHD DATETIME DEFAULT CURRENT_TIMESTAMP,
+  TongTienHD DECIMAL(12,2) DEFAULT 0,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_hd_kh FOREIGN KEY (MaKH) REFERENCES KHACHHANG(MaKH),
+  CONSTRAINT fk_hd_nv FOREIGN KEY (MaNV) REFERENCES NHANVIEN(MaNV)
+);
 
---
--- Cơ sở dữ liệu: `ql-douong`
---
+CREATE TABLE CHITIETHOADON (
+  MaHD VARCHAR(20),
+  MaSP VARCHAR(20),
+  SoLuongMua INT NOT NULL,
+  DonGiaBan DECIMAL(10,2) NOT NULL,
+  ThanhTien DECIMAL(12,2) NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (MaHD, MaSP),
+  CONSTRAINT fk_cthd_hd FOREIGN KEY (MaHD) REFERENCES HOADON(MaHD),
+  CONSTRAINT fk_cthd_sp FOREIGN KEY (MaSP) REFERENCES SANPHAM(MaSP)
+);
 
--- --------------------------------------------------------
+-- Bảng phân loại sản phẩm (đa hình)
+CREATE TABLE DOUONG (
+  MaSP VARCHAR(20) PRIMARY KEY,
+  DungTich DECIMAL(10,2) NOT NULL,
+  CONSTRAINT fk_du_sp FOREIGN KEY (MaSP) REFERENCES SANPHAM(MaSP)
+);
 
---
--- Cấu trúc bảng cho bảng `chitiethoadon`
---
--- Error reading structure for table ql-douong.chitiethoadon: #1932 - Table &#039;ql-douong.chitiethoadon&#039; doesn&#039;t exist in engine
--- Error reading data for table ql-douong.chitiethoadon: #1064 - You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near &#039;FROM `ql-douong`.`chitiethoadon`&#039; at line 1
+CREATE TABLE DOGIADUNG (
+  MaSP VARCHAR(20) PRIMARY KEY,
+  ChatLieu NVARCHAR(50) NOT NULL,
+  CONSTRAINT fk_dgd_sp FOREIGN KEY (MaSP) REFERENCES SANPHAM(MaSP)
+);
 
--- --------------------------------------------------------
+-- Tạo index bổ sung
+CREATE INDEX idx_chitiethoadon_sp ON CHITIETHOADON(MaSP);
+CREATE INDEX idx_hoadon_kh ON HOADON(MaKH);
+CREATE INDEX idx_hoadon_nv ON HOADON(MaNV);
+CREATE TABLE TaiKhoan (
+    Username VARCHAR(50) PRIMARY KEY,
+    PasswordHash VARCHAR(255) NOT NULL
+);
 
---
--- Cấu trúc bảng cho bảng `dogiadung`
---
--- Error reading structure for table ql-douong.dogiadung: #1932 - Table &#039;ql-douong.dogiadung&#039; doesn&#039;t exist in engine
--- Error reading data for table ql-douong.dogiadung: #1064 - You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near &#039;FROM `ql-douong`.`dogiadung`&#039; at line 1
-
--- --------------------------------------------------------
-
---
--- Cấu trúc bảng cho bảng `douong`
---
--- Error reading structure for table ql-douong.douong: #1932 - Table &#039;ql-douong.douong&#039; doesn&#039;t exist in engine
--- Error reading data for table ql-douong.douong: #1064 - You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near &#039;FROM `ql-douong`.`douong`&#039; at line 1
-
--- --------------------------------------------------------
-
---
--- Cấu trúc bảng cho bảng `hoadon`
---
--- Error reading structure for table ql-douong.hoadon: #1932 - Table &#039;ql-douong.hoadon&#039; doesn&#039;t exist in engine
--- Error reading data for table ql-douong.hoadon: #1064 - You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near &#039;FROM `ql-douong`.`hoadon`&#039; at line 1
-
--- --------------------------------------------------------
-
---
--- Cấu trúc bảng cho bảng `khachhang`
---
--- Error reading structure for table ql-douong.khachhang: #1932 - Table &#039;ql-douong.khachhang&#039; doesn&#039;t exist in engine
--- Error reading data for table ql-douong.khachhang: #1064 - You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near &#039;FROM `ql-douong`.`khachhang`&#039; at line 1
-
--- --------------------------------------------------------
-
---
--- Cấu trúc bảng cho bảng `nhanvien`
---
--- Error reading structure for table ql-douong.nhanvien: #1932 - Table &#039;ql-douong.nhanvien&#039; doesn&#039;t exist in engine
--- Error reading data for table ql-douong.nhanvien: #1064 - You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near &#039;FROM `ql-douong`.`nhanvien`&#039; at line 1
-
--- --------------------------------------------------------
-
---
--- Cấu trúc bảng cho bảng `sanpham`
---
--- Error reading structure for table ql-douong.sanpham: #1932 - Table &#039;ql-douong.sanpham&#039; doesn&#039;t exist in engine
--- Error reading data for table ql-douong.sanpham: #1064 - You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near &#039;FROM `ql-douong`.`sanpham`&#039; at line 1
-
--- --------------------------------------------------------
-
---
--- Cấu trúc bảng cho bảng `taikhoan`
---
--- Error reading structure for table ql-douong.taikhoan: #1932 - Table &#039;ql-douong.taikhoan&#039; doesn&#039;t exist in engine
--- Error reading data for table ql-douong.taikhoan: #1064 - You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near &#039;FROM `ql-douong`.`taikhoan`&#039; at line 1
-
--- --------------------------------------------------------
-
---
--- Cấu trúc bảng cho bảng `taikhoanlienket`
---
--- Error reading structure for table ql-douong.taikhoanlienket: #1932 - Table &#039;ql-douong.taikhoanlienket&#039; doesn&#039;t exist in engine
--- Error reading data for table ql-douong.taikhoanlienket: #1064 - You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near &#039;FROM `ql-douong`.`taikhoanlienket`&#039; at line 1
-COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+CREATE TABLE TaiKhoanLienKet (
+    Username VARCHAR(50),
+    LoaiLienKet ENUM('NhanVien','KhachHang') NOT NULL,
+    MaNguoi VARCHAR(20) NOT NULL,
+    PRIMARY KEY (Username, LoaiLienKet, MaNguoi),
+    FOREIGN KEY (Username) REFERENCES TaiKhoan(Username)
+    -- Không thể dùng foreign key conditional MySQL, kiểm tra loại & tồn tại ở ứng dụng
+);
