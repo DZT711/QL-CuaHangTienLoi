@@ -2,7 +2,7 @@ import java.sql.*;
 
 public class connect {
     public static void main(String[] args) {
-        String url = "jdbc:mysql://localhost:3306/ql-douong?serverTimezone=UTC";
+        String url = "jdbc:mysql://localhost:3306/ql-chtienloi?serverTimezone=UTC";
         String user = "root";
         String pass = ""; // XAMPP mặc định MySQL không có mật khẩu
 
@@ -20,13 +20,23 @@ public class connect {
                     // Truy cap ket qua truy van
                     ResultSet rs = stmt.executeQuery("SELECT NOW()");
                     if (rs.next()) {
-                        
+
                         // Xuat ket qua 
                         System.out.println("Time DB: " + rs.getString(1));
                     }
+                    
+                    Statement stmt1 = conn.createStatement();
+                    ResultSet query = stmt1.executeQuery("SHOW TABLES");
+                    while (query.next()) {
+                        System.out.println(query.getString(1));
+                    }
+                    query.close();
+                    stmt1.close();
                     rs.close();
                     stmt.close();
                 }
+                
+                
                 conn.close();
             }
         } catch (ClassNotFoundException e) {

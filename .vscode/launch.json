@@ -3,6 +3,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "ListingTables",
+      "request": "launch",
+      "mainClass": "ListingTables",
+      "projectName": "source code_a6947d3e"
+    },
+    {
+      "type": "java",
       "name": "connect",
       "request": "launch",
       "mainClass": "connect",
