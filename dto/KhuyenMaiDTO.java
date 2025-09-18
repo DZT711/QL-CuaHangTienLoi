@@ -5,7 +5,8 @@ public class KhuyenMaiDTO {
     private String maKM;
     private String tenKM;
     private String maSP;
-    private String maNV;
+    private int giaTriKM;
+    private int soLuongToiThieu;
     private Date ngayBatDau;
     private Date ngayKetThuc;
     private String trangThai;
