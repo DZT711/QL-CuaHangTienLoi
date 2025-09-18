@@ -1,13 +1,110 @@
--- xong
+CREATE TABLE LOAI (
+  MaLoai INT(11) PRIMARY KEY AUTO_INCREMENT,
+  TenLoai VARCHAR(255) NOT NULL,
+  MoTa VARCHAR(255) DEFAULT NULL,
+)
+
+/*  xem xét table đơn vị: kg, lít, chai, gói, túi, hộp, ... và thuộc tính DonViTinh của table SANPHAM
+
+CREATE TABLE DONVI (
+  MaDonVi INT(11) PRIMARY KEY AUTO_INCREMENT,
+  TenDonVi VARCHAR(50) NOT NULL,
+  MoTa VARCHAR(255) DEFAULT NULL
+); 
+
+INSERT INTO DONVI (TenDonVi, MoTa) VALUES
+('kg', 'Kilogram'),
+('l', 'Lít'),
+('chai', 'Chai'),
+('gói', 'Gói'),
+('túi', 'Túi'),
+('hộp', 'Cái');
+
+*/
+
+
+CREATE TABLE NHACUNGCAP (
+  MaNCC VARCHAR(20) PRIMARY KEY,
+  TenNCC VARCHAR(255) NOT NULL,
+  DiaChi VARCHAR(255) NOT NULL,
+  DienThoai CHAR(10) NOT NULL,
+  Email VARCHAR(40) NOT NULL,
+)
+
+
+CREATE TABLE SANPHAM (
+  MaSP VARCHAR(20) PRIMARY KEY,
+  TenSP VARCHAR(255) NOT NULL,
+  Loai INT(11) NOT NULL,
+  SoLuongTon INT(11) NOT NULL,
+  -- DonViTinh VARCHAR(50) NOT NULL,
+  Gia INT(11) NOT NULL CHECK (Gia >= 0),
+  HSD int(11) DEFAULT NULL,
+  MoTa VARCHAR(255) DEFAULT NULL
+  -- TrangThai ENUM('active', 'inactive') DEFAULT 'active'
+  CONSTRAINT fk_sanpham_loai FOREIGN KEY (Loai) REFERENCES LOAI(MaLoai)
+  -- CONSTRAINT fk_sanpham_donvi FOREIGN KEY (DonViTinh) REFERENCES DONVI(MaDonVi)
+);
+
+
+CREATE TABLE NHANVIEN (
+  MaNV CHAR(100) PRIMARY KEY,
+  Ho VARCHAR(20) NOT NULL,
+  Ten VARCHAR(20) NOT NULL,
+  GioiTinh VARCHAR(20) DEFAULT NULL CHECK (GioiTinh IN ('Nam', 'Nu')),
+  NgaySinh DATE DEFAULT NULL,
+  DiaChi VARCHAR(255) DEFAULT NULL,
+  Email VARCHAR(50) NOT NULL,
+  Luong INT(11) NOT NULL,
+  ChucVu CHAR(3) NOT NULL CHECK (ChucVu IN ('QL', 'NV'))
+  -- NgayVaoLam DATE DEFAULT (CURRENT_DATE())
+  -- TrangThai ENUM('active', 'inactive') DEFAULT 'active'
+);
+
+
+CREATE TABLE KHACHHANG (
+  MaKH VARCHAR(20) PRIMARY KEY,
+  Ho VARCHAR(20) NOT NULL,
+  Ten VARCHAR(20) NOT NULL,
+  GioiTinh ENUM('Nam', 'Nu') DEFAULT NULL,
+  NgaySinh DATE DEFAULT NULL,
+  DienThoai CHAR(20) NOT NULL UNIQUE,
+  DiaChi VARCHAR(255) DEFAULT NULL
+  -- DiemTichLuy INT(11) DEFAULT 0,
+  -- TrangThai ENUM('active', 'inactive') DEFAULT 'active'
+  -- NgayThamGia DATE DEFAULT (CURRENT_DATE())
+);
+
+
+/*
+CREATE TABLE KHUYENMAI (
+  MaKM VARCHAR(20) PRIMARY KEY,
+  TenKM VARCHAR(255) NOT NULL,
+  MaSP VARCHAR(20) DEFAULT NULL,
+  NgayBatDau DATE NOT NULL,
+  NgayKetThuc DATE NOT NULL,
+  GiaTriKM DECIMAL(10,2) NOT NULL,
+  SoLuongToiThieu INT(11) DEFAULT 1,     
+  TrangThai ENUM('Active', 'Inactive') DEFAULT 'Active',
+  CONSTRAINT FK_KM_SP FOREIGN KEY (MaSP) REFERENCES SANPHAM(MaSP),
+  CONSTRAINT CHK_NgayKM CHECK (NgayKetThuc >= NgayBatDau)
+);
+*/
+
+
 CREATE TABLE PHIEUNHAP (
   MaPhieu VARCHAR(50) PRIMARY KEY,
   MaNCC VARCHAR(20) DEFAULT NULL,
-  NgayLapPhieu DATETIME DEFAULT NULL CURRENT_TIMESTAMP(),
-  TongTien DOUBLE NOT NULL DEFAULT 0,
-  NguoiLapPhieu VARCHAR(50) DEFAULT NULL,
+  MaNV VARCHAR(20) NOT NULL,
+  NgayLapPhieu DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  TongTien INT(11) NOT NULL DEFAULT 0,
+  CONSTRAINT FK_PHIEUNHAP_NCC FOREIGN KEY (MaNCC) REFERENCES NHACUNGCAP(MaNCC),
+  CONSTRAINT FK_PHIEUNHAP_NV FOREIGN KEY (NguoiLapPhieu) REFERENCES NHANVIEN(MaNV)
 )
 
--- xem xét: mã hàng hay mã sản phẩm, constraint    
+
+-- xem xét có table hàng hóa (lúc nhập hàng)
+-- xem xét: mã hàng hay mã sản phẩm
 CREATE TABLE CHITIETPHIEUNHAP (
   MaPhieu VARCHAR(20) NOT NULL,
   MaSP VARCHAR(20) NOT NULL,
@@ -21,92 +118,70 @@ CREATE TABLE CHITIETPHIEUNHAP (
 -- có phiếu xuất với chí tiết phiếu xuất hay không 
 
 
--- xem xét table đơn vị: kg, lít, chai, gói, túi, hộp, ... và thuộc tính DonViTinh của table SANPHAM
-CREATE TABLE SANPHAM (
-  MaSP VARCHAR(20) PRIMARY KEY,
-  TenSP VARCHAR(255) NOT NULL,
-  Loai INT(11) NOT NULL,
-  SoLuongTon INT(11) NOT NULL,
-  Gia DOUBLE NOT NULL,
-  HSD int(11) DEFAULT NULL,
-  MoTa VARCHAR(255) DEFAULT NULL,
-  -- created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  -- updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
--- xem xét: điểm(tích), trạng thái(active, inactive), ngày tham gia
-CREATE TABLE KHACHHANG (
-  MaKH VARCHAR(20) PRIMARY KEY,
-  Ho VARCHAR(20) NOT NULL,
-  Ten VARCHAR(20) NOT NULL,
-  GioiTinh VARCHAR(20) DEFAULT NULL CHECK (GioiTinh IN ('Nam', 'Nu')),
-  DiaChi VARCHAR(255) DEFAULT NULL,
-  Email VARCHAR(20) NOT NULL
-  TongChiTieu DECIMAL(12,2) DEFAULT 0,
-);
-
--- xem xét có table đơn vị: kg, lít, chai, gói, túi, hộp, ...
--- xem xét có table hàng hóa (lúc nhập hàng)
--- xem xét có bảng khuyến mãi: MaKM, TenKM, GiaTriKM, NgayBatDau, NgayKetThuc, DieuKienKM, LoaiKM, MaSP, SoLuong, TrangThai(active, inactive)
-
--- xem xét: trạng thái, mật khẩu
-CREATE TABLE NHANVIEN (
-  MaNV CHAR(100) PRIMARY KEY,
-  Ho VARCHAR(20) NOT NULL,
-  Ten VARCHAR(20) NOT NULL,
-  GioiTinh VARCHAR(20) DEFAULT NULL CHECK (GioiTinh IN ('Nam', 'Nu')),
-  DiaChi VARCHAR(255) DEFAULT NULL,
-  DienThoai CHAR(20) NOT NULL,
-  Luong INT(11) NOT NULL,
-  ChucVu CHAR(3) NOT NULL CHECK (ChucVu IN ('QL', 'NV')),
-);
-
--- xem xét: tiền giảm, khuyến mãi
 CREATE TABLE HOADON (
   MaHD VARCHAR(20) PRIMARY KEY,
   MaKH VARCHAR(20) NOT NULL,
   MaNV VARCHAR(20) NOT NULL,
-  ThoiGianLapHD DATETIME DEFAULT NULL CURRENT_TIMESTAMP(),
+  ThoiGianLapHD DATETIME DEFAULT CURRENT_TIMESTAMP(),
+  TongTien int(11) DEFAULT 0,
+  -- TienGiam int(11) DEFAULT 0,
+  -- MaKM VARCHAR(20) DEFAULT NULL,
   CONSTRAINT fk_hd_kh FOREIGN KEY (MaKH) REFERENCES KHACHHANG(MaKH),
   CONSTRAINT fk_hd_nv FOREIGN KEY (MaNV) REFERENCES NHANVIEN(MaNV)
+  -- CONSTRAINT fk_hd_km FOREIGN KEY (MaKM) REFERENCES KHUYENMAI(MaKM)
 );
 
--- xong
+
 CREATE TABLE CHITIETHOADON (
   MaHD VARCHAR(20) NOT NULL,
   MaSP VARCHAR(20) NOT NULL,
   SoLuong INT(11) NOT NULL CHECK (SoLuong >= 0),
   DonGia INT(11) NOT NULL CHECK (DonGia >= 0),
-  -- created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (MaHD, MaSP),
-  CONSTRAINT fk_cthd_hd FOREIGN KEY (MaHD) REFERENCES HOADON(MaHD),
+  CONSTRAINT fk_cthd_hd FOREIGN KEY (MaHD) REFERENCES HOADON(MaHD) ON DELETE CASCADE,
   CONSTRAINT fk_cthd_sp FOREIGN KEY (MaSP) REFERENCES SANPHAM(MaSP)
 );
 
--- xong
-CREATE TABLE LOAI (
-  MaLoai INT(11) PRIMARY KEY,
-  TenLoai VARCHAR(255) NOT NULL,
-  MoTa VARCHAR(255) DEFAULT NULL,
+
+CREATE TABLE TAIKHOAN (
+  UserName VARCHAR(50) PRIMARY KEY,
+  PassWord VARCHAR(255) NOT NULL,
+  HoTen VARCHAR(255) DEFAULT NULL,
+  VaiTro ENUM('Admin', 'NhanVien') DEFAULT 'NhanVien',
+  TrangThai ENUM('Active', 'Inactive') DEFAULT 'Active'
+  Email VARCHAR(50) DEFAULT NULL,
 )
 
---xong 
-CREATE TABLE NHACUNGCAP (
-  MaNCC VARCHAR(20) PRIMARY KEY,
-  TenNCC VARCHAR(255) NOT NULL,
-  DiaChi VARCHAR(255) NOT NULL,
-  DienThoai CHAR(10) NOT NULL,
-  Email VARCHAR(40) NOT NULL,
-)
 
--- Tạo index bổ sung
-CREATE INDEX idx_chitiethoadon_sp ON CHITIETHOADON(MaSP);
+-- TẠO INDEX ĐỂ TỐI ƯU TÌM KIẾM 
+CREATE INDEX idx_sanpham_ten ON SANPHAM(TenSP);
+CREATE INDEX idx_sanpham_loai ON SANPHAM(Loai);
+CREATE INDEX idx_sanpham_soLuongTon ON SANPHAM(SoLuongTon);
+
+
 CREATE INDEX idx_hoadon_kh ON HOADON(MaKH);
 CREATE INDEX idx_hoadon_nv ON HOADON(MaNV);
+CREATE INDEX idx_hoadon_thoigian ON HOADON(ThoiGianLapHD);
+CREATE INDEX idx_hoadon_trangthai ON HOADON(TrangThai);
 
--- xem xét table TaiKhoan
-CREATE TABLE TaiKhoan (
-    Username VARCHAR(50) PRIMARY KEY,
-    PasswordHash VARCHAR(255) NOT NULL
-);
 
+CREATE INDEX idx_chitiethoadon_sp ON CHITIETHOADON(MaSP);
+
+
+CREATE INDEX idx_phieunhap_ncc ON PHIEUNHAP(MaNCC);
+CREATE INDEX idx_phieunhap_nv ON PHIEUNHAP(MaNV);
+CREATE INDEX idx_phieunhap_ngay ON PHIEUNHAP(NgayLapPhieu);
+
+CREATE INDEX idx_chitietphieunhap_sp ON CHITIETPHIEUNHAP(MaSP);
+
+CREATE INDEX idx_khachhang_dienthoai ON KHACHHANG(DienThoai);
+CREATE INDEX idx_khachhang_trangthai ON KHACHHANG(TrangThai);
+
+CREATE INDEX idx_nhanvien_chucvu ON NHANVIEN(ChucVu);
+CREATE INDEX idx_nhanvien_trangthai ON NHANVIEN(TrangThai);
+
+CREATE INDEX idx_khuyenmai_ngay ON KHUYENMAI(NgayBatDau, NgayKetThuc);
+CREATE INDEX idx_khuyenmai_sp ON KHUYENMAI(MaSP);
+
+
+-- ĐỒ DỮ LIỆU MẪU VÀO DATABASE 
