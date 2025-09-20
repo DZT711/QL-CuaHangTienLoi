@@ -1,11 +1,14 @@
 {
-    "files.associations": {
-        "iostream": "cpp"
-    },
-    "java.project.referencedLibraries": [
-        "lib/**/*.jar",
-        "d:\\mysql-connector-j-9.4.0\\mysql-connector-j-9.4.0.jar"
-    ],
-    "java.debug.settings.console": "internalConsole",
-    "cSpell.enabled": false
+  "files.associations": {
+    "iostream": "cpp"
+  },
+  "java.project.referencedLibraries": [
+    "lib/**/*.jar",
+    "d:\\Java library\\mysql-connector-j-9.4.0\\mysql-connector-j-9.4.0.jar"
+  ],
+  "java.debug.settings.console": "internalConsole",
+  "code-runner.executorMap": {
+
+    "java": "java --enable-preview --source 24 -cp \".;d:\\Java library\\mysql-connector-j-9.4.0\\mysql-connector-j-9.4.0.jar\" $fileName"
+  }
 }

@@ -3,6 +3,20 @@
   "configurations": [
     {
       "type": "java",
+      "name": "test",
+      "request": "launch",
+      "mainClass": "test",
+      "projectName": "QL_CHTienLoi_83f735bb"
+    },
+    {
+      "type": "java",
+      "name": "connect",
+      "request": "launch",
+      "mainClass": "connect",
+      "projectName": "QL_CHTienLoi_83f735bb"
+    },
+    {
+      "type": "java",
       "name": "ListingTables",
       "request": "launch",
       "mainClass": "ListingTables",
