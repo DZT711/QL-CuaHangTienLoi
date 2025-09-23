@@ -78,6 +78,7 @@ public class QuanLyKhachHang {
                     }
                     break;
                 case 2:
+                    sua();
                     break;
                 case 3:
                     break;
@@ -99,10 +100,7 @@ public class QuanLyKhachHang {
                 if (KhachHangDAO.kiemTraMaKH(maKH)) {
                     System.out.println("Mã khách hàng đã tồn tại, vui lòng nhập lại.");
                     continue;
-                } else {
-                    System.out.println("Mã khách hàng hợp lệ, vui lòng nhập thông tin khách hàng.");
-                    break;
-                }
+                } 
 
                 KhachHangDTO kh = new KhachHangDTO();
                 kh.setMaKH(maKH);
@@ -121,11 +119,40 @@ public class QuanLyKhachHang {
         // nhập bằng file
     }
 
-    public sua() {
+    public void sua() {
         Scanner scanner = new Scanner(System.in);
+        boolean continueWithAnotherCustomer = true;
+        while (continueWithAnotherCustomer) {
+            while (true) {
+                try {
+                    System.out.print("Nhập mã khách hàng cần sửa: ");
+                    String maKH = scanner.nextLine().trim();
+                    scanner.nextLine();
 
-        while (true) {
-            
+                    if (KhachHangDAO.kiemTraMaKH(maKH)) {
+                        System.out.println("Mã khách hàng không tồn tại, vui lòng nhập lại.");
+                        continue;
+                    } 
+
+                    KhachHangDTO kh = KhachHangDAO.timKhachHangTheoMa(maKH);
+                    System.out.println("Thông tin khách hàng trước khi sửa: ");
+                    System.out.println(kh.toString());
+                    kh.suaThongTinKhachHang();
+                    System.out.println("Thông tin khách hàng sau khi sửa: ");
+                    System.out.println(kh.toString());
+
+                    // Cập nhật vô DB sau khi sửa 
+                    KhachHangDAO.suaKhachHang(kh, maKH);
+                } catch (Exception e) {
+                    System.out.println("Lỗi nhập liệu: " + e.getMessage());
+                    scanner.nextLine();
+                }
+            }
+            System.out.println("Bạn có muốn sửa thông tin khách hàng khác không? (Y/N)");
+            String choice = scanner.nextLine().trim();
+            if (choice.equalsIgnoreCase("N")) {
+                continueWithAnotherCustomer = false;
+            }
         }
     }
 }
