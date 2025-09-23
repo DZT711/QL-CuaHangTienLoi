@@ -133,7 +133,7 @@ public class KhachHangDAO {
         return null;
     }
 
-    public static KhachHangDTO timKhachHangTheoDienThoai(String dienThoai) {
+    public static KhachHangDTO timKhachHangTheoDienThoai(String dienThoai){
         String query = "SELECT MaKH, Ho, Ten, GioiTinh, DienThoai, DiaChi FROM KHACHHANG WHERE DienThoai = ?";
 
         try (Connection conn = JDBCUtil.getConnection()) {
@@ -154,5 +154,22 @@ public class KhachHangDAO {
             System.err.println("Lỗi khi tìm khách hàng theo điện thoại: " + e.getMessage());
         }
         return null;
+    }
+
+    public static boolean kiemTraMaKH(String maKH) {
+        String query = "SELECT COUNT(*) FROM KHACHHANG WHERE MaKH = ?";
+
+        try (Connection conn = JDBCUtil.getConnection()) {
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setString(1, maKH);
+            ResultSet rs = stmt.executeQuery();
+            if(rs.next()){
+                return rs.getInt(1) > 0;
+            } else {
+                return false;
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi kiểm tra mã khách hàng: " + e.getMessage());
+        }
     }
 }
