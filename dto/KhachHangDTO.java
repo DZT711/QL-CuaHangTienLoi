@@ -146,4 +146,47 @@ public class KhachHangDTO {
             }
         }
     }
+
+    public void suaThongTinKhachHang() {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Sửa họ: ")
+        String newHo = scanner.nextLine().trim();
+        if (!newHo.isEmpty()) {
+            this.ho = newHo;
+        }
+
+        System.out.println("Sửa tên: ");
+        String newTen = scanner.nextLine().trim();
+        if (!newTen.isEmpty()) {
+            this.ten = newTen;
+        }
+
+        // Sửa ngày sinh ?
+
+        System.out.println("Sửa địa chỉ: ");
+        String newDiaChi = scanner.nextLine().trim();
+        if (!newDiaChi.isEmpty()) {
+            this.diaChi = newDiaChi;
+        }
+
+        System.out.println("Sửa số điện thoại: ");
+        String newSdt = scanner.nextLine().trim();
+        if(!newSdt.isEmpty()) {
+            this.dienThoai = newSdt;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return String.format("| MA : %s | HO : %s | TEN : %s | GIOI TINH : %s | NGAY SINH : %s | DIA CHI : %s | DIEN THOAI : %s",
+                this.maKH,
+                this.ho,
+                this.ten,
+                this.gioiTinh,
+                this.ngaySinh.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                this.diaChi,
+                this.dienThoai
+        );
+    }
 }
