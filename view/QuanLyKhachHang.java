@@ -81,6 +81,7 @@ public class QuanLyKhachHang {
                     sua();
                     break;
                 case 3:
+                    xoa();
                     break;
                 case 4:
                     break;
@@ -152,6 +153,28 @@ public class QuanLyKhachHang {
             String choice = scanner.nextLine().trim();
             if (choice.equalsIgnoreCase("N")) {
                 continueWithAnotherCustomer = false;
+            }
+        }
+    }
+
+    public void xoa() {
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            try {
+                System.out.print("Nhập mã khách hàng cần xóa: ");
+                String maKH = scanner.nextLine().trim();
+                scanner.nextLine();
+
+                if(!KhachHangDAO.kiemTraMaKH(maKH)) {
+                    System.out.println("Mã khách hàng không tồn tại, vui lòng nhập lại.");
+                    continue;
+                }
+
+                KhachHangDAO.xoaKhachHang(maKH);
+                break;
+            } catch (Exception e) {
+                System.out.println("Lỗi nhập liệu: " + e.getMessage());
+                scanner.nextLine();
             }
         }
     }
