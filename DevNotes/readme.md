@@ -44,7 +44,7 @@ src/
  │    │    ├── app/          ← chứa Main.java
  │    │    ├── view/         ← các lớp giao diện / UI
  │    │    ├── dto/          ← các lớp DTO
- │    │    ├── bus/          ← lớp BUS / logic nghiệp vụ
+ <!-- │    │    ├── bus/          ← lớp BUS / logic nghiệp vụ -->
  │    │    └── dao/          ← lớp DAO / truy xuất DB
  │    └── resources/         ← file cấu hình (db.properties, log config...)
  ├── test/                   ← viết unit test
