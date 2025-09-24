@@ -37,7 +37,7 @@ Xây dựng hệ thống quản lý bán hàng cho cửa hàng tiện lợi, h�
 ### 🔁 Quy trình chạy chương trình (Flow – từ Main → View → DTO → DAO)
 
 ### Kiến trúc (dự định ⏳)
-
+<pre>````
 src/
  ├── main/
  │    ├── java/
@@ -50,7 +50,7 @@ src/
  ├── test/                   ← viết unit test
  ├── datebase/               ← source code của database đồ án
  └── docs/                   ← tài liệu báo cáo đồ án : file word, sơ đồ uml,...
-
+````</pre>
 ---
 
 ## 🏗 Kiến trúc & thiết kế lớp (mô hình 3 lớp)
@@ -100,3 +100,4 @@ public class EmployeeDAO {
 <!-- ... (phần hướng phát triển như trước)  
 
 --- -->
+
