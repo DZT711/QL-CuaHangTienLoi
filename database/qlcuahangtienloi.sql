@@ -1,10 +1,8 @@
 CREATE TABLE LOAI (
   MaLoai INT(11) PRIMARY KEY AUTO_INCREMENT,
   TenLoai VARCHAR(255) NOT NULL,
-  MoTa VARCHAR(255) DEFAULT NULL
-)
-
-/*  xem xét table đơn vị: kg, lít, chai, gói, túi, hộp, ... và thuộc tính DonViTinh của table SANPHAM
+  MoTa VARCHAR(255) DEFAULT NULL,
+);
 
 CREATE TABLE DONVI (
   MaDonVi INT(11) PRIMARY KEY AUTO_INCREMENT,
@@ -12,24 +10,36 @@ CREATE TABLE DONVI (
   MoTa VARCHAR(255) DEFAULT NULL
 ); 
 
-INSERT INTO DONVI (TenDonVi, MoTa) VALUES
-('kg', 'Kilogram'),
-('l', 'Lít'),
-('chai', 'Chai'),
-('gói', 'Gói'),
-('túi', 'Túi'),
-('hộp', 'Cái')
+INSERT INTO DONVI (MaDonVi, TenDonVi, MoTa) VALUES
+(1, 'chai', 'Chai'),
+(2, 'gói', 'Gói'),
+(3, 'hộp', 'Hộp'),
+(4, 'cái', 'Cái'),
+(5, 'thùng', 'Thùng'),
+(6, 'bộ', 'Bộ'),
+(7, 'vỉ', 'Vỉ'),
+(8, 'cuộn', 'Cuộn');
 
-*/
 
+
+CREATE TABLE HANGHOA (
+  MaHang VARCHAR(20) PRIMARY KEY,
+  MaPhieu VARCHAR(50) NOT NULL,
+  MaSP VARCHAR(20) NOT NULL,
+  SoLuong INT(11) NOT NULL CHECK (SoLuong >= 0),
+  NgaySanXuat DATETIME NOT NULL,
+  CONSTRAINT fk_hh_sp FOREIGN KEY (MaSP) REFERENCES SANPHAM(MaSP),
+  CONSTRAINT fk_hh_phieu FOREIGN KEY (MaPhieu) REFERENCES PHIEUNHAP(MaPhieu)
+);
 
 CREATE TABLE NHACUNGCAP (
   MaNCC VARCHAR(20) PRIMARY KEY,
   TenNCC VARCHAR(255) NOT NULL,
   DiaChi VARCHAR(255) NOT NULL,
   DienThoai CHAR(10) NOT NULL,
-  Email VARCHAR(40) NOT NULL
-)
+  Email VARCHAR(40) NOT NULL,
+  TrangThai char(10) NOT NULL CHECK (TrangThai IN ('active', 'inactive'))
+);
 
 
 CREATE TABLE SANPHAM (
@@ -37,18 +47,18 @@ CREATE TABLE SANPHAM (
   TenSP VARCHAR(255) NOT NULL,
   Loai INT(11) NOT NULL,
   SoLuongTon INT(11) NOT NULL,
-  -- DonViTinh VARCHAR(50) NOT NULL,
+  DonViTinh INT(11) NOT NULL,
   Gia INT(11) NOT NULL CHECK (Gia >= 0),
   HSD int(11) DEFAULT NULL,
   MoTa VARCHAR(255) DEFAULT NULL,
-  -- TrangThai ENUM('active', 'inactive') DEFAULT 'active'
+  TrangThai ENUM('active', 'inactive') DEFAULT 'active',
   CONSTRAINT fk_sanpham_loai FOREIGN KEY (Loai) REFERENCES LOAI(MaLoai)
-  -- CONSTRAINT fk_sanpham_donvi FOREIGN KEY (DonViTinh) REFERENCES DONVI(MaDonVi)
+  CONSTRAINT fk_sanpham_donvi FOREIGN KEY (DonViTinh) REFERENCES DONVI(MaDonVi)
 );
 
 
 CREATE TABLE NHANVIEN (
-  MaNV CHAR(100) PRIMARY KEY,
+  MaNV CHAR(20) PRIMARY KEY,
   Ho VARCHAR(20) NOT NULL,
   Ten VARCHAR(20) NOT NULL,
   GioiTinh VARCHAR(20) DEFAULT NULL CHECK (GioiTinh IN ('Nam', 'Nu')),
@@ -56,9 +66,9 @@ CREATE TABLE NHANVIEN (
   DiaChi VARCHAR(255) DEFAULT NULL,
   Email VARCHAR(50) NOT NULL,
   Luong INT(11) NOT NULL,
-  ChucVu CHAR(3) NOT NULL CHECK (ChucVu IN ('QL', 'NV'))
+  ChucVu CHAR(3) NOT NULL CHECK (ChucVu IN ('QL', 'NV')),
   -- NgayVaoLam DATE DEFAULT (CURRENT_DATE())
-  -- TrangThai ENUM('active', 'inactive') DEFAULT 'active'
+  TrangThai ENUM('active', 'inactive') DEFAULT 'active'
 );
 
 
@@ -69,27 +79,10 @@ CREATE TABLE KHACHHANG (
   GioiTinh ENUM('Nam', 'Nu') DEFAULT NULL,
   NgaySinh DATE DEFAULT NULL,
   DienThoai CHAR(20) NOT NULL UNIQUE,
-  DiaChi VARCHAR(255) DEFAULT NULL
-  -- DiemTichLuy INT(11) DEFAULT 0,
-  -- TrangThai ENUM('active', 'inactive') DEFAULT 'active'
+  DiaChi VARCHAR(255) DEFAULT NULL,
+  TrangThai ENUM('active', 'inactive') DEFAULT 'active'
   -- NgayThamGia DATE DEFAULT (CURRENT_DATE())
 );
-
-
-/*
-CREATE TABLE KHUYENMAI (
-  MaKM VARCHAR(20) PRIMARY KEY,
-  TenKM VARCHAR(255) NOT NULL,
-  MaSP VARCHAR(20) DEFAULT NULL,
-  NgayBatDau DATE NOT NULL,
-  NgayKetThuc DATE NOT NULL,
-  GiaTriKM DECIMAL(10,2) NOT NULL,
-  SoLuongToiThieu INT(11) DEFAULT 1,     
-  TrangThai ENUM('Active', 'Inactive') DEFAULT 'Active',
-  CONSTRAINT FK_KM_SP FOREIGN KEY (MaSP) REFERENCES SANPHAM(MaSP),
-  CONSTRAINT CHK_NgayKM CHECK (NgayKetThuc >= NgayBatDau)
-);
-*/
 
 
 CREATE TABLE PHIEUNHAP (
@@ -100,23 +93,18 @@ CREATE TABLE PHIEUNHAP (
   TongTien INT(11) NOT NULL DEFAULT 0,
   CONSTRAINT FK_PHIEUNHAP_NCC FOREIGN KEY (MaNCC) REFERENCES NHACUNGCAP(MaNCC),
   CONSTRAINT FK_PHIEUNHAP_NV FOREIGN KEY (MaNV) REFERENCES NHANVIEN(MaNV)
-)
+);
 
 
--- xem xét có table hàng hóa (lúc nhập hàng)
--- xem xét: mã hàng hay mã sản phẩm
 CREATE TABLE CHITIETPHIEUNHAP (
-  MaPhieu VARCHAR(20) NOT NULL,
-  MaSP VARCHAR(20) NOT NULL,
+  MaPhieu VARCHAR(50) NOT NULL,
+  MaHang VARCHAR(20) NOT NULL,
   SoLuong INT(11) NOT NULL CHECK (SoLuong >= 0),
   DonGia INT(11) NOT NULL CHECK (DonGia >= 0),
-  PRIMARY KEY (MaPhieu, MaSP),
-  CONSTRAINT fk_ctpn_phieu FOREIGN KEY (MaPhieu) REFERENCES PHIEUNHAP(MaPhieu),
-  CONSTRAINT fk_ctpn_sp FOREIGN KEY (MaSP) REFERENCES SANPHAM(MaSP)
-)
-
--- có phiếu xuất với chí tiết phiếu xuất hay không 
-
+  PRIMARY KEY (MaPhieu, MaHang),
+  CONSTRAINT fk_ctpn_phieu FOREIGN KEY (MaPhieu) REFERENCES PHIEUNHAP(MaPhieu) ON DELETE CASCADE,
+  CONSTRAINT fk_ctpn_sp FOREIGN KEY (MaHang) REFERENCES HANGHOA(MaHang)
+);
 
 CREATE TABLE HOADON (
   MaHD VARCHAR(20) PRIMARY KEY,
@@ -124,22 +112,19 @@ CREATE TABLE HOADON (
   MaNV VARCHAR(20) NOT NULL,
   ThoiGianLapHD DATETIME DEFAULT CURRENT_TIMESTAMP(),
   TongTien int(11) DEFAULT 0,
-  -- TienGiam int(11) DEFAULT 0,
-  -- MaKM VARCHAR(20) DEFAULT NULL,
   CONSTRAINT fk_hd_kh FOREIGN KEY (MaKH) REFERENCES KHACHHANG(MaKH),
   CONSTRAINT fk_hd_nv FOREIGN KEY (MaNV) REFERENCES NHANVIEN(MaNV)
-  -- CONSTRAINT fk_hd_km FOREIGN KEY (MaKM) REFERENCES KHUYENMAI(MaKM)
 );
 
 
 CREATE TABLE CHITIETHOADON (
   MaHD VARCHAR(20) NOT NULL,
-  MaSP VARCHAR(20) NOT NULL,
+  MaHang VARCHAR(20) NOT NULL,
   SoLuong INT(11) NOT NULL CHECK (SoLuong >= 0),
   DonGia INT(11) NOT NULL CHECK (DonGia >= 0),
-  PRIMARY KEY (MaHD, MaSP),
+  PRIMARY KEY (MaHD, MaHang),
   CONSTRAINT fk_cthd_hd FOREIGN KEY (MaHD) REFERENCES HOADON(MaHD) ON DELETE CASCADE,
-  CONSTRAINT fk_cthd_sp FOREIGN KEY (MaSP) REFERENCES SANPHAM(MaSP)
+  CONSTRAINT fk_cthd_sp FOREIGN KEY (MaHang) REFERENCES HANGHOA(MaHang)
 );
 
 
@@ -148,7 +133,7 @@ CREATE TABLE TAIKHOAN (
   PassWord VARCHAR(255) NOT NULL,
   HoTen VARCHAR(255) DEFAULT NULL,
   VaiTro ENUM('Admin', 'NhanVien') DEFAULT 'NhanVien',
-  TrangThai ENUM('Active', 'Inactive') DEFAULT 'Active'
+  TrangThai ENUM('Active', 'Inactive') DEFAULT 'Active',
   Email VARCHAR(50) DEFAULT NULL
 )
 
