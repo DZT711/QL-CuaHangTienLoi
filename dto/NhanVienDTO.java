@@ -1,5 +1,7 @@
 package dto;
 
+import java.util.Date;
+
 public class NhanVienDTO {
     private String maNV;
     private String ho;

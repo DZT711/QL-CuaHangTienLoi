@@ -4,11 +4,12 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import dto.HoaDonDTO;
-import src.database.JDBCUtil;
+import database.JDBCUtil;
 
 public class HoaDonDAO {
     public static List<HoaDonDTO> getAllHoaDon() {
         String query = "SELECT MaHD, MaKH, MaNV, MaKM, TongTien, NgayLapHD FROM HOADON";
+        List<HoaDonDTO> list = new ArrayList<>();
 
         try (Connection conn = JDBCUtil.getConnection()) {
             PreparedStatement stmt = conn.prepareStatement(query);
@@ -41,7 +42,7 @@ public class HoaDonDAO {
             stmt.setString(3, hd.getMaNV());
             stmt.setString(4, hd.getMaKM());
             stmt.setInt(5, hd.getTongTien());
-            stmt.setDate(6, hd.getNgayLapHD());
+            stmt.setDate(6, new java.sql.Date(hd.getNgayLapHD().getTime()));
             int rowAffected = stmt.executeUpdate();
             if (rowAffected > 0) {
                 System.out.println("Thêm hóa đơn thành công");

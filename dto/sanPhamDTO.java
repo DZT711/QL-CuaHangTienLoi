@@ -1,3 +1,4 @@
+
 package dto;
 
 public class sanPhamDTO {
@@ -5,7 +6,7 @@ public class sanPhamDTO {
     private String tenSP;
     private String loaiSP;
     // private String donViTinh;
-    private int soLuongTon;
+    private int soLuongTon; 
     private int gia;
     private int hSD;
     private String moTa;
@@ -70,5 +71,11 @@ public class sanPhamDTO {
         this.hSD = hSD;
     }
                     
-    
+    public String getMoTa() {
+        return moTa;
+    }
+
+    public void setMoTa(String moTa) {
+        this.moTa = moTa;
+    }
 }

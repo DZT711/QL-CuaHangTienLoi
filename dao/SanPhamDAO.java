@@ -4,7 +4,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import dto.sanPhamDTO;
-import src.database.JDBCUtil;
+import database.JDBCUtil;
 
 public class SanPhamDAO {
     public static List<sanPhamDTO> getAllSanPham() {
@@ -31,7 +31,7 @@ public class SanPhamDAO {
         String query = "SELECT maSP, tenSP, loaiSP, soLuongTon, gia, hSD, moTa FROM SANPHAM\n" +
         "INNER JOIN LOAI ON SANPHAM.loai = LOAI.MaLoai\n" +
         "INNER JOIN DONVI ON SANPHAM.donVi = DONVI.DonViTinh\n" +
-        "WHERE tenSP LIKE ?"
+        "WHERE tenSP LIKE ?";
 
         List<sanPhamDTO> list = new ArrayList<>();
 
@@ -53,7 +53,7 @@ public class SanPhamDAO {
         String query = "SELECT maSP, tenSP, loaiSP, soLuongTon, gia, hSD, moTa FROM SANPHAM\n" +
         "INNER JOIN LOAI ON SANPHAM.loai = LOAI.MaLoai\n" +
         "INNER JOIN DONVI ON SANPHAM.donVi = DONVI.DonViTinh\n" +
-        "WHERE maSP LIKE ?"
+        "WHERE maSP LIKE ?";
 
         List<sanPhamDTO> list = new ArrayList<>();
 
@@ -94,7 +94,7 @@ public class SanPhamDAO {
         }
     }
 
-    public static void suaSanPham(sanPhamDTO sp, int loai, int donVi) {
+    public static void suaSanPham(sanPhamDTO sp, String loai, int donVi) {
         String query = "UPDATE SANPHAM SET tenSP = ?, loaiSP = ?, soLuongTon = ?, gia = ?, hSD = ?, moTa = ? WHERE maSP = ?";
 
         try (Connection conn = JDBCUtil.getConnection();
@@ -134,4 +134,3 @@ public class SanPhamDAO {
         }
     }
 }
-

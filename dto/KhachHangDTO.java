@@ -145,12 +145,13 @@ public class KhachHangDTO {
                 System.out.print("Số điện thoại không hợp lệ, vui lòng nhập lại (10 số): ");
             }
         }
+        scanner.close();
     }
 
     public void suaThongTinKhachHang() {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Sửa họ: ")
+        System.out.println("Sửa họ: ");
         String newHo = scanner.nextLine().trim();
         if (!newHo.isEmpty()) {
             this.ho = newHo;
@@ -175,6 +176,7 @@ public class KhachHangDTO {
         if(!newSdt.isEmpty()) {
             this.dienThoai = newSdt;
         }
+        scanner.close();
     }
 
     @Override

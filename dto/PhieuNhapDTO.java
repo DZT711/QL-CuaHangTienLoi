@@ -1,5 +1,7 @@
 package dto;
 
+import java.util.Date;
+
 public class PhieuNhapDTO {
     private String maPhieu, maNCC, maNV;
     private int tongTien;

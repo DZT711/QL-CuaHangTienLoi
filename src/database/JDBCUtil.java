@@ -3,6 +3,7 @@ package database;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
 
 public class JDBCUtil {
     // Connect to database

@@ -2,6 +2,8 @@
 
 package dto;
 
+import java.util.Date;
+
 public class HoaDonDTO {
     private String maHD;
     private String maKH;

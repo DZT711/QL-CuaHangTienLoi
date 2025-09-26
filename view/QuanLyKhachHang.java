@@ -1,6 +1,8 @@
 package view;
 
 import java.util.Scanner;
+import dao.KhachHangDAO;
+import dto.KhachHangDTO;
 
 public class QuanLyKhachHang {
     public void menuQuanLyKhachHang() {
@@ -94,8 +96,7 @@ public class QuanLyKhachHang {
         while (true) {
             try {
                 System.out.print("Nhập mã khách hàng: ");
-                int maKH = scanner.nextInt();
-                scanner.nextLine();
+                String maKH = scanner.nextLine().trim();
 
                 // Kiểm tra mã khách hàng đã tồn tại hay chưa
                 if (KhachHangDAO.kiemTraMaKH(maKH)) {
@@ -114,6 +115,8 @@ public class QuanLyKhachHang {
                 scanner.nextLine();
             }
         }
+        scanner.close();
+        scanner.close();
     }
 
     public void nhapDanhSachKhachHang() {
@@ -130,7 +133,7 @@ public class QuanLyKhachHang {
                     String maKH = scanner.nextLine().trim();
                     scanner.nextLine();
 
-                    if (KhachHangDAO.kiemTraMaKH(maKH)) {
+                    if (!KhachHangDAO.kiemTraMaKH(maKH)) {
                         System.out.println("Mã khách hàng không tồn tại, vui lòng nhập lại.");
                         continue;
                     } 
@@ -144,6 +147,7 @@ public class QuanLyKhachHang {
 
                     // Cập nhật vô DB sau khi sửa 
                     KhachHangDAO.suaKhachHang(kh, maKH);
+                    break;
                 } catch (Exception e) {
                     System.out.println("Lỗi nhập liệu: " + e.getMessage());
                     scanner.nextLine();
@@ -155,6 +159,7 @@ public class QuanLyKhachHang {
                 continueWithAnotherCustomer = false;
             }
         }
+        scanner.close();
     }
 
     public void xoa() {
@@ -163,7 +168,6 @@ public class QuanLyKhachHang {
             try {
                 System.out.print("Nhập mã khách hàng cần xóa: ");
                 String maKH = scanner.nextLine().trim();
-                scanner.nextLine();
 
                 if(!KhachHangDAO.kiemTraMaKH(maKH)) {
                     System.out.println("Mã khách hàng không tồn tại, vui lòng nhập lại.");
@@ -177,5 +181,6 @@ public class QuanLyKhachHang {
                 scanner.nextLine();
             }
         }
+        scanner.close();
     }
 }
