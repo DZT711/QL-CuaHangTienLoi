@@ -34,9 +34,15 @@ public class QuanLyKhachHang {
                 if (scanner.hasNextInt()) {
                     choice = scanner.nextInt();
                     scanner.nextLine();
-                    if (choice >= 0 && choice <= 8) {
+                    if (choice > 0 && choice <= 8) {
                         break;
                     }
+                    else if (choice == 0) {
+                        System.out.println("╔════════════════════════════════════════════════════════════════════════════╗");
+                        System.out.println("║                CẢM ƠN BẠN ĐÃ SỬ DỤNG PHẦN MỀM, HẸN GẶP LẠI!                 ║");
+                        System.out.println("╚════════════════════════════════════════════════════════════════════════════╝");
+                        System.exit(0);
+
                     System.out.println("Vui lòng nhập số trong khoảng 0–8.");
                     System.out.print("\n💡 Nhập lựa chọn của bạn: ");
                 } else {

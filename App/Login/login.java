@@ -3,8 +3,9 @@ import database.JDBCUtil;
 import java.sql.*;
 import java.util.Scanner;
 
+
 public class login {
-    public void LoginForm() throws ClassNotFoundException {
+    public Boolean LoginForm() throws ClassNotFoundException {
         Scanner scanner = new Scanner(System.in);
         String username, password;
 
@@ -44,10 +45,12 @@ public class login {
                     System.out.println("╔════════════════════════════════════════════════════════════════════════════╗");
                     System.out.println("\n   ĐĂNG NHẬP THÀNH CÔNG! XIN CHÀO  " + username.toUpperCase() + " \n                     ");
                     System.out.println("╚════════════════════════════════════════════════════════════════════════════╝");
+                    return true;
                 } else {
                     System.out.println("╔════════════════════════════════════════════════════════════════════════════╗");
-                    System.out.println("║              ĐĂNG NHẬP THẤT BẠI! VUI LÒNG KIỂM TRA LẠI                     ║");
+                    System.out.println("║    MẬT KHẨU HOẶC TÊN ĐĂNG NHẬP KHÔNG ĐÚNG! VUI LÒNG KIỂM TRA LẠI!          ║");
                     System.out.println("╚════════════════════════════════════════════════════════════════════════════╝");
+                    return false;
                 }
             } else {
                 System.out.println("Kết nối cơ sở dữ liệu thất bại!");
@@ -56,6 +59,7 @@ public class login {
             e.printStackTrace();
 
         }
+        return null;
 
     }
 }
