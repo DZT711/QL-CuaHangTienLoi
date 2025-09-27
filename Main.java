@@ -1,13 +1,9 @@
 
-import Login.login;
-
 import view.QuanLyKhachHang;
 
 public class Main {
     public static void main(String[] args) {
         try {
-            login loginForm = new login();
-            loginForm.LoginForm();
             // QuanLyKhachHang qlkh = new QuanLyKhachHang();
             // qlkh.menuQuanLyKhachHang();
         } catch (Exception e) {
