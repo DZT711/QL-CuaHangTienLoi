@@ -7,12 +7,12 @@ import java.sql.SQLException;
 
 public class JDBCUtil {
     // Connect to database
-    public static Connection getConnection() {
+    public static Connection getConnection() throws ClassNotFoundException {
         Connection conn = null;
         try {
             DriverManager.registerDriver(new com.mysql.cj.jdbc.Driver());
-
-            String url  = "jdbc:mysql://localhost:3306/QL_chtienloi";
+            // Class.forName("com.mysql.cj.jdbc.Driver");
+            String url  = "jdbc:mysql://localhost:3306/ql_chtienloi";
             String username = "root";
             String password = "";
 

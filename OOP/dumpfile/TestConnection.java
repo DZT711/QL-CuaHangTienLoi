@@ -1,5 +1,6 @@
-import src.database.JDBCUtil;
 import java.sql.Connection;
+
+import database.JDBCUtil;
 
 public class TestConnection {
     public static void main(String[] args) {
