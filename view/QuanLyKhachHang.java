@@ -87,6 +87,12 @@ public class QuanLyKhachHang {
                     break;
                 case 4:
                     break;
+                case 0:
+                    System.out.println("Thoát khỏi menu quản lý khách hàng.");
+                    return;
+                default:
+                    System.out.println("Lựa chọn không hợp lệ.");
+                    break;
             }
         }
     }
@@ -115,7 +121,6 @@ public class QuanLyKhachHang {
                 scanner.nextLine();
             }
         }
-        scanner.close();
         scanner.close();
     }
 
