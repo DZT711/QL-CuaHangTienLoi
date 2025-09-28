@@ -141,6 +141,14 @@ CREATE TABLE TAIKHOAN (
   Email VARCHAR(50) DEFAULT NULL
 );
 
+INSERT INTO TAIKHOAN (UserName, PassWord, HoTen, VaiTro, TrangThai, Email) VALUES
+('tuanadmin', 'tuanadmin', 'TuanRemix', 'Admin', 'Active', 'vantuanw911@gmail.com'),
+('huyadmin', 'huyadmin', 'HuyBanTumLum', 'Admin', 'Active', 'nguyensihuynsh711@gmail.com'),
+('cuongadmin', 'cuongadmin', 'CuongHaySuy', 'Admin', 'Active', 'vancuonghp9014@gmail.com'),
+('sonadmin', 'sonadmin', 'SonCuBe', 'Admin', 'Active', 'simpson061125@gmail.com'),
+('staff', 'staff', 'Staff', 'NhanVien', 'Active', 'staff@gmail.com');
+
+
 -- Tạo index tối ưu tìm kiếm
 CREATE INDEX idx_sanpham_ten ON SANPHAM(TenSP);
 CREATE INDEX idx_sanpham_loai ON SANPHAM(Loai);
