@@ -18,10 +18,10 @@ public class TaiKhoanDAO {
             Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query);
 
-            ResultSet rs = stmt.executeQuery();
-
             stmt.setString(1, username);
             stmt.setString(2, password);
+
+            ResultSet rs = stmt.executeQuery();
 
             rs = stmt.executeQuery();
 
