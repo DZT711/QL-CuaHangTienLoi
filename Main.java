@@ -4,8 +4,8 @@ import java.util.Scanner;
 import dao.TaiKhoanDAO;
 import dto.TaiKhoanDTO;
 import view.QuanLyKhachHang;
-import view.QuanLyNhanVien;
-import view.QuanLySanPham;
+//import view.QuanLyNhanVien;
+//import view.QuanLySanPham;
 
 
 public class Main {
@@ -42,7 +42,7 @@ public class Main {
             TaiKhoanDTO taiKhoan = TaiKhoanDAO.checkAccount(username, password);
             
             if (taiKhoan != null) {
-                System.out.println("\n    ✓ Đăng nhập thành công!");
+                System.out.println("✓ Đăng nhập thành công!");
                 if ("Admin".equals(taiKhoan.getRole())) {
                     menuAdmin();
                 } else if ("NhanVien".equals(taiKhoan.getRole())) {
@@ -50,7 +50,7 @@ public class Main {
                 }
                 break;
             } else {
-                System.out.println("\n    ✗ Sai tài khoản hoặc mật khẩu, vui lòng thử lại!");
+                System.out.println("✗ Sai tài khoản hoặc mật khẩu, vui lòng thử lại!");
                 clearScreen();
             }
         }
@@ -64,7 +64,6 @@ public class Main {
 
     public static void menuAdmin() {
         Scanner scanner = new Scanner(System.in);
-
         while (true) {
             System.out.println("\n" + "═".repeat(65));
             System.out.println("🏢              QUẢN LÝ CỬA HÀNG - MENU CHÍNH              🏢");
@@ -109,24 +108,24 @@ public class Main {
 
             switch (choice) {
                 case 1:
-                    QuanLySanPham qlsp = new QuanLySanPham();
-                    qlsp.menuQuanLySanPham();
+//                    QuanLySanPham qlsp = new QuanLySanPham();
+//                    qlsp.menuQuanLySanPham();
                     break;
                 case 2:
-                    QuanLyNhanVien qlnv = new QuanLyNhanVien();
-                    qlnv.menuQuanLyNhanVien();
+//                    QuanLyNhanVien qlnv = new QuanLyNhanVien();
+//                    qlnv.menuQuanLyNhanVien();
                     break;
                 case 3:
                     QuanLyKhachHang qlkh = new QuanLyKhachHang();
                     qlkh.menuQuanLyKhachHang();
                     break;
                 case 4:
-                    QuanLyNhaCungCap qlncc = new QuanLyNhaCungCap();
-                    qlncc.menuQuanLyNhaCungCap();
+//                    QuanLyNhaCungCap qlncc = new QuanLyNhaCungCap();
+//                    qlncc.menuQuanLyNhaCungCap();
                     break;
                 case 5:
-                    QuanLyNhapHang qlnh = new QuanLyNhapHang();
-                    qlnh.menuQuanLyNhapHang();
+//                    QuanLyNhapHang qlnh = new QuanLyNhapHang();
+//                    qlnh.menuQuanLyNhapHang();
                     break;
                 case 6:
                     // xem báo cáo / thống kê
