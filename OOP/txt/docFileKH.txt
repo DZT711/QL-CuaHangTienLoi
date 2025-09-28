@@ -1,5 +1,0 @@
-Cuong,2,ms3,15,ms4,10
-Son,1,ms5,40
-Toan,1,ms1,100
-Hung,1,ms4,10
-Tuan,1,ms2,5

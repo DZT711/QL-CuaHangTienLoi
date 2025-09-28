@@ -1,5 +1,0 @@
-mhd1,MH000,nv1
-mhd1,MH001,nv3
-mhd3,MH005,nv2
-mhd5,MH001,nv7
-mhd2,MH002,nv4
