@@ -103,7 +103,11 @@ public class QuanLyKhachHang {
             try {
                 System.out.print("Nhập mã khách hàng: ");
                 String maKH = scanner.nextLine().trim();
-
+                if (maKH.equals("0")) {
+                    System.out.println("Thoát thêm khách hàng.");
+                    break;
+                }
+                
                 // Kiểm tra mã khách hàng đã tồn tại hay chưa
                 if (KhachHangDAO.kiemTraMaKH(maKH)) {
                     System.out.println("Mã khách hàng đã tồn tại, vui lòng nhập lại.");
@@ -112,7 +116,10 @@ public class QuanLyKhachHang {
 
                 KhachHangDTO kh = new KhachHangDTO();
                 kh.setMaKH(maKH);
-                kh.nhapThongTinKhachHang();
+                if (!kh.nhapThongTinKhachHang()) {
+                    System.out.println("Đã hủy thêm khách hàng, quay lại menu...");
+                    break;
+                }
                 KhachHangDAO.themKhachHang(kh);
                 System.out.println("Thêm khách hàng thành công.");
                 break;
@@ -121,7 +128,6 @@ public class QuanLyKhachHang {
                 scanner.nextLine();
             }
         }
-        scanner.close();
     }
 
     public void nhapDanhSachKhachHang() {
@@ -136,7 +142,10 @@ public class QuanLyKhachHang {
                 try {
                     System.out.print("Nhập mã khách hàng cần sửa: ");
                     String maKH = scanner.nextLine().trim();
-                    scanner.nextLine();
+                    if (maKH.equals("0")) {
+                        System.out.println("Thoát sửa khách hàng.");
+                        break;
+                    }
 
                     if (!KhachHangDAO.kiemTraMaKH(maKH)) {
                         System.out.println("Mã khách hàng không tồn tại, vui lòng nhập lại.");
@@ -146,12 +155,16 @@ public class QuanLyKhachHang {
                     KhachHangDTO kh = KhachHangDAO.timKhachHangTheoMa(maKH);
                     System.out.println("Thông tin khách hàng trước khi sửa: ");
                     System.out.println(kh.toString());
-                    kh.suaThongTinKhachHang();
+                    if (!kh.suaThongTinKhachHang()) {
+                        System.out.println("Đã hủy sửa khách hàng, quay lại menu...");
+                        break;
+                    }
                     System.out.println("Thông tin khách hàng sau khi sửa: ");
                     System.out.println(kh.toString());
 
                     // Cập nhật vô DB sau khi sửa 
                     KhachHangDAO.suaKhachHang(kh, maKH);
+                    System.out.println("Sửa khách hàng thành công.");
                     break;
                 } catch (Exception e) {
                     System.out.println("Lỗi nhập liệu: " + e.getMessage());
@@ -164,7 +177,6 @@ public class QuanLyKhachHang {
                 continueWithAnotherCustomer = false;
             }
         }
-        scanner.close();
     }
 
     public void xoa() {
