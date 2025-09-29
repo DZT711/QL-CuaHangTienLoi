@@ -34,7 +34,7 @@ CREATE TABLE SANPHAM (
   DonViTinh INT(11) NOT NULL,
   GiaBan INT(11) NOT NULL CHECK (GiaBan >= 0),
   NgaySanXuat DATE DEFAULT NULL,
-  HanSuDung INT(11) DEFAULT NULL,
+  HanSuDung DATE DEFAULT NULL,
   MoTa VARCHAR(255) DEFAULT NULL,
   TrangThai ENUM('active', 'inactive') DEFAULT 'active',
   CONSTRAINT fk_sanpham_loai FOREIGN KEY (Loai) REFERENCES LOAI(MaLoai),
