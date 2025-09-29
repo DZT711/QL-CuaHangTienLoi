@@ -155,13 +155,13 @@ public class QuanLyKhachHang {
                     KhachHangDTO kh = KhachHangDAO.timKhachHangTheoMa(maKH);
                     System.out.println("Thông tin khách hàng trước khi sửa: ");
                     System.out.println(kh.toString());
+
+                    System.out.println("Nhập thông tin mới cho khách hàng: ");
                     if (!kh.suaThongTinKhachHang()) {
                         System.out.println("Đã hủy sửa khách hàng, quay lại menu...");
                         break;
                     }
-                    System.out.println("Thông tin khách hàng sau khi sửa: ");
-                    System.out.println(kh.toString());
-
+                    
                     // Cập nhật vô DB sau khi sửa 
                     KhachHangDAO.suaKhachHang(kh, maKH);
                     System.out.println("Sửa khách hàng thành công.");

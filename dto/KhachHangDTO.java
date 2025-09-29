@@ -159,7 +159,6 @@ public class KhachHangDTO {
             if (input.equals("0")) return false;
         }
         this.dienThoai = input;
-        scanner.close();
         return true;
     }
 
@@ -187,7 +186,6 @@ public class KhachHangDTO {
         String newSdt = scanner.nextLine().trim();
         if (newSdt.equals("0")) return false;
         if(!newSdt.isEmpty()) this.dienThoai = newSdt;
-        scanner.close();
         return true;
     }
 
