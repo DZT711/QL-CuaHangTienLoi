@@ -1,27 +1,31 @@
 
 package dto;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
 public class sanPhamDTO {
     private String maSP;
     private String tenSP;
-    private String loaiSP;
+    private int loaiSP;
     private int donViTinh;
     private int soLuongTon; 
-    private int gia;
+    private int giaBan;
+    private LocalDate ngaySanXuat;
     private int hSD;
     private String moTa;
     
     public sanPhamDTO() {}
 
-    public sanPhamDTO(String maSP, String tenSP, String loaiSP, int donViTinh, int soLuongTon, int gia, int hSD, String moTa) {
+    public sanPhamDTO(String maSP, String tenSP, int loaiSP, int donViTinh, int soLuongTon, int giaBan, LocalDate ngaySanXuat, int hSD, String moTa) {
         this.maSP = maSP;
         this.tenSP = tenSP;
         this.loaiSP = loaiSP;
         this.donViTinh = donViTinh;
         this.soLuongTon = soLuongTon;
-        this.gia = gia;
+        this.giaBan = giaBan;
+        this.ngaySanXuat = ngaySanXuat;
         this.hSD = hSD;
         this.moTa = moTa;
     }
@@ -42,11 +46,11 @@ public class sanPhamDTO {
         this.tenSP = tenSP;
     }
     
-    public String getLoaiSP() {
+    public int getLoaiSP() {
         return loaiSP;
     }
 
-    public void setLoaiSP(String loaiSP) {
+    public void setLoaiSP(int loaiSP) {
         this.loaiSP = loaiSP;
     }
     
@@ -66,12 +70,20 @@ public class sanPhamDTO {
         this.soLuongTon = soLuongTon;
     }
     
-    public int getGia() {
-        return gia;
+    public int getGiaBan() {
+        return giaBan;
     }
 
-    public void setGia(int gia) {
-        this.gia = gia;
+    public void setGiaBan(int giaBan) {
+        this.giaBan = giaBan;
+    }
+
+    public LocalDate getNgaySanXuat() {
+        return ngaySanXuat;
+    }
+
+    public void setNgaySanXuat(LocalDate ngaySanXuat) {
+        this.ngaySanXuat = ngaySanXuat;
     }
     
     public int getHSD() {
@@ -90,28 +102,89 @@ public class sanPhamDTO {
         this.moTa = moTa;
     }
 
-    public boolean nhap() {
+    public void inthongTinSanPham() {
+        String hsdStr = String.format("%08d", hSD);
+        hsdStr = hsdStr.substring(0, 2) + "/" + hsdStr.substring(2, 4) + "/" + hsdStr.substring(4, 8);
+
+        System.out.printf("%-10s | %-20s | %-10s | %-10s | %-10s | %-10s | %-15s | %-10s | %-20s\n",
+                maSP, tenSP, loaiSP, donViTinh, soLuongTon, giaBan, ngaySanXuat.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), hsdStr, moTa);
+        
+    }
+
+
+    public boolean sua() {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.print("Nhập tên sản phẩm: ");
-        this.tenSP = scanner.nextLine().trim();
-        if (this.tenSP.equals("0")) return false;
+        System.out.println("Sửa tên sản phẩm: ");
+        String newTenSP = scanner.nextLine().trim();
+        if (newTenSP.equals("0")) return false;
+        if (!newTenSP.isEmpty()) this.tenSP = newTenSP;
 
-        System.out.print("Nhập số lượng tồn: ");
-        this.soLuongTon = scanner.nextInt();
-        if (this.soLuongTon == 0) return false;
+        System.out.println("Sửa loại sản phẩm: ");
+        String inputLoai = scanner.nextLine().trim();
+        if (inputLoai.equals("0")) return false;
+        if (!inputLoai.isEmpty()) {
+            try {
+                int newLoaiSP = Integer.parseInt(inputLoai);
+                if (newLoaiSP > 0) this.loaiSP = newLoaiSP;
+            } catch (NumberFormatException e) {
+                System.out.println("Giá trị không hợp lệ, giữ nguyên loại sản phẩm");
+            }
+        }
 
-        System.out.print("Nhập giá: ");
-        this.gia = scanner.nextInt();
-        if (this.gia == 0) return false;
+        System.out.println("Sửa đơn vị tính: ");
+        String inputDonVi = scanner.nextLine().trim();
+        if (inputDonVi.equals("0")) return false;
+        if (!inputDonVi.isEmpty()) {
+            try {
+                int newDonVi = Integer.parseInt(inputDonVi);
+                if (newDonVi > 0) this.donViTinh = newDonVi;
+            } catch (NumberFormatException e) {
+                System.out.println("Giá trị không hợp lệ, giữ nguyên đơn vị tính");
+            }
+        }
 
-        System.out.print("Nhập hạn sử dụng: ");
-        this.hSD = scanner.nextInt();
-        if (this.hSD == 0) return false;
+        System.out.println("Sửa giá: ");
+        String inputGia = scanner.nextLine().trim();
+        if (inputGia.equals("0")) return false;
+        if (!inputGia.isEmpty()) {
+            try {
+                int newGia = Integer.parseInt(inputGia);
+                if (newGia > 0) this.giaBan = newGia;
+            } catch (NumberFormatException e) {
+                System.out.println("Giá trị không hợp lệ, giữ nguyên giá");
+            }
+        }
+        
+        System.out.println("Sửa ngày sản xuất: ");
+        String inputNSX = scanner.nextLine().trim();
+        if (inputNSX.equals("0")) return false;
+        if (!inputNSX.isEmpty()) {
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                LocalDate newNgaySanXuat = LocalDate.parse(inputNSX, formatter);
+                this.ngaySanXuat = newNgaySanXuat;
+            } catch (Exception e) {
+                System.out.println("Ngày sản xuất không hợp lệ, giữ nguyên ngày sản xuất");
+            }
+        }
 
-        System.out.print("Nhập mô tả: ");
-        this.moTa = scanner.nextLine().trim();
-        if (this.moTa.equals("0")) return false;
+        System.out.println("Sửa hạn sử dụng: ");
+        String inputHSD = scanner.nextLine().trim();
+        if (inputHSD.equals("0")) return false;
+        if (!inputHSD.isEmpty()) {
+            try {
+                int newHSD = Integer.parseInt(inputHSD);
+                if (newHSD > 0) this.hSD = newHSD;
+            } catch (NumberFormatException e) {
+                System.out.println("Giá trị không hợp lệ, giữ nguyên hạn sử dụng");
+            }
+        }
+
+        System.out.println("Sửa mô tả: ");
+        String newMoTa = scanner.nextLine().trim();
+        if (newMoTa.equals("0")) return false;
+        if (!newMoTa.isEmpty()) this.moTa = newMoTa;
 
         return true;
     }
