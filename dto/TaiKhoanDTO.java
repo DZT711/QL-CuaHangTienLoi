@@ -5,13 +5,15 @@ public class TaiKhoanDTO {
     private String password;
     // private String maNV;
     private String role;
+    private String fullName;
 
     public TaiKhoanDTO() {}
 
-    public TaiKhoanDTO(String username, String password, String role) {
+    public TaiKhoanDTO(String username, String password, String role,String fullName) {
         this.username = username;
         this.password = password;
         this.role = role;
+        this.fullName = fullName;
     }
 
     public String getUsername() {
@@ -37,5 +39,13 @@ public class TaiKhoanDTO {
     public void setRole(String role) {
         this.role = role;
     }
-    
-}
+
+    public String getfullName()
+    {
+        return fullName;
+    }
+
+    public void setfullName(String fullName) {
+        this.fullName = fullName;
+    }
+}   

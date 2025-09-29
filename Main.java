@@ -19,18 +19,18 @@ public class Main {
             System.out.println("╔══════════════════════════════════════════════════════════╗");
             System.out.println("║                                                          ║");
             System.out.println("║            Chào mừng đến với hệ thống quản lý            ║");
+            System.out.println("║                                                          ║");
             System.out.println("║                    Cửa hàng tiện lợi                     ║");
             System.out.println("║                                                          ║");
             System.out.println("║                                                          ║");
-            System.out.println("║               VUI LÒNG ĐĂNG NHẬP HỆ THỐNG                ║");
-            System.out.println("║                                                          ║");
-            System.out.println("╠══════════════════════════════════════════════════════════╝");
+            System.out.println("╚══════════════════════════════════════════════════════════╝");
+            System.out.println("\n║               VUI LÒNG ĐĂNG NHẬP HỆ THỐNG                ║");
             System.out.print("\n║  Tên đăng nhập: ");
             String username = scanner.nextLine();
             System.out.print("\n║  Mật khẩu     : ");
             String password = scanner.nextLine();
 
-            System.out.println("\n╚════════════════════════════════════════════════════════");
+            System.out.println("\n═══════════════════════════════════════════════════════════");
 
 
             System.out.print("\nVui lòng chờ 1 lát , hệ thống đang xác thực");
@@ -51,7 +51,7 @@ public class Main {
                 if ("Admin".equals(taiKhoan.getRole())) {
                     menuAdmin();
                 } else if ("NhanVien".equals(taiKhoan.getRole())) {
-                    menuNhanVien();
+                    menuNhanVien(taiKhoan.getfullName());
                 }
                 break;
             } else {
@@ -148,23 +148,29 @@ public class Main {
         }
     }
 
-    public static void menuNhanVien() {
+    public static void menuNhanVien(String fullName) {
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
-            System.out.println("\n    ┌────────────────────────────────────────────┐");
-            System.out.println("    │        QUẢN LÝ CỬA HÀNG - NHÂN VIÊN        │");
-            System.out.println("    ├────────────────────────────────────────────┤");
-            System.out.println("    │                                            │");
-            System.out.println("    │  [1] ➜ Bán hàng                            │");
-            System.out.println("    │  [2] ➜ Xem sản phẩm                        │");
-            System.out.println("    │  [3] ➜ Quản lý khách hàng (cơ bản)         │");
-            System.out.println("    │  [4] ➜ Xem hóa đơn đã lập                  │");
-            System.out.println("    │                                            │");
-            System.out.println("    │  [0] ➜ Đăng xuất                           │");
-            System.out.println("    │                                            │");
-            System.out.println("    └────────────────────────────────────────────┘");
+        // Calculate padding for employee name
+        int totalWidth = 60; // Total width of the box
+        String title = "QUẢN LÝ CỬA HÀNG - NHÂN VIÊN " + fullName;
+        int padding = (totalWidth - title.length()) / 2;
+        String paddedTitle = String.format("%" + padding + "s%s%" + padding + "s", "", title, "");
 
+        System.out.println("\n    ──────────────────────────────────────────────────────────────");
+        System.out.println("    ║" + paddedTitle + " ");
+        System.out.println("    ┌────────────────────────────────────────────────────────────┐");
+        System.out.println("    │                                                            │");
+        System.out.println("    │  [1] ➜ Bán hàng                                            │");
+        System.out.println("    │  [2] ➜ Xem sản phẩm                                        │");
+        System.out.println("    │  [3] ➜ Quản lý khách hàng (cơ bản)                         │");
+        System.out.println("    │  [4] ➜ Xem hóa đơn đã lập                                  │");
+        System.out.println("    │                                                            │");
+        System.out.println("    │  [0] ➜ Đăng xuất                                           │");
+        System.out.println("    │                                                            │");
+        System.out.println("    └────────────────────────────────────────────────────────────┘");
+        
             System.out.print("\n💡 Nhập lựa chọn của bạn: ");
 
             int choice = -1;
