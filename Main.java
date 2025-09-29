@@ -4,8 +4,10 @@ import java.util.Scanner;
 import dao.TaiKhoanDAO;
 import dto.TaiKhoanDTO;
 import view.QuanLyKhachHang;
-//import view.QuanLyNhanVien;
-//import view.QuanLySanPham;
+import view.QuanLyNhanVien;
+import view.QuanLySanPham;
+import view.QuanLyNhaCungCap;
+import view.QuanLyNhapHang;
 
 
 public class Main {
@@ -16,16 +18,19 @@ public class Main {
             System.out.println("\n");
             System.out.println("╔══════════════════════════════════════════════════════════╗");
             System.out.println("║                                                          ║");
-            System.out.println("║                    ĐĂNG NHẬP HỆ THỐNG                    ║");
+            System.out.println("║            Chào mừng đến với hệ thống quản lý            ║");
+            System.out.println("║                    Cửa hàng tiện lợi                     ║");
             System.out.println("║                                                          ║");
-            System.out.println("║            Chào mừng đến với hệ thống quản lý!           ║");
             System.out.println("║                                                          ║");
-            System.out.println("╠══════════════════════════════════════════════════════════╣");
-            System.out.print("║  Tên đăng nhập: ");
+            System.out.println("║               VUI LÒNG ĐĂNG NHẬP HỆ THỐNG                ║");
+            System.out.println("║                                                          ║");
+            System.out.println("╠══════════════════════════════════════════════════════════╝");
+            System.out.print("\n║  Tên đăng nhập: ");
             String username = scanner.nextLine();
-            System.out.print("║  Mật khẩu     : ");
+            System.out.print("\n║  Mật khẩu     : ");
             String password = scanner.nextLine();
-            System.out.println("╚══════════════════════════════════════════════════════════╝");
+
+            System.out.println("\n╚════════════════════════════════════════════════════════");
 
 
             System.out.print("\nVui lòng chờ 1 lát , hệ thống đang xác thực");
@@ -42,7 +47,7 @@ public class Main {
             TaiKhoanDTO taiKhoan = TaiKhoanDAO.checkAccount(username, password);
             
             if (taiKhoan != null) {
-                System.out.println("✓ Đăng nhập thành công!");
+                System.out.println("✓ Đăng nhập thành công! Xin chào "+taiKhoan.getRole()+" " + taiKhoan.getUsername() + "!");
                 if ("Admin".equals(taiKhoan.getRole())) {
                     menuAdmin();
                 } else if ("NhanVien".equals(taiKhoan.getRole())) {
@@ -108,24 +113,24 @@ public class Main {
 
             switch (choice) {
                 case 1:
-//                    QuanLySanPham qlsp = new QuanLySanPham();
-//                    qlsp.menuQuanLySanPham();
+                   QuanLySanPham qlsp = new QuanLySanPham();
+                   qlsp.menuQuanLySanPham();
                     break;
                 case 2:
-//                    QuanLyNhanVien qlnv = new QuanLyNhanVien();
-//                    qlnv.menuQuanLyNhanVien();
+                   QuanLyNhanVien qlnv = new QuanLyNhanVien();
+                   qlnv.menuQuanLyNhanVien();
                     break;
                 case 3:
                     QuanLyKhachHang qlkh = new QuanLyKhachHang();
                     qlkh.menuQuanLyKhachHang();
                     break;
                 case 4:
-//                    QuanLyNhaCungCap qlncc = new QuanLyNhaCungCap();
-//                    qlncc.menuQuanLyNhaCungCap();
+                   QuanLyNhaCungCap qlncc = new QuanLyNhaCungCap();
+                   qlncc.menuQuanLyNhaCungCap();
                     break;
                 case 5:
-//                    QuanLyNhapHang qlnh = new QuanLyNhapHang();
-//                    qlnh.menuQuanLyNhapHang();
+                   QuanLyNhapHang qlnh = new QuanLyNhapHang();
+                   qlnh.menuQuanLyNhapHang();
                     break;
                 case 6:
                     // xem báo cáo / thống kê
