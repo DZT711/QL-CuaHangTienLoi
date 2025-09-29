@@ -90,29 +90,29 @@ public class sanPhamDTO {
         this.moTa = moTa;
     }
 
-    public void nhap() {
+    public boolean nhap() {
         Scanner scanner = new Scanner(System.in);
-
-        System.out.print("Nhập mã sản phẩm: ");
-        this.maSP = scanner.nextLine().trim();
-        scanner.nextLine();
 
         System.out.print("Nhập tên sản phẩm: ");
         this.tenSP = scanner.nextLine().trim();
-        
+        if (this.tenSP.equals("0")) return false;
+
         System.out.print("Nhập số lượng tồn: ");
         this.soLuongTon = scanner.nextInt();
-        scanner.nextLine();
+        if (this.soLuongTon == 0) return false;
 
         System.out.print("Nhập giá: ");
         this.gia = scanner.nextInt();
-        scanner.nextLine();
+        if (this.gia == 0) return false;
 
         System.out.print("Nhập hạn sử dụng: ");
         this.hSD = scanner.nextInt();
-        scanner.nextLine();
+        if (this.hSD == 0) return false;
 
         System.out.print("Nhập mô tả: ");
         this.moTa = scanner.nextLine().trim();
+        if (this.moTa.equals("0")) return false;
+
+        return true;
     }
 }

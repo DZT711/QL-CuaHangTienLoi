@@ -45,7 +45,7 @@ public class QuanLySanPham {
         
             switch (choice) {
                 case 1:
-                    // themSanPham();
+                    themSanPham();
                     break;
                 case 2:
                     // suaSanPham();
@@ -72,7 +72,54 @@ public class QuanLySanPham {
         }
     }
 
-    public void themSanPham() { }
+    public void themSanPham() {
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            try {
+                System.out.print("Nhập mã sản phẩm: ");
+                String maSP = scanner.nextLine().trim();
+                if (maSP.equals("0")) {
+                    System.out.println("Thoát thêm sản phẩm.");
+                    break;
+                }
+
+                // Kiểm tra mã sản phẩm đã tồn tại hay chưa 
+                if (SanPhamDAO.timSanPhamTheoMa(maSP) == null) {
+                    System.out.println("Mã sản phẩm đã tồn tại, vui lòng nhập lại.");
+                    continue;
+                }
+                
+                sanPhamDTO sanPham = new sanPhamDTO();
+                sanPham.setMaSP(maSP);
+                if (!sanPham.nhap()) {
+                    System.out.println("Đã hủy thêm sản phẩm, quay lại menu...");
+                    break;
+                }
+
+                System.out.print("Nhập mã loại: ");
+                int loai = scanner.nextInt();
+                if (loai == 0) {
+                    System.out.println("Thoát thêm sản phẩm.");
+                    break;
+                }
+                
+                System.out.println("1: chai, 2: gói, 3: hộp, 4: cái, 5: thùng, 6: bộ, 7: vỉ, 8: cuộn");
+                System.out.print("Nhập mã đơn vị: ");
+                int donVi = scanner.nextInt();
+                if (donVi == 0) {
+                    System.out.println("Thoát thêm sản phẩm.");
+                    break;
+                }
+
+                SanPhamDAO.themSanPham(sanPham, loai, donVi);
+            } catch (Exception e) {
+                System.out.println("Lỗi khi thêm sản phẩm: " + e.getMessage());
+                scanner.nextLine();
+            }
+        }
+    }
+
+
     public void suaSanPham() { }
     public void xoaSanPham() { }
     public void timKiemSanPham() { }

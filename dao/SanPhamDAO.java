@@ -41,7 +41,7 @@ public class SanPhamDAO {
 
             stmt.setString(1, "%" + name + "%");        
             while(rs.next()){
-                list.add(new sanPhamDTO(rs.getString("maSP"), rs.getString("tenSP"), rs.getString("loaiSP"), rs.getInt("soLuongTon"), rs.getInt("gia"), rs.getInt("hSD"), rs.getString("moTa")));
+                list.add(new sanPhamDTO(rs.getString("maSP"), rs.getString("tenSP"), rs.getString("loaiSP"), rs.getInt("donViTinh"), rs.getInt("soLuongTon"), rs.getInt("gia"), rs.getInt("hSD"), rs.getString("moTa")));
             }
         } catch (SQLException e) {
             System.err.println("Lỗi khi tìm sản phẩm theo tên: " + e.getMessage());
@@ -63,7 +63,7 @@ public class SanPhamDAO {
 
             stmt.setString(1, "%" + ma + "%");
             while(rs.next()){
-                list.add(new sanPhamDTO(rs.getString("maSP"), rs.getString("tenSP"), rs.getString("loaiSP"), rs.getInt("soLuongTon"), rs.getInt("gia"), rs.getInt("hSD"), rs.getString("moTa")));
+                list.add(new sanPhamDTO(rs.getString("maSP"), rs.getString("tenSP"), rs.getString("loaiSP"), rs.getInt("donViTinh"), rs.getInt("soLuongTon"), rs.getInt("gia"), rs.getInt("hSD"), rs.getString("moTa")));
             }
         } catch (SQLException e) {
             System.err.println("Lỗi khi tìm sản phẩm theo mã: " + e.getMessage());
