@@ -51,7 +51,7 @@ public class QuanLySanPham {
                     // themSanPham();
                     break;
                 case 2:
-                    // suaSanPham();
+                    suaSanPham();
                     break;
                 case 3:
                     // xoaSanPham();
@@ -75,8 +75,55 @@ public class QuanLySanPham {
         }
     }
 
-    public void themSanPham() { }
-    public void suaSanPham() { }
+    public void suaSanPham() {
+        Scanner scanner = new Scanner(System.in);
+        boolean continueWithAnotherProduct = true;
+        while (continueWithAnotherProduct) {
+            while (true) {
+                try {
+                    System.out.print("Nhập mã sản phẩm cần sửa: ");
+                    String maSP = scanner.nextLine().trim();
+                    if (maSP.equals("0")) {
+                        System.out.println("Thoát sửa sản phẩm.");
+                        break;
+                    }
+                    
+                    if (SanPhamDAO.timSanPhamTheoMa(maSP) == null) {
+                        System.out.println("Mã sản phẩm không tồn tại, vui lòng nhập lại.");
+                        continue;
+                    }
+    
+                    sanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
+                    System.out.println("Thông tin sản phẩm trước khi sửa: ");
+                    System.out.printf("%-10s | %-20s | %-10s | %-10s | %-10s | %-10s | %-15s | %-10s | %-20s\n",
+                "MaSP", "TenSP", "Loai", "SoLuongTon", "DonViTinh", "GiaBan",
+                        "NgaySanXuat", "HanSuDung", "MoTa");
+                    sp.inthongTinSanPham();
+    
+                    System.out.println("Nhập thông tin mới cho sản phẩm: ");
+                    if (!sp.sua()) {
+                        System.out.println("Đã hủy sửa sản phẩm, quay lại menu...");
+                        break;
+                    }
+    
+                    // Cập nhật vô DB sau khi sửa 
+                    SanPhamDAO.suaSanPham(sp, maSP);
+                    System.out.println("Sửa sản phẩm thành công.");
+                    break;
+                } catch (Exception e) {
+                    System.out.println("Lỗi nhập liệu: " + e.getMessage());
+                    scanner.nextLine();
+                }
+            }
+        
+            System.out.println("Bạn có muốn sửa thông tin sản phẩm khác không? (Y/N)");
+            String choice = scanner.nextLine().trim();
+            if (choice.equalsIgnoreCase("N")) {
+                continueWithAnotherProduct = false;
+            }
+        }
+    }
+
     public void xoaSanPham() { }
     public void timKiemSanPham() { }
     public void thongKeSanPham() { }

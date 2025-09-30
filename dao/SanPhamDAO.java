@@ -1,6 +1,9 @@
 package dao;
 
+import java.sql.Date;
 import java.sql.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import dto.sanPhamDTO;
@@ -8,7 +11,7 @@ import database.JDBCUtil;
 
 public class SanPhamDAO {
     public static List<sanPhamDTO> getAllSanPham() {
-        String query = "SELECT maSP, tenSP, loaiSP, soLuongTon, gia, hSD, moTa FROM SANPHAM\n" +
+        String query = "SELECT MaSP, TenSP, Loai, SoLuongTon, DonViTinh, GiaBan, NgaySanXuat, HanSuDung, MoTa FROM SANPHAM\n" +
         "FROM SANPHAM\n" +
         "INNER JOIN LOAI ON SANPHAM.loai = LOAI.MaLoai\n" +
         "INNER JOIN DONVI ON SANPHAM.donVi = DONVI.DonViTinh\n";
@@ -19,7 +22,26 @@ public class SanPhamDAO {
             PreparedStatement stmt = conn.prepareStatement(query)) {
             ResultSet rs = stmt.executeQuery();
             while(rs.next()){
-                list.add(new sanPhamDTO(rs.getString("maSP"), rs.getString("tenSP"), rs.getString("loaiSP"), rs.getInt("soLuongTon"), rs.getInt("gia"), rs.getInt("hSD"), rs.getString("moTa")));
+                LocalDate ngaySanXuat = rs.getDate("NgaySanXuat").toLocalDate();
+
+                // HSD (Date -> int ddMMyyyy)
+                LocalDate hSD = rs.getDate("HanSuDung").toLocalDate();
+                int hsdInt = hSD.getDayOfMonth() * 1000000
+                           + hSD.getMonthValue() * 10000
+                           + hSD.getYear();
+
+                
+                list.add(new sanPhamDTO(
+                    rs.getString("MaSP"), 
+                    rs.getString("TenSP"), 
+                    rs.getInt("Loai"), 
+                    rs.getInt("DonViTinh"), 
+                    rs.getInt("SoLuongTon"), 
+                    rs.getInt("GiaBan"), 
+                    ngaySanXuat, 
+                    hsdInt, 
+                    rs.getString("MoTa")
+                ));
             }
         } catch (SQLException e) {
             System.err.println("Lỗi khi lấy tất cả sản phẩm: " + e.getMessage());
@@ -28,7 +50,7 @@ public class SanPhamDAO {
     }
 
     public static List<sanPhamDTO> timSanPhamTheoTen(String name) throws Exception{
-        String query = "SELECT maSP, tenSP, loaiSP, soLuongTon, gia, hSD, moTa FROM SANPHAM\n" +
+        String query = "SELECT MaSP, TenSP, Loai, SoLuongTon, DonViTinh, GiaBan, NgaySanXuat, HanSuDung, MoTa FROM SANPHAM\n" +
         "INNER JOIN LOAI ON SANPHAM.loai = LOAI.MaLoai\n" +
         "INNER JOIN DONVI ON SANPHAM.donVi = DONVI.DonViTinh\n" +
         "WHERE tenSP LIKE ?";
@@ -41,7 +63,26 @@ public class SanPhamDAO {
 
             stmt.setString(1, "%" + name + "%");        
             while(rs.next()){
-                list.add(new sanPhamDTO(rs.getString("maSP"), rs.getString("tenSP"), rs.getString("loaiSP"), rs.getInt("soLuongTon"), rs.getInt("gia"), rs.getInt("hSD"), rs.getString("moTa")));
+                LocalDate ngaySanXuat = rs.getDate("NgaySanXuat").toLocalDate();
+
+                // HSD (Date -> int ddMMyyyy)
+                LocalDate hSD = rs.getDate("HanSuDung").toLocalDate();
+                int hsdInt = hSD.getDayOfMonth() * 1000000
+                           + hSD.getMonthValue() * 10000
+                           + hSD.getYear();
+
+
+                list.add(new sanPhamDTO(
+                    rs.getString("MaSP"), 
+                    rs.getString("TenSP"), 
+                    rs.getInt("Loai"), 
+                    rs.getInt("DonViTinh"), 
+                    rs.getInt("SoLuongTon"), 
+                    rs.getInt("GiaBan"), 
+                    ngaySanXuat, 
+                    hsdInt, 
+                    rs.getString("MoTa")
+                ));
             }
         } catch (SQLException e) {
             System.err.println("Lỗi khi tìm sản phẩm theo tên: " + e.getMessage());
@@ -49,40 +90,67 @@ public class SanPhamDAO {
         return list;
     }
 
-    public static List<sanPhamDTO> timSanPhamTheoMa(String ma) {
-        String query = "SELECT maSP, tenSP, loaiSP, soLuongTon, gia, hSD, moTa FROM SANPHAM\n" +
+    public static sanPhamDTO timSanPhamTheoMa(String ma) {
+        String query = "SELECT MaSP, TenSP, Loai, SoLuongTon, DonViTinh, GiaBan, NgaySanXuat, HanSuDung, MoTa FROM SANPHAM\n" +
         "INNER JOIN LOAI ON SANPHAM.loai = LOAI.MaLoai\n" +
         "INNER JOIN DONVI ON SANPHAM.donVi = DONVI.DonViTinh\n" +
-        "WHERE maSP LIKE ?";
-
-        List<sanPhamDTO> list = new ArrayList<>();
+        "WHERE maSP = ?";
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, ma);
             ResultSet rs = stmt.executeQuery();
 
-            stmt.setString(1, "%" + ma + "%");
-            while(rs.next()){
-                list.add(new sanPhamDTO(rs.getString("maSP"), rs.getString("tenSP"), rs.getString("loaiSP"), rs.getInt("soLuongTon"), rs.getInt("gia"), rs.getInt("hSD"), rs.getString("moTa")));
+            if(rs.next()){
+                LocalDate ngaySanXuat = rs.getDate("NgaySanXuat").toLocalDate();
+
+                // HSD (Date -> int ddMMyyyy)
+                LocalDate hSD = rs.getDate("HanSuDung").toLocalDate();
+                int hsdInt = hSD.getDayOfMonth() * 1000000
+                           + hSD.getMonthValue() * 10000
+                           + hSD.getYear();
+
+
+
+                return new sanPhamDTO(
+                    rs.getString("MaSP"), 
+                    rs.getString("TenSP"), 
+                    rs.getInt("Loai"), 
+                    rs.getInt("DonViTinh"), 
+                    rs.getInt("SoLuongTon"), 
+                    rs.getInt("GiaBan"), 
+                    ngaySanXuat, 
+                    hsdInt, 
+                    rs.getString("MoTa")
+                );
             }
         } catch (SQLException e) {
             System.err.println("Lỗi khi tìm sản phẩm theo mã: " + e.getMessage());
         }
-        return list;
+        return null;
     }
 
     public static void themSanPham(sanPhamDTO sp, int loai, int donVi) {
-        String query = "INSERT INTO SANPHAM (maSP, tenSP, loaiSP, soLuongTon, gia, hSD, moTa) VALUES (?, ?, ?, ?, 0, ?, ?)";
+        String query = "INSERT INTO SANPHAM (MaSP, TenSP, Loai, DonViTinh, GiaBan, NgaySanXuat, HanSuDung, MoTa) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, sp.getMaSP());
             stmt.setString(2, sp.getTenSP());
-            stmt.setString(3, sp.getLoaiSP());
-            stmt.setInt(4, sp.getSoLuongTon());
-            stmt.setInt(5, sp.getGia());
-            stmt.setInt(6, sp.getHSD());
-            stmt.setString(7, sp.getMoTa());
+            stmt.setInt(3, sp.getLoaiSP());
+            stmt.setInt(4, sp.getDonViTinh());
+            stmt.setInt(5, sp.getGiaBan());
+            stmt.setDate(6, Date.valueOf(sp.getNgaySanXuat()));
+            
+            // HSD (int ddMMyyyy -> LocalDate -> Date)
+            int hSD = sp.getHSD();
+            String hSDStr = String.format("%08d", hSD);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+            LocalDate hSDDate = LocalDate.parse(hSDStr, formatter);
+            stmt.setDate(7, Date.valueOf(hSDDate));
+
+            stmt.setString(8, sp.getMoTa());
             int rowAffected = stmt.executeUpdate();
             if (rowAffected > 0) {
                 System.out.println("Thêm sản phẩm thành công");
@@ -94,18 +162,27 @@ public class SanPhamDAO {
         }
     }
 
-    public static void suaSanPham(sanPhamDTO sp, String loai, int donVi) {
-        String query = "UPDATE SANPHAM SET tenSP = ?, loaiSP = ?, soLuongTon = ?, gia = ?, hSD = ?, moTa = ? WHERE maSP = ?";
+    public static void suaSanPham(sanPhamDTO sp, String maSP) {
+        String query = "UPDATE SANPHAM SET TenSP = ?, LoaiSP = ?, DonViTinh = ?, GiaBan = ?, NgaySanXuat = ?, HanSuDung = ?, MoTa = ? WHERE MaSP = ?";
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, sp.getTenSP());
-            stmt.setString(2, loai);
-            stmt.setInt(3, donVi);
-            stmt.setInt(4, sp.getGia());
-            stmt.setInt(5, sp.getHSD());
-            stmt.setString(6, sp.getMoTa());
-            stmt.setString(7, sp.getMaSP());
+            stmt.setInt(2, sp.getLoaiSP());
+            stmt.setInt(3, sp.getDonViTinh());
+            stmt.setInt(4, sp.getGiaBan());
+            stmt.setDate(5, Date.valueOf(sp.getNgaySanXuat()));
+
+            // HSD (int ddMMyyyy -> LocalDate -> Date)
+            int hSD = sp.getHSD();
+            String hSDStr = String.format("%08d", hSD);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+            LocalDate hSDDate = LocalDate.parse(hSDStr, formatter);
+            stmt.setDate(6, Date.valueOf(hSDDate));
+
+            
+            stmt.setString(7, sp.getMoTa());
+            stmt.setString(8, maSP);
             int rowAffected = stmt.executeUpdate();
             if (rowAffected > 0) {
                 System.out.println("Sửa sản phẩm thành công");
