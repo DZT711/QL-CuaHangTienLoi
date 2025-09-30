@@ -1,6 +1,5 @@
 
 import dao.TaiKhoanDAO;
-import dao.xinchaoDAO;
 import dto.TaiKhoanDTO;
 import java.util.Scanner;
 import view.QuanLyKhachHang;
@@ -8,6 +7,8 @@ import view.QuanLyNhaCungCap;
 import view.QuanLyNhanVien;
 import view.QuanLyNhapHang;
 import view.QuanLySanPham;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 
 public class Main {
@@ -48,7 +49,7 @@ public class Main {
             
             if (taiKhoan != null) {
                 System.out.println("✓ Đăng nhập thành công! Xin chào "+taiKhoan.getRole()+" " + taiKhoan.getUsername() + "!");
-                String[] greetingInfo = xinchaoDAO.getGreeting();
+                String[] greetingInfo = getGreeting();
                 System.out.println(greetingInfo[0] + " " + greetingInfo[1] + ", hiện tại là " + greetingInfo[2]);
                 if ("Admin".equals(taiKhoan.getRole())) {
                     menuAdmin();
@@ -115,24 +116,24 @@ public class Main {
 
             switch (choice) {
                 case 1:
-                   QuanLySanPham qlsp = new QuanLySanPham();
-                   qlsp.menuQuanLySanPham();
+                    QuanLySanPham qlsp = new QuanLySanPham();
+                    qlsp.menuQuanLySanPham();
                     break;
                 case 2:
-                   QuanLyNhanVien qlnv = new QuanLyNhanVien();
-                   qlnv.menuQuanLyNhanVien();
+                    QuanLyNhanVien qlnv = new QuanLyNhanVien();
+                    qlnv.menuQuanLyNhanVien();
                     break;
                 case 3:
                     QuanLyKhachHang qlkh = new QuanLyKhachHang();
                     qlkh.menuQuanLyKhachHang();
                     break;
                 case 4:
-                   QuanLyNhaCungCap qlncc = new QuanLyNhaCungCap();
-                   qlncc.menuQuanLyNhaCungCap();
+                    QuanLyNhaCungCap qlncc = new QuanLyNhaCungCap();
+                    qlncc.menuQuanLyNhaCungCap();
                     break;
                 case 5:
-                   QuanLyNhapHang qlnh = new QuanLyNhapHang();
-                   qlnh.menuQuanLyNhapHang();
+                    QuanLyNhapHang qlnh = new QuanLyNhapHang();
+                    qlnh.menuQuanLyNhapHang();
                     break;
                 case 6:
                     // xem báo cáo / thống kê
@@ -215,5 +216,33 @@ public class Main {
                     break;
             }
         }
+    }
+
+    public static String[] getGreeting() {
+        LocalDateTime now = LocalDateTime.now();
+        int hour = now.getHour();
+        String greeting;
+        String icon;
+        
+        // Determine greeting based on time
+        if (hour >= 0 && hour < 11) {
+            greeting = "Chào buổi sáng";
+            icon = "🌅";
+        } else if (hour >= 11 && hour < 13) {
+            greeting = "Chào buổi trưa";
+            icon = "☀️";
+        } else if (hour >= 13 && hour < 18) {
+            greeting = "Chào buổi chiều";
+            icon = "🌤️";
+        } else {
+            greeting = "Chào buổi tối";
+            icon = "🌙";
+        }
+
+        // Format current date and time
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss dd-MM-yyyy");
+        String dateTime = now.format(formatter);
+
+        return new String[]{icon, greeting, dateTime};
     }
 }
