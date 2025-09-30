@@ -15,10 +15,10 @@ public class sanPhamDTO {
     private LocalDate ngaySanXuat;
     private int hSD;
     private String moTa;
-    
+    private String trangThai;
     public sanPhamDTO() {}
 
-    public sanPhamDTO(String maSP, String tenSP, int loaiSP, int donViTinh, int soLuongTon, int giaBan, LocalDate ngaySanXuat, int hSD, String moTa) {
+    public sanPhamDTO(String maSP, String tenSP, int loaiSP, int donViTinh, int soLuongTon, int giaBan, LocalDate ngaySanXuat, int hSD, String moTa, String trangThai) {
         this.maSP = maSP;
         this.tenSP = tenSP;
         this.loaiSP = loaiSP;
@@ -28,6 +28,7 @@ public class sanPhamDTO {
         this.ngaySanXuat = ngaySanXuat;
         this.hSD = hSD;
         this.moTa = moTa;
+        this.trangThai = trangThai;
     }
 
     public String getMaSP() {
@@ -102,12 +103,20 @@ public class sanPhamDTO {
         this.moTa = moTa;
     }
 
+    public String getTrangThai() {
+        return trangThai;
+    }
+
+    public void setTrangThai(String trangThai) {
+        this.trangThai = trangThai;
+    }
+
     public void inthongTinSanPham() {
         String hsdStr = String.format("%08d", hSD);
         hsdStr = hsdStr.substring(0, 2) + "/" + hsdStr.substring(2, 4) + "/" + hsdStr.substring(4, 8);
 
         System.out.printf("%-10s | %-20s | %-10s | %-10s | %-10s | %-10s | %-15s | %-10s | %-20s\n",
-                maSP, tenSP, loaiSP, donViTinh, soLuongTon, giaBan, ngaySanXuat.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), hsdStr, moTa);
+                maSP, tenSP, loaiSP, donViTinh, soLuongTon, giaBan, ngaySanXuat.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), hsdStr, moTa, trangThai);
         
     }
 
@@ -185,6 +194,11 @@ public class sanPhamDTO {
         String newMoTa = scanner.nextLine().trim();
         if (newMoTa.equals("0")) return false;
         if (!newMoTa.isEmpty()) this.moTa = newMoTa;
+
+        System.out.println("Sửa trạng thái: ");
+        String newTrangThai = scanner.nextLine().trim();
+        if (newTrangThai.equals("0")) return false;
+        if (!newTrangThai.isEmpty()) this.trangThai = newTrangThai;
 
         return true;
     }
