@@ -11,7 +11,7 @@ import database.JDBCUtil;
 
 public class SanPhamDAO {
     public static List<sanPhamDTO> getAllSanPham() {
-        String query = "SELECT MaSP, TenSP, Loai, SoLuongTon, DonViTinh, GiaBan, NgaySanXuat, HanSuDung, MoTa FROM SANPHAM\n" +
+        String query = "SELECT MaSP, TenSP, Loai, SoLuongTon, DonViTinh, GiaBan, NgaySanXuat, HanSuDung, MoTa, TrangThai FROM SANPHAM\n" +
         "FROM SANPHAM\n" +
         "INNER JOIN LOAI ON SANPHAM.loai = LOAI.MaLoai\n" +
         "INNER JOIN DONVI ON SANPHAM.donVi = DONVI.DonViTinh\n";
@@ -40,7 +40,8 @@ public class SanPhamDAO {
                     rs.getInt("GiaBan"), 
                     ngaySanXuat, 
                     hsdInt, 
-                    rs.getString("MoTa")
+                    rs.getString("MoTa"),
+                    rs.getString("TrangThai")
                 ));
             }
         } catch (SQLException e) {
@@ -50,7 +51,7 @@ public class SanPhamDAO {
     }
 
     public static List<sanPhamDTO> timSanPhamTheoTen(String name) throws Exception{
-        String query = "SELECT MaSP, TenSP, Loai, SoLuongTon, DonViTinh, GiaBan, NgaySanXuat, HanSuDung, MoTa FROM SANPHAM\n" +
+        String query = "SELECT MaSP, TenSP, Loai, SoLuongTon, DonViTinh, GiaBan, NgaySanXuat, HanSuDung, MoTa, TrangThai FROM SANPHAM\n" +
         "INNER JOIN LOAI ON SANPHAM.loai = LOAI.MaLoai\n" +
         "INNER JOIN DONVI ON SANPHAM.donVi = DONVI.DonViTinh\n" +
         "WHERE tenSP LIKE ?";
@@ -81,7 +82,8 @@ public class SanPhamDAO {
                     rs.getInt("GiaBan"), 
                     ngaySanXuat, 
                     hsdInt, 
-                    rs.getString("MoTa")
+                    rs.getString("MoTa"),
+                    rs.getString("TrangThai")
                 ));
             }
         } catch (SQLException e) {
@@ -91,7 +93,7 @@ public class SanPhamDAO {
     }
 
     public static sanPhamDTO timSanPhamTheoMa(String ma) {
-        String query = "SELECT MaSP, TenSP, Loai, SoLuongTon, DonViTinh, GiaBan, NgaySanXuat, HanSuDung, MoTa FROM SANPHAM\n" +
+        String query = "SELECT MaSP, TenSP, Loai, SoLuongTon, DonViTinh, GiaBan, NgaySanXuat, HanSuDung, MoTa, TrangThai FROM SANPHAM\n" +
         "INNER JOIN LOAI ON SANPHAM.loai = LOAI.MaLoai\n" +
         "INNER JOIN DONVI ON SANPHAM.donVi = DONVI.DonViTinh\n" +
         "WHERE maSP = ?";
@@ -111,8 +113,6 @@ public class SanPhamDAO {
                            + hSD.getMonthValue() * 10000
                            + hSD.getYear();
 
-
-
                 return new sanPhamDTO(
                     rs.getString("MaSP"), 
                     rs.getString("TenSP"), 
@@ -122,7 +122,8 @@ public class SanPhamDAO {
                     rs.getInt("GiaBan"), 
                     ngaySanXuat, 
                     hsdInt, 
-                    rs.getString("MoTa")
+                    rs.getString("MoTa"),
+                    rs.getString("TrangThai")
                 );
             }
         } catch (SQLException e) {
@@ -132,7 +133,7 @@ public class SanPhamDAO {
     }
 
     public static void themSanPham(sanPhamDTO sp, int loai, int donVi) {
-        String query = "INSERT INTO SANPHAM (MaSP, TenSP, Loai, DonViTinh, GiaBan, NgaySanXuat, HanSuDung, MoTa) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO SANPHAM (MaSP, TenSP, Loai, DonViTinh, GiaBan, NgaySanXuat, HanSuDung, MoTa, TrangThai) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -151,6 +152,7 @@ public class SanPhamDAO {
             stmt.setDate(7, Date.valueOf(hSDDate));
 
             stmt.setString(8, sp.getMoTa());
+            stmt.setString(9, sp.getTrangThai());
             int rowAffected = stmt.executeUpdate();
             if (rowAffected > 0) {
                 System.out.println("Thêm sản phẩm thành công");
@@ -163,7 +165,7 @@ public class SanPhamDAO {
     }
 
     public static void suaSanPham(sanPhamDTO sp, String maSP) {
-        String query = "UPDATE SANPHAM SET TenSP = ?, LoaiSP = ?, DonViTinh = ?, GiaBan = ?, NgaySanXuat = ?, HanSuDung = ?, MoTa = ? WHERE MaSP = ?";
+        String query = "UPDATE SANPHAM SET TenSP = ?, LoaiSP = ?, DonViTinh = ?, GiaBan = ?, NgaySanXuat = ?, HanSuDung = ?, MoTa = ?, TrangThai = ? WHERE MaSP = ?";
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -183,6 +185,7 @@ public class SanPhamDAO {
             
             stmt.setString(7, sp.getMoTa());
             stmt.setString(8, maSP);
+            stmt.setString(9, sp.getTrangThai());
             int rowAffected = stmt.executeUpdate();
             if (rowAffected > 0) {
                 System.out.println("Sửa sản phẩm thành công");
@@ -195,7 +198,7 @@ public class SanPhamDAO {
     }
 
     public static void xoaSanPham(String ma) {
-        String query = "DELETE FROM SANPHAM WHERE maSP = ?";
+        String query = "UPDATE SANPHAM SET TrangThai = 'inactive' WHERE MaSP = ?";
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -208,6 +211,24 @@ public class SanPhamDAO {
             }
         } catch (SQLException e) {
             System.err.println("Lỗi khi xóa sản phẩm theo mã: " + e.getMessage());
+        }
+    }
+
+    public static void capnhatTrangThaiHetHan() {
+        String query = "UPDATE SANPHAM SET TrangThai = 'inactive' WHERE HanSuDung < CURDATE() AND TrangThai = 'active'";
+
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            int rowAffected = stmt.executeUpdate();
+            if (rowAffected > 0) {
+                System.out.println("Đã cập nhật " + rowAffected + " sản phẩm trạng thái hết hạn");
+            } else {
+                System.out.println("Không có sản phẩm nào trạng thái hết hạn");
+            }
+                
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi cập nhật trạng thái hết hạn: " + e.getMessage());
         }
     }
 }
