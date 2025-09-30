@@ -50,7 +50,7 @@ public class SanPhamDAO {
         return list;
     }
 
-    public static List<sanPhamDTO> timSanPhamTheoTen(String name) throws Exception{
+    public static List<sanPhamDTO> timSanPhamTheoTen(String name) {
         String query = "SELECT MaSP, TenSP, Loai, SoLuongTon, DonViTinh, GiaBan, NgaySanXuat, HanSuDung, MoTa, TrangThai FROM SANPHAM\n" +
         "INNER JOIN LOAI ON SANPHAM.loai = LOAI.MaLoai\n" +
         "INNER JOIN DONVI ON SANPHAM.donVi = DONVI.DonViTinh\n" +
@@ -197,21 +197,18 @@ public class SanPhamDAO {
         }
     }
 
-    public static void xoaSanPham(String ma) {
+    public static boolean xoaSanPham(String ma) {
         String query = "UPDATE SANPHAM SET TrangThai = 'inactive' WHERE MaSP = ?";
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, ma);
             int rowAffected = stmt.executeUpdate();
-            if (rowAffected > 0) {
-                System.out.println("Xóa sản phẩm thành công");
-            } else {
-                System.out.println("Xóa sản phẩm thất bại");
-            }
+            return rowAffected > 0;
         } catch (SQLException e) {
             System.err.println("Lỗi khi xóa sản phẩm theo mã: " + e.getMessage());
         }
+        return false;
     }
 
     public static void capnhatTrangThaiHetHan() {
@@ -231,4 +228,42 @@ public class SanPhamDAO {
             System.err.println("Lỗi khi cập nhật trạng thái hết hạn: " + e.getMessage());
         }
     }
+
+    public static void thongKeSanPhamTheoLoai() {
+        String query = "SELECT Loai.TenLoai, COUNT(sp.MaSP) AS SoLuong " +
+                        "FROM SANPHAM sp " +
+                        "INNER JOIN LOAI ON sp.Loai = Loai.MaLoai " +
+                        "GROUP BY Loai.TenLoai " +
+                        "ORDER BY SoLuong DESC";
+
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+            ResultSet rs = stmt.executeQuery();
+
+            System.out.println("\n╔════════════════════════════════════════════════════════════╗");
+            System.out.println("║                THỐNG KÊ SẢN PHẨM THEO LOẠI                 ║");
+            System.out.println("╠════════════════════════════════════════════════════════════╣");
+            System.out.printf("║  %-35s │ %-19s ║\n", "LOẠI SẢN PHẨM", "SỐ LƯỢNG");
+            System.out.println("╠══════════════════════════════════════╪═════════════════════╣");
+
+            int tongSP = 0;
+            int soLoai = 0;
+
+            while (rs.next()) {
+                String tenLoai = rs.getString("TenLoai");
+                int soLuong = rs.getInt("SoLuong");
+                tongSP += soLuong;
+                soLoai++;
+                System.out.printf("║  %-35s │ %-15d ║\n", tenLoai, soLuong);
+            }
+            System.out.println("╠══════════════════════════════════════╪═════════════════════╣");
+            System.out.printf("║  %-35s │ %-19d ║\n", "TỔNG CỘNG", tongSP);
+            System.out.printf("║  %-35s │ %-19d ║\n", "TỔNG SỐ LOẠI", soLoai);
+            System.out.println("╚══════════════════════════════════════╧═════════════════════╝");
+
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi thống kê sản phẩm theo loại: " + e.getMessage());
+        }
+    }
+
 }

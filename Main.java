@@ -1,4 +1,4 @@
-
+import dao.SanPhamDAO;
 import dao.TaiKhoanDAO;
 import dto.TaiKhoanDTO;
 import java.util.Scanner;
@@ -51,6 +51,10 @@ public class Main {
                 System.out.println("✓ Đăng nhập thành công! Xin chào "+taiKhoan.getRole()+" " + taiKhoan.getUsername() + "!");
                 String[] greetingInfo = getGreeting();
                 System.out.println(greetingInfo[0] + " " + greetingInfo[1] + ", hiện tại là " + greetingInfo[2]);
+
+                // Tự động inactive sản phẩm hết hạn khi vào chương trình
+                SanPhamDAO.capnhatTrangThaiHetHan();
+
                 if ("Admin".equals(taiKhoan.getRole())) {
                     menuAdmin();
                 } else if ("NhanVien".equals(taiKhoan.getRole())) {
