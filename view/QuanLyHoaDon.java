@@ -36,8 +36,12 @@ public class QuanLyHoaDon {
                     if (choice > 0 && choice <= 7) {
                         break;
                     }
+                    else if (choice == 0) {
+                        return;
+                    } else {
                     System.out.println("Vui lòng nhập số trong khoảng 0–7.");
                     System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+                }  
                 } else {
                     System.out.println("Vui lòng nhập số hợp lệ.");
                     scanner.next();

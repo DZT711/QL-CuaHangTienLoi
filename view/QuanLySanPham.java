@@ -3,7 +3,6 @@ package view;
 import java.util.Scanner;
 import dao.SanPhamDAO;
 import dto.sanPhamDTO;
-
 public class QuanLySanPham {
     public void menuQuanLySanPham() {
         Scanner scanner = new Scanner(System.in);
@@ -35,11 +34,16 @@ public class QuanLySanPham {
                     if (choice > 0 && choice <= 6) {
                         break;
                     }
+                    else if (choice == 0) {
+                        return;
+                    } else {
                     System.out.println("Vui lòng nhập số trong khoảng 0–6.");
                     System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+                }  
                 } else {
-                    System.out.println("Vui lòng nhập số trong khoảng 0–6.");
+                    System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập số trong khoảng 0–6.");
                     System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+                    scanner.next(); // Clear invalid input
                 }
             }
         

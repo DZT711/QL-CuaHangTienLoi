@@ -1,8 +1,6 @@
 package view;
 
 import java.util.Scanner;
-import dao.NhanVienDAO;
-import dto.NhanVienDTO;
 
 public class QuanLyNhanVien {
     public void menuQuanLyNhanVien() {
@@ -34,9 +32,13 @@ public class QuanLyNhanVien {
                     scanner.nextLine();
                     if (choice > 0 && choice <= 6) {
                         break;
-                    }
+                    }else if (choice == 0) {
+                        return;
+                    } else {
                     System.out.println("Vui lòng nhập số trong khoảng 0–6.");
                     System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+                }  
+                   
                 } else {
                     System.out.println("Vui lòng nhập số hợp lệ.");
                     scanner.next();

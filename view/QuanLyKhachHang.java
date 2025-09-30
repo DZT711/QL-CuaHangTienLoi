@@ -37,8 +37,12 @@ public class QuanLyKhachHang {
                     if (choice >= 0 && choice <= 8) {
                         break;
                     }
+                    else if (choice == 0) {
+                        return;
+                    } else {
                     System.out.println("Vui lòng nhập số trong khoảng 0–8.");
                     System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+                }  
                 } else {
                     System.out.println("Vui lòng nhập số hợp lệ.");
                     scanner.next(); // bỏ token không phải số
