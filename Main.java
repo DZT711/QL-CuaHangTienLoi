@@ -1,13 +1,13 @@
 
-import java.util.Scanner;
-
 import dao.TaiKhoanDAO;
+import dao.xinchaoDAO;
 import dto.TaiKhoanDTO;
+import java.util.Scanner;
 import view.QuanLyKhachHang;
-import view.QuanLyNhanVien;
-import view.QuanLySanPham;
 import view.QuanLyNhaCungCap;
+import view.QuanLyNhanVien;
 import view.QuanLyNhapHang;
+import view.QuanLySanPham;
 
 
 public class Main {
@@ -48,6 +48,8 @@ public class Main {
             
             if (taiKhoan != null) {
                 System.out.println("✓ Đăng nhập thành công! Xin chào "+taiKhoan.getRole()+" " + taiKhoan.getUsername() + "!");
+                String[] greetingInfo = xinchaoDAO.getGreeting();
+                System.out.println(greetingInfo[0] + " " + greetingInfo[1] + ", hiện tại là " + greetingInfo[2]);
                 if ("Admin".equals(taiKhoan.getRole())) {
                     menuAdmin();
                 } else if ("NhanVien".equals(taiKhoan.getRole())) {
