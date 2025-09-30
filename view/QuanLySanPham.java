@@ -1,7 +1,8 @@
 package view;
 
 import java.util.Scanner;
-
+import dao.SanPhamDAO;
+import dto.sanPhamDTO;
 public class QuanLySanPham {
     public void menuQuanLySanPham() {
         Scanner scanner = new Scanner(System.in);
