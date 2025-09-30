@@ -92,7 +92,37 @@ public class QuanLySanPham {
                     }
                     break;
                 case 5:
-                    
+                    while (true) {
+                        try {
+                            System.out.println("\n");
+                            System.out.println("    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+                            System.out.println("    ┃                          THỐNG KÊ SẢN PHẨM                         ┃");
+                            System.out.println("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                            System.out.println("    ┃ [1] ➜ Thống kê theo loại sản phẩm                                  ┃");
+                            System.out.println("    ┃ [2] ➜ Thống kê số lượng tồn theo loại                              ┃");
+                            System.out.println("    ┃ [2] ➜ Thống kê số lượng tồn theo loại                              ┃");
+                            System.out.println("    ┃ [0] ➜ Thoát                                                        ┃");
+                            System.out.println("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                            System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+
+                            int opt = scanner.nextInt();
+                            scanner.nextLine();
+
+                            if (opt == 0) {
+                                System.out.println("Thoát thống kê sản phẩm thành công.");
+                                break;
+                            } else if (opt == 1) {
+                                SanPhamDAO.thongKeSanPhamTheoLoai();
+                            } else if (opt == 2) {
+                                SanPhamDAO.thongKeSoLuongTonTheoLoai();
+                            } else {
+                                System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
+                            }
+                        } catch (Exception e) {
+                            System.out.println("Lỗi xảy ra: " + e.getMessage());
+                            scanner.nextLine();
+                        }
+                    }
                     break;
                 case 6:
                     // xuatDanhSachSanPham();

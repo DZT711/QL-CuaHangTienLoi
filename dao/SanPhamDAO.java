@@ -254,7 +254,7 @@ public class SanPhamDAO {
                 int soLuong = rs.getInt("SoLuong");
                 tongSP += soLuong;
                 soLoai++;
-                System.out.printf("║  %-35s │ %-15d ║\n", tenLoai, soLuong);
+                System.out.printf("║  %-35s │ %-19d ║\n", tenLoai, soLuong);
             }
             System.out.println("╠══════════════════════════════════════╪═════════════════════╣");
             System.out.printf("║  %-35s │ %-19d ║\n", "TỔNG CỘNG", tongSP);
@@ -266,4 +266,39 @@ public class SanPhamDAO {
         }
     }
 
+    public static void thongKeSoLuongTonTheoLoai() {
+        String query = "SELECT Loai.TenLoai, SUM(sp.SoLuongTon) AS TongTonKho " +
+                        "FROM SANPHAM sp " +
+                        "INNER JOIN LOAI ON sp.Loai = Loai.MaLoai " +
+                        "GROUP BY Loai.TenLoai " +
+                        "ORDER BY TongTonKho DESC";
+
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+            ResultSet rs = stmt.executeQuery();
+
+            System.out.println("\n╔════════════════════════════════════════════════════════════╗");
+            System.out.println("║               THỐNG KÊ SỐ LƯỢNG TỒN THEO LOẠI              ║");
+            System.out.println("╠════════════════════════════════════════════════════════════╣");
+            System.out.printf("║  %-35s │ %-19s ║\n", "LOẠI SẢN PHẨM", "SỐ LƯỢNG TỒN KHO");
+
+            int soLoai = 0;
+            int soLuongTon = 0;
+
+            while (rs.next()) {
+                String tenLoai = rs.getString("TenLoai");
+                int tongTonKho = rs.getInt("TongTonKho");
+                soLuongTon += tongTonKho;
+                soLoai++;
+                System.out.printf("║  %-35s │ %-19d ║\n", tenLoai, tongTonKho);
+            }
+            System.out.println("╠══════════════════════════════════════╪═════════════════════╣");
+            System.out.printf("║  %-35s │ %-19d ║\n", "TỔNG CỘNG", soLuongTon);
+            System.out.printf("║  %-35s │ %-19d ║\n", "TỔNG SỐ LOẠI", soLoai);
+            System.out.println("╚══════════════════════════════════════╧═════════════════════╝");
+
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi thống kê số lượng tồn kho theo loại: " + e.getMessage());
+        }
+    }
 }
