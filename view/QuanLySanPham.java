@@ -3,6 +3,8 @@ package view;
 import java.util.Scanner;
 import dao.SanPhamDAO;
 import dto.sanPhamDTO;
+import java.util.List;
+
 public class QuanLySanPham {
     public void menuQuanLySanPham() {
         Scanner scanner = new Scanner(System.in);
@@ -55,13 +57,42 @@ public class QuanLySanPham {
                     suaSanPham();
                     break;
                 case 3:
-                    // xoaSanPham();
+                    xoaSanPhamTheoMa();
                     break;
                 case 4:
-                    // timKiemSanPham();
+                    while (true) {
+                        try {
+                            System.out.println("\n");
+                            System.out.println("    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+                            System.out.println("    ┃                           TÌM KIẾM SẢN PHẨM                        ┃");
+                            System.out.println("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                            System.out.println("    ┃ [1] ➜ Tìm kiếm sản phẩm theo mã                                    ┃");
+                            System.out.println("    ┃ [2] ➜ Tìm kiếm sản phẩm theo tên                                   ┃");
+                            System.out.println("    ┃ [0] ➜ Thoát                                                        ┃");
+                            System.out.println("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                            System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+
+                            int opt = scanner.nextInt();
+                            scanner.nextLine();
+
+                            if (opt == 0) {
+                                System.out.println("Thoát tìm kiếm sản phẩm thành công.");
+                                break;
+                            } else if (opt == 1) {
+                                timKiemSanPhamTheoMa();
+                            } else if (opt == 2) {
+                                timKiemSanPhamTheoTen();
+                            } else {
+                                System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
+                            }
+                        } catch (Exception e) {
+                            System.out.println("Lỗi xảy ra: " + e.getMessage());
+                            scanner.nextLine();
+                        }
+                    }
                     break;
                 case 5:
-                    // thongKeSanPham();
+                    
                     break;
                 case 6:
                     // xuatDanhSachSanPham();
@@ -96,9 +127,9 @@ public class QuanLySanPham {
     
                     sanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
                     System.out.println("Thông tin sản phẩm trước khi sửa: ");
-                    System.out.printf("%-10s | %-20s | %-10s | %-10s | %-10s | %-10s | %-15s | %-10s | %-20s\n",
+                    System.out.printf("%-10s | %-20s | %-10s | %-10s | %-10s | %-10s | %-15s | %-10s | %-20s | %-10s\n",
                 "MaSP", "TenSP", "Loai", "SoLuongTon", "DonViTinh", "GiaBan",
-                        "NgaySanXuat", "HanSuDung", "MoTa");
+                        "NgaySanXuat", "HanSuDung", "MoTa", "TrangThai");
                     sp.inthongTinSanPham();
     
                     System.out.println("Nhập thông tin mới cho sản phẩm: ");
@@ -125,9 +156,68 @@ public class QuanLySanPham {
         }
     }
 
-    public void xoaSanPham() { }
-    public void timKiemSanPham() { }
-    public void thongKeSanPham() { }
+    public void xoaSanPhamTheoMa() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Nhập mã sản phẩm cần xóa: ");
+        String maSP = scanner.nextLine().trim();
+
+        sanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
+
+        if (sp == null) {
+            System.out.println("Mã sản phẩm không tồn tại");
+            return;
+        }
+
+        if ("inactive".equals(sp.getTrangThai())) {
+            System.out.println("Sản phẩm đã ngừng kinh doanh");
+            return;
+        }
+
+        if (SanPhamDAO.xoaSanPham(maSP)) {
+            System.out.println("Xóa sản phẩm thành công");
+        } else {
+            System.out.println("Xóa sản phẩm thất bại");
+        }
+    }
+
+    public void timKiemSanPhamTheoMa() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Nhập mã sản phẩm cần tìm: ");
+        String maSP = scanner.nextLine().trim();
+
+        sanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
+
+        if (sp == null) {
+            System.out.println("Mã sản phẩm không tồn tại");
+            return;
+        } else {
+            System.out.println("Thông tin sản phẩm: ");
+            System.out.printf("%-10s | %-20s | %-10s | %-10s | %-10s | %-10s | %-15s | %-10s | %-20s | %-10s\n",
+            "MaSP", "TenSP", "Loai", "SoLuongTon", "DonViTinh", "GiaBan",
+            "NgaySanXuat", "HanSuDung", "MoTa", "TrangThai");
+            sp.inthongTinSanPham();
+        }
+    }
+
+    public void timKiemSanPhamTheoTen() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Nhập tên sản phẩm cần tìm: ");
+        String tenSP = scanner.nextLine().trim();
+        List<sanPhamDTO> sp = SanPhamDAO.timSanPhamTheoTen(tenSP); 
+        if (sp.isEmpty()) {
+            System.out.println("Không tìm thấy sản phẩm");
+        } else {
+            System.out.println("Danh sách sản phẩm có tên " + tenSP + ": ");
+            System.out.printf("%-10s | %-20s | %-10s | %-10s | %-10s | %-10s | %-15s | %-10s | %-20s | %-10s\n",
+            "MaSP", "TenSP", "Loai", "SoLuongTon", "DonViTinh", "GiaBan",
+            "NgaySanXuat", "HanSuDung", "MoTa", "TrangThai");
+            for (sanPhamDTO product : sp) {
+                product.inthongTinSanPham();
+                System.out.println("--------------------------------");
+            }
+        }
+    }
+    
     public void xuatDanhSachSanPham() { }
     
 }
