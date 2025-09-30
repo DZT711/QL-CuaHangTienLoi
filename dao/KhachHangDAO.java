@@ -4,7 +4,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import dto.KhachHangDTO;
-import database.JDBCUtil;
+import util.JDBCUtil;
 
 public class KhachHangDAO {
     public static List<KhachHangDTO> getAllKhachHang() {

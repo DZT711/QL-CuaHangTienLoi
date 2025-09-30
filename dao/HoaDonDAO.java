@@ -4,7 +4,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import dto.HoaDonDTO;
-import database.JDBCUtil;
+import util.JDBCUtil;
 
 public class HoaDonDAO {
     public static List<HoaDonDTO> getAllHoaDon() {

@@ -7,7 +7,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import dto.sanPhamDTO;
-import database.JDBCUtil;
+import util.FormatUtil;
+import util.JDBCUtil;
 
 public class SanPhamDAO {
     public static List<sanPhamDTO> getAllSanPham() {
@@ -229,76 +230,57 @@ public class SanPhamDAO {
         }
     }
 
-    public static void thongKeSanPhamTheoLoai() {
-        String query = "SELECT Loai.TenLoai, COUNT(sp.MaSP) AS SoLuong " +
+    public static void thongKeTheoLoai() {
+        String query = "SELECT Loai.TenLoai, " + 
+                        "COUNT(sp.MaSP) AS SoLuongSanPham, " +
+                        "SUM(SANPHAM.SoLuongTon) AS TongSoLuongTon, " +
+                        "SUM(sp.GiaBan * sp.SoLuongTon) AS TongGiaTriTon " +
                         "FROM SANPHAM sp " +
                         "INNER JOIN LOAI ON sp.Loai = Loai.MaLoai " +
                         "GROUP BY Loai.TenLoai " +
-                        "ORDER BY SoLuong DESC";
+                        "ORDER BY SoLuongSanPham DESC";
 
-        try (Connection conn = JDBCUtil.getConnection();
+        try (Connection conn = JDBCUtil.getConnection(); 
             PreparedStatement stmt = conn.prepareStatement(query)) {
             ResultSet rs = stmt.executeQuery();
 
-            System.out.println("\n╔════════════════════════════════════════════════════════════╗");
-            System.out.println("║                THỐNG KÊ SẢN PHẨM THEO LOẠI                 ║");
-            System.out.println("╠════════════════════════════════════════════════════════════╣");
-            System.out.printf("║  %-35s │ %-19s ║\n", "LOẠI SẢN PHẨM", "SỐ LƯỢNG");
-            System.out.println("╠══════════════════════════════════════╪═════════════════════╣");
+            System.out.println("\n╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
+            System.out.println("║                                                   THỐNG KÊ SẢN PHẨM THEO LOẠI                                                ║");
+            System.out.println("╠══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣");
+            System.out.printf("║  %-35s │ %-19s │ %-19s │ %-19s │ %-19s║\n", "LOẠI SẢN PHẨM", "SỐ LƯỢNG SẢN PHẨM", "SỐ LƯỢNG TỒN KHO", "GIÁ TRỊ TỒN KHO", "GIÁ TRUNG BÌNH (Tồn)");
+            System.out.println("╠══════════════════════════════════════╪═════════════════════╪═════════════════════╪═════════════════════╪═════════════════════╣");
 
-            int tongSP = 0;
             int soLoai = 0;
+            int soLuongSanPham = 0;
+            int soLuongTon = 0;
+            long giaTriTon = 0;
 
             while (rs.next()) {
                 String tenLoai = rs.getString("TenLoai");
-                int soLuong = rs.getInt("SoLuong");
-                tongSP += soLuong;
+                int soLuongSP = rs.getInt("SoLuongSanPham");
+                int TongTonKho = rs.getInt("TongSoLuongTon");
+                long TongGiaTriTon = rs.getLong("TongGiaTriTon");
+
+                long giaTrungBinh = (TongTonKho == 0) ? 0 : (TongGiaTriTon / TongTonKho);
+                
                 soLoai++;
-                System.out.printf("║  %-35s │ %-19d ║\n", tenLoai, soLuong);
+                soLuongSanPham += soLuongSP;
+                soLuongTon += TongTonKho;
+                giaTriTon += TongGiaTriTon;
+
+                System.out.printf("║  %-35s │ %-19d │ %-19d │ %-19s │ %-19s ║\n", tenLoai, soLuongSP, TongTonKho, FormatUtil.formatVND(TongGiaTriTon), FormatUtil.formatVND(giaTrungBinh));
             }
-            System.out.println("╠══════════════════════════════════════╪═════════════════════╣");
-            System.out.printf("║  %-35s │ %-19d ║\n", "TỔNG CỘNG", tongSP);
-            System.out.printf("║  %-35s │ %-19d ║\n", "TỔNG SỐ LOẠI", soLoai);
-            System.out.println("╚══════════════════════════════════════╧═════════════════════╝");
+
+            long tongGiaTrungBinh = (soLuongTon == 0) ? 0 : (giaTriTon / soLuongTon);
+
+            System.out.println("╠══════════════════════════════════════╪═════════════════════╪═════════════════════╪═════════════════════╪═════════════════════╣");
+
+            System.out.printf("║  %-35s │ %-19d │ %-19d │ %-19s │ %-19s ║\n", "TỔNG CỘNG", soLuongSanPham, soLuongTon, FormatUtil.formatVND(giaTriTon), FormatUtil.formatVND(tongGiaTrungBinh));
+            System.out.printf("║  %-35s │ %-19d │ %-19s │ %-19s │ %-19s ║\n", "TỔNG SỐ LOẠI", soLoai, "-", "-", "-");
+            System.out.println("╚══════════════════════════════════════╧═════════════════════╧═════════════════════╧═════════════════════╧═════════════════════╝");
 
         } catch (SQLException e) {
             System.err.println("Lỗi khi thống kê sản phẩm theo loại: " + e.getMessage());
-        }
-    }
-
-    public static void thongKeSoLuongTonTheoLoai() {
-        String query = "SELECT Loai.TenLoai, SUM(sp.SoLuongTon) AS TongTonKho " +
-                        "FROM SANPHAM sp " +
-                        "INNER JOIN LOAI ON sp.Loai = Loai.MaLoai " +
-                        "GROUP BY Loai.TenLoai " +
-                        "ORDER BY TongTonKho DESC";
-
-        try (Connection conn = JDBCUtil.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(query)) {
-            ResultSet rs = stmt.executeQuery();
-
-            System.out.println("\n╔════════════════════════════════════════════════════════════╗");
-            System.out.println("║               THỐNG KÊ SỐ LƯỢNG TỒN THEO LOẠI              ║");
-            System.out.println("╠════════════════════════════════════════════════════════════╣");
-            System.out.printf("║  %-35s │ %-19s ║\n", "LOẠI SẢN PHẨM", "SỐ LƯỢNG TỒN KHO");
-
-            int soLoai = 0;
-            int soLuongTon = 0;
-
-            while (rs.next()) {
-                String tenLoai = rs.getString("TenLoai");
-                int tongTonKho = rs.getInt("TongTonKho");
-                soLuongTon += tongTonKho;
-                soLoai++;
-                System.out.printf("║  %-35s │ %-19d ║\n", tenLoai, tongTonKho);
-            }
-            System.out.println("╠══════════════════════════════════════╪═════════════════════╣");
-            System.out.printf("║  %-35s │ %-19d ║\n", "TỔNG CỘNG", soLuongTon);
-            System.out.printf("║  %-35s │ %-19d ║\n", "TỔNG SỐ LOẠI", soLoai);
-            System.out.println("╚══════════════════════════════════════╧═════════════════════╝");
-
-        } catch (SQLException e) {
-            System.err.println("Lỗi khi thống kê số lượng tồn kho theo loại: " + e.getMessage());
         }
     }
 }

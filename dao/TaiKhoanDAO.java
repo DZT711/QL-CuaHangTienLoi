@@ -6,7 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import dto.TaiKhoanDTO;
-import database.JDBCUtil;
+import util.JDBCUtil;
 
 public class TaiKhoanDAO {
     public static TaiKhoanDTO checkAccount(String username, String password) {

@@ -112,9 +112,9 @@ public class QuanLySanPham {
                                 System.out.println("Thoát thống kê sản phẩm thành công.");
                                 break;
                             } else if (opt == 1) {
-                                SanPhamDAO.thongKeSanPhamTheoLoai();
+                                SanPhamDAO.thongKeTheoLoai();
                             } else if (opt == 2) {
-                                SanPhamDAO.thongKeSoLuongTonTheoLoai();
+                                // SanPhamDAO.thongKeSoLuongTonTheoLoai();
                             } else {
                                 System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
                             }
