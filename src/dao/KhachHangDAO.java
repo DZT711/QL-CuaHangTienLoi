@@ -5,6 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 import dto.KhachHangDTO;
 import util.JDBCUtil;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class KhachHangDAO {
     public static List<KhachHangDTO> getAllKhachHang() {
@@ -40,9 +45,16 @@ public class KhachHangDAO {
             stmt.setString(2, kh.getHo());
             stmt.setString(3, kh.getTen());
             stmt.setString(4, kh.getGioiTinh());
-            stmt.setDate(5, java.sql.Date.valueOf(kh.getNgaySinh()));
+
+            if (kh.getNgaySinh() != null) {
+                stmt.setDate(5, java.sql.Date.valueOf(kh.getNgaySinh()));
+            } else {
+                stmt.setDate(5, null);
+            }
+
             stmt.setString(6, kh.getDienThoai());
             stmt.setString(7, kh.getDiaChi());
+
             int rowAffected = stmt.executeUpdate();
             if (rowAffected > 0) {
                 System.out.println("Thêm khách hàng thành công");
@@ -177,5 +189,58 @@ public class KhachHangDAO {
             System.err.println("Lỗi khi kiểm tra mã khách hàng: " + e.getMessage());
         }
         return false;
+    }
+
+    public static void importDSKH(String filePath) {
+        int added = 0, skipped = 0;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            int lineNumber = 0;
+            String line;
+
+
+            while ((line = reader.readLine()) != null) {
+                lineNumber++;
+                line = line.trim();
+                if (line.isEmpty()) continue;
+
+                String[] data = line.split(",", -1);
+                if (data.length < 7) {
+                    System.out.println("Dòng " + lineNumber + " không hợp lệ: " + line);
+                    skipped++;
+                    continue;
+                }
+
+                String maKH = data[0].trim();
+                String ho = data[1].trim();
+                String ten = data[2].trim();
+                String gioiTinh = data[3].trim();
+
+                LocalDate ngaySinh = null;
+                if (!data[4].trim().isEmpty()) {
+                    try {
+                        ngaySinh = LocalDate.parse(data[4].trim());
+                    } catch (Exception e) {
+                        System.out.println("Ngày sinh không hợp lệ: " + data[4]);
+                    }
+                }
+
+                String dienThoai = data[5].trim();
+                String diaChi = data[6].trim();
+
+                KhachHangDTO kh = new KhachHangDTO(maKH, ho, ten, gioiTinh, ngaySinh, diaChi, dienThoai);
+
+                if (kiemTraMaKH(maKH) || timKhachHangTheoDienThoai(dienThoai) != null) {
+                    System.out.println("Khách hàng " + maKH + " hoặc điện thoại " + dienThoai + " đã tồn tại!");
+                    skipped++;
+                    continue;
+                }
+                themKhachHang(kh);
+                added++;
+            }
+            System.out.println("Đã thêm thành công " + added + " khách hàng từ file " + filePath);
+        } catch (IOException e) {
+            System.err.println("Lỗi khi đọc file: " + e.getMessage());
+        }
     }
 }

@@ -73,7 +73,8 @@ public class QuanLyKhachHang {
                             } else if (opt == 1) {
                                 them();
                             } else if (opt == 2) {
-                                // nhapDanhSachKhachHang();
+                                KhachHangDAO.importDSKH("data/khachhang.txt");
+                                break;
                             } else {
                                 System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
                             }
@@ -132,10 +133,6 @@ public class QuanLyKhachHang {
                 scanner.nextLine();
             }
         }
-    }
-
-    public void nhapDanhSachKhachHang() {
-        // nhập bằng file
     }
 
     public void sua() {
