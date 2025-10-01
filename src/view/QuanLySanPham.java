@@ -16,12 +16,11 @@ public class QuanLySanPham {
             System.out.println("██                                                                            ██");
             System.out.println("████████████████████████████████████████████████████████████████████████████████");
             System.out.println("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ MENU CHỨC NĂNG ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓");
-            System.out.println("▒ [1] ➜ Thêm sản phẩm mới                                                      ▒");
-            System.out.println("▒ [2] ➜ Chỉnh sửa thông tin sản phẩm                                           ▒");
-            System.out.println("▒ [3] ➜ Xóa sản phẩm                                                           ▒");
-            System.out.println("▒ [4] ➜ Tìm kiếm sản phẩm                                                      ▒");
-            System.out.println("▒ [5] ➜ Thống kê sản phẩm                                                      ▒");
-            System.out.println("▒ [6] ➜ Xuất danh sách sản phẩm                                                ▒");
+            System.out.println("▒ [1] ➜ Chỉnh sửa thông tin sản phẩm                                           ▒");
+            System.out.println("▒ [2] ➜ Xóa sản phẩm                                                           ▒");
+            System.out.println("▒ [3] ➜ Tìm kiếm sản phẩm                                                      ▒");
+            System.out.println("▒ [4] ➜ Thống kê sản phẩm                                                      ▒");
+            System.out.println("▒ [5] ➜ Xuất danh sách sản phẩm                                                ▒");
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ");
             System.out.println("░ [0] ⮐ Quay lại menu chính                                                    ░ ");
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ");
@@ -33,17 +32,17 @@ public class QuanLySanPham {
                 if (scanner.hasNextInt()) {
                     choice = scanner.nextInt();
                     scanner.nextLine();
-                    if (choice > 0 && choice <= 6) {
+                    if (choice > 0 && choice <= 5) {
                         break;
                     }
                     else if (choice == 0) {
                         return;
                     } else {
-                    System.out.println("Vui lòng nhập số trong khoảng 0–6.");
+                    System.out.println("Vui lòng nhập số trong khoảng 0–5.");
                     System.out.print("\n💡 Nhập lựa chọn của bạn: ");
                 }  
                 } else {
-                    System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập số trong khoảng 0–6.");
+                    System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập số trong khoảng 0–5.");
                     System.out.print("\n💡 Nhập lựa chọn của bạn: ");
                     scanner.next(); // Clear invalid input
                 }
@@ -51,15 +50,12 @@ public class QuanLySanPham {
         
             switch (choice) {
                 case 1:
-                    // themSanPham();
-                    break;
-                case 2:
                     suaSanPham();
                     break;
-                case 3:
+                case 2:
                     xoaSanPhamTheoMa();
                     break;
-                case 4:
+                case 3:
                     while (true) {
                         try {
                             System.out.println("\n");
@@ -91,7 +87,7 @@ public class QuanLySanPham {
                         }
                     }
                     break;
-                case 5:
+                case 4:
                     while (true) {
                         try {
                             System.out.println("\n");
@@ -126,8 +122,8 @@ public class QuanLySanPham {
                         }
                     }
                     break;
-                case 6:
-                    // xuatDanhSachSanPham();
+                case 5:
+                    SanPhamDAO.xuatDanhSachSanPham();
                     break;
                 case 0:
                     System.out.println("Thoát chương trình thành công!");
@@ -249,7 +245,5 @@ public class QuanLySanPham {
             }
         }
     }
-    
-    public void xuatDanhSachSanPham() { }
     
 }
