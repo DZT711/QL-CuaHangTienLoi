@@ -283,4 +283,57 @@ public class SanPhamDAO {
             System.err.println("Lỗi khi thống kê sản phẩm theo loại: " + e.getMessage());
         }
     }
+
+    public static void thongKeTheoNSX() {
+        String query = "SELECT NgaySanXuat, " +
+                        "COUNT(sp.MaSP) AS SoLuongSanPham, " +
+                        "SUM(sp.SoLuongTon) AS TongSoLuongTon, " +
+                        "SUM(sp.GiaBan * sp.SoLuongTon) AS TongGiaTriTon " +
+                        "FROM SANPHAM sp " +
+                        "GROUP BY NgaySanXuat " +
+                        "ORDER BY NgaySanXuat DESC";
+
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+            ResultSet rs = stmt.executeQuery();
+
+            System.out.println("\n╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
+            System.out.println("║                                                   THỐNG KÊ SẢN PHẨM THEO NGÀY SẢN XUẤT                                                ║");
+            System.out.println("╠══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣");
+            System.out.printf("║  %-35s │ %-19s │ %-19s │ %-19s │ %-19s║\n", "NGÀY SẢN XUẤT", "SỐ LƯỢNG SẢN PHẨM", "SỐ LƯỢNG TỒN KHO", "GIÁ TRỊ TỒN KHO", "GIÁ TRUNG BÌNH (Tồn)");
+            System.out.println("╠══════════════════════════════════════╪═════════════════════╪═════════════════════╪═════════════════════╪═════════════════════╣");
+            
+
+            int tongSoLuongSanPham = 0;
+            int tongSoLuongTon = 0;
+            long tongGiaTriTon = 0;
+            int soNgay = 0;
+
+            while (rs.next()) {
+                Date ngaySanXuat = rs.getDate("NgaySanXuat");
+                int soLuongSP = rs.getInt("SoLuongSanPham");
+                int soLuongTon = rs.getInt("TongSoLuongTon");
+                int giaTriTon = rs.getInt("TongGiaTriTon");
+
+                long giaTrungBinh = (soLuongTon == 0) ? 0 : (giaTriTon / soLuongTon);
+
+                soNgay++;
+                tongSoLuongSanPham += soLuongSP;
+                tongSoLuongTon += soLuongTon;
+                tongGiaTriTon += giaTriTon;
+
+                System.out.printf("║  %-35s │ %-19d │ %-19d │ %-19s │ %-19s ║\n", ngaySanXuat.toLocalDate(), soLuongSP, soLuongTon, FormatUtil.formatVND(giaTriTon), FormatUtil.formatVND(giaTrungBinh));
+            }
+
+            long tongGiaTrungBinh = (tongSoLuongTon == 0) ? 0 : (tongGiaTriTon / tongSoLuongTon);
+
+            System.out.println("╠══════════════════════════════════════╪═════════════════════╪═════════════════════╪═════════════════════╪═════════════════════╣");
+            System.out.printf("║  %-35s │ %-19d │ %-19d │ %-19s │ %-19s ║\n", "TỔNG CỘNG", tongSoLuongSanPham, tongSoLuongTon, FormatUtil.formatVND(tongGiaTriTon), FormatUtil.formatVND(tongGiaTrungBinh));
+            System.out.printf("║  %-35s │ %-19d │ %-19s │ %-19s │ %-19s ║\n", "TỔNG SỐ NGÀY", soNgay, "-", "-", "-");
+            System.out.println("╚══════════════════════════════════════╧═════════════════════╧═════════════════════╧═════════════════════╧═════════════════════╝");
+
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi thống kê sản phẩm theo ngày sản xuất: " + e.getMessage());
+        }
+    }
 }
