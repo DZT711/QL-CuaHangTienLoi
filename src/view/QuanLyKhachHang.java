@@ -1,8 +1,11 @@
 package view;
 
+import java.util.InputMismatchException;
 import java.util.Scanner;
 import dao.KhachHangDAO;
 import dto.KhachHangDTO;
+import java.util.List;
+import java.time.format.DateTimeFormatter;
 
 public class QuanLyKhachHang {
     public void menuQuanLyKhachHang() {
@@ -91,6 +94,97 @@ public class QuanLyKhachHang {
                     xoa();
                     break;
                 case 4:
+                    while (true) {
+                        try {
+                            System.out.println("\n");
+                            System.out.println("    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+                            System.out.println("    ┃                           TÌM KIẾM KHÁCH HÀNG                      ┃");
+                            System.out.println("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                            System.out.println("    ┃ [1] ➜ Tìm kiếm khách hàng theo mã khách hàng                       ┃");
+                            System.out.println("    ┃ [2] ➜ Tìm kiếm khách hàng theo tên                                 ┃");
+                            System.out.println("    ┃ [3] ➜ Tìm kiếm khách hàng theo số điện thoại                       ┃");
+                            System.out.println("    ┃ [0] ➜ Thoát                                                        ┃");
+                            System.out.println("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                            System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+
+                            int opt = scanner.nextInt();
+                            scanner.nextLine();
+
+                            if (opt == 0) {
+                                System.out.println("Thoát tìm kiếm khách hàng thành công.");
+                                break;
+                            } else if (opt == 1) {
+                                System.out.print("Nhập mã khách hàng cần tìm: ");
+                                try {
+                                    String maKH = scanner.nextLine().trim();
+                                    scanner.nextLine();
+                                    KhachHangDTO kh = KhachHangDAO.timKhachHangTheoMa(maKH);
+                                    if (kh != null) {
+                                        System.out.println("Thông tin khách hàng tìm thấy với mã: " + maKH);
+                                        System.out.println(kh.toString());
+                                    } else {
+                                        System.out.println("Không tìm thấy khách hàng với mã: " + maKH);
+                                    }
+                                } catch (InputMismatchException e) {
+                                    System.out.println("Lỗi: Vui lòng nhập mã khách hàng hợp lệ");
+                                    scanner.nextLine();
+                                }
+                            } else if (opt == 2) {
+                                System.out.print("Nhập tên khách hàng cần tìm: ");
+                                String tenKH = scanner.nextLine().trim().toLowerCase();
+                                int count = 0;
+                                List<KhachHangDTO> list = KhachHangDAO.timKhachHangTheoTen(tenKH);
+                                if (!list.isEmpty()) {
+                                    System.out.println("\n╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
+                                    System.out.println("║                                      DANH SÁCH KHÁCH HÀNG CÓ TÊN CHỨA '" + tenKH + "'                                   ║");
+                                    System.out.println("╠════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣");
+                                    System.out.printf("║ %-10s │ %-20s │ %-12s │ %-10s │ %-10s │ %-10s │ %-20s ║\n",
+                                                "Mã KH", "Họ", "Tên", "Giới tính", "Ngày sinh", "SĐT", "Địa chỉ");
+                                    System.out.println("╠════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣");
+                                    
+                                    for (KhachHangDTO kh : list) {
+                                        System.out.printf("║ %-10s │ %-20s │ %-12s │ %-10s │ %-10s │ %-10s │ %-20s ║\n",
+                                                kh.getMaKH(),
+                                                kh.getHo(),
+                                                kh.getTen(),
+                                                kh.getGioiTinh(),
+                                                kh.getNgaySinhFormat(), 
+                                                kh.getDienThoai(),
+                                                kh.getDiaChi());
+                                        count++;
+                                    }
+                                    System.out.println("╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝");
+                                    System.out.println("Tìm thấy " + count + " khách hàng có tên chứa '" + tenKH + "'");
+                                } else {
+                                    System.out.println("Không tìm thấy khách hàng có tên chứa '" + tenKH + "'");
+                                }
+                            } else if (opt == 3) {
+                                System.out.println("Nhập số điện thoại khách hàng cần tìm: ");
+                                try {
+                                    String dienThoai = scanner.nextLine().trim();
+                                    scanner.nextLine();
+                                    KhachHangDTO kh = KhachHangDAO.timKhachHangTheoDienThoai(dienThoai);
+                                    if (kh != null) {
+                                        System.out.println("Thông tin khách hàng tìm thấy với số điện thoại: " + dienThoai);
+                                        System.out.println(kh.toString());
+                                    } else {
+                                        System.out.println("Không tìm thấy khách hàng với số điện thoại: " + dienThoai);
+                                    }
+
+                                } catch (InputMismatchException e) {
+                                    System.out.println("Lỗi: Vui lòng nhập số điện thoại hợp lệ");
+                                    scanner.nextLine();
+                                }
+
+                                break;
+                            } else {
+                                System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
+                            }
+                        } catch (Exception e) {
+                            System.out.println("Lỗi xảy ra: " + e.getMessage());
+                            scanner.nextLine();
+                        }
+                    }
                     break;
                 case 0:
                     System.out.println("Thoát khỏi menu quản lý khách hàng.");

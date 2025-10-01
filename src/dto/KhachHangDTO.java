@@ -64,6 +64,10 @@ public class KhachHangDTO {
         return ngaySinh;
     }
 
+    public String getNgaySinhFormat() {
+        return ngaySinh.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));        
+    }
+
     public void setNgaySinh(LocalDate ngaySinh) {
         this.ngaySinh = ngaySinh;
     }
