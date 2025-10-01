@@ -100,7 +100,7 @@ public class QuanLySanPham {
                             System.out.println("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
                             System.out.println("    ┃ [1] ➜ Thống kê theo loại sản phẩm                                  ┃");
                             System.out.println("    ┃ [2] ➜ Thống kê sản phẩm theo ngày sản xuất                         ┃");
-                            System.out.println("    ┃ [3] ➜                            ┃");
+                            System.out.println("    ┃ [3] ➜ Thống kê sản phẩm sắp hết trong kho                          ┃");
                             System.out.println("    ┃ [0] ➜ Thoát                                                        ┃");
                             System.out.println("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
                             System.out.print("\n💡 Nhập lựa chọn của bạn: ");
@@ -115,6 +115,8 @@ public class QuanLySanPham {
                                 SanPhamDAO.thongKeTheoLoai();
                             } else if (opt == 2) {
                                 SanPhamDAO.thongKeTheoNSX();
+                            } else if (opt == 3) {
+                                SanPhamDAO.sanPhamSapHetTrongKho(10);
                             } else {
                                 System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
                             }

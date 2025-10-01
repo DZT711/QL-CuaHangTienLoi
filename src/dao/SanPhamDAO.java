@@ -336,4 +336,48 @@ public class SanPhamDAO {
             System.err.println("Lỗi khi thống kê sản phẩm theo ngày sản xuất: " + e.getMessage());
         }
     }
+
+    public static void sanPhamSapHetTrongKho(int soLuong) {
+        String query = "SELECT sp.MaSP, sp.TenSP, sp.SoLuongTon, sp.GiaBan,Loai.TenLoai " +
+                        "FROM SANPHAM sp " + 
+                        "INNER JOIN LOAI ON sp.Loai = Loai.MaLoai " +
+                        "WHERE sp.SoLuongTon <= ? AND sp.TrangThai = 'active'" + 
+                        " ORDER BY sp.SoLuongTon ASC";
+
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+            
+            stmt.setInt(1, soLuong);
+            ResultSet rs = stmt.executeQuery();
+
+            System.out.println("\n╔════════════════════════════════════════════════════════════════════════════════════════════╗");
+            System.out.println("║                                DANH SÁCH SẢN PHẨM SẮP HẾT TỒN KHO                          ║");
+            System.out.println("╠════════════╤══════════════════════╤══════════════════╤══════════════════╤══════════════════╣");
+            System.out.printf("║ %-10s │ %-20s │ %-16s │ %-16s │ %-16s ║\n",
+                        "MÃ SP", "TÊN SP", "LOẠI", "SỐ LƯỢNG", "GIÁ BÁN");
+            System.out.println("╠════════════╪══════════════════════╪══════════════════╪══════════════════╪══════════════════╣");
+
+            boolean found = false;
+            while (rs.next()) {
+                found = true;
+                String maSP = rs.getString("MaSP");
+                String tenSP = rs.getString("TenSP");
+                String tenLoai = rs.getString("TenLoai");
+                int soLuongTon = rs.getInt("SoLuongTon");
+                int giaBan = rs.getInt("GiaBan");
+
+                System.out.printf("║ %-10s │ %-20s │ %-16s │ %-16d │ %-16s ║\n",
+                            maSP, tenSP, tenLoai, soLuongTon, FormatUtil.formatVND(giaBan));
+            }
+
+            if (!found) {
+                System.out.println("║                       Không có sản phẩm nào sắp hết tồn kho theo ngưỡng này.               ║");
+            }
+
+            System.out.println("╚════════════╧══════════════════════╧══════════════════╧══════════════════╧══════════════════╝");
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi thống kê sản phẩm sắp hết trong kho: " + e.getMessage());
+        }
+
+    }
 }
