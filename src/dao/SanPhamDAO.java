@@ -1,12 +1,11 @@
 package dao;
 
-import java.sql.Date;
+import dto.sanPhamDTO;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import dto.sanPhamDTO;
 import util.FormatUtil;
 import util.JDBCUtil;
 
@@ -382,7 +381,7 @@ public class SanPhamDAO {
     }
 
     public static void xuatDanhSachSanPham() {
-        String query = "SELECT sp.MaSP, sp.TenSP, loai.TenLoai, sp.SoLuongTon, sp.GiaBan, sp.NgaySanXuat, sp.HanSuDung, sp.TrangThai" +
+        String query = "SELECT sp.MaSP, sp.TenSP, loai.TenLoai, sp.SoLuongTon, sp.GiaBan, sp.NgaySanXuat, sp.HanSuDung, sp.TrangThai " +
                         "FROM SANPHAM sp " +
                         "INNER JOIN LOAI ON sp.Loai = Loai.MaLoai " +
                         "ORDER BY sp.MaSP ASC";
@@ -391,8 +390,8 @@ public class SanPhamDAO {
             PreparedStatement stmt = conn.prepareStatement(query)) {
 
             ResultSet rs = stmt.executeQuery();
-            System.out.println("\n╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
-            System.out.println("║                                          DANH SÁCH SẢN PHẨM TRONG CỬA HÀNG                                               ║");
+            System.out.println("\n╔═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
+            System.out.println("║                                          DANH SÁCH SẢN PHẨM TRONG CỬA HÀNG                                                            ║");
             System.out.println("╠════════════════╤═══════════════════════╤═══════════════╤═══════════════╤═══════════════╤═══════════════╤════════════════╤═════════════╣");
             System.out.printf("║ %-12s │ %-21s │ %-13s │ %-13s │ %-13s │ %-13s │ %-14s │ %-11s ║\n",
                         "MÃ SP", "TÊN SP", "LOẠI", "SỐ LƯỢNG", "GIÁ BÁN", "NGÀY SX", "HẠN SỬ DỤNG", "TRẠNG THÁI");
