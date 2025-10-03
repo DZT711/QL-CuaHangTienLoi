@@ -6,7 +6,16 @@ CREATE TABLE LOAI (
   MaLoai INT(11) PRIMARY KEY AUTO_INCREMENT,
   TenLoai VARCHAR(255) NOT NULL,
   MoTa VARCHAR(255) DEFAULT NULL
-);
+);  
+
+INSERT INTO LOAI (MaLoai, TenLoai, MoTa) VALUES
+(1, 'Đồ uống', 'Các loại nước giải khát và đồ uống đóng chai, lon, hộp'),
+(2, 'Thực phẩm ăn liền & khô', 'Thực phẩm chế biến sẵn, tiện lợi, dễ bảo quản'),
+(3, 'Thực phẩm tươi & đông lạnh', 'Thực phẩm tươi sống, đóng gói hoặc bảo quản lạnh'),
+(4, 'Gia dụng & vệ sinh cá nhân', 'Sản phẩm gia dụng và chăm sóc cá nhân hằng ngày'),
+(5, 'Văn phòng phẩm & tiện ích', 'Đồ dùng học tập, văn phòng và các vật dụng tiện ích nhỏ'),
+(6, 'Thức ăn cho thú cưng', 'Sản phẩm dinh dưỡng cho thú nuôi'),
+(7, 'Y tế & mỹ phẩm cơ bản', 'Sản phẩm chăm sóc sức khỏe và mỹ phẩm thiết yếu');
 
 -- Bảng đơn vị tính
 CREATE TABLE DONVI (
@@ -18,12 +27,15 @@ CREATE TABLE DONVI (
 INSERT INTO DONVI (MaDonVi, TenDonVi, MoTa) VALUES
 (1, 'chai', 'Chai'),
 (2, 'gói', 'Gói'),
-(3, 'hộp', 'Hộp'),
-(4, 'cái', 'Cái'),
+(3, 'lon', 'Lon'),
+(4, 'hộp', 'Hộp'),
 (5, 'thùng', 'Thùng'),
 (6, 'bộ', 'Bộ'),
 (7, 'vỉ', 'Vỉ'),
-(8, 'cuộn', 'Cuộn');
+(8, 'cuộn', 'Cuộn').
+(9, 'túi', 'Túi'),
+(10, 'can', 'Can'),
+(11, 'bao', 'Bao'); 
 
 -- Bảng sản phẩm
 CREATE TABLE SANPHAM (
@@ -40,6 +52,44 @@ CREATE TABLE SANPHAM (
   CONSTRAINT fk_sanpham_loai FOREIGN KEY (Loai) REFERENCES LOAI(MaLoai),
   CONSTRAINT fk_sanpham_donvi FOREIGN KEY (DonViTinh) REFERENCES DONVI(MaDonVi)
 );
+
+INSERT INTO SANPHAM (MaSP, TenSP, Loai, SoLuongTon, DonViTinh, GiaBan, NgaySanXuat, HanSuDung, MoTa, TrangThai) VALUES
+-- Đồ uống (Loai = 1)
+('SP001', 'Coca Cola 330ml', 1, 100, 3, 10000, '2025-01-01', '2026-01-01', 'Nước ngọt có gas Coca Cola lon 330ml', 'active'),
+('SP002', 'Sting Dâu 330ml', 1, 80, 3, 9000, '2025-01-10', '2026-01-10', 'Nước tăng lực Sting hương dâu lon 330ml', 'active'),
+('SP003', 'Sữa tươi Vinamilk 1L', 1, 50, 1, 30000, '2025-02-01', '2025-08-01', 'Sữa tươi tiệt trùng Vinamilk hộp 1 lít', 'active'),
+('SP004', 'Aquafina 500ml', 1, 120, 1, 7000, '2025-01-15', '2026-01-15', 'Nước tinh khiết Aquafina chai 500ml', 'active'),
+
+-- Thực phẩm ăn liền & khô (Loai = 2)
+('SP005', 'Mì Hảo Hảo tôm chua cay', 2, 200, 2, 4000, '2025-02-01', '2026-02-01', 'Mì gói Hảo Hảo vị tôm chua cay 75g', 'active'),
+('SP006', 'Phở ăn liền Cung Đình bò hầm', 2, 150, 2, 6500, '2025-01-20', '2026-01-20', 'Phở ăn liền Cung Đình vị bò hầm', 'active'),
+('SP007', 'Bánh Oreo 133g', 2, 90, 2, 15000, '2025-01-05', '2025-07-05', 'Bánh quy Oreo nhân kem', 'active'),
+('SP008', 'Snack khoai tây Lays 52g', 2, 100, 2, 12000, '2025-02-10', '2026-02-10', 'Snack khoai tây Lays vị BBQ', 'active'),
+
+-- Thực phẩm tươi & đông lạnh (Loai = 3)
+('SP009', 'Thịt gà đông lạnh 1kg', 3, 40, 11, 75000, '2025-01-25', '2025-06-25', 'Thịt gà đông lạnh đóng bao 1kg', 'active'),
+('SP010', 'Cá basa phi lê 500g', 3, 60, 11, 55000, '2025-02-01', '2025-07-01', 'Cá basa phi lê đông lạnh 500g', 'active'),
+('SP011', 'Rau cải ngọt 500g', 3, 70, 9, 20000, '2025-02-20', '2025-02-28', 'Rau cải ngọt tươi 500g', 'active'),
+
+-- Gia dụng & vệ sinh cá nhân (Loai = 4)
+('SP012', 'Nước giặt OMO 3.8L', 4, 30, 10, 145000, '2025-01-15', '2028-01-15', 'Nước giặt OMO matic hương ngàn hoa', 'active'),
+('SP013', 'Nước rửa chén Sunlight 750ml', 4, 60, 1, 32000, '2025-01-20', '2028-01-20', 'Nước rửa chén Sunlight chanh 750ml', 'active'),
+('SP014', 'Bàn chải đánh răng P/S', 4, 100, 4, 12000, '2025-02-01', '2028-02-01', 'Bàn chải đánh răng P/S lông mềm', 'active'),
+('SP015', 'Giấy vệ sinh Bless You 10 cuộn', 4, 40, 8, 50000, '2025-01-25', '2028-01-25', 'Giấy vệ sinh Bless You 3 lớp', 'active'),
+
+-- Văn phòng phẩm & tiện ích (Loai = 5)
+('SP016', 'Bút bi Thiên Long xanh', 5, 200, 4, 5000, '2025-01-01', '2028-01-01', 'Bút bi Thiên Long mực xanh', 'active'),
+('SP017', 'Tập vở 200 trang', 5, 150, 4, 12000, '2025-02-01', '2028-02-01', 'Tập vở kẻ ngang 200 trang', 'active'),
+('SP018', 'Kéo cắt giấy 18cm', 5, 50, 4, 25000, '2025-01-15', '2028-01-15', 'Kéo cắt giấy cán nhựa 18cm', 'active'),
+
+-- Thức ăn cho thú cưng (Loai = 6)
+('SP019', 'Pate cho mèo Whiskas 85g', 6, 80, 2, 18000, '2025-01-10', '2026-01-10', 'Pate Whiskas vị cá ngừ cho mèo', 'active'),
+('SP020', 'Thức ăn hạt cho chó Pedigree 1.5kg', 6, 40, 11, 120000, '2025-01-20', '2026-01-20', 'Thức ăn hạt Pedigree vị gà 1.5kg', 'active'),
+
+-- Y tế & mỹ phẩm cơ bản (Loai = 7)
+('SP021', 'Khẩu trang y tế 50 cái', 7, 100, 11, 40000, '2025-01-01', '2026-01-01', 'Khẩu trang y tế 4 lớp hộp 50 cái', 'active'),
+('SP022', 'Nước rửa tay Lifebuoy 500ml', 7, 60, 1, 45000, '2025-01-25', '2026-01-25', 'Nước rửa tay Lifebuoy diệt khuẩn', 'active'),
+('SP023', 'Kem đánh răng Colgate 200g', 7, 90, 2, 30000, '2025-01-15', '2026-01-15', 'Kem đánh răng Colgate hương bạc hà', 'active');
 
 -- Bảng nhà cung cấp
 CREATE TABLE NHACUNGCAP (
@@ -138,6 +188,10 @@ INSERT INTO TAIKHOAN (UserName, PassWord, HoTen, VaiTro, TrangThai, Email) VALUE
 ('cuongadmin', 'cuongadmin', 'CuongHaySuy', 'Admin', 'Active', 'vancuonghp9014@gmail.com'),
 ('sonadmin', 'sonadmin', 'SonCuBe', 'Admin', 'Active', 'simpson061125@gmail.com'),
 ('staff', 'staff', 'Staff', 'NhanVien', 'Active', 'staff@gmail.com');
+
+
+
+
 
 
 -- Tạo index tối ưu tìm kiếm
