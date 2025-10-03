@@ -32,7 +32,7 @@ INSERT INTO DONVI (MaDonVi, TenDonVi, MoTa) VALUES
 (5, 'thùng', 'Thùng'),
 (6, 'bộ', 'Bộ'),
 (7, 'vỉ', 'Vỉ'),
-(8, 'cuộn', 'Cuộn').
+(8, 'cuộn', 'Cuộn'),
 (9, 'túi', 'Túi'),
 (10, 'can', 'Can'),
 (11, 'bao', 'Bao'); 

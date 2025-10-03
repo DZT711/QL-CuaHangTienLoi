@@ -12,10 +12,12 @@ import util.JDBCUtil;
 
 public class SanPhamDAO {
     public static List<sanPhamDTO> getAllSanPham() {
-        String query = "SELECT MaSP, TenSP, Loai, SoLuongTon, DonViTinh, GiaBan, NgaySanXuat, HanSuDung, MoTa, TrangThai FROM SANPHAM\n" +
-        "FROM SANPHAM\n" +
-        "INNER JOIN LOAI ON SANPHAM.loai = LOAI.MaLoai\n" +
-        "INNER JOIN DONVI ON SANPHAM.donVi = DONVI.DonViTinh\n";
+        String query =
+        "SELECT sp.MaSP, sp.TenSP, sp.Loai, sp.SoLuongTon, sp.DonViTinh, sp.GiaBan, " +
+        "sp.NgaySanXuat, sp.HanSuDung, sp.MoTa, sp.TrangThai " +
+        "FROM SANPHAM sp " +
+        "INNER JOIN LOAI l ON sp.Loai = l.MaLoai " +
+        "INNER JOIN DONVI d ON sp.DonViTinh = d.MaDonVi";
 
         List<sanPhamDTO> list = new ArrayList<>();
 
@@ -31,16 +33,16 @@ public class SanPhamDAO {
                            + hSD.getMonthValue() * 10000
                            + hSD.getYear();
 
-                
+
                 list.add(new sanPhamDTO(
-                    rs.getString("MaSP"), 
-                    rs.getString("TenSP"), 
-                    rs.getInt("Loai"), 
-                    rs.getInt("DonViTinh"), 
-                    rs.getInt("SoLuongTon"), 
-                    rs.getInt("GiaBan"), 
-                    ngaySanXuat, 
-                    hsdInt, 
+                    rs.getString("MaSP"),
+                    rs.getString("TenSP"),
+                    rs.getInt("Loai"),
+                    rs.getInt("DonViTinh"),
+                    rs.getInt("SoLuongTon"),
+                    rs.getInt("GiaBan"),
+                    ngaySanXuat,
+                    hsdInt,
                     rs.getString("MoTa"),
                     rs.getString("TrangThai")
                 ));
@@ -52,18 +54,22 @@ public class SanPhamDAO {
     }
 
     public static List<sanPhamDTO> timSanPhamTheoTen(String name) {
-        String query = "SELECT MaSP, TenSP, Loai, SoLuongTon, DonViTinh, GiaBan, NgaySanXuat, HanSuDung, MoTa, TrangThai FROM SANPHAM\n" +
-        "INNER JOIN LOAI ON SANPHAM.loai = LOAI.MaLoai\n" +
-        "INNER JOIN DONVI ON SANPHAM.donVi = DONVI.DonViTinh\n" +
-        "WHERE tenSP LIKE ?";
+        String query =
+        "SELECT sp.MaSP, sp.TenSP, sp.Loai, sp.SoLuongTon, sp.DonViTinh, sp.GiaBan, " +
+        "sp.NgaySanXuat, sp.HanSuDung, sp.MoTa, sp.TrangThai " +
+        "FROM SANPHAM sp " +
+        "INNER JOIN LOAI l ON sp.Loai = l.MaLoai " +
+        "INNER JOIN DONVI d ON sp.DonViTinh = d.MaDonVi " +
+        "WHERE sp.TenSP LIKE ?";
 
         List<sanPhamDTO> list = new ArrayList<>();
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
+                
+            stmt.setString(1, "%" + name + "%");
             ResultSet rs = stmt.executeQuery();
 
-            stmt.setString(1, "%" + name + "%");        
             while(rs.next()){
                 LocalDate ngaySanXuat = rs.getDate("NgaySanXuat").toLocalDate();
 
@@ -75,14 +81,14 @@ public class SanPhamDAO {
 
 
                 list.add(new sanPhamDTO(
-                    rs.getString("MaSP"), 
-                    rs.getString("TenSP"), 
-                    rs.getInt("Loai"), 
-                    rs.getInt("DonViTinh"), 
-                    rs.getInt("SoLuongTon"), 
-                    rs.getInt("GiaBan"), 
-                    ngaySanXuat, 
-                    hsdInt, 
+                    rs.getString("MaSP"),
+                    rs.getString("TenSP"),
+                    rs.getInt("Loai"),
+                    rs.getInt("DonViTinh"),
+                    rs.getInt("SoLuongTon"),
+                    rs.getInt("GiaBan"),
+                    ngaySanXuat,
+                    hsdInt,
                     rs.getString("MoTa"),
                     rs.getString("TrangThai")
                 ));
@@ -94,10 +100,13 @@ public class SanPhamDAO {
     }
 
     public static sanPhamDTO timSanPhamTheoMa(String ma) {
-        String query = "SELECT MaSP, TenSP, Loai, SoLuongTon, DonViTinh, GiaBan, NgaySanXuat, HanSuDung, MoTa, TrangThai FROM SANPHAM\n" +
-        "INNER JOIN LOAI ON SANPHAM.loai = LOAI.MaLoai\n" +
-        "INNER JOIN DONVI ON SANPHAM.donVi = DONVI.DonViTinh\n" +
-        "WHERE maSP = ?";
+        String query =
+        "SELECT sp.MaSP, sp.TenSP, sp.Loai, sp.SoLuongTon, sp.DonViTinh, sp.GiaBan, " +
+        "sp.NgaySanXuat, sp.HanSuDung, sp.MoTa, sp.TrangThai " +
+        "FROM SANPHAM sp " +
+        "INNER JOIN LOAI l ON sp.Loai = l.MaLoai " +
+        "INNER JOIN DONVI d ON sp.DonViTinh = d.MaDonVi " +
+        "WHERE sp.MaSP = ?";
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -115,14 +124,14 @@ public class SanPhamDAO {
                            + hSD.getYear();
 
                 return new sanPhamDTO(
-                    rs.getString("MaSP"), 
-                    rs.getString("TenSP"), 
-                    rs.getInt("Loai"), 
-                    rs.getInt("DonViTinh"), 
-                    rs.getInt("SoLuongTon"), 
-                    rs.getInt("GiaBan"), 
-                    ngaySanXuat, 
-                    hsdInt, 
+                    rs.getString("MaSP"),
+                    rs.getString("TenSP"),
+                    rs.getInt("Loai"),
+                    rs.getInt("DonViTinh"),
+                    rs.getInt("SoLuongTon"),
+                    rs.getInt("GiaBan"),
+                    ngaySanXuat,
+                    hsdInt,
                     rs.getString("MoTa"),
                     rs.getString("TrangThai")
                 );
@@ -144,7 +153,7 @@ public class SanPhamDAO {
             stmt.setInt(4, sp.getDonViTinh());
             stmt.setInt(5, sp.getGiaBan());
             stmt.setDate(6, Date.valueOf(sp.getNgaySanXuat()));
-            
+
             // HSD (int ddMMyyyy -> LocalDate -> Date)
             int hSD = sp.getHSD();
             String hSDStr = String.format("%08d", hSD);
@@ -166,7 +175,9 @@ public class SanPhamDAO {
     }
 
     public static void suaSanPham(sanPhamDTO sp, String maSP) {
-        String query = "UPDATE SANPHAM SET TenSP = ?, LoaiSP = ?, DonViTinh = ?, GiaBan = ?, NgaySanXuat = ?, HanSuDung = ?, MoTa = ?, TrangThai = ? WHERE MaSP = ?";
+        String query =
+        "UPDATE SANPHAM SET TenSP = ?, Loai = ?, DonViTinh = ?, GiaBan = ?, NgaySanXuat = ?, " +
+        "HanSuDung = ?, MoTa = ?, TrangThai = ? WHERE MaSP = ?";
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -183,10 +194,10 @@ public class SanPhamDAO {
             LocalDate hSDDate = LocalDate.parse(hSDStr, formatter);
             stmt.setDate(6, Date.valueOf(hSDDate));
 
-            
+
             stmt.setString(7, sp.getMoTa());
-            stmt.setString(8, maSP);
-            stmt.setString(9, sp.getTrangThai());
+            stmt.setString(8, sp.getTrangThai());
+            stmt.setString(9, maSP);
             int rowAffected = stmt.executeUpdate();
             if (rowAffected > 0) {
                 System.out.println("Sửa sản phẩm thành công");
@@ -224,14 +235,14 @@ public class SanPhamDAO {
             } else {
                 System.out.println("Không có sản phẩm nào trạng thái hết hạn");
             }
-                
+
         } catch (SQLException e) {
             System.err.println("Lỗi khi cập nhật trạng thái hết hạn: " + e.getMessage());
         }
     }
 
     public static void thongKeTheoLoai() {
-        String query = "SELECT Loai.TenLoai, " + 
+        String query = "SELECT Loai.TenLoai, " +
                         "COUNT(sp.MaSP) AS SoLuongSanPham, " +
                         "SUM(SANPHAM.SoLuongTon) AS TongSoLuongTon, " +
                         "SUM(sp.GiaBan * sp.SoLuongTon) AS TongGiaTriTon " +
@@ -240,7 +251,7 @@ public class SanPhamDAO {
                         "GROUP BY Loai.TenLoai " +
                         "ORDER BY SoLuongSanPham DESC";
 
-        try (Connection conn = JDBCUtil.getConnection(); 
+        try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
             ResultSet rs = stmt.executeQuery();
 
@@ -262,7 +273,7 @@ public class SanPhamDAO {
                 long TongGiaTriTon = rs.getLong("TongGiaTriTon");
 
                 long giaTrungBinh = (TongTonKho == 0) ? 0 : (TongGiaTriTon / TongTonKho);
-                
+
                 soLoai++;
                 soLuongSanPham += soLuongSP;
                 soLuongTon += TongTonKho;
@@ -302,7 +313,7 @@ public class SanPhamDAO {
             System.out.println("╠══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣");
             System.out.printf("║  %-35s │ %-19s │ %-19s │ %-19s │ %-19s║\n", "NGÀY SẢN XUẤT", "SỐ LƯỢNG SẢN PHẨM", "SỐ LƯỢNG TỒN KHO", "GIÁ TRỊ TỒN KHO", "GIÁ TRUNG BÌNH (Tồn)");
             System.out.println("╠══════════════════════════════════════╪═════════════════════╪═════════════════════╪═════════════════════╪═════════════════════╣");
-            
+
 
             int tongSoLuongSanPham = 0;
             int tongSoLuongTon = 0;
@@ -339,14 +350,14 @@ public class SanPhamDAO {
 
     public static void sanPhamSapHetTrongKho(int soLuong) {
         String query = "SELECT sp.MaSP, sp.TenSP, sp.SoLuongTon, sp.GiaBan,Loai.TenLoai " +
-                        "FROM SANPHAM sp " + 
+                        "FROM SANPHAM sp " +
                         "INNER JOIN LOAI ON sp.Loai = Loai.MaLoai " +
-                        "WHERE sp.SoLuongTon <= ? AND sp.TrangThai = 'active'" + 
+                        "WHERE sp.SoLuongTon <= ? AND sp.TrangThai = 'active'" +
                         " ORDER BY sp.SoLuongTon ASC";
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
-            
+
             stmt.setInt(1, soLuong);
             ResultSet rs = stmt.executeQuery();
 
@@ -382,10 +393,11 @@ public class SanPhamDAO {
     }
 
     public static void xuatDanhSachSanPham() {
-        String query = "SELECT sp.MaSP, sp.TenSP, loai.TenLoai, sp.SoLuongTon, sp.GiaBan, sp.NgaySanXuat, sp.HanSuDung, sp.TrangThai" +
-                        "FROM SANPHAM sp " +
-                        "INNER JOIN LOAI ON sp.Loai = Loai.MaLoai " +
-                        "ORDER BY sp.MaSP ASC";
+        String query =
+        "SELECT sp.MaSP, sp.TenSP, l.TenLoai, sp.SoLuongTon, sp.GiaBan, sp.NgaySanXuat, sp.HanSuDung, sp.TrangThai " +
+        "FROM SANPHAM sp " +
+        "INNER JOIN LOAI l ON sp.Loai = l.MaLoai " +
+        "ORDER BY sp.MaSP ASC";
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
