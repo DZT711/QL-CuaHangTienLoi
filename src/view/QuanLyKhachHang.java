@@ -23,9 +23,7 @@ public class QuanLyKhachHang {
             System.out.println("▒ [3] ➜ Xóa khách hàng khỏi danh sách                                          ▒");
             System.out.println("▒ [4] ➜ Tìm kiếm khách hàng                                                    ▒");
             System.out.println("▒ [5] ➜ Thống kê khách hàng                                                    ▒");
-            System.out.println("▒ [6] ➜ Đồng bộ và cập nhật dữ liệu                                            ▒");
-            System.out.println("▒ [7] ➜ Tìm kiếm nâng cao theo khu vực                                         ▒");
-            System.out.println("▒ [8] ➜ In và xuất danh sách                                                   ▒");
+            System.out.println("▒ [6] ➜ Xem danh sách khách hàng                                               ▒");
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ");
             System.out.println("░ [0] ✗ Quay lại menu chính                                                    ░");
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ");
@@ -224,6 +222,9 @@ public class QuanLyKhachHang {
                         }
                     }
                     break;
+                case 6:
+                    xuat();
+                    break;
                 case 0:
                     System.out.println("Thoát khỏi menu quản lý khách hàng.");
                     return;
@@ -332,5 +333,32 @@ public class QuanLyKhachHang {
             }
         }
         scanner.close();
+    }
+
+    public void xuat() {
+        List <KhachHangDTO> list = KhachHangDAO.getAllKhachHang();
+
+        if (list.isEmpty()) {
+            System.out.println("Không có khách hàng nào trong hệ thống.");
+            return;
+        }
+
+        System.out.println("\n╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
+        System.out.println("║                                         DANH SÁCH KHÁCH HÀNG TRONG CỬA HÀNG                                    ║");
+        System.out.println("╠════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣");
+        System.out.printf("║ %-10s │ %-20s │ %-12s │ %-10s │ %-10s │ %-10s │ %-20s ║\n",
+                "Mã KH", "Họ", "Tên", "Giới tính", "Ngày sinh", "SĐT", "Địa chỉ");
+        System.out.println("╠════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣");
+        for (KhachHangDTO kh : list) {
+            System.out.printf("║ %-10s │ %-20s │ %-12s │ %-10s │ %-10s │ %-10s │ %-20s ║\n",
+                    kh.getMaKH(),
+                    kh.getHo(),
+                    kh.getTen(),
+                    kh.getGioiTinh(),
+                    kh.getNgaySinhFormat(), 
+                    kh.getDienThoai(),
+                    kh.getDiaChi());
+        }
+        System.out.println("╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝");
     }
 }
