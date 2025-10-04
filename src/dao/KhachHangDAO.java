@@ -311,5 +311,39 @@ public class KhachHangDAO {
             System.err.println("Lỗi khi thống kê khách hàng theo độ tuổi: " + e.getMessage());
         }
     }
+
+    public static void thongKeTheoSohd() {
+        String query = 
+        "SELECT KH.MaKH, KH.Ho, KH.Ten, COUNT(HD.MaHD) AS SoHoaDon " +
+        "FROM KHACHHANG KH " +
+        "LEFT JOIN HOADON HD ON KH.MaKH = HD.MaKH " +
+        "GROUP BY KH.MaKH, KH.Ho, KH.Ten " +
+        "ORDER BY SoHoaDon DESC";
+
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+        ResultSet rs = stmt.executeQuery();
+
+        System.out.println("\n╔═══════════════════════════════════════════════════════════╗");
+        System.out.println("║            THỐNG KÊ KHÁCH HÀNG THEO SỐ LƯỢNG ĐƠN          ║");
+        System.out.println("╠════════════╤══════════════════════╤════════════╤══════════╣");
+        System.out.printf("║ %-10s │ %-20s │ %-10s │ %-8s ║\n",
+                "MÃ KH", "HỌ", "TÊN", "SỐ ĐƠN");
+        System.out.println("╠════════════╪══════════════════════╪════════════╪══════════╣");
+
+        while (rs.next()) {
+            String maKH = rs.getString("MaKH");
+            String ho = rs.getString("Ho");
+            String ten = rs.getString("Ten");
+            int soHoaDon = rs.getInt("SoHoaDon");
+
+            System.out.printf("║ %-10s │ %-20s │ %-10s │ %-8d ║\n", maKH, ho, ten, soHoaDon);
+        }
+            System.out.println("╚════════════╧══════════════════════╧════════════╧══════════╝");
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi thống kê khách hàng theo số lượng hóa đơn: " + e.getMessage());
+        }
+    }
 }
             
