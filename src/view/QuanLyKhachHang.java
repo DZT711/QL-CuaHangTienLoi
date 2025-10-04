@@ -22,7 +22,7 @@ public class QuanLyKhachHang {
             System.out.println("▒ [2] ➜ Chỉnh sửa thông tin khách hàng                                         ▒");
             System.out.println("▒ [3] ➜ Xóa khách hàng khỏi danh sách                                          ▒");
             System.out.println("▒ [4] ➜ Tìm kiếm khách hàng                                                    ▒");
-            System.out.println("▒ [5] ➜ Báo cáo thống kê chi tiết                                              ▒");
+            System.out.println("▒ [5] ➜ Thống kê khách hàng                                                    ▒");
             System.out.println("▒ [6] ➜ Đồng bộ và cập nhật dữ liệu                                            ▒");
             System.out.println("▒ [7] ➜ Tìm kiếm nâng cao theo khu vực                                         ▒");
             System.out.println("▒ [8] ➜ In và xuất danh sách                                                   ▒");
@@ -186,6 +186,38 @@ public class QuanLyKhachHang {
                         }
                     }
                     break;
+                case 5: 
+                    while (true) {
+                        try {
+                            System.out.println("\n");
+                            System.out.println("    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+                            System.out.println("    ┃                           THỐNG KÊ KHÁCH HÀNG                      ┃");
+                            System.out.println("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                            System.out.println("    ┃ [1] ➜ Thống kê khách hàng theo giới tính                           ┃");
+                            System.out.println("    ┃ [2] ➜ Thống kê khách hàng theo độ tuổi                             ┃");
+                            System.out.println("    ┃ [0] ➜ Thoát                                                        ┃");
+                            System.out.println("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                            System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+
+                            int opt = scanner.nextInt();
+                            scanner.nextLine();
+
+                            if (opt == 0) {
+                                System.out.println("Thoát thống kê khách hàng thành công.");
+                                break;
+                            } else if (opt == 1) {
+                                KhachHangDAO.thongKeTheoGioiTinh();
+                            } else if (opt == 2) {
+                                // KhachHangDAO.thongKeTheoDoTuoi();
+                            } else {
+                                System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
+                            }
+                        } catch (Exception e) {
+                            System.out.println("Lỗi xảy ra: " + e.getMessage());
+                            scanner.nextLine();
+                        }
+                    }
+                    // break;
                 case 0:
                     System.out.println("Thoát khỏi menu quản lý khách hàng.");
                     return;

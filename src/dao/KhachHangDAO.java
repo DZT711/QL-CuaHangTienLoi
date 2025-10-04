@@ -243,4 +243,32 @@ public class KhachHangDAO {
             System.err.println("Lỗi khi đọc file: " + e.getMessage());
         }
     }
+
+    public static void thongKeTheoGioiTinh() {
+        String query = "SELECT GioiTinh, COUNT(*) AS SoLuong FROM KHACHHANG GROUP BY GioiTinh";
+
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            ResultSet rs = stmt.executeQuery();
+
+            System.out.println("\n╔═════════════════════════════════════════╗");
+            System.out.println("║    THỐNG KÊ KHÁCH HÀNG THEO GIỚI TÍNH   ║");
+            System.out.println("╠══════════════════╤══════════════════════╣");
+            System.out.printf("║ %-16s │ %-20s ║\n", "Giới Tính", "Số Lượng");
+            System.out.println("╠══════════════════╪══════════════════════╣");
+
+            while (rs.next()) {
+                String gioitinh = rs.getString("GioiTinh");
+                int soluong = rs.getInt("SoLuong");
+
+                System.out.printf("║ %-16s │ %-20d ║\n", gioitinh, soluong);
+            }
+            System.out.println("╚══════════════════╧══════════════════════╝");
+
+                
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi thống kê khách hàng theo giới tính: " + e.getMessage());
+        }
+    }
 }
