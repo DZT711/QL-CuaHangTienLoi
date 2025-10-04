@@ -208,7 +208,7 @@ public class QuanLyKhachHang {
                             } else if (opt == 1) {
                                 KhachHangDAO.thongKeTheoGioiTinh();
                             } else if (opt == 2) {
-                                // KhachHangDAO.thongKeTheoDoTuoi();
+                                KhachHangDAO.thongKeTheoDoTuoi();
                             } else {
                                 System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
                             }
@@ -217,7 +217,7 @@ public class QuanLyKhachHang {
                             scanner.nextLine();
                         }
                     }
-                    // break;
+                    break;
                 case 0:
                     System.out.println("Thoát khỏi menu quản lý khách hàng.");
                     return;

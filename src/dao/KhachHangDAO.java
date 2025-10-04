@@ -271,4 +271,45 @@ public class KhachHangDAO {
             System.err.println("Lỗi khi thống kê khách hàng theo giới tính: " + e.getMessage());
         }
     }
+
+    public static void thongKeTheoDoTuoi() {
+        String query = 
+        "SELECT CASE " +
+        "WHEN TIMESTAMPDIFF(YEAR, NgaySinh, CURDATE()) < 18 THEN 'Dưới 18 tuổi' " +
+        "WHEN TIMESTAMPDIFF(YEAR, NgaySinh, CURDATE()) BETWEEN 18 AND 30 THEN '18-30 tuổi' " +
+        "WHEN TIMESTAMPDIFF(YEAR, NgaySinh, CURDATE()) BETWEEN 31 AND 45 THEN '31-45 tuổi' " +  
+        "WHEN TIMESTAMPDIFF(YEAR, NgaySinh, CURDATE()) BETWEEN 46 AND 60 THEN '46-60 tuổi' " +
+        "ELSE 'Trên 60 tuổi' " +
+        "END AS DoTuoi, COUNT(*) AS SoLuong " +
+        "FROM KHACHHANG " +
+        "GROUP BY DoTuoi";
+
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            ResultSet rs = stmt.executeQuery();
+            
+            System.out.println("\n╔═════════════════════════════════════════╗");
+            System.out.println("║    THỐNG KÊ KHÁCH HÀNG THEO ĐỘ TUỔI     ║");
+            System.out.println("╠══════════════════╤══════════════════════╣");
+            System.out.printf("║ %-16s │ %-20s ║\n", "Độ Tuổi", "Số Lượng");
+            System.out.println("╠══════════════════╪══════════════════════╣");
+
+            int count = 0; 
+            while (rs.next()) {
+                String doTuoi = rs.getString("DoTuoi");
+                int soluong = rs.getInt("SoLuong");
+                count += soluong;
+
+                System.out.printf("║ %-16s │ %-20d ║\n", doTuoi, soluong);  
+            }
+            System.out.println("╠══════════════════╪══════════════════════╣");
+            System.out.printf("║ %-16s │ %-20s ║\n", "Tổng cộng", count);
+            System.out.println("╚══════════════════╧══════════════════════╝");
+            System.out.println("Tổng số khách hàng: " + count);
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi thống kê khách hàng theo độ tuổi: " + e.getMessage());
+        }
+    }
 }
+            
