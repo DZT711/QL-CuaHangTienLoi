@@ -196,6 +196,7 @@ public class QuanLyKhachHang {
                             System.out.println("    ┃ [1] ➜ Thống kê khách hàng theo giới tính                           ┃");
                             System.out.println("    ┃ [2] ➜ Thống kê khách hàng theo độ tuổi                             ┃");
                             System.out.println("    ┃ [3] ➜ Thống kê khách hàng theo số lượng hóa đơn                    ┃");
+                            System.out.println("    ┃ [4] ➜ Thống kê khách hàng theo tổng chi tiêu                       ┃");
                             System.out.println("    ┃ [0] ➜ Thoát                                                        ┃");
                             System.out.println("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
                             System.out.print("\n💡 Nhập lựa chọn của bạn: ");
@@ -212,6 +213,8 @@ public class QuanLyKhachHang {
                                 KhachHangDAO.thongKeTheoDoTuoi();
                             } else if (opt == 3) {
                                 KhachHangDAO.thongKeTheoSohd();
+                            } else if (opt == 4) {
+                                KhachHangDAO.thongKeTheoTongChiTieu();
                             } else {
                                 System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
                             }

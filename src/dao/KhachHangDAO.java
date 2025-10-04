@@ -4,6 +4,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import dto.KhachHangDTO;
+import util.FormatUtil;
 import util.JDBCUtil;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -343,6 +344,40 @@ public class KhachHangDAO {
             System.out.println("╚════════════╧══════════════════════╧════════════╧══════════╝");
         } catch (SQLException e) {
             System.err.println("Lỗi khi thống kê khách hàng theo số lượng hóa đơn: " + e.getMessage());
+        }
+    }
+
+    public static void thongKeTheoTongChiTieu() {
+        String query = 
+        "SELECT KH.MaKH, KH.Ho, KH.Ten, COALESCE(SUM(HD.TongTien), 0) AS TongChiTieu " +
+        "FROM KHACHHANG KH " +
+        "LEFT JOIN HOADON HD ON KH.MaKH = HD.MaKH " +
+        "GROUP BY KH.MaKH, KH.Ho, KH.Ten " +
+        "ORDER BY TongChiTieu DESC";
+
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            ResultSet rs = stmt.executeQuery();
+
+            System.out.println("\n╔═══════════════════════════════════════════════════════════╗");
+            System.out.println("║            THỐNG KÊ KHÁCH HÀNG THEO TỔNG CHI TIÊU          ║");
+            System.out.println("╠════════════╤══════════════════════╤════════════╤══════════╣");
+            System.out.printf("║ %-10s │ %-20s │ %-10s │ %-8s ║\n",
+                "MÃ KH", "HỌ", "TÊN", "TỔNG CHI TIÊU");
+            System.out.println("╠════════════╪══════════════════════╪════════════╪══════════╣");
+            
+            while (rs.next()) {
+                String maKH = rs.getString("MaKH");
+                String ho = rs.getString("Ho");
+                String ten = rs.getString("Ten");
+                long tongChiTieu = rs.getLong("TongChiTieu");
+
+                System.out.printf("║ %-10s │ %-20s │ %-10s │ %-8d ║\n", maKH, ho, ten, FormatUtil.formatVND(tongChiTieu));
+            }
+            System.out.println("╚════════════╧══════════════════════╧════════════╧══════════╝");
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi thống kê khách hàng theo tổng chi tiêu: " + e.getMessage());
         }
     }
 }
