@@ -30,8 +30,6 @@ public class HoaDonDAO {
         return list;
     }
 
-    
-
     public static void themHoaDon(HoaDonDTO hd) {
         String query = "INSERT INTO HOADON (MaHD, MaKH, MaNV, MaKM, TongTien, NgayLapHD) VALUES (?, ?, ?, ?, ?, current_timestamp());";
 
@@ -72,5 +70,24 @@ public class HoaDonDAO {
         }
     }
 
-    
+    public static String generateIDHoaDon() {
+        String prefix = "HD";
+        String newID = prefix + "001";
+        String query = "SELECT MaHD FROM HOADON ORDER BY MaHD DESC LIMIT 1";
+
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery();) {
+
+            if (rs.next()) {
+                String lastID = rs.getString("MaHD");
+                int number = Integer.parseInt(lastID.substring(2));
+                number++;
+                newID = prefix + String.format("%03d", number);
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi tạo mã hóa đơn: " + e.getMessage());
+        }
+        return newID;
+    }
 }

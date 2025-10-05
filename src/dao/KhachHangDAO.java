@@ -380,5 +380,27 @@ public class KhachHangDAO {
             System.err.println("Lỗi khi thống kê khách hàng theo tổng chi tiêu: " + e.getMessage());
         }
     }
+
+    public static String generateIDKhachHang() {
+        String prefix = "KH";
+        String newID = prefix + "001";
+        String query = "SELECT MaKH FROM KHACHHANG ORDER BY MaKH DESC LIMIT 1";
+
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery();) {
+
+            if (rs.next()) {
+                String lastID = rs.getString("MaKH");
+                int number = Integer.parseInt(lastID.substring(2));
+                number++;
+                newID = prefix + String.format("%03d", number);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi tạo mã khách hàng: " + e.getMessage());
+        }
+        return newID;
+    }
 }
             
