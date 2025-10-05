@@ -239,19 +239,8 @@ public class QuanLyKhachHang {
         Scanner scanner = new Scanner(System.in);
         while (true) {
             try {
-                System.out.print("Nhập mã khách hàng: ");
-                String maKH = scanner.nextLine().trim();
-                if (maKH.equals("0")) {
-                    System.out.println("Thoát thêm khách hàng.");
-                    break;
-                }
+                String maKH = KhachHangDAO.generateIDKhachHang();
                 
-                // Kiểm tra mã khách hàng đã tồn tại hay chưa
-                if (KhachHangDAO.kiemTraMaKH(maKH)) {
-                    System.out.println("Mã khách hàng đã tồn tại, vui lòng nhập lại.");
-                    continue;
-                } 
-
                 KhachHangDTO kh = new KhachHangDTO();
                 kh.setMaKH(maKH);
                 if (!kh.nhapThongTinKhachHang()) {
