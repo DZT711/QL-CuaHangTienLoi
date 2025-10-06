@@ -5,14 +5,16 @@ public class ChiTietHoaDonDTO {
     private String maSP;
     private int soLuong;
     private int donGia;
+    private int thanhTien;
 
     public ChiTietHoaDonDTO() {}
 
-    public ChiTietHoaDonDTO(String maHD, String maSP, int soLuong, int donGia) {
+    public ChiTietHoaDonDTO(String maHD, String maSP, int soLuong, int donGia, int thanhTien) {
         this.maHD = maHD;
         this.maSP = maSP;
         this.soLuong = soLuong;
         this.donGia = donGia;
+        this.thanhTien = thanhTien;
     }
     
     public String getMaHD() {
@@ -46,4 +48,12 @@ public class ChiTietHoaDonDTO {
     public void setDonGia(int donGia) {
         this.donGia = donGia;
     }   
+
+    public int getThanhTien() {
+        return thanhTien;
+    }
+
+    public void setThanhTien(int thanhTien) {
+        this.thanhTien = thanhTien;
+    }
 }
