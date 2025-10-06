@@ -8,15 +8,19 @@ public class HoaDonDTO {
     private String maHD;
     private String maKH;
     private String maNV;
+    private int tienKhachDua;
+    private int tienThua;
     private int tongTien;
     private LocalDateTime ngayLapHD;
     private String phuongThucTT;
     public HoaDonDTO() {}
     
-    public HoaDonDTO(String maHD, String maKH, String maNV, int tongTien, LocalDateTime ngayLapHD, String phuongThucTT) {
+    public HoaDonDTO(String maHD, String maKH, String maNV, int tienKhachDua, int tienThua, int tongTien, LocalDateTime ngayLapHD, String phuongThucTT) {
         this.maHD = maHD;
         this.maKH = maKH;
         this.maNV = maNV;
+        this.tienKhachDua = tienKhachDua;
+        this.tienThua = tienThua;
         this.tongTien = tongTien;
         this.ngayLapHD = ngayLapHD;
         this.phuongThucTT = phuongThucTT;
@@ -60,6 +64,22 @@ public class HoaDonDTO {
     
     public void setNgayLapHD(LocalDateTime ngayLapHD) {
         this.ngayLapHD = ngayLapHD;
+    }
+    
+    public int getTienKhachDua() {
+        return tienKhachDua;
+    }
+    
+    public void setTienKhachDua(int tienKhachDua) {
+        this.tienKhachDua = tienKhachDua;
+    }
+    
+    public int getTienThua() {
+        return tienThua;
+    }
+    
+    public void setTienThua(int tienThua) {
+        this.tienThua = tienThua;
     }
     
     public int getTongTien() {
