@@ -4,7 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.ResultSet;
-
+import java.util.List;
+import java.util.ArrayList;
 import dto.ChiTietHoaDonDTO;
 import util.JDBCUtil;
 
@@ -32,30 +33,36 @@ public class ChiTietHoaDonDAO {
         }
     }
 
-
-    // Làm lại giao diện cho giống thực tế, đẹp hơn
-    public static void inChiTietHoaDon(ChiTietHoaDonDTO ctHoaDon) {
+    
+    public static List<ChiTietHoaDonDTO> timChiTietHoaDon(String maHD) {
         String query = 
             "SELECT sp.TenSP, ct.SoLuong, ct.DonGia, ct.ThanhTien " + 
             "FROM CHITIETHOADON ct " +
             "INNER JOIN SANPHAM sp ON ct.MaSP = sp.MaSP " +
             "WHERE ct.MaHD = ?";
 
+        List<ChiTietHoaDonDTO> list = new ArrayList<>();
+
         try (Connection conn = JDBCUtil.getConnection()) {
             PreparedStatement stmt = conn.prepareStatement(query);
 
-            stmt.setString(1, ctHoaDon.getMaHD());
+            stmt.setString(1, maHD);
             ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                String tenSP = rs.getString("TenSP");
-                int soLuong = rs.getInt("SoLuong");
-                int donGia = rs.getInt("DonGia");
-                int thanhTien = rs.getInt("ThanhTien");
 
-                System.out.println(tenSP + " | " + soLuong + " | " + donGia + " | " + thanhTien);
+            while (rs.next()) {
+                list.add(
+                    new ChiTietHoaDonDTO(
+                        maHD,
+                        rs.getString("MaSP"),
+                        rs.getInt("SoLuong"),
+                        rs.getInt("DonGia"),
+                        rs.getInt("ThanhTien")
+                    )
+                );
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi in chi tiết hóa đơn: " + e.getMessage());
+            System.err.println("Lỗi khi tìm chi tiết hóa đơn: " + e.getMessage());
         }
+        return list;
     }
 }
