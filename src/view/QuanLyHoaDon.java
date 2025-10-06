@@ -26,9 +26,8 @@ public class QuanLyHoaDon {
             System.out.println("██                                                                            ██");
             System.out.println("████████████████████████████████████████████████████████████████████████████████");
             System.out.println("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ MENU CHỨC NĂNG ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓");
-            System.out.println("▒ [1] ➜ Thêm hóa đơn                                                       ▒");
-            System.out.println("▒ [2] ➜ Thêm danh sách hóa đơn                                                 ▒");
-            System.out.println("▒ [3] ➜ Xóa hóa đơn                                                            ▒");
+            System.out.println("▒ [1] ➜ Thêm hóa đơn                                                           ▒");
+            System.out.println("▒ [2] ➜ Xóa hóa đơn                                                            ▒");
             System.out.println("▒ [4] ➜ Tìm kiếm hóa đơn                                                       ▒");
             System.out.println("▒ [5] ➜ Thống kê hóa đơn                                                       ▒");
             System.out.println("▒ [6] ➜ Xem danh sách hóa đơn                                                  ▒");
@@ -65,7 +64,7 @@ public class QuanLyHoaDon {
                     themHoaDon();
                     break;
                 case 2:
-                    // themDanhSachHoaDon();
+                    
                     break;
                 case 3:
                     // xoaHoaDon();
@@ -266,8 +265,27 @@ public class QuanLyHoaDon {
         
     }
     
-    public void themDanhSachHoaDon() { }
-    public void xoaHoaDon() { }
+    public void xoaHoaDon() { 
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            try {
+                System.out.println("Nhập mã hóa đơn cần xóa: ");
+                String maHD = scanner.nextLine().trim();
+                
+                if (HoaDonDAO.timHoaDon(maHD) == null) {
+                    System.out.println("Mã hóa đơn không tồn tại, vui lòng nhập lại.");
+                    continue;
+                }
+
+                HoaDonDAO.xoaHoaDon(maHD);
+                break;
+            }
+            catch (Exception e) {
+                System.out.println("Lỗi: " + e.getMessage());
+                scanner.nextLine();
+            }
+        }
+    }
     public void timKiemHoaDon() { }
     public void thongKeHoaDon() { }
     public void xemDanhSachHoaDon() { }

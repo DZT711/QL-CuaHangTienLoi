@@ -60,7 +60,9 @@ public class HoaDonDAO {
 
         try (Connection conn = JDBCUtil.getConnection()) {
             PreparedStatement stmt = conn.prepareStatement(query);
+
             stmt.setString(1, maHD);
+            
             int rowAffected = stmt.executeUpdate();
             if (rowAffected > 0) {
                 System.out.println("Xóa hóa đơn thành công");
