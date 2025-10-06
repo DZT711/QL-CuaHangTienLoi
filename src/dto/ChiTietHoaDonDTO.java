@@ -56,4 +56,12 @@ public class ChiTietHoaDonDTO {
     public void setThanhTien(int thanhTien) {
         this.thanhTien = thanhTien;
     }
+
+    // Làm lại giao diện cho giống thực tế, đẹp hơn
+    public void inChiTietHoaDon() {
+        System.out.println("Mã sản phẩm: " + maSP);
+        System.out.println("Số lượng: " + soLuong);
+        System.out.println("Đơn giá: " + donGia);
+        System.out.println("Thành tiền: " + thanhTien);
+    }
 }
