@@ -1,8 +1,19 @@
 package view;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import dao.HoaDonDAO;
+import dao.ChiTietHoaDonDAO;
+import dto.ChiTietHoaDonDTO;
 import dto.HoaDonDTO;
+import dto.KhachHangDTO;
+import main.Main;
+import dao.KhachHangDAO;
+import dao.SanPhamDAO;
+import dto.sanPhamDTO;
 
 public class QuanLyHoaDon {
     public void menuQuanLyHoaDon() {
@@ -15,7 +26,7 @@ public class QuanLyHoaDon {
             System.out.println("██                                                                            ██");
             System.out.println("████████████████████████████████████████████████████████████████████████████████");
             System.out.println("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ MENU CHỨC NĂNG ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓");
-            System.out.println("▒ [1] ➜ Tạo hóa đơn mới                                                        ▒");
+            System.out.println("▒ [1] ➜ Thêm hóa đơn                                                       ▒");
             System.out.println("▒ [2] ➜ Thêm danh sách hóa đơn                                                 ▒");
             System.out.println("▒ [3] ➜ Xóa hóa đơn                                                            ▒");
             System.out.println("▒ [4] ➜ Tìm kiếm hóa đơn                                                       ▒");
@@ -39,9 +50,9 @@ public class QuanLyHoaDon {
                     else if (choice == 0) {
                         return;
                     } else {
-                    System.out.println("Vui lòng nhập số trong khoảng 0–7.");
-                    System.out.print("\n💡 Nhập lựa chọn của bạn: ");
-                }  
+                        System.out.println("Vui lòng nhập số trong khoảng 0–7.");
+                        System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+                    }  
                 } else {
                     System.out.println("Vui lòng nhập số hợp lệ.");
                     scanner.next();
@@ -51,7 +62,7 @@ public class QuanLyHoaDon {
 
             switch (choice) {
                 case 1:
-                    // themHoaDon();
+                    themHoaDon();
                     break;
                 case 2:
                     // themDanhSachHoaDon();
@@ -81,7 +92,180 @@ public class QuanLyHoaDon {
         }
     }
 
-    public void themHoaDon() { }
+    public void themHoaDon() {
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            try {
+                System.out.println("Nhập số điện thoại khách hàng: ");
+                String sdt = scanner.nextLine().trim();
+
+                KhachHangDTO kh = KhachHangDAO.timKhachHangTheoDienThoai(sdt);
+                if (kh == null) {
+                    System.out.println("Khách hàng chưa có trong hệ thống, Nhập thông tin khách hàng mới: ");
+
+                    String maKH = KhachHangDAO.generateIDKhachHang();
+
+                    System.out.println("Nhập họ khách hàng: ");
+                    String ho = scanner.nextLine().trim();
+                    while(ho.isEmpty()) {
+                        System.out.println("Họ khách hàng không được để trống, vui lòng nhập lại.");
+                        System.out.println("Nhập họ khách hàng: ");
+                        ho = scanner.nextLine().trim();
+                    }
+
+                    System.out.println("Nhập tên khách hàng: ");
+                    String ten = scanner.nextLine().trim();
+                    while(ten.isEmpty()) {
+                        System.out.println("Tên khách hàng không được để trống, vui lòng nhập lại.");
+                        System.out.println("Nhập tên khách hàng: ");
+                        ten = scanner.nextLine().trim();
+                    }
+
+                    KhachHangDTO customer = new KhachHangDTO();
+                    customer.setMaKH(maKH);
+                    customer.setHo(ho);
+                    customer.setTen(ten);
+                    customer.setDienThoai(sdt);   
+                    KhachHangDAO.themKhachHang(customer);
+                    kh = customer;
+                }
+                else System.out.println("Khách hàng đã tồn tại trong hệ thống.");
+                
+                String maHD = HoaDonDAO.generateIDHoaDon();
+                String maNV = Main.CURRENT_ACCOUNT.getMaNV();
+
+                List<ChiTietHoaDonDTO> chiTietHoaDon = new ArrayList<>();
+                int tongTien = 0;
+                while (true) {
+                    System.out.println("Nhập mã sản phẩm ");
+                    String maSP = scanner.nextLine().trim();
+                    if (maSP.equals("0")) break;
+
+                    sanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
+                    if (sp == null) {
+                        System.out.println("Sản phẩm không tồn tại, vui lòng nhập lại.");
+                        continue;
+                    }
+
+
+                    System.out.println("Nhập số lượng: ");
+                    String slString = scanner.nextLine().trim();
+                    int soLuong;
+                    while (true) {
+                        try {
+                            soLuong = Integer.parseInt(slString);
+                            if (soLuong <= 0) {
+                                System.out.println("Số lượng phải lớn hơn 0, vui lòng nhập lại.");
+                                continue;
+                            }
+                            if (soLuong > sp.getSoLuongTon()) {
+                                System.out.println("Số lượng vượt quá số lượng tồn, vui lòng nhập lại.");
+                                continue;
+                            }
+                            break;
+                        } catch (NumberFormatException e) {
+                            System.out.println("Số lượng không hợp lệ, vui lòng nhập lại.");
+                            continue;
+                        }
+                    }
+
+                    int donGia = sp.getGiaBan();
+                    int thanhTien = soLuong * donGia;
+                    chiTietHoaDon.add(new ChiTietHoaDonDTO(maHD, maSP, soLuong, donGia, thanhTien));
+
+                    sp.setSoLuongTon(sp.getSoLuongTon() - soLuong);
+                    SanPhamDAO.capnhatSoLuongTon(maSP, sp.getSoLuongTon());
+
+                    tongTien += thanhTien;
+                }
+                
+                HoaDonDTO hoaDon = new HoaDonDTO();
+                
+                while (true) {
+                    System.out.println("Nhập phương thức thanh toán: ");
+                    System.out.println("1. Tiền mặt");
+                    System.out.println("2. Chuyển khoản");
+                    System.out.println("Lựa chọn của bạn: ");
+
+                    int choice = scanner.nextInt();
+
+                    if (choice == 1) {
+                        hoaDon.setPhuongThucTT("Tiền mặt");
+                        break;
+                    }
+                    else if (choice == 2) {
+                        hoaDon.setPhuongThucTT("Chuyển khoản");
+                        break;
+                    } else {
+                        System.out.println("Lựa chọn không hợp lệ, vui lòng nhập lại.");
+                    }
+                }
+
+                System.out.println("Nhập tiền khách đưa: ");
+                int tienKhachDua = scanner.nextInt();
+                scanner.nextLine();
+                while (true) {
+                    if (tienKhachDua >= tongTien) {
+                        hoaDon.setTienKhachDua(tienKhachDua);
+                        hoaDon.setTienThua(tienKhachDua - tongTien);
+                        break;
+                    } else {
+                        System.out.println("Tiền khách đưa không đủ, vui lòng nhập lại.");
+                        System.out.println("Nhập tiền khách đưa: ");
+                        tienKhachDua = scanner.nextInt();
+                        scanner.nextLine();
+                    }
+                }
+
+
+                hoaDon.setMaHD(maHD);
+                hoaDon.setMaKH(kh.getMaKH());
+                hoaDon.setMaNV(maNV);
+                hoaDon.setTongTien(tongTien);
+                hoaDon.setNgayLapHD(LocalDateTime.now());
+                hoaDon.setPhuongThucTT(hoaDon.getPhuongThucTT());
+                HoaDonDAO.themHoaDon(hoaDon);
+
+                for (ChiTietHoaDonDTO ctHoaDon : chiTietHoaDon) {
+                    ChiTietHoaDonDAO.themChiTietHoaDon(ctHoaDon);
+                }
+                System.out.println("Thêm hóa đơn thành công");
+                inHoaDon(maHD);
+                // xuất ra file
+
+                System.out.println("Bạn có muốn tạo hóa đơn khác? (y/n): ");
+                String choice = scanner.nextLine().trim();
+                if (!"y".equalsIgnoreCase(choice)) break;
+            } catch (Exception e) {
+                System.out.println("Lỗi: " + e.getMessage());
+            }
+        }
+    }
+
+    // Làm lại giao diện cho giống thực tế, đẹp hơn, tự sắp xếp bố cục lại cho phù hợp
+    public void inHoaDon(String maHD) {
+        HoaDonDTO hoaDon = HoaDonDAO.timHoaDon(maHD);
+        List<ChiTietHoaDonDTO> chiTietHoaDon = ChiTietHoaDonDAO.timChiTietHoaDon(maHD);
+        
+        System.out.println("ABC Store");
+        System.out.println("123 An Dương Vương, Q5, TP.HCM");
+        System.out.println("Điện thoại: 0909090909");
+        System.out.println("Hóa đơn bán hàng");
+        System.out.println("Ngày lập hóa đơn: " + hoaDon.getNgayLapHD().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+        System.out.println("Phương thức thanh toán: " + hoaDon.getPhuongThucTT());
+        System.out.println("Tiền khách đưa: " + hoaDon.getTienKhachDua());
+        System.out.println("Tiền thừa: " + hoaDon.getTienThua());
+        System.out.println("Tổng tiền: " + hoaDon.getTongTien());
+        System.out.println("Khách hàng: " + hoaDon.getMaKH());
+        System.out.println("Nhân viên: " + hoaDon.getMaNV());
+        System.out.println("Chi tiết hóa đơn: ");
+
+        for (ChiTietHoaDonDTO ctHoaDon : chiTietHoaDon) {
+            ctHoaDon.inChiTietHoaDon();
+        }
+        
+    }
+    
     public void themDanhSachHoaDon() { }
     public void xoaHoaDon() { }
     public void timKiemHoaDon() { }
