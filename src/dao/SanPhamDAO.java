@@ -442,4 +442,24 @@ public class SanPhamDAO {
             System.err.println("Lỗi khi xuất danh sách sản phẩm: " + e.getMessage());
         }
     }
+
+    public static void capnhatSoLuongTon(String maSP, int soLuong) {
+        String query = "UPDATE SANPHAM SET SoLuongTon = ? WHERE MaSP = ?";
+
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, soLuong);
+            stmt.setString(2, maSP);
+            int rowAffected = stmt.executeUpdate();
+            if (rowAffected > 0) {
+                System.out.println("Cập nhật số lượng tồn thành công");
+            } else {
+                System.out.println("Cập nhật số lượng tồn thất bại");
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi cập nhật số lượng tồn: " + e.getMessage());
+        }
+    }
 }
