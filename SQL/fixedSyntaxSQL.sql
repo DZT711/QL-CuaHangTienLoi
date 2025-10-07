@@ -108,6 +108,8 @@ INSERT INTO NHANVIEN (MaNV, Ho, Ten, GioiTinh, NgaySinh, DiaChi, Email, Luong, C
 ('NV002', 'Nguyen Si', 'Huy', 'Nam', '2000-03-05', 'TP.HCM', 'nguyensihuynsh711@gmail.com', 14000000, 'QL', 'active'),
 ('NV003', 'Nguyen Van', 'Cuong', 'Nam', '1998-07-09', 'Biên Hòa', 'vancuonghp9014@gmail.com', 13500000, 'QL', 'active'),
 ('NV004', 'Dang Thanh', 'Son', 'Nam', '2001-11-25', 'Đà Lạt', 'simpson061125@gmail.com', 13000000, 'QL', 'active'),
+('NV404', 'HoNV404', 'Thúy An', 'Nam', '2000-01-01', 'Địa chỉ NV404', 'nv404@example.com', 10000000, 'NV', 'active'),
+('NV006', 'HoNV006', 'Minh Ánh', 'Nam', '1999-05-05', 'Địa chỉ NV006', 'nv006@example.com', 11000000, 'NV', 'active');
 ('NV005', 'Nguyen', 'Staff', 'Nam', '2002-04-20', 'Cần Thơ', 'staff@gmail.com', 10000000, 'NV', 'active');
 
 -- Bảng KHACHHANG
