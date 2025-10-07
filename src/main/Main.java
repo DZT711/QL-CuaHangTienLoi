@@ -2,22 +2,14 @@ package main;
 import dao.SanPhamDAO;
 import dao.TaiKhoanDAO;
 import dto.TaiKhoanDTO;
-<<<<<<< HEAD
-=======
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
->>>>>>> origin/main
 import java.util.Scanner;
 import view.QuanLyKhachHang;
 import view.QuanLyNhaCungCap;
 import view.QuanLyNhanVien;
 import view.QuanLyNhapHang;
 import view.QuanLySanPham;
-<<<<<<< HEAD
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-=======
->>>>>>> origin/main
 
 
 public class Main {
@@ -59,24 +51,14 @@ public class Main {
             TaiKhoanDTO taiKhoan = TaiKhoanDAO.checkAccount(username, password);
             if (taiKhoan != null) {
                 CURRENT_ACCOUNT = taiKhoan;
-<<<<<<< HEAD
-<<<<<<<< HEAD:src/main/Main.java
-=======
->>>>>>> origin/main
+
                 // System.out.println("✓ Đăng nhập thành công! Xin chào "+taiKhoan.getRole()+" " + taiKhoan.getUsername() + "!");
                 String[] greetingInfo = getGreeting();
                 // System.out.println(greetingInfo[0] + " " + greetingInfo[1] + ", hiện tại là " + greetingInfo[2]);
 
                 System.out.println("✓ Đăng nhập thành công! Xin " + greetingInfo[1] + " " + taiKhoan.getRole() + " " + taiKhoan.getUsername() + "!");
                 System.out.println(greetingInfo[0] + " Thời gian hiện tại của sever là " + greetingInfo[2]);
-<<<<<<< HEAD
-========
-                System.out.println("✓ Đăng nhập thành công! Xin chào "+taiKhoan.getRole()+" " + taiKhoan.getUsername() + "!");
-                String[] greetingInfo = getGreeting();
-                System.out.println(greetingInfo[0] + " " + greetingInfo[1] + ", hiện tại là " + greetingInfo[2]);
->>>>>>>> origin/main:main/Main.java
-=======
->>>>>>> origin/main
+                System.out.println("═══════════════════════════════════════════════════════════");
 
                 // Tự động inactive sản phẩm hết hạn khi vào chương trình
                 SanPhamDAO.capnhatTrangThaiHetHan();
@@ -96,15 +78,7 @@ public class Main {
     }
 
     public static void clearScreen() {
-<<<<<<< HEAD
-<<<<<<<< HEAD:src/main/Main.java
-        // System.out.print("\033[H\033[2J");
-========
-        System.out.print("\033[H\033[2J");
->>>>>>>> origin/main:main/Main.java
-=======
-        // System.out.print("\033[H\033[2J");
->>>>>>> origin/main
+
         System.out.flush();
     }
 
@@ -112,15 +86,9 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         while (true) {
             System.out.println("\n" + "═".repeat(65));
-<<<<<<< HEAD
-<<<<<<<< HEAD:src/main/Main.java
+
             System.out.println("🏢              QUẢN LÝ CỬA HÀNG - MENU CHÍNH               🏢");
-========
-            System.out.println("🏢              QUẢN LÝ CỬA HÀNG - MENU CHÍNH              🏢");
->>>>>>>> origin/main:main/Main.java
-=======
-            System.out.println("🏢              QUẢN LÝ CỬA HÀNG - MENU CHÍNH               🏢");
->>>>>>> origin/main
+
             System.out.println("═".repeat(65));
             System.out.println("┌─ CHỨC NĂNG CHÍNH ──────────────────────────────────────────┐");
             System.out.println("│                                                            │");

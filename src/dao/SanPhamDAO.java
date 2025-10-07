@@ -391,56 +391,56 @@ public class SanPhamDAO {
 
     }
 
-    // public static void xuatDanhSachSanPham() {
-    //     String query =
-    //     "SELECT sp.MaSP, sp.TenSP, l.TenLoai, sp.SoLuongTon, sp.GiaBan, sp.NgaySanXuat, sp.HanSuDung, sp.TrangThai " +
-    //     "FROM SANPHAM sp " +
-    //     "INNER JOIN LOAI l ON sp.Loai = l.MaLoai " +
-    //     "ORDER BY sp.MaSP ASC";
+    public static void xuatDanhSachSanPham() {
+        String query =
+        "SELECT sp.MaSP, sp.TenSP, l.TenLoai, sp.SoLuongTon, sp.GiaBan, sp.NgaySanXuat, sp.HanSuDung, sp.TrangThai " +
+        "FROM SANPHAM sp " +
+        "INNER JOIN LOAI l ON sp.Loai = l.MaLoai " +
+        "ORDER BY sp.MaSP ASC";
 
-    //     try (Connection conn = JDBCUtil.getConnection();
-    //         PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
 
-    //         ResultSet rs = stmt.executeQuery();
-    //         System.out.println("\n╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
-    //         System.out.println("║                                          DANH SÁCH SẢN PHẨM TRONG CỬA HÀNG                                               ║");
-    //         System.out.println("╠════════════════╤═══════════════════════╤═══════════════╤═══════════════╤═══════════════╤═══════════════╤════════════════╤═════════════╣");
-    //         System.out.printf("║ %-12s │ %-21s │ %-13s │ %-13s │ %-13s │ %-13s │ %-14s │ %-11s ║\n",
-    //                     "MÃ SP", "TÊN SP", "LOẠI", "SỐ LƯỢNG", "GIÁ BÁN", "NGÀY SX", "HẠN SỬ DỤNG", "TRẠNG THÁI");
-    //         System.out.println("╠════════════════╪═══════════════════════╪═══════════════╪═══════════════╪═══════════════╪═══════════════╪════════════════╪═════════════╣");
+            ResultSet rs = stmt.executeQuery();
+            System.out.println("\n╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
+            System.out.println("║                                          DANH SÁCH SẢN PHẨM TRONG CỬA HÀNG                                               ║");
+            System.out.println("╠════════════════╤═══════════════════════╤═══════════════╤═══════════════╤═══════════════╤═══════════════╤════════════════╤═════════════╣");
+            System.out.printf("║ %-12s │ %-21s │ %-13s │ %-13s │ %-13s │ %-13s │ %-14s │ %-11s ║\n",
+                        "MÃ SP", "TÊN SP", "LOẠI", "SỐ LƯỢNG", "GIÁ BÁN", "NGÀY SX", "HẠN SỬ DỤNG", "TRẠNG THÁI");
+            System.out.println("╠════════════════╪═══════════════════════╪═══════════════╪═══════════════╪═══════════════╪═══════════════╪════════════════╪═════════════╣");
 
 
-    //         int count = 0;
-    //         while (rs.next()) {
-    //             String maSP = rs.getString("MaSP");
-    //             String tenSP = rs.getString("TenSP");
-    //             String tenLoai = rs.getString("TenLoai");
-    //             int soLuongTon = rs.getInt("SoLuongTon");
+            int count = 0;
+            while (rs.next()) {
+                String maSP = rs.getString("MaSP");
+                String tenSP = rs.getString("TenSP");
+                String tenLoai = rs.getString("TenLoai");
+                int soLuongTon = rs.getInt("SoLuongTon");
 
-    //             int giaBan = rs.getInt("GiaBan");
-    //             String giaBanStr = FormatUtil.formatVND(giaBan);
+                int giaBan = rs.getInt("GiaBan");
+                String giaBanStr = FormatUtil.formatVND(giaBan);
 
-    //             Date ngaySanXuat = rs.getDate("NgaySanXuat");
-    //             String NSXStr = (ngaySanXuat != null) ? ngaySanXuat.toLocalDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "Không xác định";
+                Date ngaySanXuat = rs.getDate("NgaySanXuat");
+                String NSXStr = (ngaySanXuat != null) ? ngaySanXuat.toLocalDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "Không xác định";
 
-    //             Date hanSuDung = rs.getDate("HanSuDung");
-    //             String HSDStr = (hanSuDung != null) ? hanSuDung.toLocalDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "Không xác định";
+                Date hanSuDung = rs.getDate("HanSuDung");
+                String HSDStr = (hanSuDung != null) ? hanSuDung.toLocalDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "Không xác định";
 
-    //             String trangThai = rs.getString("TrangThai");
+                String trangThai = rs.getString("TrangThai");
 
-    //             System.out.printf("║ %-12s │ %-21s │ %-13s │ %-13d │ %-13s │ %-13s │ %-14s │ %-11s ║\n",
-    //                         maSP, tenSP, tenLoai, soLuongTon,
-    //                         giaBanStr, NSXStr, HSDStr, trangThai);
-    //             count++;
-    //         }
+                System.out.printf("║ %-12s │ %-21s │ %-13s │ %-13d │ %-13s │ %-13s │ %-14s │ %-11s ║\n",
+                            maSP, tenSP, tenLoai, soLuongTon,
+                            giaBanStr, NSXStr, HSDStr, trangThai);
+                count++;
+            }
 
-    //         System.out.println("╚════════════════╧═══════════════════════╧═══════════════╧═══════════════╧═══════════════╧═══════════════╧════════════════╧═════════════╝");
-    //         System.out.println("=> Tổng số sản phẩm: " + count);
+            System.out.println("╚════════════════╧═══════════════════════╧═══════════════╧═══════════════╧═══════════════╧═══════════════╧════════════════╧═════════════╝");
+            System.out.println("=> Tổng số sản phẩm: " + count);
 
-    //     } catch (SQLException e) {
-    //         System.err.println("Lỗi khi xuất danh sách sản phẩm: " + e.getMessage());
-    //     }
-    // }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi xuất danh sách sản phẩm: " + e.getMessage());
+        }
+    }
 
     public static void capnhatSoLuongTon(String maSP, int soLuong) {
         String query = "UPDATE SANPHAM SET SoLuongTon = ? WHERE MaSP = ?";
@@ -461,52 +461,5 @@ public class SanPhamDAO {
             System.err.println("Lỗi khi cập nhật số lượng tồn: " + e.getMessage());
         }
     }
-    public static void xuatDanhSachSanPham() {
-        String query = "SELECT sp.MaSP, sp.TenSP, loai.TenLoai, sp.SoLuongTon, sp.GiaBan, sp.NgaySanXuat, sp.HanSuDung, sp.TrangThai" +
-                        "FROM SANPHAM sp " +
-                        "INNER JOIN LOAI ON sp.Loai = Loai.MaLoai " +
-                        "ORDER BY sp.MaSP ASC";
-
-    List<String> headers = List.of("MÃ SP", "TÊN SP", "LOẠI", "SỐ LƯỢNG", "GIÁ BÁN", "NGÀY SX", "HẠN SỬ DỤNG", "TRẠNG THÁI");
-    List<List<String>> rows = new ArrayList<>();
-
-    try (Connection conn = JDBCUtil.getConnection();
-         PreparedStatement stmt = conn.prepareStatement(query);
-         ResultSet rs = stmt.executeQuery()) {
-
-        while (rs.next()) {
-            String maSP = rs.getString("MaSP");
-            String tenSP = rs.getString("TenSP");
-            String loai = rs.getString("Loai");
-            String soLuong = Integer.toString(rs.getInt("SoLuongTon"));
-            String giaBan = FormatUtil.formatVND(rs.getInt("GiaBan"));
-            String ngaySX = null;
-            Date d1 = rs.getDate("NgaySanXuat");
-            if (d1 != null) {
-                ngaySX = d1.toLocalDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-            } else {
-                ngaySX = "";
-            }
-            String hsd = null;
-            Date d2 = rs.getDate("HanSuDung");
-            if (d2 != null) {
-                hsd = d2.toLocalDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-            } else {
-                hsd = "";
-            }
-            String trangThai = rs.getString("TrangThai");
-
-                System.out.printf("║ %-12s │ %-21s │ %-13s │ %-13d │ %-13s │ %-13s │ %-14s │ %-11s ║\n",
-                            maSP, tenSP, tenLoai, soLuongTon,
-                            giaBanStr, NSXStr, HSDStr, trangThai);
-                count++;
-            }
-
-            System.out.println("╚════════════════╧═══════════════════════╧═══════════════╧═══════════════╧═══════════════╧═══════════════╧════════════════╧═════════════╝");
-            System.out.println("=> Tổng số sản phẩm: " + count);
-
-        } catch (SQLException e) {
-            System.err.println("Lỗi khi xuất danh sách sản phẩm: " + e.getMessage());
-        }
-    }
+   
 }
