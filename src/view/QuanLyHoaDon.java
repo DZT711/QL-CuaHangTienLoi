@@ -14,6 +14,7 @@ import main.Main;
 import dao.KhachHangDAO;
 import dao.SanPhamDAO;
 import dto.sanPhamDTO;
+import java.util.InputMismatchException;
 
 public class QuanLyHoaDon {
     public void menuQuanLyHoaDon() {
@@ -28,7 +29,7 @@ public class QuanLyHoaDon {
             System.out.println("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ MENU CHỨC NĂNG ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓");
             System.out.println("▒ [1] ➜ Thêm hóa đơn                                                           ▒");
             System.out.println("▒ [2] ➜ Xóa hóa đơn                                                            ▒");
-            System.out.println("▒ [4] ➜ Tìm kiếm hóa đơn                                                       ▒");
+            System.out.println("▒ [3] ➜ Tìm kiếm hóa đơn                                                       ▒");
             System.out.println("▒ [5] ➜ Thống kê hóa đơn                                                       ▒");
             System.out.println("▒ [6] ➜ Xem danh sách hóa đơn                                                  ▒");
             System.out.println("▒ [7] ➜ Xuất hóa đơn                                                           ▒");
@@ -64,10 +65,47 @@ public class QuanLyHoaDon {
                     themHoaDon();
                     break;
                 case 2:
-                    
+                    xoaHoaDon();
                     break;
                 case 3:
-                    // xoaHoaDon();
+                    while (true) {
+                        try {
+                            // Làm lại giao diện cho đẹp hơn
+                            System.out.println("\n");
+                            System.out.println("Tìm kiếm hóa đơn");
+                            System.out.println("1. Tìm kiếm hóa đơn theo mã hóa đơn");
+                            System.out.println("2. Tìm kiếm hóa đơn theo ....");
+                            System.out.println("0. Thoát");
+                            System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+
+                            int opt = scanner.nextInt();
+                            scanner.nextLine();
+
+                            if (opt == 0) {
+                                System.out.println("Thoát tìm kiếm hóa đơn thành công.");
+                                break;
+                            } else if (opt == 1) {
+                                System.out.println("Nhập mã hóa đơn cần tìm: ");
+                                try {
+                                    String maHD = scanner.nextLine().trim();
+                                    scanner.nextLine();
+                                    HoaDonDTO hd = HoaDonDAO.timHoaDon(maHD);
+                                    if (hd != null) {
+                                        System.out.println("Thông tin hóa đơn tìm thấy với mã: " + maHD);
+                                        inHoaDon(maHD);
+                                    } else {
+                                        System.out.println("Không tìm thấy hóa đơn với mã: " + maHD);
+                                    }
+                                } catch (InputMismatchException e) {
+                                    System.out.println("Lỗi: Vui lòng nhập mã hóa đơn hợp lệ");
+                                    scanner.nextLine();
+                                }
+                            }
+                        } catch (Exception e) {
+                            System.out.println("Lỗi xảy ra: " + e.getMessage());
+                            scanner.nextLine();
+                        }
+                    }
                     break;
                 case 4:
                     // timKiemHoaDon();
@@ -286,7 +324,6 @@ public class QuanLyHoaDon {
             }
         }
     }
-    public void timKiemHoaDon() { }
     public void thongKeHoaDon() { }
     public void xemDanhSachHoaDon() { }
     public void xuatHoaDon() { }
