@@ -6,7 +6,7 @@
 
 ---
 
-## Progress: 5% ⏳
+## Progress: 55% ⏳
 
 ## 📌 Mô tả & phạm vi dự án
 
@@ -16,8 +16,8 @@ Xây dựng hệ thống quản lý bán hàng cho cửa hàng tiện lợi, h�
 - Nhập hàng, bán hàng, quản lý tồn kho  ⏳
 - Quản lý khách hàng, nhân viên  ⏳
 - Quản lý tài khoản (login, phân quyền)  ⏳
-<!-- - Báo cáo doanh thu, tồn kho, sản phẩm bán chạy   -->
-<!-- - Đảm bảo tính nhất quán, xử lý đồng thời, audit, rollback, status thay vì xóa thật   -->
+- Báo cáo doanh thu, tồn kho, sản phẩm bán chạy   ⏳
+- Đảm bảo tính nhất quán, xử lý đồng thời, audit, rollback, status thay vì xóa thật  ⏳
 
 ---
 
@@ -29,6 +29,9 @@ Xây dựng hệ thống quản lý bán hàng cho cửa hàng tiện lợi, h�
 - **Giới hạn độ ký tự nhập**: thống nhất dùng `VARCHAR(255)` cho phần lớn cột chuỗi.  ⏳
 - **Hạn chế HSD (ngày hết hạn)**: không cho nhập HSD ≤ ngày hiện tại — kiểm tra từ ứng dụng hoặc trigger.  ⏳
 - **Cấu trúc mô hình 3 lớp (Presentation – Business – Data Access)** giúp tách biệt logic giao diện, nghiệp vụ, truy xuất dữ liệu dễ bảo trì.  ⏳
+- **Thống nhất ngôn ngữ** sài 1 định dạng ngôn ngữ cho data / database.  ⏳
+- **Thống nhất UI** sài 1 định dạng giao diện cho các menu admin & nhân viên và các menu khác.  ⏳
+- **Menu nhân viên** .  ⏳
 
 ---
 
@@ -40,15 +43,17 @@ Xây dựng hệ thống quản lý bán hàng cho cửa hàng tiện lợi, h�
 
 <pre>
 src/
- ├── src.main/
- │    ├── java/
- │    │    ├── app/          ← chứa Main.java
- │    │    ├── view/         ← các lớp giao diện / UI
- │    │    ├── dto/          ← các lớp DTO
- │    │    └── dao/          ← lớp DAO / truy xuất DB
- ├── test/                   ← viết unit test
- ├── datebase/               ← source code của database đồ án
- └── docs/                   ← tài liệu báo cáo đồ án : file word, sơ đồ uml,...
+ ├── main/
+ │    ├── view/         ← các lớp giao diện / UI
+ │    ├── dto/          ← các lớp DTO
+ │    ├── util/         ← các lớp util để import vào các file
+ │    └── dao/          ← lớp DAO / truy xuất DB
+ ├── test/              ← viết unit test
+ ├── SQL/               ← source code của database đồ án
+ ├── database/          ← class connect tới database
+ ├── DevNotes/          ← note cho contributors
+ ├── lib/               ← thư viện .jar
+ └── docs/              ← tài liệu báo cáo đồ án : file word, sơ đồ uml,...
 </pre>
 ---
 

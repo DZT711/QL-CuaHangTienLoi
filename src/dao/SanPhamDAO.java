@@ -207,7 +207,7 @@ public class SanPhamDAO {
             int rowAffected = stmt.executeUpdate();
             return rowAffected > 0;
         } catch (SQLException e) {
-            System.err.println("Lỗi khi xóa sản phẩm theo mã: " + e.getMessage());
+            System.err.println("Lỗi khi đổi trạng thái sản phẩm theo mã: " + e.getMessage());
         }
         return false;
     }
