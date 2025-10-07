@@ -3,6 +3,7 @@ package view;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import dao.HoaDonDAO;
@@ -17,6 +18,8 @@ import dao.KhachHangDAO;
 import dao.SanPhamDAO;
 import dto.sanPhamDTO;
 import java.util.InputMismatchException;
+import java.time.format.DateTimeParseException;
+import util.FormatUtil;
 
 public class QuanLyHoaDon {
     public void menuQuanLyHoaDon() {
@@ -78,6 +81,7 @@ public class QuanLyHoaDon {
                             System.out.println("1. Tìm kiếm hóa đơn theo mã hóa đơn");
                             System.out.println("2. Tìm kiếm hóa đơn theo mã khách hàng");
                             System.out.println("3. Tìm kiếm hóa đơn theo mã nhân viên");
+                            System.out.println("4. Tìm kiếm hóa đơn theo ngày lập");
                             System.out.println("0. Thoát");
                             System.out.print("\n💡 Nhập lựa chọn của bạn: ");
 
@@ -163,6 +167,8 @@ public class QuanLyHoaDon {
                                     System.out.println("Lỗi: Vui lòng nhập mã nhân viên hợp lệ");
                                     scanner.nextLine();
                                 }
+                            } else if (opt == 4) {
+                                timHoaDonTheoNgay();
                             }
                         } catch (Exception e) {
                             System.out.println("Lỗi xảy ra: " + e.getMessage());
@@ -391,4 +397,56 @@ public class QuanLyHoaDon {
     public void xemDanhSachHoaDon() { }
     public void xuatHoaDon() { }
     
+    public void timHoaDonTheoNgay() {
+        Scanner scanner = new Scanner(System.in);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+
+        while (true) {
+            String from, to;
+            LocalDate fromDate = null, toDate = null;
+            
+            while (true) {
+                try {
+                    System.out.println("Nhập ngày bắt đầu: ");
+                    from = scanner.nextLine().trim();
+    
+                    System.out.println("Nhập ngày kết thúc: ");
+                    to = scanner.nextLine().trim();
+    
+                    fromDate = LocalDate.parse(from, formatter);
+                    toDate = LocalDate.parse(to, formatter);
+                    break;
+                } catch (DateTimeParseException e) {
+                    System.out.println("Định dạng ngày không hợp lệ, vui lòng nhập lại.");
+                    scanner.nextLine();
+                }
+            }
+            
+            List<HoaDonDTO> list = HoaDonDAO.timHoaDonTheoNgayLap(fromDate, toDate);
+
+            System.out.println("Danh sách hóa đơn trong khoảng ngày: " + from + " đến " + to);
+
+            // làm lại giao diện cho giống thực tế, đẹp hơn
+            if (list.isEmpty()) {
+                System.out.println("Không tìm thấy hóa đơn trong khoảng ngày: " + from + " đến " + to);
+            } else {
+                for (HoaDonDTO hd : list) {
+                    System.out.println("Mã hóa đơn: " + hd.getMaHD());
+                    System.out.println("Ngày lập hóa đơn: " + hd.getNgayLapHD().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+                    System.out.println("Phương thức thanh toán: " + hd.getPhuongThucTT());
+                    System.out.println("Tổng tiền: " + FormatUtil.formatVND(hd.getTongTien()));
+                    System.out.println("Khách hàng: " + hd.getMaKH());
+                    System.out.println("Nhân viên: " + hd.getMaNV());
+                }
+                System.out.println("Tìm thấy " + list.size() + " hóa đơn trong khoảng ngày: " + from + " đến " + to);
+            }
+            
+            System.out.print("\n Bạn có muốn tìm tiếp không? (y/n): ");
+            String choice = scanner.nextLine().trim();
+            if (!choice.equalsIgnoreCase("y")) {
+                System.out.println("Thoát tìm kiếm hóa đơn thành công.");
+                break;
+            }
+        }
+    }
 }

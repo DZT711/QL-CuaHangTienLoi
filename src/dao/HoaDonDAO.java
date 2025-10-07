@@ -4,6 +4,11 @@ import java.sql.*;
 import dto.HoaDonDTO;
 import util.FormatUtil;
 import util.JDBCUtil;
+import java.util.ArrayList;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
 
 public class HoaDonDAO {
     /*public static List<HoaDonDTO> getAllHoaDon() {
@@ -185,5 +190,42 @@ public class HoaDonDAO {
         } catch (SQLException e) {
             System.err.println("Lỗi khi tìm hóa đơn theo mã nhân viên: " + e.getMessage());
         }
+    }
+
+
+    public static List<HoaDonDTO> timHoaDonTheoNgayLap(LocalDate fromDate, LocalDate toDate) {
+        List<HoaDonDTO> list = new ArrayList<>();
+
+        String query = 
+            "SELECT MaHD, MaKH, MaNV, TongTien, PhuongThucTT, NgayLapHD " +
+            "FROM HOADON " +
+            "WHERE NgayLapHD >= ? AND NgayLapHD < ?" +
+            "ORDER BY NgayLapHD ASC";
+
+        try (Connection conn = JDBCUtil.getConnection()) {
+            PreparedStatement stmt = conn.prepareStatement(query);
+
+            LocalDateTime fromDateTime = fromDate.atStartOfDay();
+            LocalDateTime toExclusive = toDate.plusDays(1).atStartOfDay();
+
+            stmt.setTimestamp(1, Timestamp.valueOf(fromDateTime));
+            stmt.setTimestamp(2, Timestamp.valueOf(toExclusive));
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                HoaDonDTO hd = new HoaDonDTO();
+                hd.setMaHD(rs.getString("MaHD"));
+                hd.setMaKH(rs.getString("MaKH"));
+                hd.setMaNV(rs.getString("MaNV"));
+                hd.setTongTien(rs.getInt("TongTien"));
+                hd.setNgayLapHD(rs.getTimestamp("NgayLapHD").toLocalDateTime());
+                hd.setPhuongThucTT(rs.getString("PhuongThucTT"));
+                list.add(hd);
+            }
+        } catch (Exception e) {
+            System.err.println("Lỗi khi tìm hóa đơn theo ngày lập: " + e.getMessage());
+        }
+        return list;
     }
 }
