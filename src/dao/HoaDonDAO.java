@@ -1,10 +1,8 @@
 package dao;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.time.LocalDateTime;
 import dto.HoaDonDTO;
+import util.FormatUtil;
 import util.JDBCUtil;
 
 public class HoaDonDAO {
@@ -119,5 +117,35 @@ public class HoaDonDAO {
             System.err.println("Lỗi khi in hóa đơn: " + e.getMessage());
         }
         return null;
+    }
+
+    public static void timHoaDonTheoMaKH(String maKH) {
+        String query = 
+            "SELECT hd.MaHD, hd.ThoiGianLapHD, nv.Ho, nv.Ten, hd.TongTien, hd.PhuongThucTT " + 
+            "FROM HOADON hd " +
+            "INNER JOIN NHANVIEN nv ON hd.MaNV = nv.MaNV " +
+            "WHERE hd.MaKH = ?";
+
+        try (Connection conn = JDBCUtil.getConnection()) {
+            PreparedStatement stmt = conn.prepareStatement(query);
+
+            stmt.setString(1, maKH);
+            ResultSet rs = stmt.executeQuery();
+
+            // Làm lại giao diện cho dễ nhìn
+            while (rs.next()) {
+                System.out.println(
+                    "Mã hóa đơn: " + rs.getString("MaHD") +
+                    "Ngày lập hóa đơn: " + rs.getTimestamp("ThoiGianLapHD").toLocalDateTime() + 
+                    "Nhân viên: " + rs.getString("Ho") + " " + rs.getString("Ten") + 
+                    "Tổng tiền: " + FormatUtil.formatVND(rs.getInt("TongTien")) +
+                    "Phương thức thanh toán: " + rs.getString("PhuongThucTT")
+                );
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi tìm hóa đơn theo mã khách hàng: " + e.getMessage());
+        }
+            
+        
     }
 }
