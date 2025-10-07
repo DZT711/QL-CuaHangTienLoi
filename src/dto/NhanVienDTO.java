@@ -1,23 +1,22 @@
 package dto;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class NhanVienDTO {
     private String maNV;
     private String ho;
     private String ten;
     private String gioiTinh;
-    private Date ngaySinh;
+    private LocalDate ngaySinh;
     private String diaChi;
     private String email;
     private int luong;
     private String chucVu;
-    // private String trangThai;
-    // private String matKhau;
 
     public NhanVienDTO() {}
 
-    public NhanVienDTO(String maNV, String ho, String ten, String gioiTinh, Date ngaySinh, String diaChi, String email, int luong, String chucVu) {
+    public NhanVienDTO(String maNV, String ho, String ten, String gioiTinh, LocalDate ngaySinh, String diaChi, String email, int luong, String chucVu) {
         this.maNV = maNV;
         this.ho = ho;
         this.ten = ten;
@@ -65,11 +64,15 @@ public class NhanVienDTO {
         this.gioiTinh = gioiTinh;
     }
     
-    public Date getNgaySinh() {
+    public LocalDate getNgaySinh() {
         return ngaySinh;
     }
 
-    public void setNgaySinh(Date ngaySinh) {
+    public String getNgaySinhFormat() {
+        return ngaySinh.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+    }
+
+    public void setNgaySinh(LocalDate ngaySinh) {
         this.ngaySinh = ngaySinh;
     }
     

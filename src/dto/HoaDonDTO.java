@@ -2,25 +2,28 @@
 
 package dto;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 public class HoaDonDTO {
     private String maHD;
     private String maKH;
     private String maNV;
-    private String maKM;
+    private int tienKhachDua;
+    private int tienThua;
     private int tongTien;
-    private Date ngayLapHD;
-
+    private LocalDateTime ngayLapHD;
+    private String phuongThucTT;
     public HoaDonDTO() {}
     
-    public HoaDonDTO(String maHD, String maKH, String maNV, String maKM, int tongTien, Date ngayLapHD) {
+    public HoaDonDTO(String maHD, String maKH, String maNV, int tienKhachDua, int tienThua, int tongTien, LocalDateTime ngayLapHD, String phuongThucTT) {
         this.maHD = maHD;
         this.maKH = maKH;
         this.maNV = maNV;
-        this.maKM = maKM;
+        this.tienKhachDua = tienKhachDua;
+        this.tienThua = tienThua;
         this.tongTien = tongTien;
         this.ngayLapHD = ngayLapHD;
+        this.phuongThucTT = phuongThucTT;
     }
     
     public String getMaHD() {
@@ -47,20 +50,36 @@ public class HoaDonDTO {
         this.maNV = maNV;
     }
     
-    public String getMaKM() {
-        return maKM;
+    public String getPhuongThucTT() {
+        return phuongThucTT;
     }
     
-    public void setMaKM(String maKM) {
-        this.maKM = maKM;
+    public void setPhuongThucTT(String phuongThucTT) {
+        this.phuongThucTT = phuongThucTT;
     }
     
-    public Date getNgayLapHD() {
+    public LocalDateTime getNgayLapHD() {
         return ngayLapHD;
     }
     
-    public void setNgayLapHD(Date ngayLapHD) {
+    public void setNgayLapHD(LocalDateTime ngayLapHD) {
         this.ngayLapHD = ngayLapHD;
+    }
+    
+    public int getTienKhachDua() {
+        return tienKhachDua;
+    }
+    
+    public void setTienKhachDua(int tienKhachDua) {
+        this.tienKhachDua = tienKhachDua;
+    }
+    
+    public int getTienThua() {
+        return tienThua;
+    }
+    
+    public void setTienThua(int tienThua) {
+        this.tienThua = tienThua;
     }
     
     public int getTongTien() {

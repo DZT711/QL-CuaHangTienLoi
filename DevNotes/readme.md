@@ -40,7 +40,7 @@ Xây dựng hệ thống quản lý bán hàng cho cửa hàng tiện lợi, h�
 
 <pre>
 src/
- ├── main/
+ ├── src.main/
  │    ├── java/
  │    │    ├── app/          ← chứa Main.java
  │    │    ├── view/         ← các lớp giao diện / UI

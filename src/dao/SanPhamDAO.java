@@ -462,10 +462,10 @@ public class SanPhamDAO {
         }
     }
     public static void xuatDanhSachSanPham() {
-    String query = "SELECT sp.MaSP, sp.TenSP, loai.TenLoai AS Loai, sp.SoLuongTon, sp.GiaBan, sp.NgaySanXuat, sp.HanSuDung, sp.TrangThai " +
-                   "FROM SANPHAM sp " +
-                   "INNER JOIN LOAI ON sp.Loai = Loai.MaLoai " +
-                   "ORDER BY sp.MaSP ASC";
+        String query = "SELECT sp.MaSP, sp.TenSP, loai.TenLoai, sp.SoLuongTon, sp.GiaBan, sp.NgaySanXuat, sp.HanSuDung, sp.TrangThai" +
+                        "FROM SANPHAM sp " +
+                        "INNER JOIN LOAI ON sp.Loai = Loai.MaLoai " +
+                        "ORDER BY sp.MaSP ASC";
 
     List<String> headers = List.of("MÃ SP", "TÊN SP", "LOẠI", "SỐ LƯỢNG", "GIÁ BÁN", "NGÀY SX", "HẠN SỬ DỤNG", "TRẠNG THÁI");
     List<List<String>> rows = new ArrayList<>();
@@ -496,97 +496,17 @@ public class SanPhamDAO {
             }
             String trangThai = rs.getString("TrangThai");
 
-            List<String> row = new ArrayList<>();
-            row.add(maSP);
-            row.add(tenSP);
-            row.add(loai);
-            row.add(soLuong);
-            row.add(giaBan);
-            row.add(ngaySX);
-            row.add(hsd);
-            row.add(trangThai);
-
-            rows.add(row);
-        }
-    } catch (SQLException e) {
-        System.err.println("Lỗi khi xuất danh sách sản phẩm: " + e.getMessage());
-        return;
-    }
-
-    // Nếu không có dữ liệu, vẫn in header
-    if (rows.isEmpty()) {
-        // in header đơn giản
-        System.out.println(String.join(" | ", headers));
-        return;
-    }
-
-    // --- Tính chiều rộng mỗi cột ---
-    int cols = headers.size();
-    int[] colWidths = new int[cols];
-    // Khởi từ header
-    for (int i = 0; i < cols; i++) {
-        colWidths[i] = headers.get(i).length();
-    }
-    // Duyệt từng dòng để cập nhật width
-    for (List<String> row : rows) {
-        for (int i = 0; i < cols; i++) {
-            String cell = row.get(i);
-            if (cell != null) {
-                int len = cell.length();
-                if (len > colWidths[i]) {
-                    colWidths[i] = len;
-                }
+                System.out.printf("║ %-12s │ %-21s │ %-13s │ %-13d │ %-13s │ %-13s │ %-14s │ %-11s ║\n",
+                            maSP, tenSP, tenLoai, soLuongTon,
+                            giaBanStr, NSXStr, HSDStr, trangThai);
+                count++;
             }
+
+            System.out.println("╚════════════════╧═══════════════════════╧═══════════════╧═══════════════╧═══════════════╧═══════════════╧════════════════╧═════════════╝");
+            System.out.println("=> Tổng số sản phẩm: " + count);
+
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi xuất danh sách sản phẩm: " + e.getMessage());
         }
     }
-
-    // --- Xây định dạng printf động ---
-    // Ví dụ: "| %-Ws | %-Wx | %-Wy | ... |\n"
-    StringBuilder fmtBuilder = new StringBuilder();
-    fmtBuilder.append("|");
-    for (int i = 0; i < cols; i++) {
-        // đặt 1 khoảng trước & sau nội dung trong ô
-        fmtBuilder.append(" %-").append(colWidths[i]).append("s |");
-    }
-    String fmt = fmtBuilder.toString();
-
-    // --- In header ---
-    System.out.printf(fmt + "%n", headers.toArray());
-
-    // In dòng phân cách (đường ngang)
-    // Tính tổng độ rộng bảng: 
-    // - Với mỗi cột, có “space + nội dung + space + |” => colWidths[i] + 2 + 1
-    // - Cộng thêm ký tự “|” đầu tiên
-    int totalWidth = 1;
-    for (int w : colWidths) {
-        totalWidth += 1 + w + 1 + 1;  // " space", nội dung, " space", "|" 
-    }
-    // In dấu “-” theo tổng
-    for (int i = 0; i < totalWidth; i++) {
-        System.out.print("-");
-    }
-    System.out.println();
-
-    // --- In mỗi dòng dữ liệu ---
-    for (List<String> row : rows) {
-        System.out.printf(fmt + "%n", row.toArray());
-    }
-    // In dòng phân cách cuối
-    for (int i = 0; i < totalWidth; i++) {
-        System.out.print("-");
-    }
-    try (Connection conn = JDBCUtil.getConnection()) {
-        String countquery = "SELECT COUNT(*) FROM SanPham";
-        PreparedStatement stmt = conn.prepareStatement(countquery);
-        ResultSet rs = stmt.executeQuery();
-        if (rs.next()) {
-            int count = rs.getInt(1);
-            System.out.println("\n=> Tổng số sản phẩm: " + count);
-        }
-    } catch (Exception e) {
-        System.out.println(e.getMessage());
-    }
 }
-}
-    
-
