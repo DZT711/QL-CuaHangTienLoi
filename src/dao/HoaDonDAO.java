@@ -133,6 +133,7 @@ public class HoaDonDAO {
             ResultSet rs = stmt.executeQuery();
 
             // Làm lại giao diện cho dễ nhìn
+            int count = 0;
             while (rs.next()) {
                 System.out.println(
                     "Mã hóa đơn: " + rs.getString("MaHD") +
@@ -141,11 +142,48 @@ public class HoaDonDAO {
                     "Tổng tiền: " + FormatUtil.formatVND(rs.getInt("TongTien")) +
                     "Phương thức thanh toán: " + rs.getString("PhuongThucTT")
                 );
+                count++;
             }
+            // ưng thì sửa lại là tổng cộng hay gì cũng được
+            System.out.println("Tìm thấy " + count + " hóa đơn có mã khách hàng: " + maKH);
         } catch (SQLException e) {
             System.err.println("Lỗi khi tìm hóa đơn theo mã khách hàng: " + e.getMessage());
         }
-            
-        
+    }
+
+    public static void timHoaDonTheoMaNV(String maNV) {
+        String query = 
+            "SELECT hd.MaHD, hd.MaKH, hd.ThoiGianLapHD, hd.TongTien, hd.PhuongThucTT " +
+            "FROM HOADON hd " +
+            "INNER JOIN NHANVIEN nv ON hd.MaNV = nv.MaNV " +
+            "WHERE hd.MaNV = ?";
+
+        try (Connection conn = JDBCUtil.getConnection()) {
+            PreparedStatement stmt = conn.prepareStatement(query);
+
+            stmt.setString(1, maNV);
+            ResultSet rs = stmt.executeQuery();
+
+            int count = 0;
+            while (rs.next()) {
+                // làm lại giao diện 
+                System.out.println(
+                    "Mã hóa đơn: " + rs.getString("MaHD") +
+                    "Mã khách hàng: " + rs.getString("MaKH") +
+                    "Ngày lập hóa đơn: " + rs.getTimestamp("ThoiGianLapHD").toLocalDateTime() +
+                    "Tổng tiền: " + FormatUtil.formatVND(rs.getInt("TongTien")) +
+                    "Phương thức thanh toán: " + rs.getString("PhuongThucTT")
+                );
+                count++;
+            }
+            if (count > 0) {
+                System.out.println("Tìm thấy " + count + " hóa đơn đã lập bởi nhân viên: " + maNV);
+            } else {
+                System.out.println("Không tìm thấy hóa đơn đã lập bởi nhân viên: " + maNV);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi tìm hóa đơn theo mã nhân viên: " + e.getMessage());
+        }
     }
 }

@@ -7,9 +7,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import dao.HoaDonDAO;
 import dao.ChiTietHoaDonDAO;
+import dao.NhanVienDAO;
 import dto.ChiTietHoaDonDTO;
 import dto.HoaDonDTO;
 import dto.KhachHangDTO;
+import dto.NhanVienDTO;
 import main.Main;
 import dao.KhachHangDAO;
 import dao.SanPhamDAO;
@@ -75,6 +77,7 @@ public class QuanLyHoaDon {
                             System.out.println("Tìm kiếm hóa đơn");
                             System.out.println("1. Tìm kiếm hóa đơn theo mã hóa đơn");
                             System.out.println("2. Tìm kiếm hóa đơn theo mã khách hàng");
+                            System.out.println("3. Tìm kiếm hóa đơn theo mã nhân viên");
                             System.out.println("0. Thoát");
                             System.out.print("\n💡 Nhập lựa chọn của bạn: ");
 
@@ -128,6 +131,36 @@ public class QuanLyHoaDon {
                                     }
                                 } catch (InputMismatchException e) {
                                     System.out.println("Lỗi: Vui lòng nhập mã khách hàng hợp lệ");
+                                    scanner.nextLine();
+                                }
+                            } else if (opt == 3) {
+                                System.out.println("Nhập mã nhân viên cần tìm: ");
+                                try {
+                                    String maNV = scanner.nextLine().trim();
+                                    scanner.nextLine();
+
+                                    NhanVienDTO nv = NhanVienDAO.timNhanVienTheoMa(maNV);
+                                    if (nv != null) {
+                                        System.out.println("Thông tin hóa đơn do nhân viên: " + maNV + " lập: ");
+                                        HoaDonDAO.timHoaDonTheoMaNV(maNV);
+                                        String tieptuc;
+                                        do {
+                                            System.out.println("Bạn có muốn xem chi tiết hóa đơn không (y/n): ");
+                                            tieptuc = scanner.nextLine().trim();
+                                            if (tieptuc.equalsIgnoreCase("y")) {
+                                                System.out.println("Nhập mã hóa đơn cần xem chi tiết: ");
+                                                String maHD = scanner.nextLine().trim();
+                                                inHoaDon(maHD);
+                                            } else {
+                                                System.out.println("Không xem chi tiết hóa đơn nào.");
+                                                break;
+                                            }
+                                        } while (tieptuc.equalsIgnoreCase("y"));
+                                    } else {
+                                        System.out.println("Không tìm thấy hóa đơn với mã nhân viên: " + maNV);
+                                    }
+                                } catch (InputMismatchException e) {
+                                    System.out.println("Lỗi: Vui lòng nhập mã nhân viên hợp lệ");
                                     scanner.nextLine();
                                 }
                             }
