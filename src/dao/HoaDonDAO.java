@@ -11,27 +11,30 @@ import java.util.List;
 
 
 public class HoaDonDAO {
-    /*public static List<HoaDonDTO> getAllHoaDon() {
-        String query = "SELECT MaHD, MaKH, MaNV, TongTien, NgayLapHD FROM HOADON";
+    public static List<HoaDonDTO> getAllHoaDon() {
         List<HoaDonDTO> list = new ArrayList<>();
+
+        String query = "SELECT MaHD, MaKH, MaNV, TongTien, NgayLapHD, PhuongThucTT FROM HOADON";
 
         try (Connection conn = JDBCUtil.getConnection()) {
             PreparedStatement stmt = conn.prepareStatement(query);
             ResultSet rs = stmt.executeQuery();
-            while(rs.next()){
-                list.add(new HoaDonDTO(
-                    rs.getString("MaHD"), 
-                    rs.getString("MaKH"), 
-                    rs.getString("MaNV"), 
-                    rs.getInt("TongTien"), 
-                    rs.getTimestamp("NgayLapHD").toLocalDateTime())
-                );
+
+            while (rs.next()) {
+                HoaDonDTO hd = new HoaDonDTO();
+                hd.setMaHD(rs.getString("MaHD"));
+                hd.setMaKH(rs.getString("MaKH"));
+                hd.setMaNV(rs.getString("MaNV"));
+                hd.setTongTien(rs.getInt("TongTien"));
+                hd.setNgayLapHD(rs.getTimestamp("NgayLapHD").toLocalDateTime());
+                hd.setPhuongThucTT(rs.getString("PhuongThucTT"));
+                list.add(hd);
             }
         } catch (SQLException e) {
             System.err.println("Lỗi khi lấy tất cả hóa đơn: " + e.getMessage());
         }
         return list;
-    }*/
+    }
 
     public static void themHoaDon(HoaDonDTO hd) {
         String query = "INSERT INTO HOADON (MaHD, MaKH, MaNV, TongTien, PhuongThucTT, TienKhachDua, TienThua) VALUES (?, ?, ?, ?, ?, ?, ?);";
