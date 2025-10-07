@@ -168,7 +168,7 @@ public class QuanLySanPham {
     
                     // Cập nhật vô DB sau khi sửa 
                     SanPhamDAO.suaSanPham(sp, maSP);
-                    System.out.println("Sửa sản phẩm thành công.");
+                    // System.out.println("Sửa sản phẩm thành công.");
                     break;
                 } catch (Exception e) {
                     System.out.println("Lỗi nhập liệu: " + e.getMessage());

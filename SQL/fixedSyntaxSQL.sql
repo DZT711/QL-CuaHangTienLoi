@@ -17,6 +17,7 @@ INSERT INTO LOAI (MaLoai, TenLoai, MoTa) VALUES
 (6, 'Thức ăn cho thú cưng', 'Sản phẩm dinh dưỡng cho thú nuôi'),
 (7, 'Y tế & mỹ phẩm cơ bản', 'Sản phẩm chăm sóc sức khỏe và mỹ phẩm thiết yếu');
 
+
 -- Bảng DONVI
 CREATE TABLE DONVI (
   MaDonVi INT(11) PRIMARY KEY AUTO_INCREMENT,
@@ -53,7 +54,6 @@ CREATE TABLE SANPHAM (
   CONSTRAINT fk_sanpham_donvi FOREIGN KEY (DonViTinh) REFERENCES DONVI (MaDonVi)
 );
 
--- Chèn dữ liệu SANPHAM
 INSERT INTO SANPHAM (MaSP, TenSP, Loai, SoLuongTon, DonViTinh, GiaBan, NgaySanXuat, HanSuDung, MoTa, TrangThai) VALUES
 ('SP001', 'Coca Cola 330ml', 1, 100, 3, 10000, '2025-01-01', '2026-01-01', 'Nước ngọt có gas Coca Cola lon 330ml', 'active'),
 ('SP002', 'Sting Dâu 330ml', 1, 80, 3, 9000, '2025-01-10', '2026-01-10', 'Nước tăng lực Sting hương dâu lon 330ml', 'active'),
@@ -78,6 +78,7 @@ INSERT INTO SANPHAM (MaSP, TenSP, Loai, SoLuongTon, DonViTinh, GiaBan, NgaySanXu
 ('SP021', 'Khẩu trang y tế 50 cái', 7, 100, 11, 40000, '2025-01-01', '2026-01-01', 'Khẩu trang y tế 4 lớp hộp 50 cái', 'active'),
 ('SP022', 'Nước rửa tay Lifebuoy 500ml', 7, 60, 1, 45000, '2025-01-25', '2026-01-25', 'Nước rửa tay Lifebuoy diệt khuẩn', 'active'),
 ('SP023', 'Kem đánh răng Colgate 200g', 7, 90, 2, 30000, '2025-01-15', '2026-01-15', 'Kem đánh răng Colgate hương bạc hà', 'active');
+
 
 -- Bảng NHACUNGCAP
 CREATE TABLE NHACUNGCAP (
@@ -108,9 +109,9 @@ INSERT INTO NHANVIEN (MaNV, Ho, Ten, GioiTinh, NgaySinh, DiaChi, Email, Luong, C
 ('NV002', 'Nguyen Si', 'Huy', 'Nam', '2000-03-05', 'TP.HCM', 'nguyensihuynsh711@gmail.com', 14000000, 'QL', 'active'),
 ('NV003', 'Nguyen Van', 'Cuong', 'Nam', '1998-07-09', 'Biên Hòa', 'vancuonghp9014@gmail.com', 13500000, 'QL', 'active'),
 ('NV004', 'Dang Thanh', 'Son', 'Nam', '2001-11-25', 'Đà Lạt', 'simpson061125@gmail.com', 13000000, 'QL', 'active'),
-('NV404', 'HoNV404', 'Thúy An', 'Nam', '2000-01-01', 'Địa chỉ NV404', 'nv404@example.com', 10000000, 'NV', 'active'),
-('NV006', 'HoNV006', 'Minh Ánh', 'Nam', '1999-05-05', 'Địa chỉ NV006', 'nv006@example.com', 11000000, 'NV', 'active');
-('NV005', 'Nguyen', 'Staff', 'Nam', '2002-04-20', 'Cần Thơ', 'staff@gmail.com', 10000000, 'NV', 'active');
+('NV005', 'Nguyen', 'Staff', 'Nam', '2002-04-20', 'Cần Thơ', 'staff@gmail.com', 10000000, 'NV', 'active'),
+('NV404', '...', 'Thúy An', 'Nu', '2000-01-01', '...', 'an@example.com', 10000000, 'NV', 'active'),
+('NV006', '...', 'Minh Ánh', 'Nu', '2000-05-05', '...', 'anh@example.com', 10000000, 'NV', 'active');
 
 -- Bảng KHACHHANG
 CREATE TABLE KHACHHANG (
@@ -184,20 +185,20 @@ CREATE TABLE TAIKHOAN (
   CONSTRAINT fk_taikhoan_nv FOREIGN KEY (MaNV) REFERENCES NHANVIEN (MaNV)
 );
 
-INSERT INTO TAIKHOAN (UserName, PassWord, HoTen, MaNV, VaiTro, TrangThai, Email) VALUES
-('tuanadmin', 'tuanadmin', 'TuanRemix', 'NV001', 'Admin', 'Active', 'vantuanw911@gmail.com'),
-('huyadmin', 'huyadmin', 'HuyDapZai', 'NV002', 'Admin', 'Active', 'nguyensihuynsh711@gmail.com'),
-('cuongadmin', 'cuongadmin', 'CuongHaySuy', 'NV003', 'Admin', 'Active', 'vancuonghp9014@gmail.com'),
-('sonadmin', 'sonadmin', 'SonCuBe', 'NV004', 'Admin', 'Active', 'simpson061125@gmail.com'),
-('an', 'an', 'Thúy An', 'NV404', 'Admin', 'Active', 'google@gmail.com'),
-('anh', 'anh', 'Minh Ánh', 'NV006', 'NhanVien', 'Active', 'na@gmail.com'),
-('staff', 'staff', 'Staff', 'NV005', 'NhanVien', 'Active', 'staff@gmail.com');
+INSERT INTO TAIKHOAN (UserName, PassWord, HoTen, VaiTro, TrangThai, Email) VALUES
+('tuanadmin', 'tuanadmin', 'TuanRemix', 'Admin', 'Active', 'vantuanw911@gmail.com'),
+('huyadmin', 'huyadmin', 'HuyDapZai', 'Admin', 'Active', 'nguyensihuynsh711@gmail.com'),
+('cuongadmin', 'cuongadmin', 'CuongHaySuy', 'Admin', 'Active', 'vancuonghp9014@gmail.com'),
+('sonadmin', 'sonadmin', 'SonCuBe', 'Admin', 'Active', 'simpson061125@gmail.com'),
+('an', 'an', 'ThuyAn', 'Admin', 'Active', 'an@gmail.com'),
+('anh', 'anh', 'NgocAnh', 'NhanVien', 'Active', 'anh@gmail.com'),
+('staff', 'staff', 'Staff', 'NhanVien', 'Active', 'staff@gmail.com');
 
--- Tạo index
 
-CREATE INDEX idx_sanpham_ten ON SANPHAM (TenSP);
-CREATE INDEX idx_sanpham_loai ON SANPHAM (Loai);
-CREATE INDEX idx_sanpham_soluongton ON SANPHAM (SoLuongTon);
+-- Tạo index tối ưu tìm kiếm
+CREATE INDEX idx_sanpham_ten ON SANPHAM(TenSP);
+CREATE INDEX idx_sanpham_loai ON SANPHAM(Loai);
+CREATE INDEX idx_sanpham_soLuongTon ON SANPHAM(SoLuongTon);
 
 CREATE INDEX idx_hoadon_kh ON HOADON (MaKH);
 CREATE INDEX idx_hoadon_nv ON HOADON (MaNV);
@@ -205,15 +206,14 @@ CREATE INDEX idx_hoadon_thoigian ON HOADON (ThoiGianLapHD);
 
 CREATE INDEX idx_cthd_sp ON CHITIETHOADON (MaSP);
 
-CREATE INDEX idx_phieunhap_ncc ON PHIEUNHAP (MaNCC);
-CREATE INDEX idx_phieunhap_nv ON PHIEUNHAP (MaNV);   -- sửa từ “CREATEINDEX” thành “CREATE INDEX”
-CREATE INDEX idx_phieunhap_ngay ON PHIEUNHAP (NgayLapPhieu);
+CREATE INDEX idx_phieunhap_ncc ON PHIEUNHAP(MaNCC);
+CREATE INDEX idx_phieunhap_nv ON PHIEUNHAP(MaNV);
+CREATE INDEX idx_phieunhap_ngay ON PHIEUNHAP(NgayLapPhieu);
 
-CREATE INDEX idx_ctpn_sp ON CHITIETPHIEUNHAP (MaSP);
+CREATE INDEX idx_chitietphieunhap_sp ON CHITIETPHIEUNHAP(MaSP);
 
 CREATE INDEX idx_khachhang_dienthoai ON KHACHHANG (DienThoai);
 CREATE INDEX idx_khachhang_trangthai ON KHACHHANG (TrangThai);
 
-CREATE INDEX idx_nhanvien_chucvu ON NHANVIEN (ChucVu);
-CREATE INDEX idx_nhanvien_trangthai ON NHANVIEN (TrangThai);
-
+CREATE INDEX idx_nhanvien_chucvu ON NHANVIEN(ChucVu);
+CREATE INDEX idx_nhanvien_trangthai ON NHANVIEN(TrangThai);
