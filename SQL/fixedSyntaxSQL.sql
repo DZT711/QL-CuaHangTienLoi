@@ -187,6 +187,8 @@ INSERT INTO TAIKHOAN (UserName, PassWord, HoTen, MaNV, VaiTro, TrangThai, Email)
 ('huyadmin', 'huyadmin', 'HuyDapZai', 'NV002', 'Admin', 'Active', 'nguyensihuynsh711@gmail.com'),
 ('cuongadmin', 'cuongadmin', 'CuongHaySuy', 'NV003', 'Admin', 'Active', 'vancuonghp9014@gmail.com'),
 ('sonadmin', 'sonadmin', 'SonCuBe', 'NV004', 'Admin', 'Active', 'simpson061125@gmail.com'),
+('an', 'an', 'Thúy An', 'NV404', 'Admin', 'Active', 'google@gmail.com'),
+('anh', 'anh', 'Minh Ánh', 'NV006', 'NhanVien', 'Active', 'na@gmail.com'),
 ('staff', 'staff', 'Staff', 'NV005', 'NhanVien', 'Active', 'staff@gmail.com');
 
 -- Tạo index
