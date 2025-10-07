@@ -48,9 +48,9 @@ public class Main {
             TaiKhoanDTO taiKhoan = TaiKhoanDAO.checkAccount(username, password);
             
             if (taiKhoan != null) {
-                System.out.println("✓ Đăng nhập thành công! Xin chào "+taiKhoan.getRole()+" " + taiKhoan.getUsername() + "!");
                 String[] greetingInfo = getGreeting();
-                System.out.println(greetingInfo[0] + " " + greetingInfo[1] + ", hiện tại là " + greetingInfo[2]);
+                System.out.println("✓ Đăng nhập thành công! Xin " + greetingInfo[1] + " " + taiKhoan.getRole() + " " + taiKhoan.getUsername() + "!");
+                System.out.println(greetingInfo[0] + " Thời gian hiện tại của sever là " + greetingInfo[2]);
 
                 // Tự động inactive sản phẩm hết hạn khi vào chương trình
                 SanPhamDAO.capnhatTrangThaiHetHan();
@@ -70,16 +70,16 @@ public class Main {
     }
 
     public static void clearScreen() {
-        System.out.print("\033[H\033[2J");
+        // System.out.print("\033[H\033[2J");
         System.out.flush();
     }
 
     public static void menuAdmin() {
         Scanner scanner = new Scanner(System.in);
         while (true) {
-            System.out.println("\n" + "═".repeat(65));
-            System.out.println("🏢              QUẢN LÝ CỬA HÀNG - MENU CHÍNH              🏢");
-            System.out.println("═".repeat(65));
+            System.out.println("\n" + "═".repeat(63));
+            System.out.println("🏢              QUẢN LÝ CỬA HÀNG - MENU CHÍNH               🏢");
+            System.out.println("═".repeat(63));
             System.out.println("┌─ CHỨC NĂNG CHÍNH ──────────────────────────────────────────┐");
             System.out.println("│                                                            │");
             System.out.println("│  [1] ➜ Quản lý sản phẩm                                    │");
@@ -230,16 +230,16 @@ public class Main {
         
         // Determine greeting based on time
         if (hour >= 0 && hour < 11) {
-            greeting = "Chào buổi sáng";
+            greeting = "chào buổi sáng";
             icon = "🌅";
         } else if (hour >= 11 && hour < 13) {
-            greeting = "Chào buổi trưa";
+            greeting = "chào buổi trưa";
             icon = "☀️";
         } else if (hour >= 13 && hour < 18) {
-            greeting = "Chào buổi chiều";
+            greeting = "chào buổi chiều";
             icon = "🌤️";
         } else {
-            greeting = "Chào buổi tối";
+            greeting = "chào buổi tối";
             icon = "🌙";
         }
 
