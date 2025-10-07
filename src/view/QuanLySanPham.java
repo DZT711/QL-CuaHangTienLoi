@@ -17,7 +17,7 @@ public class QuanLySanPham {
             System.out.println("████████████████████████████████████████████████████████████████████████████████");
             System.out.println("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ MENU CHỨC NĂNG ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓");
             System.out.println("▒ [1] ➜ Chỉnh sửa thông tin sản phẩm                                           ▒");
-            System.out.println("▒ [2] ➜ Xóa sản phẩm                                                           ▒");
+            System.out.println("▒ [2] ➜ Đổi trạng thái sản phẩm                                                ▒");
             System.out.println("▒ [3] ➜ Tìm kiếm sản phẩm                                                      ▒");
             System.out.println("▒ [4] ➜ Thống kê sản phẩm                                                      ▒");
             System.out.println("▒ [5] ➜ Xuất danh sách sản phẩm                                                ▒");
@@ -168,7 +168,7 @@ public class QuanLySanPham {
     
                     // Cập nhật vô DB sau khi sửa 
                     SanPhamDAO.suaSanPham(sp, maSP);
-                    // System.out.println("Sửa sản phẩm thành công.");
+                    System.out.println("Sửa sản phẩm thành công.");
                     break;
                 } catch (Exception e) {
                     System.out.println("Lỗi nhập liệu: " + e.getMessage());
@@ -186,7 +186,7 @@ public class QuanLySanPham {
 
     public void xoaSanPhamTheoMa() {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Nhập mã sản phẩm cần xóa: ");
+        System.out.println("Nhập mã sản phẩm cần đổi trạng thái: ");
         String maSP = scanner.nextLine().trim();
 
         sanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
@@ -202,9 +202,9 @@ public class QuanLySanPham {
         }
 
         if (SanPhamDAO.xoaSanPham(maSP)) {
-            System.out.println("Xóa sản phẩm thành công");
+            System.out.println("Sản phẩm được đổi trạng thái thành công");
         } else {
-            System.out.println("Xóa sản phẩm thất bại");
+            System.out.println("Đổi trạng thái sản phẩm thất bại");
         }
     }
 
