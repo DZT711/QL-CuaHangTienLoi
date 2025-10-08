@@ -1,11 +1,11 @@
 package dao;
 
+import dto.sanPhamDTO;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import dto.sanPhamDTO;
 import util.FormatUtil;
 import util.JDBCUtil;
 
@@ -49,48 +49,81 @@ public class SanPhamDAO {
         return list;
     }
 
-    public static List<sanPhamDTO> timSanPhamTheoTen(String name) {
-        String query = "SELECT sp.MaSP, sp.TenSP, sp.Loai, sp.SoLuongTon, sp.DonViTinh, sp.GiaBan, " +
-                "sp.NgaySanXuat, sp.HanSuDung, sp.MoTa, sp.TrangThai " +
-                "FROM SANPHAM sp " +
-                "INNER JOIN LOAI l ON sp.Loai = l.MaLoai " +
-                "INNER JOIN DONVI d ON sp.DonViTinh = d.MaDonVi " +
-                "WHERE sp.TenSP LIKE ?";
+        public static List<sanPhamDTO> timSanPhamTheoTen(String input) {
+        String[] parts = input.split(",");
+        List<String> keywords = new ArrayList<>();
+        for (String p : parts) {
+            String k = p.trim();
+            if (!k.isEmpty()) {
+                keywords.add(k);
+            }
+        }
+        if (keywords.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT DISTINCT sp.MaSP, sp.TenSP, sp.Loai, sp.SoLuongTon, sp.DonViTinh, sp.GiaBan, ")
+        .append("sp.NgaySanXuat, sp.HanSuDung, sp.MoTa, sp.TrangThai ")
+        .append("FROM SANPHAM sp ")
+        .append("INNER JOIN LOAI l ON sp.Loai = l.MaLoai ")
+        .append("INNER JOIN DONVI d ON sp.DonViTinh = d.MaDonVi ")
+        .append("WHERE ");
+
+        // xây điều kiện LIKE với ranh giới từ (space / bắt đầu / kết thúc)
+        // sử dụng điều kiện: (TenSP LIKE ? OR TenSP LIKE ? OR TenSP LIKE ?)
+        // mỗi từ khóa có 3 điều kiện: "k %", "% k", "% k %", hoặc bằng k
+        List<String> conds = new ArrayList<>();
+        for (int i = 0; i < keywords.size(); i++) {
+            String k = keywords.get(i);
+            // dùng LOWER để so sánh không phân biệt hoa thường
+            conds.add("LOWER(sp.TenSP) LIKE LOWER(?) ");
+        }
+        sb.append(String.join(" OR ", conds));
+        // sb.append(" COLLATE utf8mb4_0900_ai_ci");
+        String query = sb.toString();
 
         List<sanPhamDTO> list = new ArrayList<>();
-
         try (Connection conn = JDBCUtil.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(query)) {
-
-            stmt.setString(1, "%" + name + "%");
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+            for (int i = 0; i < keywords.size(); i++) {
+                String kw = keywords.get(i);
+                // thêm wildcard trước sau
+                stmt.setString(i + 1, "%" + kw + "%");
+            }
             ResultSet rs = stmt.executeQuery();
-
             while (rs.next()) {
-                LocalDate ngaySanXuat = rs.getDate("NgaySanXuat").toLocalDate();
-
-                // HSD (Date -> int ddMMyyyy)
-                LocalDate hSD = rs.getDate("HanSuDung").toLocalDate();
-                int hsdInt = hSD.getDayOfMonth() * 1000000
-                        + hSD.getMonthValue() * 10000
-                        + hSD.getYear();
-
+                LocalDate ngaySX = null;
+                Date d1 = rs.getDate("NgaySanXuat");
+                if (d1 != null) ngaySX = d1.toLocalDate();
+                LocalDate hsd = null;
+                Date d2 = rs.getDate("HanSuDung");
+                if (d2 != null) hsd = d2.toLocalDate();
+                int hsdInt = 0;
+                if (hsd != null) {
+                    hsdInt = hsd.getDayOfMonth() * 1000000
+                            + hsd.getMonthValue() * 10000
+                            + hsd.getYear();
+                }
                 list.add(new sanPhamDTO(
-                        rs.getString("MaSP"),
-                        rs.getString("TenSP"),
-                        rs.getInt("Loai"),
-                        rs.getInt("DonViTinh"),
-                        rs.getInt("SoLuongTon"),
-                        rs.getInt("GiaBan"),
-                        ngaySanXuat,
-                        hsdInt,
-                        rs.getString("MoTa"),
-                        rs.getString("TrangThai")));
+                    rs.getString("MaSP"),
+                    rs.getString("TenSP"),
+                    rs.getInt("Loai"),
+                    rs.getInt("DonViTinh"),
+                    rs.getInt("SoLuongTon"),
+                    rs.getInt("GiaBan"),
+                    ngaySX,
+                    hsdInt,
+                    rs.getString("MoTa"),
+                    rs.getString("TrangThai")
+                ));
             }
         } catch (SQLException e) {
             System.err.println("Lỗi khi tìm sản phẩm theo tên: " + e.getMessage());
         }
         return list;
     }
+
 
     public static sanPhamDTO timSanPhamTheoMa(String ma) {
         String query = "SELECT sp.MaSP, sp.TenSP, sp.Loai, sp.SoLuongTon, sp.DonViTinh, sp.GiaBan, " +
