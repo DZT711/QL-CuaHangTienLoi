@@ -1,4 +1,6 @@
 CREATE DATABASE IF NOT EXISTS QL_chtienloi;
+ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 USE QL_chtienloi;
 
 -- Bảng LOAI

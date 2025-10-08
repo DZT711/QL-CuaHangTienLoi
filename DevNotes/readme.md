@@ -1,6 +1,6 @@
 # Quản Lý Cửa Hàng Tiện Lợi
 
-**Đồ án môn:** Phát triển phần mềm hướng dịch vụ  
+**Đồ án môn:** Phân tích thiết kế hệ thống hướng dối tượng
 **Ngôn ngữ:** Java + JDBC  
 **Cơ sở dữ liệu:** MySQL  
 
