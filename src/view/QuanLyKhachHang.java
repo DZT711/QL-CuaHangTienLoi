@@ -6,7 +6,8 @@ import dao.KhachHangDAO;
 import dto.KhachHangDTO;
 import java.util.List;
 import java.time.format.DateTimeFormatter;
-
+import java.util.ArrayList;
+import util.tablePrinter;
 public class QuanLyKhachHang {
     public void menuQuanLyKhachHang() {
         Scanner scanner = new Scanner(System.in);
@@ -115,7 +116,7 @@ public class QuanLyKhachHang {
                                 System.out.print("Nhập mã khách hàng cần tìm: ");
                                 try {
                                     String maKH = scanner.nextLine().trim();
-                                    scanner.nextLine();
+                                    // scanner.nextLine();
                                     KhachHangDTO kh = KhachHangDAO.timKhachHangTheoMa(maKH);
                                     if (kh != null) {
                                         System.out.println("Thông tin khách hàng tìm thấy với mã: " + maKH);
@@ -160,7 +161,7 @@ public class QuanLyKhachHang {
                                 System.out.println("Nhập số điện thoại khách hàng cần tìm: ");
                                 try {
                                     String dienThoai = scanner.nextLine().trim();
-                                    scanner.nextLine();
+                                    // scanner.nextLine();
                                     KhachHangDTO kh = KhachHangDAO.timKhachHangTheoDienThoai(dienThoai);
                                     if (kh != null) {
                                         System.out.println("Thông tin khách hàng tìm thấy với số điện thoại: " + dienThoai);
@@ -331,23 +332,40 @@ public class QuanLyKhachHang {
             System.out.println("Không có khách hàng nào trong hệ thống.");
             return;
         }
-
-        System.out.println("\n╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
-        System.out.println("║                                         DANH SÁCH KHÁCH HÀNG TRONG CỬA HÀNG                                    ║");
-        System.out.println("╠════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣");
-        System.out.printf("║ %-10s │ %-20s │ %-12s │ %-10s │ %-10s │ %-10s │ %-20s ║\n",
-                "Mã KH", "Họ", "Tên", "Giới tính", "Ngày sinh", "SĐT", "Địa chỉ");
-        System.out.println("╠════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣");
+        List<String> headers = List.of(
+            "MaKH", "Ho", "Ten", "GioiTinh", "NgaySinh", "DienThoai", "DiaChi"
+        );
+        List<List<String>> rows = new ArrayList<>();
         for (KhachHangDTO kh : list) {
-            System.out.printf("║ %-10s │ %-20s │ %-12s │ %-10s │ %-10s │ %-10s │ %-20s ║\n",
-                    kh.getMaKH(),
-                    kh.getHo(),
-                    kh.getTen(),
-                    kh.getGioiTinh(),
-                    kh.getNgaySinhFormat(), 
-                    kh.getDienThoai(),
-                    kh.getDiaChi());
+
+            List<String> row = new ArrayList<>();
+            row.add(kh.getMaKH());
+            row.add(kh.getHo());
+            row.add(kh.getTen());
+            row.add(kh.getGioiTinh());
+            row.add(kh.getNgaySinhFormat());
+            row.add(kh.getDienThoai());
+            row.add(kh.getDiaChi());
+            rows.add(row);
         }
-        System.out.println("╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝");
+        tablePrinter.printTable(headers, rows);
+
+        // System.out.println("\n╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
+        // System.out.println("║                                         DANH SÁCH KHÁCH HÀNG TRONG CỬA HÀNG                                    ║");
+        // System.out.println("╠════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣");
+        // System.out.printf("║ %-10s │ %-20s │ %-12s │ %-10s │ %-10s │ %-10s │ %-20s ║\n",
+        //         "Mã KH", "Họ", "Tên", "Giới tính", "Ngày sinh", "SĐT", "Địa chỉ");
+        // System.out.println("╠════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣");
+        // for (KhachHangDTO kh : list) {
+        //     System.out.printf("║ %-10s │ %-20s │ %-12s │ %-10s │ %-10s │ %-10s │ %-20s ║\n",
+        //             kh.getMaKH(),
+        //             kh.getHo(),
+        //             kh.getTen(),
+        //             kh.getGioiTinh(),
+        //             kh.getNgaySinhFormat(), 
+        //             kh.getDienThoai(),
+        //             kh.getDiaChi());
+        // }
+        // System.out.println("╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝");
     }
 }
