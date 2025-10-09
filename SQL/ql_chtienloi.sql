@@ -196,6 +196,17 @@ INSERT INTO TAIKHOAN (UserName, PassWord, HoTen, VaiTro, TrangThai, Email) VALUE
 ('anh', 'anh', 'NgocAnh', 'NhanVien', 'Active', 'anh@gmail.com'),
 ('staff', 'staff', 'Staff', 'NhanVien', 'Active', 'staff@gmail.com');
 
+INSERT INTO KHACHHANG (MaKH, Ho, Ten, GioiTinh, NgaySinh, DienThoai, DiaChi, TrangThai) VALUES
+('KH001', 'Nguyen Van', 'Nam', 'Nam', '1995-04-10', '0901234567', 'TP. Hồ Chí Minh', 'active'),
+('KH002', 'Tran Thi', 'Mai', 'Nu', '1998-08-22', '0912345678', 'Hà Nội', 'active'),
+('KH003', 'Le Hoang', 'Phuc', 'Nam', '1990-12-15', '0923456789', 'Đà Nẵng', 'active'),
+('KH004', 'Pham Ngoc', 'Lan', 'Nu', '1999-03-30', '0934567890', 'Cần Thơ', 'active'),
+('KH005', 'Doan Van', 'Hung', 'Nam', '1988-07-18', '0945678901', 'Huế', 'active'),
+('KH006', 'Nguyen Thi', 'Hoa', 'Nu', '2001-05-25', '0956789012', 'Quảng Ninh', 'active'),
+('KH007', 'Bui Quoc', 'Tuan', 'Nam', '1996-11-02', '0967890123', 'Nha Trang', 'active'),
+('KH008', 'Hoang Kim', 'Anh', 'Nu', '2000-09-09', '0978901234', 'Biên Hòa', 'active'),
+('KH009', 'Phan Thanh', 'Dat', 'Nam', '1997-02-17', '0989012345', 'Vũng Tàu', 'active'),
+('KH010', 'Vu Thi', 'Huong', 'Nu', '1994-06-12', '0990123456', 'Bắc Ninh', 'active');
 
 -- Tạo index tối ưu tìm kiếm
 CREATE INDEX idx_sanpham_ten ON SANPHAM(TenSP);
