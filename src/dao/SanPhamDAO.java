@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import util.FormatUtil;
 import util.JDBCUtil;
-
+import java.text.Normalizer;
 public class SanPhamDAO {
     public static List<sanPhamDTO> getAllSanPham() {
         String query = "SELECT sp.MaSP, sp.TenSP, sp.Loai, sp.SoLuongTon, sp.DonViTinh, sp.GiaBan, " +
@@ -49,80 +49,121 @@ public class SanPhamDAO {
         return list;
     }
 
-        public static List<sanPhamDTO> timSanPhamTheoTen(String input) {
-        String[] parts = input.split(",");
-        List<String> keywords = new ArrayList<>();
-        for (String p : parts) {
-            String k = p.trim();
-            if (!k.isEmpty()) {
-                keywords.add(k);
-            }
+public static List<sanPhamDTO> timSanPhamTheoTen(String input) {
+    String[] parts = input.split(",");
+    List<String> keywords = new ArrayList<>();
+    for (String p : parts) {
+        String k = p.trim();
+        if (!k.isEmpty()) {
+            // loại bỏ dấu từ khóa
+            keywords.add(removeAccent(k.toLowerCase()));
         }
-        if (keywords.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("SELECT DISTINCT sp.MaSP, sp.TenSP, sp.Loai, sp.SoLuongTon, sp.DonViTinh, sp.GiaBan, ")
-        .append("sp.NgaySanXuat, sp.HanSuDung, sp.MoTa, sp.TrangThai ")
-        .append("FROM SANPHAM sp ")
-        .append("INNER JOIN LOAI l ON sp.Loai = l.MaLoai ")
-        .append("INNER JOIN DONVI d ON sp.DonViTinh = d.MaDonVi ")
-        .append("WHERE ");
-
-        // xây điều kiện LIKE với ranh giới từ (space / bắt đầu / kết thúc)
-        // sử dụng điều kiện: (TenSP LIKE ? OR TenSP LIKE ? OR TenSP LIKE ?)
-        // mỗi từ khóa có 3 điều kiện: "k %", "% k", "% k %", hoặc bằng k
-        List<String> conds = new ArrayList<>();
-        for (int i = 0; i < keywords.size(); i++) {
-            String k = keywords.get(i);
-            // dùng LOWER để so sánh không phân biệt hoa thường
-            conds.add("LOWER(sp.TenSP) LIKE LOWER(?) ");
-        }
-        sb.append(String.join(" OR ", conds));
-        // sb.append(" COLLATE utf8mb4_0900_ai_ci");
-        String query = sb.toString();
-
-        List<sanPhamDTO> list = new ArrayList<>();
-        try (Connection conn = JDBCUtil.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(query)) {
-            for (int i = 0; i < keywords.size(); i++) {
-                String kw = keywords.get(i);
-                // thêm wildcard trước sau
-                stmt.setString(i + 1, "%" + kw + "%");
-            }
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                LocalDate ngaySX = null;
-                Date d1 = rs.getDate("NgaySanXuat");
-                if (d1 != null) ngaySX = d1.toLocalDate();
-                LocalDate hsd = null;
-                Date d2 = rs.getDate("HanSuDung");
-                if (d2 != null) hsd = d2.toLocalDate();
-                int hsdInt = 0;
-                if (hsd != null) {
-                    hsdInt = hsd.getDayOfMonth() * 1000000
-                            + hsd.getMonthValue() * 10000
-                            + hsd.getYear();
-                }
-                list.add(new sanPhamDTO(
-                    rs.getString("MaSP"),
-                    rs.getString("TenSP"),
-                    rs.getInt("Loai"),
-                    rs.getInt("DonViTinh"),
-                    rs.getInt("SoLuongTon"),
-                    rs.getInt("GiaBan"),
-                    ngaySX,
-                    hsdInt,
-                    rs.getString("MoTa"),
-                    rs.getString("TrangThai")
-                ));
-            }
-        } catch (SQLException e) {
-            System.err.println("Lỗi khi tìm sản phẩm theo tên: " + e.getMessage());
-        }
-        return list;
     }
+    if (keywords.isEmpty()) {
+        return new ArrayList<>();
+    }
+
+    StringBuilder sb = new StringBuilder();
+    sb.append("SELECT DISTINCT sp.MaSP, sp.TenSP, sp.Loai, sp.SoLuongTon, sp.DonViTinh, sp.GiaBan, ")
+      .append("sp.NgaySanXuat, sp.HanSuDung, sp.MoTa, sp.TrangThai ")
+      .append("FROM SANPHAM sp ")
+      .append("INNER JOIN LOAI l ON sp.Loai = l.MaLoai ")
+      .append("INNER JOIN DONVI d ON sp.DonViTinh = d.MaDonVi ")
+      .append("WHERE ");
+
+    // Sử dụng LIKE trên tên sản phẩm (có dấu) nhưng để lọc sơ
+    List<String> conds = new ArrayList<>();
+    for (int i = 0; i < keywords.size(); i++) {
+        conds.add("LOWER(sp.TenSP) LIKE ?");
+    }
+    sb.append(String.join(" OR ", conds));
+    String query = sb.toString();
+
+    List<sanPhamDTO> list = new ArrayList<>();
+    try (Connection conn = JDBCUtil.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(query)) {
+
+        for (int i = 0; i < keywords.size(); i++) {
+            String kw = keywords.get(i);
+            stmt.setString(i + 1, "%" + kw + "%");
+        }
+
+        ResultSet rs = stmt.executeQuery();
+        while (rs.next()) {
+            String tenSP = rs.getString("TenSP");
+            // loại bỏ dấu tên sản phẩm
+            String tenSPNoAccent = removeAccent(tenSP.toLowerCase());
+
+            boolean matches = false;
+            for (String kw : keywords) {
+                if (containsWholeWord(tenSPNoAccent, kw)) {
+                    matches = true;
+                    break;
+                }
+            }
+            if (!matches) {
+                continue;
+            }
+
+            LocalDate ngaySanXuat = null;
+            Date d1 = rs.getDate("NgaySanXuat");
+            if (d1 != null) ngaySanXuat = d1.toLocalDate();
+
+            LocalDate hsdDate = null;
+            Date d2 = rs.getDate("HanSuDung");
+            if (d2 != null) hsdDate = d2.toLocalDate();
+
+            int hsdInt = 0;
+            if (hsdDate != null) {
+                hsdInt = hsdDate.getDayOfMonth() * 1000000
+                        + hsdDate.getMonthValue() * 10000
+                        + hsdDate.getYear();
+            }
+
+            sanPhamDTO sp = new sanPhamDTO(
+                rs.getString("MaSP"),
+                rs.getString("TenSP"),
+                rs.getInt("Loai"),
+                rs.getInt("DonViTinh"),
+                rs.getInt("SoLuongTon"),
+                rs.getInt("GiaBan"),
+                ngaySanXuat,
+                hsdInt,
+                rs.getString("MoTa"),
+                rs.getString("TrangThai")
+            );
+            list.add(sp);
+        }
+    } catch (SQLException e) {
+        System.err.println("Lỗi khi tìm sản phẩm theo tên: " + e.getMessage());
+    }
+    return list;
+}
+
+// containsWholeWord giống như trước
+private static boolean containsWholeWord(String fullName, String keyword) {
+    if (fullName == null || keyword == null) return false;
+    int idx = fullName.indexOf(keyword);
+    if (idx < 0) {
+        return false;
+    }
+    boolean beforeOk = (idx == 0) || !Character.isLetterOrDigit(fullName.charAt(idx - 1));
+    int endPos = idx + keyword.length();
+    boolean afterOk = (endPos == fullName.length()) || !Character.isLetterOrDigit(fullName.charAt(endPos));
+    return beforeOk && afterOk;
+}
+
+// hàm removeAccent
+
+
+public static String removeAccent(String s) {
+    if (s == null) return null;
+    String normalized = Normalizer.normalize(s, Normalizer.Form.NFD);
+    String noMarks = normalized.replaceAll("\\p{M}", "");
+    noMarks = noMarks.replace('đ', 'd').replace('Đ', 'D');
+    return noMarks;
+}
+
 
 
     public static sanPhamDTO timSanPhamTheoMa(String ma) {
