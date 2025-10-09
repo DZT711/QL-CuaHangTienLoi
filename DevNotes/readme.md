@@ -15,23 +15,43 @@ Xây dựng hệ thống quản lý bán hàng cho cửa hàng tiện lợi, h�
 - Quản lý loại sản phẩm, đơn vị tính, nhà cung cấp  ⏳
 - Nhập hàng, bán hàng, quản lý tồn kho  ⏳
 - Quản lý khách hàng, nhân viên  ⏳
-- Quản lý tài khoản (login, phân quyền)  ⏳
+- Quản lý tài khoản (login, phân quyền)  ✔
 - Báo cáo doanh thu, tồn kho, sản phẩm bán chạy   ⏳
 - Đảm bảo tính nhất quán, xử lý đồng thời, audit, rollback, status thay vì xóa thật  ⏳
 
 ---
 
-## ⚠ Các vấn đề thực tế và giải pháp được áp dụng
+## ⚠ Các vấn đề, ghi chú cần được sửa/cải tiến
 
 - **Không xóa dữ liệu thật**: dùng cột `TrangThai / Status` thay vì `DELETE`, để tránh mất dữ liệu lịch sử.⏳  
-- **Xác nhận trước khi xóa dữ liệu** từ UI: hiển thị popup “Bạn có chắc muốn xóa?”  ⏳
+- **Xác nhận trước khi xóa/ chỉnh dữ liệu** từ UI: hiển thị popup “Bạn có chắc muốn xóa / chỉnh sửa?”  ⏳
 - **Xóa phiếu nhập → xóa chi tiết phiếu nhập** theo cascade hoặc trigger để giữ tính liên kết.  ⏳
-- **Giới hạn độ ký tự nhập**: thống nhất dùng `VARCHAR(255)` cho phần lớn cột chuỗi.  ⏳
+- **Giới hạn ký tự nhập**: .  ⏳
 - **Hạn chế HSD (ngày hết hạn)**: không cho nhập HSD ≤ ngày hiện tại — kiểm tra từ ứng dụng hoặc trigger.  ⏳
 - **Cấu trúc mô hình 3 lớp (Presentation – Business – Data Access)** giúp tách biệt logic giao diện, nghiệp vụ, truy xuất dữ liệu dễ bảo trì.  ⏳
 - **Thống nhất ngôn ngữ** sài 1 định dạng ngôn ngữ cho data / database.  ⏳
 - **Thống nhất UI** sài 1 định dạng giao diện cho các menu admin & nhân viên và các menu khác.  ⏳
 - **Menu nhân viên** .  ⏳
+- **Chưa kiếm được tên sản phẩm bằng tiếng việt** .  ⏳
+- **Lỗi thống kê sản phẩm** .  ⏳
+- **Lỗi xóa khách hàng**  xóa được nhưng sau đó xuất hiện lỗi :
+
+```cmd
+Nhập lựa chọn của bạn: Vui lòng nhập số hợp lệ.
+Exception in thread "main" java.util.NoSuchElementException
+        at java.base/java.util.Scanner.throwFor(Scanner.java:962)
+        at java.base/java.util.Scanner.next(Scanner.java:1503)
+        at view.QuanLyKhachHang.menuQuanLyKhachHang(QuanLyKhachHang.java:50)
+        at main.Main.menuAdmin(Main.java:142)
+        at main.Main.main(Main.java:67)
+```
+
+- **Lỗi thêm danh sách khách hàng** Lỗi khi đọc file: data\khachhang.txt (The system cannot find the path specified) .  ⏳
+- **Thêm menu chỉnh sản phẩm để tiện hơn cho việc chỉnh sửa** .  ⏳
+- **Thêm khả năng đổi trạng thái sản phẩm từ `inactive -> active`** .  ⏳
+- **Thống nhất 1 ngôn ngữ cho data** vd loại bỏ `active/inactive` thành `có sẵn/hết hàng/vô hiệu hóa` .  ⏳
+- **Thống nhất 1 giao diện cho các kết quả tìm kiếm khách hàng** .  ⏳
+- **Thêm khả năng Handling Transactions** dùng `commit()` `rollback()` giúp tránh lỗi cho DAO .  ⏳
 
 ---
 
@@ -46,7 +66,7 @@ src/
  ├── main/
  │    ├── view/         ← các lớp giao diện / UI
  │    ├── dto/          ← các lớp DTO
- │    ├── util/         ← các lớp util để import vào các file
+ │    ├── util/         ← các lớp util hay dùng để import vào các file
  │    └── dao/          ← lớp DAO / truy xuất DB
  ├── test/              ← viết unit test
  ├── SQL/               ← source code của database đồ án
@@ -60,7 +80,7 @@ src/
 ## 🏗 Kiến trúc & thiết kế lớp (mô hình 3 lớp)
 
 - **DTO (Data Transfer Objects)**: các lớp đơn giản chứa dữ liệu (ví dụ: `SanPhamDTO`, `KhachHangDTO`).  ⏳
-- **BUS / BLL**: lớp xử lý nghiệp vụ — insert, update, delete, kiểm tra hợp lệ, điều phối workflow.  ⏳
+- **VIEW (BUS / BLL)**: lớp xử lý nghiệp vụ — insert, update, delete, kiểm tra hợp lệ, điều phối workflow.  ⏳
 - **DAO / DAL**: lớp thực thi SQL / JDBC (PreparedStatement, Transaction), mapping DTO ↔ DB.⏳
 
 Ví dụ (Java pseudocode):

@@ -3,12 +3,17 @@ package view;
 import java.util.Scanner;
 import dao.SanPhamDAO;
 import dto.sanPhamDTO;
+import util.tablePrinter;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-
+import util.tablePrinter;
 public class QuanLySanPham {
     public void menuQuanLySanPham() {
         Scanner scanner = new Scanner(System.in);
@@ -245,9 +250,10 @@ public class QuanLySanPham {
         }
     }
 
+
     public void timKiemSanPhamTheoTen() {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Nhập chuỗi tên sản phẩm (có thể nhiều, cách nhau bằng dấu phẩy): ");
+        System.out.println("Nhập tên sản phẩm cần tìm: ");
         String input = scanner.nextLine().trim();
         List<sanPhamDTO> results = SanPhamDAO.timSanPhamTheoTen(input);
 
@@ -290,7 +296,5 @@ public class QuanLySanPham {
             tablePrinter.printTable(headers, rows);
         }
     }
-
-
 
 }
