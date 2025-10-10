@@ -316,4 +316,49 @@ public class HoaDonDAO {
         }
         return result;
     }
+
+    public static List<Map<String, Object>> thongKeHDTheoKhachHang(LocalDate fromDate, LocalDate toDate) {
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        String query = """
+                SELECT 
+                    kh.MaKH,
+                    kh.Ho,
+                    kh.Ten,
+                    COUNT(DISTINCT hd.MaHD) AS SoHoaDon,
+                    SUM(ct.SoLuong) AS TongSanPham,
+                    SUM(hd.TongTien) AS TongChiTieu
+                FROM HOADON hd
+                JOIN KHACHHANG kh ON hd.MaKH = kh.MaKH
+                JOIN CHITIETHOADON ct ON hd.MaHD = ct.MaHD
+                WHERE hd.NgayLapHD BETWEEN ? AND ?
+                GROUP BY kh.MaKH, kh.Ho, kh.Ten
+                ORDER BY TongChiTieu DESC;
+        """;
+
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+        
+            LocalDateTime fromDateTime = fromDate.atStartOfDay();
+            LocalDateTime toDateTime = toDate.plusDays(1).atStartOfDay();
+
+            stmt.setTimestamp(1, Timestamp.valueOf(fromDateTime));
+            stmt.setTimestamp(2, Timestamp.valueOf(toDateTime));
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Map<String, Object> row = new HashMap<>();
+                row.put("MaKH", rs.getString("MaKH"));
+                row.put("Ho Ten", rs.getString("Ho") + " " + rs.getString("Ten"));
+                row.put("SoHoaDon", rs.getInt("SoHoaDon"));
+                row.put("TongSanPham", rs.getInt("TongSanPham"));
+                row.put("TongChiTieu", rs.getLong("TongChiTieu"));
+                result.add(row);
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi thống kê hóa đơn theo khách hàng: " + e.getMessage());
+        }
+        return result;
+    }
 }

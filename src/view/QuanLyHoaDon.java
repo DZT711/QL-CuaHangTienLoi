@@ -187,6 +187,7 @@ public class QuanLyHoaDon {
                             System.out.println("Thống kê hóa đơn");
                             System.out.println("1. Thống kê doanh thu theo khoảng thời gian");
                             System.out.println("2. Thống kê hóa đơn theo nhân viên");
+                            System.out.println("3. Thống kê hóa đơn theo khách hàng");
                             System.out.println("0. Thoát");
                             System.out.print("\n💡 Nhập lựa chọn của bạn: ");
 
@@ -198,8 +199,12 @@ public class QuanLyHoaDon {
                                 break;
                             } else if (opt == 1) {
                                 thongKeHDTheoNgay();
+                                break;
                             } else if (opt == 2) {
                                 thongKeHoaDonTheoNV();
+                                break;
+                            } else if (opt == 3) {
+                                thongKeHoaDonTheoKH();
                                 break;
                             } else {
                                 System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
@@ -588,6 +593,56 @@ public class QuanLyHoaDon {
                     }
                     System.out.println("Tìm thấy " + result.size() + " nhân viên trong khoảng thời gian này");
                     System.out.println("Tổng doanh thu: " + FormatUtil.formatVND(tongDoanhThu));
+                    System.out.println("========================================================");
+                }
+            } catch (DateTimeParseException e) {
+                System.out.println("Định dạng ngày không hợp lệ, vui lòng nhập lại.");
+                scanner.nextLine();
+            }
+        }
+    }
+
+    // Làm lại giao diện cho giống thực tế, đẹp hơn
+    public void thongKeHoaDonTheoKH() {
+        Scanner scanner = new Scanner(System.in);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+
+        while (true) {
+            try {
+                System.out.println("Nhập ngày bắt đầu: ");
+                String from = scanner.nextLine().trim();
+
+                System.out.println("Nhập ngày kết thúc: ");
+                String to = scanner.nextLine().trim();
+
+                LocalDate fromDate = LocalDate.parse(from, formatter);
+                LocalDate toDate = LocalDate.parse(to, formatter);
+
+                List<Map<String, Object>> result = HoaDonDAO.thongKeHDTheoKhachHang(fromDate, toDate);
+
+                System.out.println("\n========= BÁO CÁO THỐNG KÊ HÓA ĐƠN THEO KHÁCH HÀNG =========");
+                System.out.println("Từ ngày: " + from + " đến ngày: " + to);
+                if (result.isEmpty()) {
+                    System.out.println("Không tìm thấy hóa đơn trong khoảng thời gian này");
+                    break;
+                }
+                else {
+                    System.out.println("Danh sách khách hàng: ");
+                    System.out.println("Mã khách hàng | Họ và tên | Số hóa đơn | Tổng sản phẩm | Tổng chi tiêu");
+                    System.out.println("----------------------------------------------------------");
+                    long tongChiTieu = 0;
+                    for (Map<String, Object> row : result) {
+                        System.out.println(
+                            row.get("MaKH") + " | " + 
+                            row.get("Ho Ten") + " | " + 
+                            row.get("SoHoaDon") + " | " + 
+                            row.get("TongSanPham") + " | " + 
+                            FormatUtil.formatVND((long)row.get("TongChiTieu"))
+                        );
+                        tongChiTieu += (long)row.get("TongChiTieu");
+                    }
+                    System.out.println("Tìm thấy " + result.size() + " khách hàng trong khoảng thời gian này");
+                    System.out.println("Tổng chi tiêu của khách hàng: " + FormatUtil.formatVND(tongChiTieu));
                     System.out.println("========================================================");
                 }
             } catch (DateTimeParseException e) {
