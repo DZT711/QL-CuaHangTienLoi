@@ -253,7 +253,7 @@ public class QuanLyHoaDon {
                                     xuatChiTietHoaDonTheoMaHD();
                                     break;
                                 case 3:
-                                    // xuatHoaDonKemChiTietHoaDonTheoMaHD();
+                                    xuatHoaDonKemChiTietHoaDonTheoMaHD();
                                     break;
                                 default:
                                     System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
@@ -353,7 +353,7 @@ public class QuanLyHoaDon {
 
                     int donGia = sp.getGiaBan();
                     int thanhTien = soLuong * donGia;
-                    chiTietHoaDon.add(new ChiTietHoaDonDTO(maHD, maSP, soLuong, donGia, thanhTien));
+                    chiTietHoaDon.add(new ChiTietHoaDonDTO(maHD, maSP, sp.getTenSP(), soLuong, donGia, thanhTien));
 
                     sp.setSoLuongTon(sp.getSoLuongTon() - soLuong);
                     SanPhamDAO.capnhatSoLuongTon(maSP, sp.getSoLuongTon());
@@ -854,11 +854,12 @@ public class QuanLyHoaDon {
             writer.println("============== CHI TIẾT HÓA ĐƠN ==============");
             writer.println("Mã hóa đơn: " + maHD);
             writer.println("Chi tiết hóa đơn: ");
-            writer.println("Mã sản phẩm | Số lượng | Đơn giá | Thành tiền");
+            writer.println("Mã sản phẩm | Tên sản phẩm | Số lượng | Đơn giá | Thành tiền");
             writer.println("----------------------------------------------------------");
             for (ChiTietHoaDonDTO ctHoaDon : chiTietHoaDon) {
                 writer.println(
                     ctHoaDon.getMaSP() + " | " + 
+                    ctHoaDon.getTenSP() + " | " + 
                     ctHoaDon.getSoLuong() + " | " + 
                     FormatUtil.formatVND(ctHoaDon.getDonGia()) + " | " + 
                     FormatUtil.formatVND(ctHoaDon.getThanhTien()));
@@ -866,6 +867,60 @@ public class QuanLyHoaDon {
             writer.println("========================================================");
         } catch (IOException e) {
             System.out.println("Lỗi khi xuất chi tiết hóa đơn: " + e.getMessage());
+        }
+    }
+
+    public void xuatHoaDonKemChiTietHoaDonTheoMaHD() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Nhập mã hóa đơn muốn in: ");
+        String maHD = scanner.nextLine().trim();
+
+        HoaDonDTO hoaDon = HoaDonDAO.timHoaDon(maHD);
+        if (hoaDon == null) {
+            System.out.println("Không tìm thấy hóa đơn với mã: " + maHD);
+            return;
+        }
+        List<ChiTietHoaDonDTO> chiTietHoaDon = ChiTietHoaDonDAO.timChiTietHoaDon(maHD);
+
+        String fileName = "HoaDonChiTiet_" + maHD + ".txt";
+
+        try (PrintWriter writer = new PrintWriter(new FileWriter(fileName))) {
+            writer.println("============== HÓA ĐƠN ==============");
+            writer.println("ABC Store");
+            writer.println("123 An Dương Vương, Q5, TP.HCM");
+            writer.println("Điện thoại: 0909090909");
+            writer.println("Hóa đơn bán hàng");
+            writer.println("Ngày lập hóa đơn: " + hoaDon.getNgayLapHD().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+            writer.println("Khách hàng: " + hoaDon.getMaKH());
+            writer.println("Nhân viên: " + hoaDon.getMaNV());
+            writer.println("Phương thức thanh toán: " + hoaDon.getPhuongThucTT());
+            writer.println("----------------------------------------------------------");
+            
+
+            writer.printf("%-5s %-20s %-8s %-10s %-12s%n",
+                "STT", "Tên SP", "SL", "Đơn giá", "Thành tiền");
+            writer.println("------------------------------------------------------------");
+
+            int stt = 1;
+
+            for (ChiTietHoaDonDTO ctHoaDon : chiTietHoaDon) {
+                writer.printf("%-5d %-20s %-8d %-10s %-12s%n",
+                    stt++,
+                    ctHoaDon.getTenSP(),
+                    ctHoaDon.getSoLuong(),
+                    FormatUtil.formatVND(ctHoaDon.getDonGia()),
+                    FormatUtil.formatVND(ctHoaDon.getThanhTien()));
+            }
+
+            System.out.println("------------------------------------------------------------");
+            writer.println("Tổng tiền: " + FormatUtil.formatVND(hoaDon.getTongTien()));
+            writer.println("Tiền khách đưa: " + FormatUtil.formatVND(hoaDon.getTienKhachDua()));
+            writer.println("Tiền thừa: " + FormatUtil.formatVND(hoaDon.getTienThua()));
+
+            writer.println("======================================");
+            System.out.println("Xuất hóa đơn kèm chi tiết hóa đơn thành công");
+        } catch (IOException e) {
+            System.out.println("Lỗi khi xuất hóa đơn kèm chi tiết hóa đơn: " + e.getMessage());
         }
     }
 }
