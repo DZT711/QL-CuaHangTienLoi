@@ -36,7 +36,7 @@ public class ChiTietHoaDonDAO {
     
     public static List<ChiTietHoaDonDTO> timChiTietHoaDon(String maHD) {
         String query = 
-            "SELECT sp.TenSP, ct.SoLuong, ct.DonGia, ct.ThanhTien " + 
+            "SELECT sp.MaSP, sp.TenSP, ct.SoLuong, ct.DonGia, ct.ThanhTien " + 
             "FROM CHITIETHOADON ct " +
             "INNER JOIN SANPHAM sp ON ct.MaSP = sp.MaSP " +
             "WHERE ct.MaHD = ?";
@@ -54,6 +54,7 @@ public class ChiTietHoaDonDAO {
                     new ChiTietHoaDonDTO(
                         maHD,
                         rs.getString("MaSP"),
+                        rs.getString("TenSP"),
                         rs.getInt("SoLuong"),
                         rs.getInt("DonGia"),
                         rs.getInt("ThanhTien")
