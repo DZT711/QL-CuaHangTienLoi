@@ -21,6 +21,9 @@ import java.util.InputMismatchException;
 import java.time.format.DateTimeParseException;
 import util.FormatUtil;
 import java.util.Map;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 public class QuanLyHoaDon {
     public void menuQuanLyHoaDon() {
@@ -38,7 +41,7 @@ public class QuanLyHoaDon {
             System.out.println("▒ [3] ➜ Tìm kiếm hóa đơn                                                       ▒");
             System.out.println("▒ [4] ➜ Xem danh sách hóa đơn                                                  ▒");
             System.out.println("▒ [5] ➜ Thống kê hóa đơn                                                       ▒");
-            System.out.println("▒ [7] ➜ Xuất hóa đơn                                                           ▒");
+            System.out.println("▒ [6] ➜ Xuất hóa đơn                                                           ▒");
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ");
             System.out.println("░ [0] ✗ Quay lại menu chính                                                    ░");
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ");
@@ -212,7 +215,7 @@ public class QuanLyHoaDon {
                                 thongKeHoaDonTheoNam();
                                 break;
                             } else if (opt == 5) {
-                                // thongKeHoaDonTheoPhuongThucTT();
+                                thongKeHoaDonTheoPTTT();
                                 break;
                             } else {
                                 System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
@@ -224,16 +227,48 @@ public class QuanLyHoaDon {
                     }
                     break;
                 case 6:
-                    // xemDanhSachHoaDon();
+                    while (true) {
+                        try {
+                            System.out.println("\n");
+                            System.out.println("Xuất hóa đơn");
+                            System.out.println("1. Xuất hóa đơn theo mã hóa đơn");
+                            System.out.println("2. Xuất chi tiết hóa đơn theo mã hóa đơn");
+                            System.out.println("3. Xuất hóa đơn kèm chi tiết hóa đơn theo mã hóa đơn");
+                            System.out.println("0. Thoát");
+                            System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+
+                            int opt = scanner.nextInt();
+                            scanner.nextLine();
+
+                            if (opt == 0) {
+                                System.out.println("Thoát xuất hóa đơn thành công.");
+                                break;
+                            }
+
+                            switch (opt) {
+                                case 1:
+                                    xuatHoaDonTheoMaHD();
+                                    break;
+                                case 2:
+                                    // xuatChiTietHoaDonTheoMaHD();
+                                    break;
+                                case 3:
+                                    // xuatHoaDonKemChiTietHoaDonTheoMaHD();
+                                    break;
+                                default:
+                                    System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
+                                    break;
+                            }
+                        } catch (InputMismatchException e) {
+                            System.out.println("Lỗi xảy ra: " + e.getMessage());
+                            scanner.nextLine();
+                        } catch (Exception e) {
+                            System.out.println("Lỗi xảy ra: " + e.getMessage());
+                        }
+                    }
                     break;
-                case 7:
-                    // xuatHoaDon();
-                    break;
-                case 0:
-                    System.out.println("Thoát chương trình thành công!");
-                    return;
                 default:
-                    System.out.println("Lựa chọn không hợp lệ.");
+                    System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
                     break;
             }
         }
@@ -769,6 +804,35 @@ public class QuanLyHoaDon {
                 System.out.println("Định dạng ngày không hợp lệ, vui lòng nhập lại.");
                 scanner.nextLine();
             }
+        }
+    }
+
+    public void xuatHoaDonTheoMaHD() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Nhập mã hóa đơn cần xuất: ");
+        String maHD = scanner.nextLine().trim();
+
+        HoaDonDTO hoaDon = HoaDonDAO.timHoaDon(maHD);
+        if (hoaDon == null) {
+            System.out.println("Không tìm thấy hóa đơn với mã: " + maHD);
+            return;
+        }
+
+        String fileName = "HoaDon_" + maHD + ".txt";
+
+        try (PrintWriter writer = new PrintWriter(new FileWriter(fileName))) {
+            writer.println("============== HÓA ĐƠN ==============");
+            writer.println("Mã hóa đơn      : " + hoaDon.getMaHD());
+            writer.println("Mã Khách hàng: " + hoaDon.getMaKH());
+            writer.println("Mã Nhân viên: " + hoaDon.getMaNV());
+            writer.println("Ngày lập hóa đơn: " + hoaDon.getNgayLapHD().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+            writer.println("Phương thức thanh toán: " + hoaDon.getPhuongThucTT());
+            writer.println("Tiền khách đưa: " + FormatUtil.formatVND(hoaDon.getTienKhachDua()));
+            writer.println("Tiền thừa: " + FormatUtil.formatVND(hoaDon.getTienThua()));
+            writer.println("Tổng tiền: " + FormatUtil.formatVND(hoaDon.getTongTien()));
+            writer.println("=======================================");
+        } catch (IOException e) {
+            System.out.println("Lỗi khi xuất hóa đơn: " + e.getMessage());
         }
     }
 }
