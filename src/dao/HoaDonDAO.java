@@ -361,4 +361,42 @@ public class HoaDonDAO {
         }
         return result;
     }
+
+    public static List<Map<String, Object>> thongKeHDTheoNam(int year) {
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        String query = """
+            SELECT 
+                MONTH(NgayLapHD) AS Thang,
+                COUNT(DISTINCT MaHD) AS SoHoaDon,
+                SUM(ct.SoLuong) AS TongSanPham,
+                SUM(hd.TongTien) AS TongDoanhThu
+            FROM HOADON hd
+            JOIN CHITIETHOADON ct ON hd.MaHD = ct.MaHD
+            WHERE YEAR(NgayLapHD) = ?
+            GROUP BY MONTH(NgayLapHD)
+            ORDER BY Thang ASC;
+        """;
+
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+                
+            stmt.setInt(1, year);
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Map<String, Object> row = new HashMap<>();
+                row.put("Thang", rs.getInt("Thang"));
+                row.put("SoHoaDon", rs.getInt("SoHoaDon"));
+                row.put("TongSanPham", rs.getInt("TongSanPham"));
+                row.put("TongDoanhThu", rs.getLong("TongDoanhThu"));
+                result.add(row);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi thống kê hóa đơn theo năm: " + e.getMessage());
+        }
+        return result;
+    }
 }

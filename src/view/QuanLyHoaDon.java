@@ -188,6 +188,7 @@ public class QuanLyHoaDon {
                             System.out.println("1. Thống kê doanh thu theo khoảng thời gian");
                             System.out.println("2. Thống kê hóa đơn theo nhân viên");
                             System.out.println("3. Thống kê hóa đơn theo khách hàng");
+                            System.out.println("4. Thống kê hóa dơn theo năm");
                             System.out.println("0. Thoát");
                             System.out.print("\n💡 Nhập lựa chọn của bạn: ");
 
@@ -205,6 +206,9 @@ public class QuanLyHoaDon {
                                 break;
                             } else if (opt == 3) {
                                 thongKeHoaDonTheoKH();
+                                break;
+                            } else if (opt == 4) {
+                                thongKeHoaDonTheoNam();
                                 break;
                             } else {
                                 System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
@@ -559,6 +563,57 @@ public class QuanLyHoaDon {
         }
     }
 
+    public void thongKeHoaDonTheoNam() {
+        Scanner scanner = new Scanner(System.in);
+        int year = 0;
+
+        while (true) {
+            try {
+                System.out.print("Nhập năm muốn thống kê: ");
+                year = Integer.parseInt(scanner.nextLine().trim()); 
+                if (year <= 0) {
+                    System.out.println("Năm phải lớn hơn 0, vui lòng nhập lại.");
+                    continue;
+                }
+                break; 
+            } catch (NumberFormatException e) {
+                System.out.println("Lỗi: Vui lòng nhập một số nguyên hợp lệ cho năm.");
+            }
+        }
+
+        List<Map<String, Object>> result = HoaDonDAO.thongKeHDTheoNam(year);
+
+        System.out.println("\n========= BÁO CÁO THỐNG KÊ HÓA ĐƠN THEO NĂM =========");
+        if (result.isEmpty()) {
+            System.out.println("Không tìm thấy hóa đơn trong năm này");
+            return;
+        } 
+
+        int tongSoHoaDon = 0;
+        int tongSanPham = 0;
+        long tongDoanhThu = 0;
+
+        System.out.println("-------------------------------------------------------------------");
+        System.out.println("| Tháng | Số hóa đơn | Tổng sản phẩm | Tổng doanh thu |");
+        System.out.println("-------------------------------------------------------------------");
+        for (Map<String, Object> row : result) {
+            System.out.println("| " + row.get("Thang") + 
+                                " | " + row.get("SoHoaDon") + 
+                                " | " + row.get("TongSanPham") + 
+                                " | " + FormatUtil.formatVND((long)row.get("TongDoanhThu")) + " |"
+            );
+            tongSoHoaDon += (int)row.get("SoHoaDon");
+            tongSanPham += (int)row.get("TongSanPham");
+            tongDoanhThu += (long)row.get("TongDoanhThu");
+        }
+        System.out.println("-------------------------------------------------------------------");
+        System.out.println("Tìm thấy " + result.size() + " hóa đơn trong năm này");
+        System.out.println("Tổng số hóa đơn: " + tongSoHoaDon);
+        System.out.println("Tổng sản phẩm bán được: " + tongSanPham);
+        System.out.println("Tổng doanh thu: " + FormatUtil.formatVND(tongDoanhThu));
+        System.out.println("========================================================");
+    }
+    
     // Làm lại giao diện cho giống thực tế, đẹp hơn
     public void thongKeHoaDonTheoNV() {
         Scanner scanner = new Scanner(System.in);
