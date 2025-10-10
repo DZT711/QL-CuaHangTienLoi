@@ -250,7 +250,7 @@ public class QuanLyHoaDon {
                                     xuatHoaDonTheoMaHD();
                                     break;
                                 case 2:
-                                    // xuatChiTietHoaDonTheoMaHD();
+                                    xuatChiTietHoaDonTheoMaHD();
                                     break;
                                 case 3:
                                     // xuatHoaDonKemChiTietHoaDonTheoMaHD();
@@ -833,6 +833,39 @@ public class QuanLyHoaDon {
             writer.println("=======================================");
         } catch (IOException e) {
             System.out.println("Lỗi khi xuất hóa đơn: " + e.getMessage());
+        }
+    }
+
+    public void xuatChiTietHoaDonTheoMaHD() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Nhập mã hóa đơn muốn in chi tiết: ");
+        String maHD = scanner.nextLine().trim();
+
+        List<ChiTietHoaDonDTO> chiTietHoaDon = ChiTietHoaDonDAO.timChiTietHoaDon(maHD);
+        
+        if (chiTietHoaDon.isEmpty()) {
+            System.out.println("Không tìm thấy chi tiết hóa đơn với mã: " + maHD);
+            return;
+        }
+
+        String fileName = "ChiTietHoaDon_" + maHD + ".txt";
+
+        try (PrintWriter writer = new PrintWriter(new FileWriter(fileName))) {
+            writer.println("============== CHI TIẾT HÓA ĐƠN ==============");
+            writer.println("Mã hóa đơn: " + maHD);
+            writer.println("Chi tiết hóa đơn: ");
+            writer.println("Mã sản phẩm | Số lượng | Đơn giá | Thành tiền");
+            writer.println("----------------------------------------------------------");
+            for (ChiTietHoaDonDTO ctHoaDon : chiTietHoaDon) {
+                writer.println(
+                    ctHoaDon.getMaSP() + " | " + 
+                    ctHoaDon.getSoLuong() + " | " + 
+                    FormatUtil.formatVND(ctHoaDon.getDonGia()) + " | " + 
+                    FormatUtil.formatVND(ctHoaDon.getThanhTien()));
+            }
+            writer.println("========================================================");
+        } catch (IOException e) {
+            System.out.println("Lỗi khi xuất chi tiết hóa đơn: " + e.getMessage());
         }
     }
 }
