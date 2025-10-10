@@ -399,4 +399,45 @@ public class HoaDonDAO {
         }
         return result;
     }
+
+    public static List<Map<String, Object>> thongKeHDTheoPhuongThucTT(LocalDate fromDate, LocalDate toDate) {
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        String query = """
+            SELECT 
+                hd.PhuongThucTT,
+                COUNT(DISTINCT hd.MaHD) AS SoHoaDon,
+                SUM(ct.SoLuong) AS TongSanPham,
+                SUM(hd.TongTien) AS TongDoanhThu
+            FROM HOADON hd
+            JOIN CHITIETHOADON ct ON hd.MaHD = ct.MaHD
+            WHERE NgayLapHD BETWEEN ? AND ?
+            GROUP BY PhuongThucTT
+            ORDER BY TongDoanhThu DESC;
+        """;
+
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+            
+            LocalDateTime fromDateTime = fromDate.atStartOfDay();
+            LocalDateTime toDateTime = toDate.plusDays(1).atStartOfDay();
+
+            stmt.setTimestamp(1, Timestamp.valueOf(fromDateTime));
+            stmt.setTimestamp(2, Timestamp.valueOf(toDateTime));
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Map<String, Object> row = new HashMap<>();
+                row.put("PTTT", rs.getString("PhuongThucTT"));
+                row.put("SoHoaDon", rs.getInt("SoHoaDon"));
+                row.put("TongSanPham", rs.getInt("TongSanPham"));
+                row.put("TongDoanhThu", rs.getLong("TongDoanhThu"));
+                result.add(row);
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi thống kê hóa đơn theo phương thức thanh toán: " + e.getMessage());
+        }
+        return result;
+    }
 }
