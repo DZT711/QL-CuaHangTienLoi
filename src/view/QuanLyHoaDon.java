@@ -20,6 +20,7 @@ import dto.sanPhamDTO;
 import java.util.InputMismatchException;
 import java.time.format.DateTimeParseException;
 import util.FormatUtil;
+import java.util.Map;
 
 public class QuanLyHoaDon {
     public void menuQuanLyHoaDon() {
@@ -180,7 +181,30 @@ public class QuanLyHoaDon {
                     xemDanhSachHoaDon();
                     break;
                 case 5:
-                    // thongKeHoaDon();
+                    while (true) {
+                        try {
+                            System.out.println("\n");
+                            System.out.println("Thống kê hóa đơn");
+                            System.out.println("1. Thống kê doanh thu theo khoảng thời gian");
+                            System.out.println("0. Thoát");
+                            System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+
+                            int opt = scanner.nextInt();
+                            scanner.nextLine();
+
+                            if (opt == 0) {
+                                System.out.println("Thoát thống kê hóa đơn thành công.");
+                                break;
+                            } else if (opt == 1) {
+                                thongKeHDTheoNgay();
+                            } else {
+                                System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
+                            }
+                        } catch (Exception e) {
+                            System.out.println("Lỗi xảy ra: " + e.getMessage());
+                            scanner.nextLine();
+                        }
+                    }
                     break;
                 case 6:
                     // xemDanhSachHoaDon();
@@ -484,5 +508,45 @@ public class QuanLyHoaDon {
                 break;
             }
         } while (tieptuc.equalsIgnoreCase("y"));
+    }
+
+    // Làm lại giao diện cho giống thực tế, đẹp hơn
+    public void thongKeHDTheoNgay() {
+        Scanner scanner = new Scanner(System.in);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+
+        while (true) {
+            try {
+                System.out.println("Nhập ngày bắt đầu: ");
+                String from = scanner.nextLine().trim();
+
+                System.out.println("Nhập ngày kết thúc: ");
+                String to = scanner.nextLine().trim();
+
+                LocalDate fromDate = LocalDate.parse(from, formatter);
+                LocalDate toDate = LocalDate.parse(to, formatter);
+
+                Map<String, Object> result = HoaDonDAO.thongKeHDTheoThoiGian(fromDate, toDate);
+
+                System.out.println("\n========= BÁO CÁO THỐNG KÊ HÓA ĐƠN =========");
+                System.out.println("Từ ngày: " + from + "  đến ngày: " + to);
+
+                if (result.isEmpty() || result.get("SoHoaDon") == null) {
+                    System.out.println("Không tìm thấy hóa đơn trong khoảng thời gian này");
+                } else {
+                    System.out.println("Số hóa đơn: " + result.get("SoHoaDon"));
+                    System.out.println("Số khách hàng: " + result.get("SoKhachHang"));
+                    System.out.println("Tổng sản phẩm: " + result.get("TongSanPham"));
+                    System.out.println("Tổng doanh thu: " + FormatUtil.formatVND((int)result.get("TongDoanhThu")));
+                    System.out.println("Doanh thu trung bình: " + FormatUtil.formatVND((int)result.get("DoanhThuTrungBinh")));
+                    System.out.println("Tìm thấy " + result.get("SoHoaDon") + " hóa đơn trong khoảng thời gian này");
+                }
+                System.out.println("========================================================");
+                break;
+            } catch (DateTimeParseException e) {
+                System.out.println("Định dạng ngày không hợp lệ, vui lòng nhập lại.");
+                scanner.nextLine();
+            }
+        }
     }
 }

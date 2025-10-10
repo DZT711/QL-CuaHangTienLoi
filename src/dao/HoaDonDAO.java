@@ -7,7 +7,9 @@ import util.JDBCUtil;
 import java.util.ArrayList;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class HoaDonDAO {
@@ -194,8 +196,7 @@ public class HoaDonDAO {
             System.err.println("Lỗi khi tìm hóa đơn theo mã nhân viên: " + e.getMessage());
         }
     }
-
-
+    
     public static List<HoaDonDTO> timHoaDonTheoNgayLap(LocalDate fromDate, LocalDate toDate) {
         List<HoaDonDTO> list = new ArrayList<>();
 
@@ -230,5 +231,44 @@ public class HoaDonDAO {
             System.err.println("Lỗi khi tìm hóa đơn theo ngày lập: " + e.getMessage());
         }
         return list;
+    }
+
+    public static Map<String, Object> thongKeHDTheoThoiGian(LocalDate fromDate, LocalDate toDate) {
+        Map<String, Object> result = new HashMap<>();
+
+        String query = """
+                SELECT 
+                    COUNT(DISTINCT hd.MaHD) AS SoHoaDon,
+                    COUNT(DISTINCT hd.MaKH) AS SoKhachHang,
+                    SUM(ct.SoLuong) AS TongSanPham,
+                    SUM(hd.TongTien) AS TongDoanhThu,
+                    AVG(hd.TongTien) AS DoanhThuTrungBinh
+                    (SUM(hd.TongTien) / COUNT(DISTINCT hd.MaHD)) AS DoanhThuTrungBinh
+                FROM HOADON hd
+                JOIN CHITIETHOADON ct ON hd.MaHD = ct.MaHD
+                WHERE hd.NgayLapHD BETWEEN ? AND ?;
+        """;
+
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+                LocalDateTime fromDateTime = fromDate.atStartOfDay();
+                LocalDateTime toDateTime = toDate.plusDays(1).atStartOfDay();
+
+                stmt.setTimestamp(1, Timestamp.valueOf(fromDateTime));
+                stmt.setTimestamp(2, Timestamp.valueOf(toDateTime));
+
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()) {
+                    result.put("SoHoaDon", rs.getInt("SoHoaDon"));
+                    result.put("SoKhachHang", rs.getInt("SoKhachHang"));
+                    result.put("TongSanPham", rs.getInt("TongSanPham"));
+                    result.put("TongDoanhThu", rs.getInt("TongDoanhThu"));
+                    result.put("DoanhThuTrungBinh", rs.getInt("DoanhThuTrungBinh"));
+                }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi thống kê hóa đơn theo thời gian: " + e.getMessage());
+        }
+        return result;
     }
 }
