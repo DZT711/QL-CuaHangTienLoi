@@ -88,6 +88,16 @@ CREATE TABLE NHACUNGCAP (
   Email VARCHAR(40) NOT NULL,
   TrangThai ENUM('active', 'inactive') NOT NULL
 );
+NSERT INTO NHACUNGCAP (MaNCC, TenNCC, DiaChi, DienThoai, Email, TrangThai) VALUES
+('NCC001', 'Công ty TNHH PepsiCo Việt Nam', 'KCN Amata, Biên Hòa, Đồng Nai', '0912345678', 'contact@pepsico.vn', 'active'),
+('NCC002', 'Công ty Cổ phần Sữa Vinamilk', '12 Đinh Tiên Hoàng, Quận 1, TP.HCM', '0987654321', 'support@vinamilk.com', 'active'),
+('NCC003', 'Công ty TNHH Acecook Việt Nam', 'Lô II-3, KCN Tân Bình, TP.HCM', '0905123456', 'info@acecookvietnam.vn', 'active'),
+('NCC004', 'Công ty TNHH P&G Việt Nam', 'Lô CN-2, KCN VSIP 1, Bình Dương', '0903344556', 'pgvn@pg.com', 'active'),
+('NCC005', 'Công ty TNHH Unilever Việt Nam', '156 Nguyễn Lương Bằng, Quận 7, TP.HCM', '0911222333', 'contact@unilever.com', 'active'),
+('NCC006', 'Công ty Cổ phần Tân Hiệp Phát', '219 Đại lộ Bình Dương, Thuận An, Bình Dương', '0909988776', 'info@thp.com.vn', 'active'),
+('NCC007', 'Công ty TNHH Orion Food Vina', 'KCN Mỹ Phước 3, Bến Cát, Bình Dương', '0914433221', 'contact@orionvina.vn', 'active'),
+('NCC008', 'Công ty TNHH Bibica', '443 Lý Thường Kiệt, Tân Bình, TP.HCM', '0932112233', 'support@bibica.vn', 'inactive'),
+('NCC009', 'Công ty TNHH Masan Consumer', 'KCN Tân Đông Hiệp B, Dĩ An, Bình Dương', '0988333444', 'info@masanconsumer.com', 'active');
 
 -- Bảng NHANVIEN
 CREATE TABLE NHANVIEN (
