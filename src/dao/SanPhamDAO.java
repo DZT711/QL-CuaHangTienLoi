@@ -340,7 +340,7 @@ public static String removeAccent(String s) {
                 int TongTonKho = rs.getInt("TongSoLuongTon");
                 long TongGiaTriTon = rs.getLong("TongGiaTriTon");
 
-                long giaTrungBinh = (TongTonKho == 0) ? 0 : (TongGiaTriTon / TongTonKho);
+                double giaTrungBinh = (TongTonKho == 0) ? 0 : (TongGiaTriTon / TongTonKho);
 
                 soLoai++;
                 soLuongSanPham += soLuongSP;
@@ -351,7 +351,7 @@ public static String removeAccent(String s) {
                         FormatUtil.formatVND(TongGiaTriTon), FormatUtil.formatVND(giaTrungBinh));
             }
 
-            long tongGiaTrungBinh = (soLuongTon == 0) ? 0 : (giaTriTon / soLuongTon);
+            double tongGiaTrungBinh = (soLuongTon == 0) ? 0 : (giaTriTon / soLuongTon);
 
             System.out.println(
                     "╠══════════════════════════════════════╪═════════════════════╪═════════════════════╪═════════════════════╪═════════════════════╣");
@@ -402,7 +402,7 @@ public static String removeAccent(String s) {
                 int soLuongTon = rs.getInt("TongSoLuongTon");
                 int giaTriTon = rs.getInt("TongGiaTriTon");
 
-                long giaTrungBinh = (soLuongTon == 0) ? 0 : (giaTriTon / soLuongTon);
+                double giaTrungBinh = (soLuongTon == 0) ? 0 : (giaTriTon / soLuongTon);
 
                 soNgay++;
                 tongSoLuongSanPham += soLuongSP;
@@ -413,7 +413,7 @@ public static String removeAccent(String s) {
                         soLuongTon, FormatUtil.formatVND(giaTriTon), FormatUtil.formatVND(giaTrungBinh));
             }
 
-            long tongGiaTrungBinh = (tongSoLuongTon == 0) ? 0 : (tongGiaTriTon / tongSoLuongTon);
+            double tongGiaTrungBinh = (tongSoLuongTon == 0) ? 0 : (tongGiaTriTon / tongSoLuongTon);
 
             System.out.println(
                     "╠══════════════════════════════════════╪═════════════════════╪═════════════════════╪═════════════════════╪═════════════════════╣");
@@ -537,8 +537,8 @@ public static String removeAccent(String s) {
     List<List<String>> rows = new ArrayList<>();
 
     try (Connection conn = JDBCUtil.getConnection();
-         PreparedStatement stmt = conn.prepareStatement(query);
-         ResultSet rs = stmt.executeQuery()) {
+        PreparedStatement stmt = conn.prepareStatement(query);
+        ResultSet rs = stmt.executeQuery()) {
 
         while (rs.next()) {
             String maSP = rs.getString("MaSP");

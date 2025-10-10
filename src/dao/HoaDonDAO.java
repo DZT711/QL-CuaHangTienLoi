@@ -242,7 +242,6 @@ public class HoaDonDAO {
                     COUNT(DISTINCT hd.MaKH) AS SoKhachHang,
                     SUM(ct.SoLuong) AS TongSanPham,
                     SUM(hd.TongTien) AS TongDoanhThu,
-                    AVG(hd.TongTien) AS DoanhThuTrungBinh
                     (SUM(hd.TongTien) / COUNT(DISTINCT hd.MaHD)) AS DoanhThuTrungBinh
                 FROM HOADON hd
                 JOIN CHITIETHOADON ct ON hd.MaHD = ct.MaHD
@@ -263,8 +262,8 @@ public class HoaDonDAO {
                     result.put("SoHoaDon", rs.getInt("SoHoaDon"));
                     result.put("SoKhachHang", rs.getInt("SoKhachHang"));
                     result.put("TongSanPham", rs.getInt("TongSanPham"));
-                    result.put("TongDoanhThu", rs.getInt("TongDoanhThu"));
-                    result.put("DoanhThuTrungBinh", rs.getInt("DoanhThuTrungBinh"));
+                    result.put("TongDoanhThu", rs.getLong("TongDoanhThu"));
+                    result.put("DoanhThuTrungBinh", rs.getDouble("DoanhThuTrungBinh"));
                 }
         } catch (SQLException e) {
             System.err.println("Lỗi khi thống kê hóa đơn theo thời gian: " + e.getMessage());

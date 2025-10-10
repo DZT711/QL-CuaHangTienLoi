@@ -8,15 +8,19 @@ public class FormatUtil {
         setDecimalSeparator(',');
     }};
 
-    private static final DecimalFormat df = new DecimalFormat("#,###", VN_SYMBOLS);
+    private static final DecimalFormat dfLong = new DecimalFormat("#,###", VN_SYMBOLS);
+    private static final DecimalFormat dfDouble = new DecimalFormat("#,###.##", VN_SYMBOLS);
 
     public static String formatVND(long number) {
-        return df.format(number) + " VND";
+        return dfLong.format(number) + " VND";
+    }
+
+    public static String formatVND(double number) {
+        return dfDouble.format(number) + " VND";
     }
 
     public static String divideAndFormat(long number, int divisor) {
-        long result = number / divisor;
+        double result = (double) number / divisor;
         return formatVND(result);
     }
-
 }

@@ -537,8 +537,8 @@ public class QuanLyHoaDon {
                     System.out.println("Số hóa đơn: " + result.get("SoHoaDon"));
                     System.out.println("Số khách hàng: " + result.get("SoKhachHang"));
                     System.out.println("Tổng sản phẩm: " + result.get("TongSanPham"));
-                    System.out.println("Tổng doanh thu: " + FormatUtil.formatVND((int)result.get("TongDoanhThu")));
-                    System.out.println("Doanh thu trung bình: " + FormatUtil.formatVND((int)result.get("DoanhThuTrungBinh")));
+                    System.out.println("Tổng doanh thu: " + FormatUtil.formatVND((long)result.get("TongDoanhThu")));
+                    System.out.println("Doanh thu trung bình: " + FormatUtil.formatVND((double)result.get("DoanhThuTrungBinh")));
                     System.out.println("Tìm thấy " + result.get("SoHoaDon") + " hóa đơn trong khoảng thời gian này");
                 }
                 System.out.println("========================================================");
