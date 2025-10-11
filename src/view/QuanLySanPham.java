@@ -4,16 +4,11 @@ import java.util.Scanner;
 import dao.SanPhamDAO;
 import dto.sanPhamDTO;
 import util.tablePrinter;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import util.tablePrinter;
+
 public class QuanLySanPham {
     public void menuQuanLySanPham() {
         Scanner scanner = new Scanner(System.in);
@@ -52,7 +47,6 @@ public class QuanLySanPham {
                 } else {
                     System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập số trong khoảng 0–5.");
                     System.out.print("\n💡 Nhập lựa chọn của bạn: ");
-                    scanner.next(); // Clear invalid input
                 }
             }
 

@@ -298,7 +298,7 @@ public class QuanLyHoaDon {
                     chiTietHoaDon.add(new ChiTietHoaDonDTO(maHD, maSP, sp.getTenSP(), soLuong, donGia, thanhTien));
 
                     sp.setSoLuongTon(sp.getSoLuongTon() - soLuong);
-                    SanPhamDAO.capnhatSoLuongTon(maSP, sp.getSoLuongTon());
+                    SanPhamDAO.truSoLuongTon(maSP, soLuong);
 
                     tongTien += thanhTien;
                 }
