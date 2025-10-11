@@ -24,10 +24,10 @@ public class NhanVienDAO {
             stmt.setString(1, maNV);
             ResultSet rs = stmt.executeQuery();
 
-            java.sql.Date d = rs.getDate("NgaySinh");
-            LocalDate ns = d != null ? d.toLocalDate() : null;
-
             if (rs.next()) {
+                java.sql.Date d = rs.getDate("NgaySinh");
+                LocalDate ns = d != null ? d.toLocalDate() : null;
+
                 return new NhanVienDTO(
                         rs.getString("MaNV"),
                         rs.getString("Ho"),
@@ -189,9 +189,10 @@ public class NhanVienDAO {
 
             PreparedStatement pstmt = conn.prepareStatement(query);
             ResultSet rs = pstmt.executeQuery();
-            java.sql.Date d = rs.getDate("NgaySinh");
-            LocalDate ns = d != null ? d.toLocalDate() : null;
+
             while (rs.next()) {
+                java.sql.Date d = rs.getDate("NgaySinh");
+                LocalDate ns = d != null ? d.toLocalDate() : null;
 
                 list.add(new NhanVienDTO(
                         rs.getString("MANV"),

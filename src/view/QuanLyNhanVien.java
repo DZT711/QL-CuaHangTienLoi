@@ -367,7 +367,7 @@ public class QuanLyNhanVien {
                 System.out.println(
                         "┃ [1] ➜ Tìm kiếm nhân viên theo mã                                              ┃");
                 System.out.println(
-                        "┃ [2] ➜ Tìm kiếm nhân viên theo tên                                             ┃");
+                        "┃ [2] ➜ Tìm kiếm nhân viên theo tên (tự động xử lý trùng tên)                   ┃");
                 System.out.println(
                         "┃ [0] ➜ Thoát                                                                   ┃");
                 System.out.println(
@@ -443,17 +443,75 @@ public class QuanLyNhanVien {
             return;
         }
 
-        // Chỉ lấy nhân viên đầu tiên từ danh sách kết quả
-        NhanVienDTO nv = results.get(0);
+        // Kiểm tra số lượng kết quả để quyết định cách hiển thị
+        if (results.size() == 1) {
+            // Chỉ có 1 kết quả - hiển thị bình thường
+            System.out.println("🔍 Tìm thấy 1 nhân viên với từ khóa: \"" + tuKhoa + "\"");
+            System.out.println();
+            NhanVienDAO.inThongTinNhanVien(results.get(0));
+        } else {
+            // Có nhiều kết quả - tự động chuyển sang tìm kiếm nâng cao
+            System.out
+                    .println("🔍 Tìm thấy " + results.size() + " nhân viên trùng tên với từ khóa: \"" + tuKhoa + "\"");
+            System.out.println("💡 Tự động chuyển sang chế độ tìm kiếm nâng cao...");
+            System.out.println();
 
-        System.out.println("🔍 Tìm thấy nhân viên với từ khóa: \"" + tuKhoa + "\"");
-        System.out.println("📊 Tổng số kết quả tìm thấy: " + results.size() + " (hiển thị kết quả đầu tiên)");
-        System.out.println();
-
-        NhanVienDAO.inThongTinNhanVien(nv);
+            // Hiển thị bảng tóm tắt và cho phép chọn
+            hienThiBangTomTatVaChon(results, tuKhoa);
+        }
 
         System.out.print("\n⏸️  Nhấn Enter để tiếp tục...");
         sc.nextLine();
+    }
+
+    // Phương thức hiển thị bảng tóm tắt và cho phép chọn (chỉ dành cho nhiều kết
+    // quả)
+    private void hienThiBangTomTatVaChon(List<NhanVienDTO> results, String tuKhoa) {
+        Scanner sc = new Scanner(System.in);
+
+        // Hiển thị bảng tóm tắt
+        hienThiBangTomTat(results);
+
+        // Cho phép người dùng chọn nhân viên cụ thể
+        System.out.println("\n💡 Chọn nhân viên để xem chi tiết:");
+        System.out.print("📝 Nhập số thứ tự (1-" + results.size() + ") hoặc 0 để thoát: ");
+
+        try {
+            int choice = Integer.parseInt(sc.nextLine().trim());
+            if (choice == 0) {
+                System.out.println("❌ Đã hủy tìm kiếm.");
+                return;
+            } else if (choice >= 1 && choice <= results.size()) {
+                System.out.println("\n--- THÔNG TIN CHI TIẾT ---");
+                NhanVienDAO.inThongTinNhanVien(results.get(choice - 1));
+            } else {
+                System.out.println("❌ Lựa chọn không hợp lệ!");
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("❌ Vui lòng nhập số hợp lệ!");
+        }
+    }
+
+    // Phương thức hiển thị bảng tóm tắt với thông tin cơ bản
+    private void hienThiBangTomTat(List<NhanVienDTO> results) {
+        System.out.println("┌─────┬──────────┬─────────────────────┬────────┬────────┐");
+        System.out.println("│ STT │ Mã NV    │ Họ và tên           │ Giới tính │ Chức vụ │");
+        System.out.println("├─────┼──────────┼─────────────────────┼────────┼────────┤");
+
+        for (int i = 0; i < results.size(); i++) {
+            NhanVienDTO nv = results.get(i);
+            String stt = String.format("%3d", i + 1);
+            String maNV = String.format("%-8s", nv.getMaNV());
+            String hoTen = String.format("%-19s",
+                    nv.getFullName().length() > 19 ? nv.getFullName().substring(0, 16) + "..." : nv.getFullName());
+            String gioiTinh = String.format("%-6s", nv.getGioiTinh());
+            String chucVu = String.format("%-6s", nv.getChucVu());
+
+            System.out.printf("│%s│ %s │ %s │ %s │ %s │%n",
+                    stt, maNV, hoTen, gioiTinh, chucVu);
+        }
+
+        System.out.println("└─────┴──────────┴─────────────────────┴────────┴────────┘");
     }
 
     public void thongKeNhanVien() {
