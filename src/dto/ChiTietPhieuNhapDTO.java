@@ -2,15 +2,15 @@ package dto;
 
 public class ChiTietPhieuNhapDTO {
     private String maPhieu, maSP;
-    private int soLuong, donGia;
+    private int soLuong, giaNhap;
 
     public ChiTietPhieuNhapDTO() {}
     
-    public ChiTietPhieuNhapDTO(String maPhieu, String maSP, int soLuong, int donGia) {
+    public ChiTietPhieuNhapDTO(String maPhieu, String maSP, int soLuong, int giaNhap) {
         this.maPhieu = maPhieu;
         this.maSP = maSP;
         this.soLuong = soLuong;
-        this.donGia = donGia;
+        this.giaNhap = giaNhap;
     }
     
     public String getMaPhieu() {
@@ -37,11 +37,11 @@ public class ChiTietPhieuNhapDTO {
         this.soLuong = soLuong;
     }
     
-    public int getDonGia() {
-        return donGia;
+    public int getGiaNhap() {
+        return giaNhap;
     }
 
-    public void setDonGia(int donGia) {
-        this.donGia = donGia;
+    public void setGiaNhap(int giaNhap) {
+        this.giaNhap = giaNhap;
     }
 }
