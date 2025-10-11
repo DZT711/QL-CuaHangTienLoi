@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import dto.NhapHangDTO;
 import util.JDBCUtil;
 
 public class NhapHangDAO {
@@ -26,5 +28,27 @@ public class NhapHangDAO {
             System.err.println("Lỗi khi tạo mã phiếu nhập: " + e.getMessage());
         }
         return newID;
+    }
+
+    public static void themPhieuNhap(NhapHangDTO pn) {
+        String query = "INSERT INTO PHIEUNHAP (MaPhieu, MaNCC, MaNV, TongTien) VALUES (?, ?, ?, ?);";
+
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, pn.getMaPhieu());
+            stmt.setString(2, pn.getMaNCC());
+            stmt.setString(3, pn.getMaNV());
+            stmt.setInt(4, pn.getTongTien());
+
+            int rowAffected = stmt.executeUpdate();
+            if (rowAffected > 0) {
+                System.out.println("Thêm phiếu nhập thành công");
+            } else {
+                System.out.println("Thêm phiếu nhập thất bại");
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi thêm phiếu nhập: " + e.getMessage());
+        }
     }
 }
