@@ -95,85 +95,24 @@ public class QuanLyHoaDon {
                             if (opt == 0) {
                                 System.out.println("Thoát tìm kiếm hóa đơn thành công.");
                                 break;
-                            } else if (opt == 1) {
-                                System.out.println("Nhập mã hóa đơn cần tìm: ");
-                                try {
-                                    String maHD = scanner.nextLine().trim();
-                                    scanner.nextLine();
-                                    HoaDonDTO hd = HoaDonDAO.timHoaDon(maHD);
-                                    if (hd != null) {
-                                        System.out.println("Thông tin hóa đơn tìm thấy với mã: " + maHD);
-                                        inHoaDon(maHD);
-                                    } else {
-                                        System.out.println("Không tìm thấy hóa đơn với mã: " + maHD);
-                                    }
-                                } catch (InputMismatchException e) {
-                                    System.out.println("Lỗi: Vui lòng nhập mã hóa đơn hợp lệ");
-                                    scanner.nextLine();
-                                }
-                            } else if (opt == 2) {
-                                System.out.println("Nhập mã khách hàng để tìm hóa đơn: ");
-                                try {
-                                    String maKH = scanner.nextLine().trim();
-                                    scanner.nextLine();
-                                    KhachHangDTO kh = KhachHangDAO.timKhachHangTheoMa(maKH);
-                                    if (kh != null) {
-                                        System.out.println("Thông tin hóa đơn tìm thấy với mã: " + maKH);
-                                        HoaDonDAO.timHoaDonTheoMaKH(maKH);
-                                        String tieptuc;
-                                        do {
-                                            System.out.println("Bạn có muốn xem chi tiết hóa đơn không (y/n): ");
-                                            tieptuc = scanner.nextLine().trim();
-
-                                            if (tieptuc.equalsIgnoreCase("y")) {
-                                                System.out.println("Nhập mã hóa đơn cần xem chi tiết: ");
-                                                String maHD = scanner.nextLine().trim();
-                                                inHoaDon(maHD);
-                                            } else {
-                                                System.out.println("Không xem chi tiết hóa đơn nào.");
-                                                break;
-                                            }
-                                        } while (tieptuc.equalsIgnoreCase("y"));
-                                    } else {
-                                        System.out.println("Không tìm thấy hóa đơn với mã: " + maKH);
-                                    }
-                                } catch (InputMismatchException e) {
-                                    System.out.println("Lỗi: Vui lòng nhập mã khách hàng hợp lệ");
-                                    scanner.nextLine();
-                                }
-                            } else if (opt == 3) {
-                                System.out.println("Nhập mã nhân viên cần tìm: ");
-                                try {
-                                    String maNV = scanner.nextLine().trim();
-                                    scanner.nextLine();
-
-                                    NhanVienDTO nv = NhanVienDAO.timNhanVienTheoMa(maNV);
-                                    if (nv != null) {
-                                        System.out.println("Thông tin hóa đơn do nhân viên: " + maNV + " lập: ");
-                                        HoaDonDAO.timHoaDonTheoMaNV(maNV);
-                                        String tieptuc;
-                                        do {
-                                            System.out.println("Bạn có muốn xem chi tiết hóa đơn không (y/n): ");
-                                            tieptuc = scanner.nextLine().trim();
-                                            if (tieptuc.equalsIgnoreCase("y")) {
-                                                System.out.println("Nhập mã hóa đơn cần xem chi tiết: ");
-                                                String maHD = scanner.nextLine().trim();
-                                                inHoaDon(maHD);
-                                            } else {
-                                                System.out.println("Không xem chi tiết hóa đơn nào.");
-                                                break;
-                                            }
-                                        } while (tieptuc.equalsIgnoreCase("y"));
-                                    } else {
-                                        System.out.println("Không tìm thấy hóa đơn với mã nhân viên: " + maNV);
-                                    }
-                                } catch (InputMismatchException e) {
-                                    System.out.println("Lỗi: Vui lòng nhập mã nhân viên hợp lệ");
-                                    scanner.nextLine();
-                                }
-                            } else if (opt == 4) {
-                                timHoaDonTheoNgay();
-                            }
+                            } 
+                            switch (opt) {
+                                case 1:
+                                    timHDTheoMaHD();
+                                    break;
+                                case 2:
+                                    timHDTheoMaKH();
+                                    break;
+                                case 3:
+                                    timHDTheoMaNV();
+                                    break;
+                                case 4:
+                                    timHoaDonTheoNgay();
+                                    break;
+                                default:
+                                    System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
+                                    break;
+                            } 
                         } catch (Exception e) {
                             System.out.println("Lỗi xảy ra: " + e.getMessage());
                             scanner.nextLine();
@@ -202,23 +141,26 @@ public class QuanLyHoaDon {
                             if (opt == 0) {
                                 System.out.println("Thoát thống kê hóa đơn thành công.");
                                 break;
-                            } else if (opt == 1) {
-                                thongKeHDTheoNgay();
-                                break;
-                            } else if (opt == 2) {
-                                thongKeHoaDonTheoNV();
-                                break;
-                            } else if (opt == 3) {
-                                thongKeHoaDonTheoKH();
-                                break;
-                            } else if (opt == 4) {
-                                thongKeHoaDonTheoNam();
-                                break;
-                            } else if (opt == 5) {
-                                thongKeHoaDonTheoPTTT();
-                                break;
-                            } else {
-                                System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
+                            }
+                            switch (opt) {
+                                case 1:
+                                    thongKeHDTheoNgay();
+                                    break;
+                                case 2:
+                                    thongKeHoaDonTheoNV();
+                                    break;
+                                case 3:
+                                    thongKeHoaDonTheoKH();
+                                    break;
+                                case 4:
+                                    thongKeHoaDonTheoNam();
+                                    break;
+                                case 5:
+                                    thongKeHoaDonTheoPTTT();
+                                    break;
+                                default:
+                                    System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
+                                    break;
                             }
                         } catch (Exception e) {
                             System.out.println("Lỗi xảy ra: " + e.getMessage());
@@ -421,6 +363,86 @@ public class QuanLyHoaDon {
             } catch (Exception e) {
                 System.out.println("Lỗi: " + e.getMessage());
             }
+        }
+    }
+
+    public void timHDTheoMaHD() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Nhập mã hóa đơn cần tìm: ");
+        try {
+            String maHD = scanner.nextLine().trim();
+            HoaDonDTO hd = HoaDonDAO.timHoaDon(maHD);
+            if (hd != null) {
+                System.out.println("Thông tin hóa đơn tìm thấy với mã: " + maHD);
+                inHoaDon(maHD);
+            } else {
+                System.out.println("Không tìm thấy hóa đơn với mã: " + maHD);
+            }
+        } catch (InputMismatchException e) {
+            System.out.println("Lỗi: Vui lòng nhập mã hóa đơn hợp lệ");
+            scanner.nextLine();
+        }
+    }
+
+    public void timHDTheoMaKH() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Nhập mã khách hàng để tìm hóa đơn: ");
+        try {
+            String maKH = scanner.nextLine().trim();
+            KhachHangDTO kh = KhachHangDAO.timKhachHangTheoMa(maKH);
+            if (kh != null) {
+                System.out.println("Thông tin hóa đơn tìm thấy với mã: " + maKH);
+                HoaDonDAO.timHoaDonTheoMaKH(maKH);
+                String tieptuc;
+                do {
+                    System.out.println("Bạn có muốn xem chi tiết hóa đơn không (y/n): ");
+                    tieptuc = scanner.nextLine().trim();
+
+                    if (tieptuc.equalsIgnoreCase("y")) {
+                        System.out.println("Nhập mã hóa đơn cần xem chi tiết: ");
+                        String maHD = scanner.nextLine().trim();
+                        inHoaDon(maHD);
+                    } else {
+                        System.out.println("Không xem chi tiết hóa đơn nào.");
+                    }
+                } while (tieptuc.equalsIgnoreCase("y"));
+            } else {
+                System.out.println("Không tìm thấy hóa đơn với mã: " + maKH);
+            }
+        } catch (InputMismatchException e) {
+            System.out.println("Lỗi: Vui lòng nhập mã khách hàng hợp lệ");
+            scanner.nextLine();
+        }
+    }
+
+    public void timHDTheoMaNV() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Nhập mã nhân viên cần tìm: ");
+        try {
+            String maNV = scanner.nextLine().trim();
+
+            NhanVienDTO nv = NhanVienDAO.timNhanVienTheoMa(maNV);
+            if (nv != null) {
+                System.out.println("Thông tin hóa đơn do nhân viên: " + maNV + " lập: ");
+                HoaDonDAO.timHoaDonTheoMaNV(maNV);
+                String tieptuc;
+                do {
+                    System.out.println("Bạn có muốn xem chi tiết hóa đơn không (y/n): ");
+                    tieptuc = scanner.nextLine().trim();
+                    if (tieptuc.equalsIgnoreCase("y")) {
+                        System.out.println("Nhập mã hóa đơn cần xem chi tiết: ");
+                        String maHD = scanner.nextLine().trim();
+                        inHoaDon(maHD);
+                    } else {
+                        System.out.println("Không xem chi tiết hóa đơn nào.");
+                    }
+                } while (tieptuc.equalsIgnoreCase("y"));
+            } else {
+                System.out.println("Không tìm thấy hóa đơn với mã nhân viên: " + maNV);
+            }
+        } catch (InputMismatchException e) {
+            System.out.println("Lỗi: Vui lòng nhập mã nhân viên hợp lệ");
+            scanner.nextLine();
         }
     }
 
