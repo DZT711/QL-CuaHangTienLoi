@@ -51,4 +51,28 @@ public class NhapHangDAO {
             System.err.println("Lỗi khi thêm phiếu nhập: " + e.getMessage());
         }
     }
+
+    public static NhapHangDTO timPhieuNhapTheoMa(String maPhieu) {
+        String query = "SELECT MaPhieu, MaNCC, MaNV, TongTien, NgayLapPhieu FROM PHIEUNHAP WHERE MaPhieu = ?";
+
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, maPhieu);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return new NhapHangDTO(
+                    rs.getString("MaPhieu"), 
+                    rs.getString("MaNCC"), 
+                    rs.getString("MaNV"), 
+                    rs.getInt("TongTien"), 
+                    rs.getTimestamp("NgayLapPhieu").toLocalDateTime()
+                );
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi tìm phiếu nhập theo mã: " + e.getMessage());
+        }
+        return null;
+    }
 }
