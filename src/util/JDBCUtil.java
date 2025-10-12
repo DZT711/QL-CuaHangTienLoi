@@ -6,9 +6,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class JDBCUtil {
+    public static Connection conn = null;
     // Connect to database
     public static Connection getConnection() {
-        Connection conn = null;
         try {
             DriverManager.registerDriver(new com.mysql.cj.jdbc.Driver());
 
@@ -16,7 +16,10 @@ public class JDBCUtil {
             String username = "root";
             String password = "";
 
-            conn = DriverManager.getConnection(url, username, password);
+            if (conn == null) {
+                conn = DriverManager.getConnection(url, username, password);
+            }
+            return conn;
         } catch (SQLException e) {
             e.printStackTrace();
         }
