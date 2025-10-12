@@ -1,6 +1,7 @@
 package view;
 
 import java.time.LocalDateTime;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 import dao.NhapHangDAO;
 import dao.NhaCungCapDAO;
@@ -23,10 +24,10 @@ public class QuanLyNhapHang {
             System.out.println("████████████████████████████████████████████████████████████████████████████████");
             System.out.println("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ MENU CHỨC NĂNG ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓");
             System.out.println("▒ [1] ➜ Tạo phiếu nhập hàng mới                                                ▒");
+            System.out.println("▒ [2] ➜ Tìm kiếm phiếu nhập                                                    ▒");
             System.out.println("▒ [2] ➜ Xem chi tiết phiếu nhập                                                ▒");
             System.out.println("▒ [3] ➜ Chỉnh sửa phiếu nhập                                                   ▒");
             System.out.println("▒ [4] ➜ Xóa phiếu nhập                                                         ▒");
-            System.out.println("▒ [5] ➜ Tìm kiếm phiếu nhập                                                    ▒");
             System.out.println("▒ [6] ➜ Quản lý nhà cung cấp                                                   ▒");
             System.out.println("▒ [7] ➜ Thống kê nhập hàng                                                     ▒");
             System.out.println("▒ [8] ➜ Xuất báo cáo nhập hàng                                                 ▒");
@@ -50,11 +51,40 @@ public class QuanLyNhapHang {
             }
 
             switch (choice) {
-                case 1: taoPhieuNhap(); break;
-                case 2: xemChiTiet(); break;
+                case 1: 
+                    taoPhieuNhap(); 
+                    break;
+                case 2: 
+                    while (true) {
+                        try {
+                            System.out.println("\n");
+                            System.out.println("Tìm kiếm phiếu nhập");
+                            System.out.println("1. Tìm kiếm phiếu nhập theo mã");
+                            System.out.println("0. Thoát");
+                            System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+
+                            int opt = scanner.nextInt();
+                            scanner.nextLine();
+
+                            if (opt == 0) {
+                                System.out.println("Thoát tìm kiếm phiếu nhập thành công.");
+                                break;
+                            }
+
+                            switch (opt) {
+                                case 1:
+                                    timPhieuNhapTheoMa();
+                                    break;
+                            }
+                        } catch (Exception e) {
+                            System.out.println("Lỗi xảy ra: " + e.getMessage());
+                            scanner.nextLine();
+                        }
+                    }
+                    break;
                 case 3: suaPhieuNhap(); break;
                 case 4: xoaPhieuNhap(); break;
-                case 5: timKiem(); break;
+                // case 5: timKiem(); break;
                 case 6: 
                     QuanLyNhaCungCap qlncc = new QuanLyNhaCungCap();
                     qlncc.menuQuanLyNhaCungCap();
@@ -176,10 +206,11 @@ public class QuanLyNhapHang {
                         continue;
                     }
 
+                    int thanhTien = soLuong * giaNhap;
                     // Tạo chi tiết phiếu nhập
-                    ChiTietPhieuNhapDTO chiTiet = new ChiTietPhieuNhapDTO(maPhieu, maSP, soLuong, giaNhap);
+                    ChiTietPhieuNhapDTO chiTiet = new ChiTietPhieuNhapDTO(maPhieu, maSP, null, null, soLuong, giaNhap, thanhTien);
                     ChiTietPhieuNhapDAO.themChiTietPhieuNhap(chiTiet);
-                    tongTien += soLuong * giaNhap;
+                    tongTien += thanhTien;
                 }
 
                 if (tongTien == 0) {
@@ -196,7 +227,7 @@ public class QuanLyNhapHang {
                 System.out.println("Bạn có muốn tạo phiếu nhập khác không? (y/n)");
                 String cont = scanner.nextLine().trim();
                 if (!"y".equalsIgnoreCase(cont)) break;
-                
+
             } catch (Exception e) {
                 System.out.println("Lỗi: " + e.getMessage());
                 scanner.nextLine();
@@ -204,11 +235,80 @@ public class QuanLyNhapHang {
         }
     }
 
+    public void timPhieuNhapTheoMa() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Nhập mã phiếu nhập cần tìm: ");
+        try {
+            String maPhieu = scanner.nextLine().trim();
+            NhapHangDTO pn = NhapHangDAO.timPhieuNhapTheoMa(maPhieu);
+
+            if (pn != null) {
+                System.out.println("Thông tin phiếu nhập tìm thấy với mã: " + maPhieu);
+                inPhieuNhap(maPhieu);
+            } else {
+                System.out.println("Không tìm thấy phiếu nhập với mã: " + maPhieu);
+            }
+
+        } catch (InputMismatchException e) {
+            System.out.println("Lỗi: Vui lòng nhập mã phiếu nhập hợp lệ");
+            scanner.nextLine();
+        }
+    }
+
+    public void inPhieuNhap(String maPhieu) {
+        try {
+            NhapHangDTO pn = NhapHangDAO.timPhieuNhapTheoMa(maPhieu);
+            if (pn == null) {
+                System.out.println("Không tìm thấy phiếu nhập với mã: " + maPhieu);
+                return;
+            }
+
+            NhaCungCapDTO ncc = NhaCungCapDAO.timnccTheoMa(pn.getMaNCC());
+            System.out.println("\n╔══════════════════════════════════════════════════════════════╗");
+            System.out.println("║                    PHIẾU NHẬP HÀNG                           ║");
+            System.out.println("╚══════════════════════════════════════════════════════════════╝");
+
+            System.out.println("Mã phiếu: " + pn.getMaPhieu());
+            System.out.println("Ngày nhập: " + pn.getNgayNhap());
+            System.out.println("Mã nhân viên: " + pn.getMaNV());
+
+            if (ncc != null) {
+                System.out.println("\n━━━ Thông tin nhà cung cấp ━━━");
+                System.out.println("Tên NCC: " + ncc.getTenNCC());
+                System.out.println("Địa chỉ: " + ncc.getDiaChi());
+                System.out.println("Điện thoại: " + ncc.getDienThoai());
+            }
+
+            List <ChiTietPhieuNhapDTO> chiTietList = ChiTietPhieuNhapDAO.timChiTietPhieuNhap(maPhieu);
+            if (chiTietList != null && !chiTietList.isEmpty()) {
+                System.out.println("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+                System.out.printf("%-6s | %-20s | %-10s | %-8s | %-12s | %-12s\n",
+                        "STT", "Tên sản phẩm", "Đơn vị", "Số lượng", "Giá nhập", "Thành tiền");
+                System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+
+                int stt = 1;
+                for (ChiTietPhieuNhapDTO ct : chiTietList) {
+                    System.out.printf("%-10s | %-20s | %-10s | %-8d | %-12s | %-12s\n",
+                            stt++,
+                            ct.getTenSP(),
+                            ct.getDonViTinh(),
+                            ct.getSoLuong(),
+                            FormatUtil.formatVND(ct.getGiaNhap()),
+                            FormatUtil.formatVND(ct.getThanhTien())
+                    );
+                }
+                System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+                System.out.println("Tổng tiền: " + FormatUtil.formatVND(pn.getTongTien()));
+            } 
+            System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        } catch (Exception e) {
+            System.out.println("Lỗi khi in phiếu nhập: " + e.getMessage());
+        }
+    }
 
     private void xemChiTiet() { }
     private void suaPhieuNhap() { }
     private void xoaPhieuNhap() { }
-    private void timKiem() { }
     private void thongKeNhapHang() { }
     private void xuatBaoCao() { }
 }

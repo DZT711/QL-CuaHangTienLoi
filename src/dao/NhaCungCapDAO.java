@@ -14,8 +14,8 @@ public class NhaCungCapDAO {
         String query = "SELECT MaNCC, TenNCC, DiaChi, DienThoai, Email, TrangThai FROM NHACUNGCAP";
 
         try (Connection conn = JDBCUtil.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query);
-             ResultSet rs = stmt.executeQuery()) {
+            PreparedStatement stmt = conn.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 list.add(new NhaCungCapDTO(
@@ -37,7 +37,7 @@ public class NhaCungCapDAO {
     public static NhaCungCapDTO timnccTheoMa(String ma) {
         String query = "SELECT * FROM NHACUNGCAP WHERE MaNCC = ?";
         try (Connection conn = JDBCUtil.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+            PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, ma);
             ResultSet rs = stmt.executeQuery();
@@ -62,7 +62,7 @@ public class NhaCungCapDAO {
         List<NhaCungCapDTO> list = new ArrayList<>();
         String query = "SELECT * FROM NHACUNGCAP WHERE TenNCC LIKE ?";
         try (Connection conn = JDBCUtil.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+            PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, "%" + ten + "%");
             ResultSet rs = stmt.executeQuery();
@@ -86,7 +86,7 @@ public class NhaCungCapDAO {
     public static boolean themNCC(NhaCungCapDTO ncc) {
         String query = "INSERT INTO NHACUNGCAP (MaNCC, TenNCC, DiaChi, DienThoai, Email, TrangThai) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = JDBCUtil.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+            PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, ncc.getMaNCC());
             stmt.setString(2, ncc.getTenNCC());
@@ -107,7 +107,7 @@ public class NhaCungCapDAO {
     public static void suaNhaCungCap(NhaCungCapDTO ncc) {
         String query = "UPDATE NHACUNGCAP SET TenNCC=?, DiaChi=?, DienThoai=?, Email=?, TrangThai=? WHERE MaNCC=?";
         try (Connection conn = JDBCUtil.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+            PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, ncc.getTenNCC());
             stmt.setString(2, ncc.getDiaChi());
@@ -117,7 +117,7 @@ public class NhaCungCapDAO {
             stmt.setString(6, ncc.getMaNCC());
 
             int rows = stmt.executeUpdate();
-             if (rows > 0) {
+            if (rows > 0) {
                 System.out.println("Sửa nhà cung cấp thành công");
             } else {
                 System.out.println("Sửa nhà cung cấp thất bại");
@@ -132,7 +132,7 @@ public class NhaCungCapDAO {
     public static boolean xoaNCC(String maNCC) {
         String query = "UPDATE NHACUNGCAP SET TrangThai='inactive' WHERE MaNCC=?";
         try (Connection conn = JDBCUtil.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+            PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, maNCC);    
             int rows = stmt.executeUpdate();
