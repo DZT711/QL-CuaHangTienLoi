@@ -60,6 +60,7 @@ public class QuanLyNhapHang {
                             System.out.println("\n");
                             System.out.println("Tìm kiếm phiếu nhập");
                             System.out.println("1. Tìm kiếm phiếu nhập theo mã");
+                            System.out.println("2. Tìm kiếm phiếu nhập theo mã nhà cung cấp");
                             System.out.println("0. Thoát");
                             System.out.print("\n💡 Nhập lựa chọn của bạn: ");
 
@@ -74,6 +75,9 @@ public class QuanLyNhapHang {
                             switch (opt) {
                                 case 1:
                                     timPhieuNhapTheoMa();
+                                    break;
+                                case 2:
+                                    timPhieuNhapTheoMaNCC();
                                     break;
                             }
                         } catch (Exception e) {
@@ -251,6 +255,52 @@ public class QuanLyNhapHang {
 
         } catch (InputMismatchException e) {
             System.out.println("Lỗi: Vui lòng nhập mã phiếu nhập hợp lệ");
+            scanner.nextLine();
+        }
+    }
+
+    public void timPhieuNhapTheoMaNCC() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Nhập mã nhà cung cấp cần tìm: ");
+        try {
+            String maNCC = scanner.nextLine().trim();
+            NhaCungCapDTO ncc = NhaCungCapDAO.timnccTheoMa(maNCC);
+            if (ncc == null) {
+                System.out.println("Không tìm thấy nhà cung cấp với mã: " + maNCC);
+                return;
+            }
+
+            List<NhapHangDTO> pnList = NhapHangDAO.timPhieuNhapTheoMaNCC(maNCC);
+
+            if (pnList != null && !pnList.isEmpty()) {
+                System.out.println("\n═══════ DANH SÁCH PHIẾU NHẬP CỦA NHÀ CUNG CẤP ═══════");
+                System.out.println("Tên nhà cung cấp: " + ncc.getTenNCC());
+                System.out.println("Số lượng phiếu nhập: " + pnList.size());
+                System.out.println("═════════════════════════════════════════════════════");
+                
+                for (NhapHangDTO pn : pnList) {
+                    System.out.printf("%-15s %-20s %-15s %-15s%n",
+                        pn.getMaPhieu(),
+                        pn.getNgayNhap(),
+                        pn.getMaNV(),
+                        FormatUtil.formatVND(pn.getTongTien()));
+                }
+
+                while (true) {
+                    System.out.println("\nBạn có muốn xem chi tiết phiếu nhập không? (y/n)");
+                    String choice = scanner.nextLine().trim();
+                    if (!choice.equalsIgnoreCase("y")) {
+                        break;
+                    }
+                    System.out.println("Nhập mã phiếu nhập cần xem chi tiết: ");
+                    String maPhieu = scanner.nextLine().trim();
+                    inPhieuNhap(maPhieu);
+                }
+            } else {
+                System.out.println("Không tìm thấy phiếu nhập từ nhà cung cấp mã: " + maNCC);
+            }
+        } catch (InputMismatchException e) {
+            System.out.println("Lỗi: Vui lòng nhập mã nhà cung cấp hợp lệ");
             scanner.nextLine();
         }
     }
