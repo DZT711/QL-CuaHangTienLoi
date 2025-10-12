@@ -76,7 +76,9 @@ public class NhapHangDAO {
         return null;
     }
 
-    public static NhapHangDTO timPhieuNhapTheoMaNCC(String maNCC) {
+    public static List<NhapHangDTO> timPhieuNhapTheoMaNCC(String maNCC) {
+        List<NhapHangDTO> danhSachPhieuNhap = new ArrayList<>();
+
         String query = "SELECT MaPhieu, MaNCC, MaNV, TongTien, NgayLapPhieu FROM PHIEUNHAP WHERE MaNCC = ?";
 
         try (Connection conn = JDBCUtil.getConnection();
@@ -85,17 +87,18 @@ public class NhapHangDAO {
             stmt.setString(1, maNCC);
             ResultSet rs = stmt.executeQuery();
 
-            if (rs.next()) {
-                return new NhapHangDTO(
+            while (rs.next()) {
+                danhSachPhieuNhap.add(new NhapHangDTO(
                     rs.getString("MaPhieu"), 
                     rs.getString("MaNCC"), 
                     rs.getString("MaNV"), 
                     rs.getInt("TongTien"), 
                     rs.getTimestamp("NgayLapPhieu").toLocalDateTime()
-                );
+                ));
             }
         } catch (SQLException e) {
             System.err.println("Lỗi khi tìm phiếu nhập theo mã NCC: " + e.getMessage());
         }
+        return danhSachPhieuNhap;
     }
 }
