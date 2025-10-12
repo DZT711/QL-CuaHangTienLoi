@@ -1,13 +1,20 @@
 package view;
 
 import java.util.Scanner;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.List;
+import dao.NhanVienDAO;
+import dto.NhanVienDTO;
 
 public class QuanLyNhanVien {
     public void menuQuanLyNhanVien() {
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
-            System.out.println("\n████████████████████████████████████████████████████████████████████████████████");
+            System.out
+                    .println("\n████████████████████████████████████████████████████████████████████████████████");
             System.out.println("██                                                                            ██");
             System.out.println("██                         HỆ THỐNG QUẢN LÝ NHÂN VIÊN                         ██");
             System.out.println("██                                                                            ██");
@@ -30,40 +37,38 @@ public class QuanLyNhanVien {
                 if (scanner.hasNextInt()) {
                     choice = scanner.nextInt();
                     scanner.nextLine();
-                    if (choice > 0 && choice <= 6) {
+                    if (choice >= 0 && choice <= 6) {
                         break;
-                    }else if (choice == 0) {
-                        return;
                     } else {
-                    System.out.println("Vui lòng nhập số trong khoảng 0–6.");
-                    System.out.print("\n💡 Nhập lựa chọn của bạn: ");
-                }  
-                   
+                        System.out.println("Vui lòng nhập số trong khoảng 0–6.");
+                        System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+                    }
+
                 } else {
                     System.out.println("Vui lòng nhập số hợp lệ.");
                     scanner.next();
                     System.out.print("\n💡 Nhập lựa chọn của bạn: ");
                 }
             }
-            
+
             switch (choice) {
                 case 1:
-                    // themNhanVien();
+                    themNhanVien();
                     break;
                 case 2:
-                    // suaNhanVien();
+                    suaNhanVien();
                     break;
                 case 3:
-                    // xoaNhanVien();
+                    xoaNhanVien();
                     break;
                 case 4:
-                    // timKiemNhanVien();
+                    timKiemNhanVien();
                     break;
                 case 5:
                     // thongKeNhanVien();
                     break;
                 case 6:
-                    // xemDanhSachNhanVien();
+                    xemDanhSachNhanVien();
                     break;
                 case 0:
                     System.out.println("Thoát chương trình thành công!");
@@ -73,13 +78,566 @@ public class QuanLyNhanVien {
                     break;
             }
         }
+
     }
 
-    public void themNhanVien() { }
-    public void suaNhanVien() { }
-    public void xoaNhanVien() { }
-    public void timKiemNhanVien() { }
-    public void thongKeNhanVien() { }
-    public void xemDanhSachNhanVien() { }
-    
+    public void themNhanVien() {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.println(
+                "\n╔════════════════════════════════════════════════════════════════════════════════════╗");
+        System.out.println("║                                THÊM NHÂN VIÊN MỚI                                 ║");
+        System.out
+                .println("╚════════════════════════════════════════════════════════════════════════════════════╝");
+
+        // Nhập mã nhân viên
+        String maNV;
+        while (true) {
+            System.out.print("📝 Nhập mã nhân viên (VD: NV001): ");
+            maNV = sc.nextLine().trim();
+            if (maNV.isEmpty()) {
+                System.out.println("❌ Mã nhân viên không được để trống!");
+                continue;
+            }
+            if (NhanVienDAO.timNhanVienTheoMa(maNV) != null) {
+                System.out.println("❌ Mã nhân viên đã tồn tại! Vui lòng nhập mã khác.");
+                continue;
+            }
+            break;
+        }
+
+        // Nhập họ
+        String ho;
+        while (true) {
+            System.out.print("📝 Nhập họ: ");
+            ho = sc.nextLine().trim();
+            if (ho.isEmpty()) {
+                System.out.println("❌ Họ không được để trống!");
+                continue;
+            }
+            break;
+        }
+
+        // Nhập tên
+        String ten;
+        while (true) {
+            System.out.print("📝 Nhập tên: ");
+            ten = sc.nextLine().trim();
+            if (ten.isEmpty()) {
+                System.out.println("❌ Tên không được để trống!");
+                continue;
+            }
+            break;
+        }
+
+        // Nhập giới tính
+        String gioiTinh;
+        while (true) {
+            System.out.print("📝 Nhập giới tính (Nam/Nu): ");
+            gioiTinh = sc.nextLine().trim();
+            if (!gioiTinh.equals("Nam") && !gioiTinh.equals("Nu")) {
+                System.out.println("❌ Giới tính chỉ được nhập 'Nam' hoặc 'Nu'!");
+                continue;
+            }
+            break;
+        }
+
+        // Nhập ngày sinh (có thể bỏ trống)
+        LocalDate ngaySinh = null;
+        while (true) {
+            System.out.print("📝 Nhập ngày sinh (dd/MM/yyyy) - Enter để bỏ qua: ");
+            String ngaySinhStr = sc.nextLine().trim();
+            if (ngaySinhStr.isEmpty()) {
+                break;
+            }
+            try {
+                ngaySinh = LocalDate.parse(ngaySinhStr, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+                break;
+            } catch (DateTimeParseException e) {
+                System.out.println("❌ Định dạng ngày không đúng! Vui lòng nhập theo định dạng dd/MM/yyyy");
+            }
+        }
+
+        // Nhập địa chỉ
+        System.out.print("📝 Nhập địa chỉ: ");
+        String diaChi = sc.nextLine().trim();
+
+        // Nhập email
+        String email;
+        while (true) {
+            System.out.print("📝 Nhập email: ");
+            email = sc.nextLine().trim();
+            if (email.isEmpty()) {
+                System.out.println("❌ Email không được để trống!");
+                continue;
+            }
+            if (!email.contains("@")) {
+                System.out.println("❌ Email không hợp lệ!");
+                continue;
+            }
+            break;
+        }
+
+        // Nhập lương
+        int luong;
+        while (true) {
+            System.out.print("📝 Nhập lương: ");
+            try {
+                luong = Integer.parseInt(sc.nextLine().trim());
+                if (luong < 0) {
+                    System.out.println("❌ Lương phải >= 0!");
+                    continue;
+                }
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("❌ Lương phải là số nguyên!");
+            }
+        }
+
+        // Nhập chức vụ
+        String chucVu;
+        while (true) {
+            System.out.print("📝 Nhập chức vụ (QL/NV): ");
+            chucVu = sc.nextLine().trim();
+            if (!chucVu.equals("QL") && !chucVu.equals("NV")) {
+                System.out.println("❌ Chức vụ chỉ được nhập 'QL' hoặc 'NV'!");
+                continue;
+            }
+            break;
+        }
+
+        // Tạo đối tượng NhanVienDTO
+        NhanVienDTO nv = new NhanVienDTO(maNV, ho, ten, gioiTinh, ngaySinh, diaChi, email, luong, chucVu);
+
+        // Xác nhận thông tin
+        System.out.println(
+                "\n╔════════════════════════════════════════════════════════════════════════════════════╗");
+        System.out.println("║                                XÁC NHẬN THÔNG TIN                                 ║");
+        System.out
+                .println("╚════════════════════════════════════════════════════════════════════════════════════╝");
+        System.out.println("Mã NV: " + maNV);
+        System.out.println("Họ tên: " + ho + " " + ten);
+        System.out.println("Giới tính: " + gioiTinh);
+        System.out.println("Ngày sinh: "
+                + (ngaySinh != null ? ngaySinh.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "Không có"));
+        System.out.println("Địa chỉ: " + diaChi);
+        System.out.println("Email: " + email);
+        System.out.println("Lương: " + luong);
+        System.out.println("Chức vụ: " + chucVu);
+
+        System.out.print("\n❓ Bạn có muốn thêm nhân viên này? (y/n): ");
+        String confirm = sc.nextLine().trim().toLowerCase();
+
+        if (confirm.equals("y") || confirm.equals("yes")) {
+            NhanVienDAO.themNhanVien(nv);
+        } else {
+            System.out.println("❌ Đã hủy thêm nhân viên!");
+        }
+
+        System.out.print("\n⏸️  Nhấn Enter để tiếp tục...");
+        sc.nextLine();
+    }
+
+    public void suaNhanVien() {
+        Scanner sc = new Scanner(System.in);
+        boolean continueWithAnotherEmployee = true;
+        while (continueWithAnotherEmployee) {
+            while (true) {
+                try {
+                    System.out.print("📝 Nhập mã nhân viên cần sửa (0 để thoát): ");
+                    String maNV = sc.nextLine().trim();
+                    if (maNV.equals("0")) {
+                        System.out.println("Thoát sửa nhân viên.");
+                        break;
+                    }
+
+                    if (maNV.isEmpty()) {
+                        System.out.println("❌ Mã nhân viên không được để trống!");
+                        continue;
+                    }
+
+                    NhanVienDTO nvCanSua = NhanVienDAO.timNhanVienTheoMa(maNV);
+                    if (nvCanSua == null) {
+                        System.out.println("❌ Không tìm thấy nhân viên với mã: " + maNV);
+                        continue;
+                    }
+
+                    // Hiển thị thông tin hiện tại
+                    System.out.println("\n--- THÔNG TIN HIỆN TẠI ---");
+                    NhanVienDAO.inThongTinNhanVien(nvCanSua);
+
+                    System.out.println("\n--- NHẬP THÔNG TIN MỚI (Enter để giữ nguyên) ---");
+
+                    // Sửa họ tên
+                    String hoMoi = nhapVoiGiuNguyen(sc, "Họ mới", nvCanSua.getHo());
+                    String tenMoi = nhapVoiGiuNguyen(sc, "Tên mới", nvCanSua.getTen());
+
+                    // Sửa giới tính
+                    String gioiTinhMoi = nhapGioiTinhVoiGiuNguyen(sc, nvCanSua.getGioiTinh());
+
+                    // Sửa ngày sinh
+                    LocalDate ngaySinhMoi = nhapNgaySinhVoiGiuNguyen(sc, nvCanSua.getNgaySinh());
+
+                    // Sửa địa chỉ
+                    String diaChiMoi = nhapVoiGiuNguyen(sc, "Địa chỉ mới", nvCanSua.getDiaChi());
+
+                    // Sửa email
+                    String emailMoi = nhapEmailVoiGiuNguyen(sc, nvCanSua.getEmail());
+
+                    // Sửa lương
+                    int luongMoi = nhapLuongVoiGiuNguyen(sc, nvCanSua.getLuong());
+
+                    // Sửa chức vụ
+                    String chucVuMoi = nhapChucVuVoiGiuNguyen(sc, nvCanSua.getChucVu());
+
+                    // Tạo đối tượng mới với thông tin đã sửa
+                    NhanVienDTO nvMoi = new NhanVienDTO(maNV, hoMoi, tenMoi, gioiTinhMoi, ngaySinhMoi, diaChiMoi,
+                            emailMoi, luongMoi, chucVuMoi);
+
+                    // Cập nhật thông tin nhân viên
+                    NhanVienDAO.suaNhanVien(nvMoi, "active");
+                    System.out.println("✅ Sửa nhân viên thành công.");
+                    break;
+                } catch (Exception e) {
+                    System.out.println("❌ Lỗi nhập liệu: " + e.getMessage());
+                    sc.nextLine();
+                }
+            }
+
+            System.out.print("\n❓ Bạn có muốn sửa thông tin nhân viên khác không? (Y/N): ");
+            String choice = sc.nextLine().trim();
+            if (choice.equalsIgnoreCase("N")) {
+                continueWithAnotherEmployee = false;
+            }
+        }
+    }
+
+    public void xoaNhanVien() {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("\n╔════════════════════════════════════════════════════════════════════████████████╗");
+        System.out.println("║                              XÓA NHÂN VIÊN THEO MÃ                              ║");
+        System.out.println("╚════════════════════════════════════════════════════════════════════████████████╝");
+
+        System.out.print("📝 Nhập mã nhân viên cần xóa: ");
+        String maNV = sc.nextLine().trim();
+
+        if (maNV.isEmpty()) {
+            System.out.println("❌ Mã nhân viên không được để trống!");
+            return;
+        }
+
+        NhanVienDTO nv = NhanVienDAO.timNhanVienTheoMa(maNV);
+        if (nv == null) {
+            System.out.println("❌ Không tìm thấy nhân viên với mã: " + maNV);
+            return;
+        }
+
+        // Hiển thị thông tin nhân viên cần xóa
+        System.out.println("\n--- THÔNG TIN NHÂN VIÊN CẦN XÓA ---");
+        NhanVienDAO.inThongTinNhanVien(nv);
+
+        System.out.print("\n⚠️  Bạn có chắc chắn muốn xóa nhân viên này? (y/n): ");
+        String confirm = sc.nextLine().trim().toLowerCase();
+
+        if (!confirm.equals("y") && !confirm.equals("yes")) {
+            System.out.println("❌ Đã hủy xóa nhân viên.");
+            return;
+        }
+
+        if (NhanVienDAO.xoaNhanVien(maNV)) {
+            System.out.println("✅ Xóa nhân viên thành công!");
+        } else {
+            System.out.println("❌ Xóa nhân viên thất bại!");
+        }
+
+        System.out.print("\n⏸️  Nhấn Enter để tiếp tục...");
+        sc.nextLine();
+    }
+
+    public void timKiemNhanVien() {
+        Scanner sc = new Scanner(System.in);
+        while (true) {
+            try {
+                System.out.println(
+                        "\n╔════════════════════════════════════════════════════════════════════════════════════╗");
+                System.out.println(
+                        "║                              TÌM KIẾM NHÂN VIÊN                                  ║");
+                System.out.println(
+                        "╚════════════════════════════════════════════════════════════════════════════════════╝");
+                System.out.println(
+                        "┃ [1] ➜ Tìm kiếm nhân viên theo mã                                              ┃");
+                System.out.println(
+                        "┃ [2] ➜ Tìm kiếm nhân viên theo tên (tự động xử lý trùng tên)                   ┃");
+                System.out.println(
+                        "┃ [0] ➜ Thoát                                                                   ┃");
+                System.out.println(
+                        "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+
+                int opt = sc.nextInt();
+                sc.nextLine();
+
+                if (opt == 0) {
+                    System.out.println("Thoát tìm kiếm nhân viên thành công.");
+                    break;
+                } else if (opt == 1) {
+                    timKiemNhanVienTheoMa();
+                } else if (opt == 2) {
+                    timKiemNhanVienTheoTen();
+                } else {
+                    System.out.println("❌ Lựa chọn không hợp lệ. Vui lòng nhập lại");
+                }
+            } catch (Exception e) {
+                System.out.println("❌ Lỗi xảy ra: " + e.getMessage());
+                sc.nextLine();
+            }
+        }
+    }
+
+    public void timKiemNhanVienTheoMa() {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("📝 Nhập mã nhân viên cần tìm: ");
+        String maNV = sc.nextLine().trim();
+
+        if (maNV.isEmpty()) {
+            System.out.println("❌ Mã nhân viên không được để trống!");
+            return;
+        }
+
+        NhanVienDTO nv = NhanVienDAO.timNhanVienTheoMa(maNV);
+
+        if (nv == null) {
+            System.out.println("❌ Không tìm thấy nhân viên với mã: " + maNV);
+            return;
+        }
+
+        NhanVienDAO.inThongTinNhanVien(nv);
+
+        System.out.print("\n⏸️  Nhấn Enter để tiếp tục...");
+        sc.nextLine();
+    }
+
+    public void timKiemNhanVienTheoTen() {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("📝 Nhập tên nhân viên cần tìm: ");
+        String tuKhoa = sc.nextLine().trim();
+
+        if (tuKhoa.isEmpty()) {
+            System.out.println("❌ Tên nhân viên không được để trống!");
+            return;
+        }
+
+        // Kiểm tra thêm để đảm bảo từ khóa có ít nhất 1 ký tự không phải khoảng trắng
+        if (tuKhoa.replaceAll("\\s+", "").isEmpty()) {
+            System.out.println("❌ Tên nhân viên không được chỉ chứa khoảng trắng!");
+            return;
+        }
+
+        // Debug: In ra từ khóa tìm kiếm để kiểm tra
+        System.out.println("🔍 Đang tìm kiếm với từ khóa: \"" + tuKhoa + "\"");
+
+        List<NhanVienDTO> results = NhanVienDAO.timNhanVienTheoTen(tuKhoa);
+
+        if (results.isEmpty()) {
+            System.out.println("❌ Không tìm thấy nhân viên nào với từ khóa: " + tuKhoa);
+            return;
+        }
+
+        // Kiểm tra số lượng kết quả để quyết định cách hiển thị
+        if (results.size() == 1) {
+            // Chỉ có 1 kết quả - hiển thị bình thường
+            System.out.println("🔍 Tìm thấy 1 nhân viên với từ khóa: \"" + tuKhoa + "\"");
+            System.out.println();
+            NhanVienDAO.inThongTinNhanVien(results.get(0));
+        } else {
+            // Có nhiều kết quả - tự động chuyển sang tìm kiếm nâng cao
+            System.out
+                    .println("🔍 Tìm thấy " + results.size() + " nhân viên trùng tên với từ khóa: \"" + tuKhoa + "\"");
+            System.out.println("💡 Tự động chuyển sang chế độ tìm kiếm nâng cao...");
+            System.out.println();
+
+            // Hiển thị bảng tóm tắt và cho phép chọn
+            hienThiBangTomTatVaChon(results, tuKhoa);
+        }
+
+        System.out.print("\n⏸️  Nhấn Enter để tiếp tục...");
+        sc.nextLine();
+    }
+
+    // Phương thức hiển thị bảng tóm tắt và cho phép chọn (chỉ dành cho nhiều kết
+    // quả)
+    private void hienThiBangTomTatVaChon(List<NhanVienDTO> results, String tuKhoa) {
+        Scanner sc = new Scanner(System.in);
+
+        // Hiển thị bảng tóm tắt
+        hienThiBangTomTat(results);
+
+        // Cho phép người dùng chọn nhân viên cụ thể
+        System.out.println("\n💡 Chọn nhân viên để xem chi tiết:");
+        System.out.print("📝 Nhập số thứ tự (1-" + results.size() + ") hoặc 0 để thoát: ");
+
+        try {
+            int choice = Integer.parseInt(sc.nextLine().trim());
+            if (choice == 0) {
+                System.out.println("❌ Đã hủy tìm kiếm.");
+                return;
+            } else if (choice >= 1 && choice <= results.size()) {
+                System.out.println("\n--- THÔNG TIN CHI TIẾT ---");
+                NhanVienDAO.inThongTinNhanVien(results.get(choice - 1));
+            } else {
+                System.out.println("❌ Lựa chọn không hợp lệ!");
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("❌ Vui lòng nhập số hợp lệ!");
+        }
+    }
+
+    // Phương thức hiển thị bảng tóm tắt với thông tin cơ bản
+    private void hienThiBangTomTat(List<NhanVienDTO> results) {
+        System.out.println("┌─────┬──────────┬─────────────────────┬────────┬────────┐");
+        System.out.println("│ STT │ Mã NV    │ Họ và tên           │ Giới tính │ Chức vụ │");
+        System.out.println("├─────┼──────────┼─────────────────────┼────────┼────────┤");
+
+        for (int i = 0; i < results.size(); i++) {
+            NhanVienDTO nv = results.get(i);
+            String stt = String.format("%3d", i + 1);
+            String maNV = String.format("%-8s", nv.getMaNV());
+            String hoTen = String.format("%-19s",
+                    nv.getFullName().length() > 19 ? nv.getFullName().substring(0, 16) + "..." : nv.getFullName());
+            String gioiTinh = String.format("%-6s", nv.getGioiTinh());
+            String chucVu = String.format("%-6s", nv.getChucVu());
+
+            System.out.printf("│%s│ %s │ %s │ %s │ %s │%n",
+                    stt, maNV, hoTen, gioiTinh, chucVu);
+        }
+
+        System.out.println("└─────┴──────────┴─────────────────────┴────────┴────────┘");
+    }
+
+    public void thongKeNhanVien() {
+    }
+
+    public void xemDanhSachNhanVien() {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("\n╔════════════════════════════════════════════════════════════════════████████████╗");
+        System.out.println("║                              DANH SÁCH NHÂN VIÊN                                 ║");
+        System.out.println("╚════════════════════════════════════════════════════════════════════████████████╝");
+
+        List<NhanVienDTO> danhSachNV = NhanVienDAO.getAllNhanVien();
+
+        if (danhSachNV.isEmpty()) {
+            System.out.println("❌ Không có nhân viên nào trong hệ thống!");
+            return;
+        }
+
+        System.out.println("📊 Tổng số nhân viên: " + danhSachNV.size());
+        System.out.println();
+
+        // Header bảng
+        System.out.println(
+                "┌─────┬──────────┬─────────────────────┬────────┬────────────┬─────────────────────┬──────────────┬────────┐");
+        System.out.println(
+                "│ STT │ Mã NV    │ Họ và tên           │ Giới tính │ Ngày sinh    │ Email               │ Lương        │ Chức vụ │");
+        System.out.println(
+                "├─────┼──────────┼─────────────────────┼────────┼────────────┼─────────────────────┼──────────────┼────────┤");
+
+        int count = 1;
+        for (NhanVienDTO nv : danhSachNV) {
+            String stt = String.format("%3d", count);
+            String maNV = String.format("%-8s", nv.getMaNV());
+            String hoTen = String.format("%-19s",
+                    nv.getFullName().length() > 19 ? nv.getFullName().substring(0, 16) + "..." : nv.getFullName());
+            String gioiTinh = String.format("%-6s", nv.getGioiTinh());
+            String ngaySinh = String.format("%-10s", nv.getNgaySinh() != null ? nv.getNgaySinhFormat() : "N/A");
+            String email = String.format("%-19s",
+                    nv.getEmail().length() > 19 ? nv.getEmail().substring(0, 16) + "..." : nv.getEmail());
+            String luong = String.format("%-12s", String.format("%,d VNĐ", nv.getLuong()));
+            String chucVu = String.format("%-6s", nv.getChucVu());
+
+            System.out.printf("│%s│ %s │ %s │ %s │ %s │ %s │ %s │ %s │%n",
+                    stt, maNV, hoTen, gioiTinh, ngaySinh, email, luong, chucVu);
+            count++;
+        }
+
+        System.out.println(
+                "└─────┴──────────┴─────────────────────┴────────┴────────────┴─────────────────────┴──────────────┴────────┘");
+
+        System.out.print("\n⏸️  Nhấn Enter để tiếp tục...");
+        sc.nextLine();
+    }
+
+    // Helper methods cho suaNhanVien
+    private String nhapVoiGiuNguyen(Scanner sc, String label, String giaTriCu) {
+        System.out.print("📝 " + label + " (Enter để giữ nguyên): ");
+        String input = sc.nextLine().trim();
+        return input.isEmpty() ? giaTriCu : input;
+    }
+
+    private String nhapGioiTinhVoiGiuNguyen(Scanner sc, String giaTriCu) {
+        while (true) {
+            System.out.print("📝 Giới tính mới (Nam/Nu) - Enter để giữ nguyên: ");
+            String input = sc.nextLine().trim();
+            if (input.isEmpty())
+                return giaTriCu;
+            if (input.equals("Nam") || input.equals("Nu"))
+                return input;
+            System.out.println("❌ Chỉ được nhập 'Nam' hoặc 'Nu'!");
+        }
+    }
+
+    private LocalDate nhapNgaySinhVoiGiuNguyen(Scanner sc, LocalDate giaTriCu) {
+        while (true) {
+            System.out.print("📝 Ngày sinh mới (dd/MM/yyyy) - Enter để giữ nguyên: ");
+            String input = sc.nextLine().trim();
+            if (input.isEmpty())
+                return giaTriCu;
+            try {
+                return LocalDate.parse(input, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+            } catch (DateTimeParseException e) {
+                System.out.println("❌ Định dạng ngày không đúng! (dd/MM/yyyy)");
+            }
+        }
+    }
+
+    private String nhapEmailVoiGiuNguyen(Scanner sc, String giaTriCu) {
+        while (true) {
+            System.out.print("📝 Email mới (Enter để giữ nguyên): ");
+            String input = sc.nextLine().trim();
+            if (input.isEmpty())
+                return giaTriCu;
+            if (input.contains("@"))
+                return input;
+            System.out.println("❌ Email không hợp lệ!");
+        }
+    }
+
+    private int nhapLuongVoiGiuNguyen(Scanner sc, int giaTriCu) {
+        while (true) {
+            System.out.print("📝 Lương mới (Enter để giữ nguyên): ");
+            String input = sc.nextLine().trim();
+            if (input.isEmpty())
+                return giaTriCu;
+            try {
+                int luong = Integer.parseInt(input);
+                if (luong >= 0)
+                    return luong;
+                System.out.println("❌ Lương phải >= 0!");
+            } catch (NumberFormatException e) {
+                System.out.println("❌ Lương phải là số nguyên!");
+            }
+        }
+    }
+
+    private String nhapChucVuVoiGiuNguyen(Scanner sc, String giaTriCu) {
+        while (true) {
+            System.out.print("📝 Chức vụ mới (QL/NV) - Enter để giữ nguyên: ");
+            String input = sc.nextLine().trim();
+            if (input.isEmpty())
+                return giaTriCu;
+            if (input.equals("QL") || input.equals("NV"))
+                return input;
+            System.out.println("❌ Chỉ được nhập 'QL' hoặc 'NV'!");
+        }
+    }
+
 }

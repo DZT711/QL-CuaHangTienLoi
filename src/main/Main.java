@@ -1,4 +1,5 @@
 package main;
+
 import dao.SanPhamDAO;
 import dao.TaiKhoanDAO;
 import dto.TaiKhoanDTO;
@@ -11,10 +12,10 @@ import view.QuanLySanPham;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-
 public class Main {
 
     public static TaiKhoanDTO CURRENT_ACCOUNT;
+
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
@@ -36,15 +37,14 @@ public class Main {
 
             System.out.println("\n═══════════════════════════════════════════════════════════");
 
-
             // System.out.print("\nVui lòng chờ 1 lát , hệ thống đang xác thực");
             // for (int i = 0; i < 3; i++) {
-            //     try {
-            //         Thread.sleep(1000);
-            //         System.out.print(".");
-            //     } catch (InterruptedException e) {
-            //         e.printStackTrace();
-            //     }
+            // try {
+            // Thread.sleep(1000);
+            // System.out.print(".");
+            // } catch (InterruptedException e) {
+            // e.printStackTrace();
+            // }
             // }
             System.out.println("\n");
 
@@ -52,11 +52,14 @@ public class Main {
             if (taiKhoan != null) {
                 CURRENT_ACCOUNT = taiKhoan;
 
-                // System.out.println("✓ Đăng nhập thành công! Xin chào "+taiKhoan.getRole()+" " + taiKhoan.getUsername() + "!");
+                // System.out.println("✓ Đăng nhập thành công! Xin chào "+taiKhoan.getRole()+" "
+                // + taiKhoan.getUsername() + "!");
                 String[] greetingInfo = getGreeting();
-                // System.out.println(greetingInfo[0] + " " + greetingInfo[1] + ", hiện tại là " + greetingInfo[2]);
+                // System.out.println(greetingInfo[0] + " " + greetingInfo[1] + ", hiện tại là "
+                // + greetingInfo[2]);
 
-                System.out.println("✓ Đăng nhập thành công! Xin " + greetingInfo[1] + " " + taiKhoan.getRole() + " " + taiKhoan.getUsername() + "!");
+                System.out.println("✓ Đăng nhập thành công! Xin " + greetingInfo[1] + " " + taiKhoan.getRole() + " "
+                        + taiKhoan.getUsername() + "!");
                 System.out.println(greetingInfo[0] + " Thời gian hiện tại của sever là " + greetingInfo[2]);
                 System.out.println("═══════════════════════════════════════════════════════════");
 
@@ -74,7 +77,7 @@ public class Main {
                 clearScreen();
             }
         }
-        
+
     }
 
     public static void clearScreen() {
@@ -154,10 +157,13 @@ public class Main {
                     break;
                 case 0:
                     System.out.println("Đăng xuất thành công!");
-                    System.out.println("╔════════════════════════════════════════════════════════════════════════════╗");
-                    System.out.println("║                CẢM ƠN BẠN ĐÃ SỬ DỤNG PHẦN MỀM, HẸN GẶP LẠI!                ║");
-                    System.out.println("╚════════════════════════════════════════════════════════════════════════════╝");
-                    return;  // quay ra form login
+                    System.out
+                            .println("╔════════════════════════════════════════════════════════════════════════════╗");
+                    System.out
+                            .println("║                CẢM ƠN BẠN ĐÃ SỬ DỤNG PHẦN MỀM, HẸN GẶP LẠI!                ║");
+                    System.out
+                            .println("╚════════════════════════════════════════════════════════════════════════════╝");
+                    return; // quay ra form login
                 default:
                     System.out.println("Lựa chọn không hợp lệ.");
                     break;
@@ -169,25 +175,25 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
-        // Calculate padding for employee name
-        int totalWidth = 60; // Total width of the box
-        String title = "QUẢN LÝ CỬA HÀNG - NHÂN VIÊN " + fullName;
-        int padding = (totalWidth - title.length()) / 2;
-        String paddedTitle = String.format("%" + padding + "s%s%" + padding + "s", "", title, "");
+            // Calculate padding for employee name
+            int totalWidth = 60; // Total width of the box
+            String title = "QUẢN LÝ CỬA HÀNG - NHÂN VIÊN " + fullName;
+            int padding = (totalWidth - title.length()) / 2;
+            String paddedTitle = String.format("%" + padding + "s%s%" + padding + "s", "", title, "");
 
-        System.out.println("\n    ──────────────────────────────────────────────────────────────");
-        System.out.println("    ║" + paddedTitle + " ");
-        System.out.println("    ┌────────────────────────────────────────────────────────────┐");
-        System.out.println("    │                                                            │");
-        System.out.println("    │  [1] ➜ Bán hàng                                            │");
-        System.out.println("    │  [2] ➜ Xem sản phẩm                                        │");
-        System.out.println("    │  [3] ➜ Quản lý khách hàng (cơ bản)                         │");
-        System.out.println("    │  [4] ➜ Xem hóa đơn đã lập                                  │");
-        System.out.println("    │                                                            │");
-        System.out.println("    │  [0] ➜ Đăng xuất                                           │");
-        System.out.println("    │                                                            │");
-        System.out.println("    └────────────────────────────────────────────────────────────┘");
-        
+            System.out.println("\n    ──────────────────────────────────────────────────────────────");
+            System.out.println("    ║" + paddedTitle + " ");
+            System.out.println("    ┌────────────────────────────────────────────────────────────┐");
+            System.out.println("    │                                                            │");
+            System.out.println("    │  [1] ➜ Bán hàng                                            │");
+            System.out.println("    │  [2] ➜ Xem sản phẩm                                        │");
+            System.out.println("    │  [3] ➜ Quản lý khách hàng (cơ bản)                         │");
+            System.out.println("    │  [4] ➜ Xem hóa đơn đã lập                                  │");
+            System.out.println("    │                                                            │");
+            System.out.println("    │  [0] ➜ Đăng xuất                                           │");
+            System.out.println("    │                                                            │");
+            System.out.println("    └────────────────────────────────────────────────────────────┘");
+
             System.out.print("\n💡 Nhập lựa chọn của bạn: ");
 
             int choice = -1;
@@ -207,7 +213,7 @@ public class Main {
                     System.out.print("\n💡 Nhập lựa chọn của bạn: ");
                 }
             }
-        
+
             switch (choice) {
                 case 1:
                     // bán hàng
@@ -237,7 +243,7 @@ public class Main {
         int hour = now.getHour();
         String greeting;
         String icon;
-        
+
         // Determine greeting based on time
         if (hour >= 0 && hour < 11) {
             greeting = "Chào buổi sáng";
@@ -257,6 +263,6 @@ public class Main {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss dd-MM-yyyy");
         String dateTime = now.format(formatter);
 
-        return new String[]{icon, greeting, dateTime};
+        return new String[] { icon, greeting, dateTime };
     }
 }
