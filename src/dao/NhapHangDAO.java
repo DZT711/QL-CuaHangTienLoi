@@ -75,4 +75,27 @@ public class NhapHangDAO {
         }
         return null;
     }
+
+    public static NhapHangDTO timPhieuNhapTheoMaNCC(String maNCC) {
+        String query = "SELECT MaPhieu, MaNCC, MaNV, TongTien, NgayLapPhieu FROM PHIEUNHAP WHERE MaNCC = ?";
+
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+            
+            stmt.setString(1, maNCC);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return new NhapHangDTO(
+                    rs.getString("MaPhieu"), 
+                    rs.getString("MaNCC"), 
+                    rs.getString("MaNV"), 
+                    rs.getInt("TongTien"), 
+                    rs.getTimestamp("NgayLapPhieu").toLocalDateTime()
+                );
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi tìm phiếu nhập theo mã NCC: " + e.getMessage());
+        }
+    }
 }
