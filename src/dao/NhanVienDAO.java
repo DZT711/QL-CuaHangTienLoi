@@ -153,7 +153,7 @@ public class NhanVienDAO {
 
     // Xóa nhân viên
     public static boolean xoaNhanVien(String maNV) {
-        String query = "UPDATE NHANVIEN SET TrangThai = 'inactive' Where MaSP = ?";
+        String query = "UPDATE NHANVIEN SET TrangThai = 'inactive' WHERE MaNV = ?";
 
         try (Connection conn = JDBCUtil.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(query)) {
