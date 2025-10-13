@@ -1,6 +1,10 @@
 package view;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 import dao.NhapHangDAO;
@@ -62,7 +66,7 @@ public class QuanLyNhapHang {
                             System.out.println("1. Tìm kiếm phiếu nhập theo mã");
                             System.out.println("2. Tìm kiếm phiếu nhập theo mã nhà cung cấp");
                             System.out.println("3. Tìm kiếm phiếu nhập theo mã nhân viên");
-                            System.out.prinln("4. Tìm kiếm phiếu nhập theo ngày nhập");
+                            System.out.println("4. Tìm kiếm phiếu nhập theo ngày nhập");
                             System.out.println("0. Thoát");
                             System.out.print("\n💡 Nhập lựa chọn của bạn: ");
 
@@ -292,7 +296,7 @@ public class QuanLyNhapHang {
                 for (NhapHangDTO pn : pnList) {
                     System.out.printf("%-15s %-20s %-15s %-15s%n",
                         pn.getMaPhieu(),
-                        pn.getNgayNhap(),
+                        pn.getNgayLapPhieu(),
                         pn.getMaNV(),
                         FormatUtil.formatVND(pn.getTongTien()));
                 }
@@ -327,7 +331,7 @@ public class QuanLyNhapHang {
             //     return;
             // }
 
-            List<NhapHangDTO> pnList = NhapHangDAO.timPhieuNhapTheoMaNCC(maNV);
+            List<NhapHangDTO> pnList = NhapHangDAO.timPhieuNhapTheoMaNV(maNV);
 
             if (pnList != null && !pnList.isEmpty()) {
                 System.out.println("\n═══════ DANH SÁCH PHIẾU NHẬP CỦA NHÂN VIÊN ═══════");
@@ -338,7 +342,7 @@ public class QuanLyNhapHang {
                 for (NhapHangDTO pn : pnList) {
                     System.out.printf("%-15s %-20s %-15s %-15s%n",
                         pn.getMaPhieu(),
-                        pn.getNgayNhap(),
+                        pn.getNgayLapPhieu(),
                         pn.getMaNV(),
                         FormatUtil.formatVND(pn.getTongTien()));
                 }
@@ -356,6 +360,9 @@ public class QuanLyNhapHang {
             } else {
                 System.out.println("Không tìm thấy phiếu nhập từ nhân viên mã: " + maNV);
             }
+        } catch (InputMismatchException e) {
+            System.out.println("Lỗi: Vui lòng nhập mã nhân viên hợp lệ");
+            scanner.nextLine();
         }
     }
 
@@ -384,10 +391,11 @@ public class QuanLyNhapHang {
                     break;
                 } catch (DateTimeParseException e) {
                     System.out.println("Định dạng ngày không hợp lệ, vui lòng nhập lại.");
+                    scanner.nextLine();
                 }
             }
 
-            List<NhapHangDTO> pnList = NhapHangDAO.timPhieuNhapTheoNgayNhap(fromDate, toDate);
+            List<NhapHangDTO> pnList = NhapHangDAO.timPhieuNhapTheoNgay(fromDate, toDate);
 
             System.out.println("Danh sách phiếu nhập từ " + fromDate + " đến " + toDate);
 
@@ -397,18 +405,19 @@ public class QuanLyNhapHang {
                 for (NhapHangDTO pn : pnList) {
                     System.out.printf("%-15s %-20s %-15s %-15s%n",
                         pn.getMaPhieu(),
-                        pn.getNgayNhap(),
+                        pn.getNgayLapPhieu(),
                         pn.getMaNV(),
                         FormatUtil.formatVND(pn.getTongTien()));
                 }
 
-                System.out.println("Tìm thấy " + list.size() + " phiếu nhập từ " + fromDate + " đến " + toDate);
+                System.out.println("Tìm thấy " + pnList.size() + " phiếu nhập từ " + fromDate + " đến " + toDate);
 
                 System.out.println("\n Bạn có muốn tìm tiếp không? (y/n)");
                 String choice = scanner.nextLine().trim();
                 if (!choice.equalsIgnoreCase("y")) {
                     System.out.println("Thoát tìm kiếm phiếu nhập theo ngày thành công.");
                     break;
+                }
             }
         }
     }
@@ -427,7 +436,7 @@ public class QuanLyNhapHang {
             System.out.println("╚══════════════════════════════════════════════════════════════╝");
 
             System.out.println("Mã phiếu: " + pn.getMaPhieu());
-            System.out.println("Ngày nhập: " + pn.getNgayNhap());
+            System.out.println("Ngày nhập: " + pn.getNgayLapPhieu());
             System.out.println("Mã nhân viên: " + pn.getMaNV());
 
             if (ncc != null) {

@@ -4,6 +4,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.sql.Timestamp;
 
 import dto.NhapHangDTO;
 import util.JDBCUtil;
@@ -135,11 +140,11 @@ public class NhapHangDAO {
             SELECT MaPhieu, MaNCC, MaNV, TongTien, NgayLapPhieu
             FROM PHIEUNHAP
             WHERE NgayLapPhieu >= ? AND NgayLapPhieu < ?
-            ORDER BY NgayLapPhieu ASC";
+            ORDER BY NgayLapPhieu ASC
         """;
 
         try (Connection conn = JDBCUtil.getConnection();
-            PreparedStatement stmt = conn.preparedStatement(query)) {
+            PreparedStatement stmt = conn.prepareStatement(query)) {
             
             LocalDateTime fromDateTime = fromDate.atStartOfDay();
             LocalDateTime toDateTime = toDate.plusDays(1).atStartOfDay();

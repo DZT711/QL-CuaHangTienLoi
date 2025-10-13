@@ -509,6 +509,10 @@ public class QuanLyHoaDon {
     
                     fromDate = LocalDate.parse(from, formatter);
                     toDate = LocalDate.parse(to, formatter);
+                    if (fromDate.isAfter(toDate)) {
+                        System.out.println("Ngày bắt đầu phải trước ngày kết thúc, vui lòng nhập lại.");
+                        continue;
+                    }
                     break;
                 } catch (DateTimeParseException e) {
                     System.out.println("Định dạng ngày không hợp lệ, vui lòng nhập lại.");
@@ -600,6 +604,10 @@ public class QuanLyHoaDon {
                 LocalDate fromDate = LocalDate.parse(from, formatter);
                 LocalDate toDate = LocalDate.parse(to, formatter);
 
+                if (fromDate.isAfter(toDate)) {
+                    System.out.println("Ngày bắt đầu phải trước ngày kết thúc, vui lòng nhập lại.");
+                    continue;
+                }
                 Map<String, Object> result = HoaDonDAO.thongKeHDTheoThoiGian(fromDate, toDate);
 
                 System.out.println("\n========= BÁO CÁO THỐNG KÊ HÓA ĐƠN =========");
