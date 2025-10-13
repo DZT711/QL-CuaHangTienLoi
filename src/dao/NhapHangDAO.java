@@ -127,4 +127,41 @@ public class NhapHangDAO {
         }
         return danhSachPhieuNhap;
     }
+
+    public static List<NhapHangDTO> timPhieuNhapTheoNgay(LocalDate fromDate, LocalDate toDate) {
+        List<NhapHangDTO> danhSachPhieuNhap = new ArrayList<>();
+
+        String query = """
+            SELECT MaPhieu, MaNCC, MaNV, TongTien, NgayLapPhieu
+            FROM PHIEUNHAP
+            WHERE NgayLapPhieu >= ? AND NgayLapPhieu < ?
+            ORDER BY NgayLapPhieu ASC";
+        """;
+
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.preparedStatement(query)) {
+            
+            LocalDateTime fromDateTime = fromDate.atStartOfDay();
+            LocalDateTime toDateTime = toDate.plusDays(1).atStartOfDay();
+
+            stmt.setTimestamp(1, Timestamp.valueOf(fromDateTime));
+            stmt.setTimestamp(2, Timestamp.valueOf(toDateTime));
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                danhSachPhieuNhap.add(new NhapHangDTO(
+                    rs.getString("MaPhieu"), 
+                    rs.getString("MaNCC"), 
+                    rs.getString("MaNV"), 
+                    rs.getInt("TongTien"), 
+                    rs.getTimestamp("NgayLapPhieu").toLocalDateTime()
+                ));
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi tìm phiếu nhập theo ngày: " + e.getMessage());
+        }
+        return danhSachPhieuNhap;
+    }
 }

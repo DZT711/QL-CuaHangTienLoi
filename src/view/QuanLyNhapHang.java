@@ -62,6 +62,7 @@ public class QuanLyNhapHang {
                             System.out.println("1. Tìm kiếm phiếu nhập theo mã");
                             System.out.println("2. Tìm kiếm phiếu nhập theo mã nhà cung cấp");
                             System.out.println("3. Tìm kiếm phiếu nhập theo mã nhân viên");
+                            System.out.prinln("4. Tìm kiếm phiếu nhập theo ngày nhập");
                             System.out.println("0. Thoát");
                             System.out.print("\n💡 Nhập lựa chọn của bạn: ");
 
@@ -81,7 +82,13 @@ public class QuanLyNhapHang {
                                     timPhieuNhapTheoMaNCC();
                                     break;
                                 case 3:
-                                    // timPhieuNhapTheoMaNV();
+                                    timPhieuNhapTheoMaNV();
+                                    break;
+                                case 4:
+                                    timPhieuNhapTheoNgayNhap();
+                                    break;
+                                default:
+                                    System.out.println("⚠️ Lựa chọn không hợp lệ!");
                                     break;
                             }
                         } catch (Exception e) {
@@ -348,6 +355,60 @@ public class QuanLyNhapHang {
                 }
             } else {
                 System.out.println("Không tìm thấy phiếu nhập từ nhân viên mã: " + maNV);
+            }
+        }
+    }
+
+    public void timPhieuNhapTheoNgayNhap() {
+        Scanner scanner = new Scanner(System.in);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+
+        while (true) {
+            String from, to;
+            LocalDate fromDate = null, toDate = null;
+            
+            while (true) {
+                try {
+                    System.out.println("Nhập ngày bắt đầu: ");
+                    from = scanner.nextLine().trim();
+
+                    System.out.println("Nhập ngày kết thúc: ");
+                    to = scanner.nextLine().trim();
+
+                    fromDate = LocalDate.parse(from, formatter);
+                    toDate = LocalDate.parse(to, formatter);
+                    if (fromDate.isAfter(toDate)) {
+                        System.out.println("Ngày bắt đầu phải trước ngày kết thúc, vui lòng nhập lại.");
+                        continue;
+                    }
+                    break;
+                } catch (DateTimeParseException e) {
+                    System.out.println("Định dạng ngày không hợp lệ, vui lòng nhập lại.");
+                }
+            }
+
+            List<NhapHangDTO> pnList = NhapHangDAO.timPhieuNhapTheoNgayNhap(fromDate, toDate);
+
+            System.out.println("Danh sách phiếu nhập từ " + fromDate + " đến " + toDate);
+
+            if (pnList.isEmpty()) {
+                System.out.println("Không tìm thấy phiếu nhập nào trong khoảng thời gian này.");
+            } else {
+                for (NhapHangDTO pn : pnList) {
+                    System.out.printf("%-15s %-20s %-15s %-15s%n",
+                        pn.getMaPhieu(),
+                        pn.getNgayNhap(),
+                        pn.getMaNV(),
+                        FormatUtil.formatVND(pn.getTongTien()));
+                }
+
+                System.out.println("Tìm thấy " + list.size() + " phiếu nhập từ " + fromDate + " đến " + toDate);
+
+                System.out.println("\n Bạn có muốn tìm tiếp không? (y/n)");
+                String choice = scanner.nextLine().trim();
+                if (!choice.equalsIgnoreCase("y")) {
+                    System.out.println("Thoát tìm kiếm phiếu nhập theo ngày thành công.");
+                    break;
             }
         }
     }
