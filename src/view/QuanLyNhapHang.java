@@ -111,6 +111,7 @@ public class QuanLyNhapHang {
                             System.out.println("\n");
                             System.out.println("Thống kê phiếu nhập");
                             System.out.println("1. Thống kê phiếu nhập theo khoảng thời gian");
+                            System.out.println("2. Thống kê phiếu nhập theo nhà cung cấp");
                             System.out.println("0. Thoát");
                             System.out.print("\n💡 Nhập lựa chọn của bạn: ");
 
@@ -125,6 +126,9 @@ public class QuanLyNhapHang {
                             switch (opt) {
                                 case 1: 
                                     thongKePhieuNhapTheoNgay();
+                                    break;
+                                case 2: 
+                                    thongKePhieuNhapTheoNCC();
                                     break;
                                 default:
                                     System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
@@ -506,7 +510,7 @@ public class QuanLyNhapHang {
         }
     }
 
-    private void suaPhieuNhap() { 
+    public void suaPhieuNhap() { 
         Scanner scanner = new Scanner(System.in);
         boolean conti = true;
         
@@ -556,7 +560,7 @@ public class QuanLyNhapHang {
         }        
     }
 
-    private void thongKePhieuNhapTheoNgay() { 
+    public void thongKePhieuNhapTheoNgay() { 
         Scanner scanner = new Scanner(System.in);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
 
@@ -610,6 +614,61 @@ public class QuanLyNhapHang {
         }
     }
 
+    public void thongKePhieuNhapTheoNCC() {
+        Scanner scanner = new Scanner(System.in);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+
+        while (true) {
+            try {
+                System.out.println("Nhập ngày bắt đầu: ");
+                String from = scanner.nextLine().trim();
+
+                System.out.println("Nhập ngày kết thúc: ");
+                String to = scanner.nextLine().trim();
+
+                LocalDate fromDate = LocalDate.parse(from, formatter);
+                LocalDate toDate = LocalDate.parse(to, formatter);
+
+                List<Map<String, Object>> result = NhapHangDAO.thongKePhieuNhapTheoNCC(fromDate, toDate);
+
+                System.out.println("=== THỐNG KÊ PHIẾU NHẬP THEO NHÀ CUNG CẤP ===");
+                System.out.println("Từ ngày: " + fromDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+                System.out.println("Đến ngày: " + toDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+                System.out.println("---------------------------------------------------------");
+
+                System.out.printf("| %-7s | %-22s | %-8s | %-6s | %-13s |%n",
+                "Mã NCC", "Tên Nhà Cung Cấp", "Số Phiếu", "Số SP", "Tổng Giá Trị");
+                System.out.println("+---------+------------------------+-----------+--------+---------------+");
+                
+                int tongNCC = 0, tongPhieu = 0, tongSanPham = 0;
+                long tongGiaTri = 0;
+
+                for (Map<String, Object> row : result) {
+                    tongNCC++;
+                    int soPhieu = (int)row.get("SoPhieu");
+                    int tongSoSanPham = (int)row.get("TongSanPham");
+                    long giaTri = (long)row.get("TongGiaTri");
+
+                    tongPhieu += soPhieu;
+                    tongSanPham += tongSoSanPham;
+                    tongGiaTri += giaTri;
+
+                    System.out.printf("| %-7s | %-22s | %-8d | %-6d | %-13s |%n",
+                    row.get("MaNCC"), row.get("TenNCC"), soPhieu, tongSoSanPham, FormatUtil.formatVND(giaTri));
+                }
+
+                System.out.println("+---------+------------------------+-----------+--------+---------------+");
+                System.out.println("Tổng số nhà cung cấp: " + tongNCC);
+                System.out.println("Tổng số phiếu nhập: " + tongPhieu);
+                System.out.println("Tổng số sản phẩm: " + tongSanPham);
+                System.out.println("Tổng giá trị nhập: " + FormatUtil.formatVND(tongGiaTri));
+                System.out.println("---------------------------------------------------------");
+            } catch (DateTimeParseException e) {
+                System.out.println("Định dạng ngày không hợp lệ, vui lòng nhập lại.");
+                scanner.nextLine();
+            }
+        }
+    }
 
     private void xemChiTiet() { }
     private void xoaPhieuNhap() { }
