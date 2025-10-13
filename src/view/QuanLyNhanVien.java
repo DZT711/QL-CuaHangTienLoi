@@ -7,6 +7,7 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 import dao.NhanVienDAO;
 import dto.NhanVienDTO;
+import main.Main;
 
 public class QuanLyNhanVien {
     public void menuQuanLyNhanVien() {
@@ -290,12 +291,92 @@ public class QuanLyNhanVien {
                     // Sửa chức vụ
                     String chucVuMoi = nhapChucVuVoiGiuNguyen(sc, nvCanSua.getChucVu());
 
+                    // Nhập trạng thái hợp lệ
+                    String trangThaiMoi;
+                    while (true) {
+                        System.out.print("📝 Trạng thái (active/inactive) - Enter để giữ nguyên: ");
+                        String input = sc.nextLine().trim();
+                        if (input.isEmpty()) {
+                            trangThaiMoi = null; // giữ nguyên
+                            break;
+                        }
+                        if (input.equals("active") || input.equals("inactive")) {
+                            trangThaiMoi = input;
+                            break;
+                        }
+                        System.out.println("❌ Chỉ được nhập 'active' hoặc 'inactive'!");
+                    }
+
+                    // Nếu đổi trạng thái => yêu cầu quyền Admin và lấy lý do
+                    String reason = "";
+                    if (trangThaiMoi != null && !trangThaiMoi.equals(nvCanSua.getTrangThai())) {
+                        if (Main.CURRENT_ACCOUNT == null || !"Admin".equals(Main.CURRENT_ACCOUNT.getRole())) {
+                            System.out.println("❌ Bạn không có quyền thay đổi trạng thái nhân viên!");
+                            continue;
+                        }
+                        if ("active".equals(trangThaiMoi) && "inactive".equalsIgnoreCase(nvCanSua.getTrangThai())) {
+                            // Menu lý do kích hoạt lại
+                            System.out.println(
+                                    "📝 Chọn lý do kích hoạt lại (1: Quay lại sau nghỉ dài hạn, 2: Hết tạm đình chỉ/kỷ luật, 3: Hoàn tất đào tạo/bồi dưỡng, 4: Nhu cầu công việc/tái bố trí, 5: Khác)");
+                            System.out.print("Lý do: ");
+                            String opt = sc.nextLine().trim();
+                            switch (opt) {
+                                case "1":
+                                    reason = "Quay lại sau nghỉ phép dài hạn";
+                                    break;
+                                case "2":
+                                    reason = "Hết thời gian tạm đình chỉ/kỷ luật";
+                                    break;
+                                case "3":
+                                    reason = "Hoàn tất đào tạo/bồi dưỡng bắt buộc";
+                                    break;
+                                case "4":
+                                    reason = "Nhu cầu công việc, tái bố trí vị trí";
+                                    break;
+                                case "5":
+                                    reason = "Khác";
+                                    break;
+                                default:
+                                    reason = "Khác";
+                            }
+                        } else if ("inactive".equals(trangThaiMoi)
+                                && "active".equalsIgnoreCase(nvCanSua.getTrangThai())) {
+                            // Menu lý do vô hiệu hóa (active -> inactive)
+                            System.out.println(
+                                    "📝 Chọn lý do vô hiệu hóa (1: Nghỉ việc (chấm dứt hợp đồng), 2: Tạm nghỉ dài hạn (thai sản/ốm đau/cá nhân), 3: Vi phạm kỷ luật/quy định, 4: Tái cơ cấu/bố trí nhân sự, tạm dừng công việc, 5: Khác)");
+                            System.out.print("Lý do: ");
+                            String opt = sc.nextLine().trim();
+                            switch (opt) {
+                                case "1":
+                                    reason = "Nghỉ việc (chấm dứt hợp đồng)";
+                                    break;
+                                case "2":
+                                    reason = "Tạm nghỉ dài hạn (thai sản/ốm đau/cá nhân)";
+                                    break;
+                                case "3":
+                                    reason = "Vi phạm kỷ luật/quy định";
+                                    break;
+                                case "4":
+                                    reason = "Tái cơ cấu/bố trí nhân sự, tạm dừng công việc";
+                                    break;
+                                case "5":
+                                    reason = "Khác";
+                                    break;
+                                default:
+                                    reason = "Khác";
+                            }
+                        }
+                    }
+
                     // Tạo đối tượng mới với thông tin đã sửa
                     NhanVienDTO nvMoi = new NhanVienDTO(maNV, hoMoi, tenMoi, gioiTinhMoi, ngaySinhMoi, diaChiMoi,
                             emailMoi, luongMoi, chucVuMoi);
 
-                    // Cập nhật thông tin nhân viên
-                    NhanVienDAO.suaNhanVien(nvMoi, "active");
+                    // Trạng thái để cập nhật: nếu không nhập, giữ nguyên
+                    String trangThaiUpdate = trangThaiMoi != null ? trangThaiMoi : nvCanSua.getTrangThai();
+
+                    // Cập nhật thông tin nhân viên (truyền oldStatus và reason để ghi audit)
+                    NhanVienDAO.suaNhanVien(nvMoi, trangThaiUpdate, nvCanSua.getTrangThai(), reason);
                     System.out.println("✅ Sửa nhân viên thành công.");
                     break;
                 } catch (Exception e) {
@@ -344,7 +425,33 @@ public class QuanLyNhanVien {
             return;
         }
 
-        if (NhanVienDAO.xoaNhanVien(maNV)) {
+        // Chọn lý do trước khi xóa (active -> inactive)
+        String reason = "Khác";
+        System.out.println(
+                "📝 Chọn lý do vô hiệu hóa (1: Nghỉ việc (chấm dứt hợp đồng), 2: Tạm nghỉ dài hạn (thai sản/ốm đau/cá nhân), 3: Vi phạm kỷ luật/quy định, 4: Tái cơ cấu/bố trí nhân sự, tạm dừng công việc, 5: Khác)");
+        System.out.print("Lý do: ");
+        String opt = sc.nextLine().trim();
+        switch (opt) {
+            case "1":
+                reason = "Nghỉ việc (chấm dứt hợp đồng)";
+                break;
+            case "2":
+                reason = "Tạm nghỉ dài hạn (thai sản/ốm đau/cá nhân)";
+                break;
+            case "3":
+                reason = "Vi phạm kỷ luật/quy định";
+                break;
+            case "4":
+                reason = "Tái cơ cấu/bố trí nhân sự, tạm dừng công việc";
+                break;
+            case "5":
+                reason = "Khác";
+                break;
+            default:
+                reason = "Khác";
+        }
+
+        if (NhanVienDAO.xoaNhanVien(maNV, reason)) {
             System.out.println("✅ Xóa nhân viên thành công!");
         } else {
             System.out.println("❌ Xóa nhân viên thất bại!");
@@ -535,11 +642,11 @@ public class QuanLyNhanVien {
 
         // Header bảng
         System.out.println(
-                "┌─────┬──────────┬─────────────────────┬────────┬────────────┬─────────────────────┬──────────────┬────────┐");
+                "┌─────┬──────────┬─────────────────────┬────────┬────────────┬─────────────────────┬──────────────┬────────┬────────────┐");
         System.out.println(
-                "│ STT │ Mã NV    │ Họ và tên           │ Giới tính │ Ngày sinh    │ Email               │ Lương        │ Chức vụ │");
+                "│ STT │ Mã NV    │ Họ và tên           │ Giới tính │ Ngày sinh    │ Email               │ Lương        │ Chức vụ │ Trạng thái │");
         System.out.println(
-                "├─────┼──────────┼─────────────────────┼────────┼────────────┼─────────────────────┼──────────────┼────────┤");
+                "├─────┼──────────┼─────────────────────┼────────┼────────────┼─────────────────────┼──────────────┼────────┼────────────┤");
 
         int count = 1;
         for (NhanVienDTO nv : danhSachNV) {
@@ -553,14 +660,15 @@ public class QuanLyNhanVien {
                     nv.getEmail().length() > 19 ? nv.getEmail().substring(0, 16) + "..." : nv.getEmail());
             String luong = String.format("%-12s", String.format("%,d VNĐ", nv.getLuong()));
             String chucVu = String.format("%-6s", nv.getChucVu());
+            String trangThai = String.format("%-10s", nv.getTrangThai() != null ? nv.getTrangThai() : "N/A");
 
-            System.out.printf("│%s│ %s │ %s │ %s │ %s │ %s │ %s │ %s │%n",
-                    stt, maNV, hoTen, gioiTinh, ngaySinh, email, luong, chucVu);
+            System.out.printf("│%s│ %s │ %s │ %s │ %s │ %s │ %s │ %s │ %s │%n",
+                    stt, maNV, hoTen, gioiTinh, ngaySinh, email, luong, chucVu, trangThai);
             count++;
         }
 
         System.out.println(
-                "└─────┴──────────┴─────────────────────┴────────┴────────────┴─────────────────────┴──────────────┴────────┘");
+                "└─────┴──────────┴─────────────────────┴────────┴────────────┴─────────────────────┴──────────────┴────────┴────────────┘");
 
         System.out.print("\n⏸️  Nhấn Enter để tiếp tục...");
         sc.nextLine();

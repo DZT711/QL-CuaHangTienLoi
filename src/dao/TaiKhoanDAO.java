@@ -25,7 +25,7 @@ public class TaiKhoanDAO {
 
             rs = stmt.executeQuery();
 
-            if(rs.next()){
+            if (rs.next()) {
                 String role = rs.getString("VaiTro");
                 String fullName = rs.getString("HoTen");
                 String maNV = rs.getString("MaNV");
@@ -35,5 +35,17 @@ public class TaiKhoanDAO {
             System.err.println("Lỗi khi kiểm tra tài khoản: " + e.getMessage());
         }
         return taiKhoan;
+    }
+
+    public static boolean lockAccountByEmployee(String maNV) {
+        String sql = "UPDATE TAIKHOAN SET TrangThai = 'Inactive' WHERE MaNV = ?";
+        try (Connection conn = JDBCUtil.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maNV);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi khóa tài khoản theo MaNV: " + e.getMessage());
+            return false;
+        }
     }
 }

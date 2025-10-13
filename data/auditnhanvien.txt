@@ -1,0 +1,6 @@
+[2025-10-13 21:38:47] actor=sonadmin , target=NV777 , old=  , new =inactive ,lí do Update profile
+[2025-10-13 21:48:44] actor=sonadmin , target=NV777 , old= inactive , new =active ,lí do Tạm nghỉ
+[2025-10-13 22:02:08] actor=sonadmin , target=NV777 , old= active , new =inactive ,lí do Soft delete
+[2025-10-13 22:02:43] actor=sonadmin , target=NV777 , old= inactive , new =inactive ,lí do 
+[2025-10-13 22:03:51] actor=sonadmin , target=NV777 , old= inactive , new =active ,lí do hoàn tất lao động
+[2025-10-13 22:11:13] actor=sonadmin , target=NV777 , old= active , new =inactive ,lí do Khác

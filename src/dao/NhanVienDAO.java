@@ -6,6 +6,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import util.JDBCUtil;
+import util.AuditLogger;
+import main.Main;
+import dao.TaiKhoanDAO;
 import java.util.List;
 import java.util.ArrayList;
 import dto.NhanVienDTO;
@@ -28,7 +31,7 @@ public class NhanVienDAO {
                 java.sql.Date d = rs.getDate("NgaySinh");
                 LocalDate ns = d != null ? d.toLocalDate() : null;
 
-                return new NhanVienDTO(
+                NhanVienDTO nv = new NhanVienDTO(
                         rs.getString("MaNV"),
                         rs.getString("Ho"),
                         rs.getString("Ten"),
@@ -38,6 +41,8 @@ public class NhanVienDAO {
                         rs.getString("Email"),
                         rs.getInt("Luong"),
                         rs.getString("ChucVu"));
+                nv.setTrangThai(rs.getString("TrangThai"));
+                return nv;
             }
         } catch (SQLException e) {
             System.err.println("Lỗi khi tìm nhân viên theo mã: " + e.getMessage());
@@ -47,7 +52,7 @@ public class NhanVienDAO {
 
     // Tìm nhân viên theo tên
     public static List<NhanVienDTO> timNhanVienTheoTen(String ten) {
-        String query = "SELECT MaNV, Ho, Ten, GioiTinh, NgaySinh, DiaChi, Email, Luong, ChucVu " +
+        String query = "SELECT MaNV, Ho, Ten, GioiTinh, NgaySinh, DiaChi, Email, Luong, ChucVu, TrangThai " +
                 "FROM NHANVIEN WHERE (Ten = ? OR CONCAT(Ho, ' ', Ten) = ?) AND TrangThai = 'active'";
 
         List<NhanVienDTO> list = new ArrayList<>();
@@ -62,7 +67,7 @@ public class NhanVienDAO {
                 java.sql.Date d = rs.getDate("NgaySinh");
                 LocalDate ns = d != null ? d.toLocalDate() : null;
 
-                list.add(new NhanVienDTO(
+                NhanVienDTO nv = new NhanVienDTO(
                         rs.getString("MaNV"),
                         rs.getString("Ho"),
                         rs.getString("Ten"),
@@ -71,7 +76,9 @@ public class NhanVienDAO {
                         rs.getString("DiaChi"),
                         rs.getString("Email"),
                         rs.getInt("Luong"),
-                        rs.getString("ChucVu")));
+                        rs.getString("ChucVu"));
+                nv.setTrangThai(rs.getString("TrangThai"));
+                list.add(nv);
             }
 
         } catch (SQLException e) {
@@ -117,7 +124,7 @@ public class NhanVienDAO {
     }
 
     // Sửa thông tin nhân viên
-    public static void suaNhanVien(NhanVienDTO nv, String trangThai) {
+    public static void suaNhanVien(NhanVienDTO nv, String trangThai, String oldStatus, String reason) {
         String sql = "UPDATE NHANVIEN SET Ho = ?, Ten = ?, GioiTinh = ?, NgaySinh = ?, DiaChi = ?, Email = ?, Luong = ?, ChucVu = ?, TrangThai = ? WHERE MaNV = ?";
         try (Connection conn = JDBCUtil.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -142,6 +149,15 @@ public class NhanVienDAO {
                 System.out.println("Sửa thông tin nhân viên thất bại");
             } else {
                 System.out.println("Sửa thông tin nhân viên thành công");
+                // Nếu chuyển sang inactive: khóa đăng nhập
+                if ("inactive".equalsIgnoreCase(trangThai)) {
+                    TaiKhoanDAO.lockAccountByEmployee(nv.getMaNV());
+                }
+                // Audit log
+                String actor = (Main.CURRENT_ACCOUNT != null) ? Main.CURRENT_ACCOUNT.getUsername() : "unknown";
+                if (oldStatus == null)
+                    oldStatus = nv.getTrangThai();
+                AuditLogger.logEmployeeStatusChange(actor, nv.getMaNV(), oldStatus, trangThai, reason);
             }
 
         } catch (SQLException e) {
@@ -152,14 +168,22 @@ public class NhanVienDAO {
     }
 
     // Xóa nhân viên
-    public static boolean xoaNhanVien(String maNV) {
+    public static boolean xoaNhanVien(String maNV, String reason) {
         String query = "UPDATE NHANVIEN SET TrangThai = 'inactive' WHERE MaNV = ?";
 
         try (Connection conn = JDBCUtil.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, maNV);
             int rowAffected = pstmt.executeUpdate();
-            return rowAffected > 0;
+            if (rowAffected > 0) {
+                // Khóa login nếu có tài khoản
+                TaiKhoanDAO.lockAccountByEmployee(maNV);
+                // Audit log
+                String actor = (Main.CURRENT_ACCOUNT != null) ? Main.CURRENT_ACCOUNT.getUsername() : "unknown";
+                AuditLogger.logEmployeeStatusChange(actor, maNV, "active", "inactive", reason);
+                return true;
+            }
+            return false;
 
         } catch (SQLException e) {
             System.out.println("Lỗi khi đổi trạng thái nhân viên theo mã : " + e.getMessage());
@@ -178,10 +202,8 @@ public class NhanVienDAO {
 
     // Lấy toàn bộ dữ liệu nhân viên
     public static List<NhanVienDTO> getAllNhanVien() {
-        String query = "SELECT nv.MaNV, nv.Ho, nv.Ten, nv.GioiTinh, nv.NgaySinh, nv.DiaChi, nv.Email, nv.Luong, nv.ChucVu, nv.TrangThai AS TrangThaiNV, "
-                + "tk.UserName, tk.VaiTro, tk.TrangThai AS TrangThaiTK, tk.Email AS EmailTK " +
-                "FROM NHANVIEN nv " +
-                "LEFT JOIN TAIKHOAN tk ON tk.MaNV = nv.MaNV";
+        String query = "SELECT nv.MaNV, nv.Ho, nv.Ten, nv.GioiTinh, nv.NgaySinh, nv.DiaChi, nv.Email, nv.Luong, nv.ChucVu, nv.TrangThai "
+                + "FROM NHANVIEN nv";
 
         List<NhanVienDTO> list = new ArrayList<>();
 
@@ -194,8 +216,8 @@ public class NhanVienDAO {
                 java.sql.Date d = rs.getDate("NgaySinh");
                 LocalDate ns = d != null ? d.toLocalDate() : null;
 
-                list.add(new NhanVienDTO(
-                        rs.getString("MANV"),
+                NhanVienDTO nv = new NhanVienDTO(
+                        rs.getString("MaNV"),
                         rs.getString("Ho"),
                         rs.getString("Ten"),
                         rs.getString("GioiTinh"),
@@ -203,7 +225,9 @@ public class NhanVienDAO {
                         rs.getString("DiaChi"),
                         rs.getString("Email"),
                         rs.getInt("Luong"),
-                        rs.getString("ChucVu")));
+                        rs.getString("ChucVu"));
+                nv.setTrangThai(rs.getString("TrangThai"));
+                list.add(nv);
             }
 
         } catch (SQLException ex) {
@@ -269,6 +293,8 @@ public class NhanVienDAO {
         System.out.println("│ 💰 Lương           │ " + String.format("%,d VNĐ", nv.getLuong())
                 + String.format("%" + (45 - String.format("%,d VNĐ", nv.getLuong()).length()) + "s", "") + " │");
         System.out.println("│ 💼 Chức vụ         │ " + String.format("%-45s", nv.getChucVu()) + " │");
+        System.out.println("│ 🚦 Trạng thái      │ "
+                + String.format("%-45s", nv.getTrangThai() != null ? nv.getTrangThai() : "Không có") + " │");
         System.out.println("└─────────────────────────────────────────────────────────────────────────────────┘");
     }
 
