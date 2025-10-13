@@ -29,8 +29,8 @@ public class QuanLyNhapHang {
             System.out.println("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ MENU CHỨC NĂNG ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓");
             System.out.println("▒ [1] ➜ Tạo phiếu nhập hàng mới                                                ▒");
             System.out.println("▒ [2] ➜ Tìm kiếm phiếu nhập                                                    ▒");
-            System.out.println("▒ [2] ➜ Xem chi tiết phiếu nhập                                                ▒");
             System.out.println("▒ [3] ➜ Chỉnh sửa phiếu nhập                                                   ▒");
+            System.out.println("▒ [2] ➜ Xem chi tiết phiếu nhập                                                ▒");
             System.out.println("▒ [4] ➜ Xóa phiếu nhập                                                         ▒");
             System.out.println("▒ [6] ➜ Quản lý nhà cung cấp                                                   ▒");
             System.out.println("▒ [7] ➜ Thống kê nhập hàng                                                     ▒");
@@ -101,7 +101,9 @@ public class QuanLyNhapHang {
                         }
                     }
                     break;
-                case 3: suaPhieuNhap(); break;
+                case 3: 
+                    suaPhieuNhap(); 
+                    break;
                 case 4: xoaPhieuNhap(); break;
                 // case 5: timKiem(); break;
                 case 6: 
@@ -473,8 +475,57 @@ public class QuanLyNhapHang {
         }
     }
 
+    private void suaPhieuNhap() { 
+        Scanner scanner = new Scanner(System.in);
+        boolean conti = true;
+        
+        while (conti) {
+            try {
+                System.out.println("Nhập mã phiếu nhập cần sửa: ");
+                String maPhieu = scanner.nextLine().trim();
+                if (maPhieu.equals("0")) {
+                    System.out.println("Thoát sửa phiếu nhập.");
+                    break;
+                }
+
+                if (NhapHangDAO.timPhieuNhapTheoMa(maPhieu) == null) {
+                    System.out.println("Mã phiếu nhập không tồn tại, vui lòng nhập lại.");
+                    continue;
+                }
+
+                NhapHangDTO pn = NhapHangDAO.timPhieuNhapTheoMa(maPhieu);
+                System.out.println("Thông tin phiếu nhập trước khi sửa: ");
+                System.out.println("Mã phiếu: " + pn.getMaPhieu());
+                System.out.println("Mã nhân viên: " + pn.getMaNV());
+                System.out.println("Mã nhà cung cấp: " + pn.getMaNCC());
+                System.out.println("Ngày nhập: " + pn.getNgayLapPhieu());
+                System.out.println("Tổng tiền: " + FormatUtil.formatVND(pn.getTongTien()));
+                System.out.println("═════════════════════════════════════════════════════");
+
+                System.out.println("Nhập thông tin mới cho phiếu nhập: ");
+                if (!pn.sua()) {
+                    System.out.println("Đã hủy sửa phiếu nhập, quay lại menu...");
+                    break;
+                }
+
+                NhapHangDAO.suaPhieuNhap(pn, maPhieu);
+                System.out.println("Sửa phiếu nhập thành công.");
+                break;
+            } catch (Exception e) {
+                System.out.println("Lỗi nhập liệu: " + e.getMessage());
+                scanner.nextLine();
+            }
+        }
+
+        System.out.println("Bạn có muốn sửa phiếu nhập khác không? (y/n)");
+        String choice = scanner.nextLine().trim();
+        if (!choice.equalsIgnoreCase("y")) {
+            System.out.println("Thoát sửa phiếu nhập.");
+            conti = false;
+        }        
+    }
+    
     private void xemChiTiet() { }
-    private void suaPhieuNhap() { }
     private void xoaPhieuNhap() { }
     private void thongKeNhapHang() { }
     private void xuatBaoCao() { }

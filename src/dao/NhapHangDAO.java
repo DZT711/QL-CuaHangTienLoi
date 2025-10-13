@@ -169,4 +169,25 @@ public class NhapHangDAO {
         }
         return danhSachPhieuNhap;
     }
+
+    public static void suaPhieuNhap(NhapHangDTO pn, String maPhieu) {
+        String query = "UPDATE PHIEUNHAP SET MaNCC = ?, MaNV = ? WHERE MaPhieu = ?";
+
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, pn.getMaNCC());
+            stmt.setString(2, pn.getMaNV());
+            stmt.setString(3, maPhieu);
+
+            int rowAffected = stmt.executeUpdate();
+            if (rowAffected > 0) {
+                System.out.println("Sửa phiếu nhập thành công");
+            } else {
+                System.out.println("Sửa phiếu nhập thất bại");
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi sửa phiếu nhập: " + e.getMessage());
+        }
+    }
 }
