@@ -101,4 +101,30 @@ public class NhapHangDAO {
         }
         return danhSachPhieuNhap;
     }
+
+    public static List<NhapHangDTO> timPhieuNhapTheoMaNV(String maNV) {
+        List<NhapHangDTO> danhSachPhieuNhap = new ArrayList<>();
+
+        String query = "SELECT MaPhieu, MaNCC, MaNV, TongTien, NgayLapPhieu FROM PHIEUNHAP WHERE MaNV = ?";
+
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+            
+            stmt.setString(1, maNV);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                danhSachPhieuNhap.add(new NhapHangDTO(
+                    rs.getString("MaPhieu"), 
+                    rs.getString("MaNCC"), 
+                    rs.getString("MaNV"), 
+                    rs.getInt("TongTien"), 
+                    rs.getTimestamp("NgayLapPhieu").toLocalDateTime()
+                ));
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi tìm phiếu nhập theo mã NV: " + e.getMessage());
+        }
+        return danhSachPhieuNhap;
+    }
 }
