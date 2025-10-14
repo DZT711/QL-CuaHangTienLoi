@@ -13,10 +13,13 @@ public class NhanVienDTO {
     private String email;
     private int luong;
     private String chucVu;
+    private String trangThai;
 
-    public NhanVienDTO() {}
+    public NhanVienDTO() {
+    }
 
-    public NhanVienDTO(String maNV, String ho, String ten, String gioiTinh, LocalDate ngaySinh, String diaChi, String email, int luong, String chucVu) {
+    public NhanVienDTO(String maNV, String ho, String ten, String gioiTinh, LocalDate ngaySinh, String diaChi,
+            String email, int luong, String chucVu) {
         this.maNV = maNV;
         this.ho = ho;
         this.ten = ten;
@@ -31,7 +34,7 @@ public class NhanVienDTO {
     public String getFullName() {
         return ho + " " + ten;
     }
-    
+
     public String getMaNV() {
         return maNV;
     }
@@ -39,7 +42,7 @@ public class NhanVienDTO {
     public void setMaNV(String maNV) {
         this.maNV = maNV;
     }
-    
+
     public String getHo() {
         return ho;
     }
@@ -47,7 +50,7 @@ public class NhanVienDTO {
     public void setHo(String ho) {
         this.ho = ho;
     }
-    
+
     public String getTen() {
         return ten;
     }
@@ -55,7 +58,7 @@ public class NhanVienDTO {
     public void setTen(String ten) {
         this.ten = ten;
     }
-    
+
     public String getGioiTinh() {
         return gioiTinh;
     }
@@ -63,7 +66,7 @@ public class NhanVienDTO {
     public void setGioiTinh(String gioiTinh) {
         this.gioiTinh = gioiTinh;
     }
-    
+
     public LocalDate getNgaySinh() {
         return ngaySinh;
     }
@@ -75,7 +78,7 @@ public class NhanVienDTO {
     public void setNgaySinh(LocalDate ngaySinh) {
         this.ngaySinh = ngaySinh;
     }
-    
+
     public String getDiaChi() {
         return diaChi;
     }
@@ -83,7 +86,7 @@ public class NhanVienDTO {
     public void setDiaChi(String diaChi) {
         this.diaChi = diaChi;
     }
-    
+
     public int getLuong() {
         return luong;
     }
@@ -91,7 +94,7 @@ public class NhanVienDTO {
     public void setLuong(int luong) {
         this.luong = luong;
     }
-    
+
     public String getEmail() {
         return email;
     }
@@ -99,12 +102,20 @@ public class NhanVienDTO {
     public void setEmail(String email) {
         this.email = email;
     }
-    
+
     public String getChucVu() {
         return chucVu;
     }
 
     public void setChucVu(String chucVu) {
         this.chucVu = chucVu;
+    }
+
+    public String getTrangThai() {
+        return trangThai;
+    }
+
+    public void setTrangThai(String trangThai) {
+        this.trangThai = trangThai;
     }
 }
