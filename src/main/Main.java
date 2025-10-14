@@ -2,7 +2,9 @@ package main;
 
 import dao.SanPhamDAO;
 import dao.TaiKhoanDAO;
+import dao.NhanVienDAO;
 import dto.TaiKhoanDTO;
+import dto.NhanVienDTO;
 import java.util.Scanner;
 import view.QuanLyKhachHang;
 import view.QuanLyNhaCungCap;
@@ -50,6 +52,17 @@ public class Main {
 
             TaiKhoanDTO taiKhoan = TaiKhoanDAO.checkAccount(username, password);
             if (taiKhoan != null) {
+                // Kiểm tra trạng thái nhân viên trước khi cho đăng nhập
+                NhanVienDTO nvLogin = NhanVienDAO.timNhanVienTheoMa(taiKhoan.getMaNV());
+                if (nvLogin == null) {
+                    System.out.println("✗ Không tìm thấy thông tin nhân viên cho tài khoản này.");
+                    continue;
+                }
+                if ("inactive".equalsIgnoreCase(nvLogin.getTrangThai())) {
+                    System.out.println(
+                            "✗ Tài khoản thuộc nhân viên đã bị vô hiệu hóa (inactive). Vui lòng liên hệ quản trị.");
+                    continue;
+                }
                 CURRENT_ACCOUNT = taiKhoan;
 
                 // System.out.println("✓ Đăng nhập thành công! Xin chào "+taiKhoan.getRole()+" "

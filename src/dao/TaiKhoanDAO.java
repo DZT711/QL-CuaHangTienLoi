@@ -48,4 +48,54 @@ public class TaiKhoanDAO {
             return false;
         }
     }
+
+    public static boolean accountExistsForEmployee(String maNV) {
+        String sql = "SELECT 1 FROM TAIKHOAN WHERE MaNV = ?";
+        try (Connection conn = JDBCUtil.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maNV);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi kiểm tra tồn tại tài khoản theo MaNV: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public static boolean createDefaultAccountForEmployee(String maNV, String hoTen, String vaiTro, String email) {
+        // Username mặc định = MaNV, mật khẩu mặc định = MaNV, trạng thái Active
+        if (maNV == null || maNV.isEmpty())
+            return false;
+        // Tránh tạo trùng
+        if (accountExistsForEmployee(maNV))
+            return true;
+
+        String mappedRole = mapChucVuToVaiTro(vaiTro);
+        String sql = "INSERT INTO TAIKHOAN (UserName, PassWord, MaNV, VaiTro, HoTen, TrangThai, Email) VALUES (?, ?, ?, ?, ?, 'Active', ?)";
+        try (Connection conn = JDBCUtil.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maNV);
+            ps.setString(2, maNV);
+            ps.setString(3, maNV);
+            ps.setString(4, mappedRole);
+            ps.setString(5, hoTen != null ? hoTen : maNV);
+            ps.setString(6, email);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi tạo tài khoản mặc định cho nhân viên: " + e.getMessage());
+            return false;
+        }
+    }
+
+    private static String mapChucVuToVaiTro(String chucVu) {
+        if (chucVu == null)
+            return "NhanVien";
+        String cv = chucVu.trim();
+        if (cv.equalsIgnoreCase("QL") || cv.equalsIgnoreCase("QuanLy") || cv.equalsIgnoreCase("Admin")) {
+            return "Admin";
+        }
+        // Mặc định là nhân viên để phù hợp ENUM('Admin','NhanVien')
+        return "NhanVien";
+    }
 }

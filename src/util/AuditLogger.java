@@ -29,4 +29,20 @@ public class AuditLogger {
     private static String safe(String s) {
         return s == null ? "" : s.replaceAll("\n|\r", " ").trim();
     }
+
+    // Thông báo cho quản trị khi cố gắng xóa nhân viên đãinactive
+    public static void notifyAdminEmployeeAlreadyDeleted(String actorUsername,
+            String targetMaNV,
+            String currentStatus,
+            String reason) {
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        String line = String.format(
+                "[%s] NOTICE: actor=%s cố gắng xóa target=%s nhưng trạng thái hiện tại=%s , lí do %s%n",
+                timestamp, safe(actorUsername), safe(targetMaNV), safe(currentStatus), safe(reason));
+        try (FileWriter fw = new FileWriter(LOG_PATH, true)) {
+            fw.write(line);
+        } catch (IOException e) {
+            System.err.println("Không thể ghi audit log: " + e.getMessage());
+        }
+    }
 }

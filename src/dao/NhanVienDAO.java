@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import util.JDBCUtil;
 import util.AuditLogger;
 import main.Main;
-import dao.TaiKhoanDAO;
 import java.util.List;
 import java.util.ArrayList;
 import dto.NhanVienDTO;
@@ -115,6 +114,17 @@ public class NhanVienDAO {
                 System.out.println("Thêm nhân viên thất bại");
             } else {
                 System.out.println("Thêm nhân viên thành công");
+                // Tạo tài khoản mặc định cho nhân viên vừa thêm
+                String hoTen = nv.getFullName();
+                String vaiTro = nv.getChucVu();
+                boolean created = TaiKhoanDAO.createDefaultAccountForEmployee(nv.getMaNV(), hoTen, vaiTro,
+                        nv.getEmail());
+                if (!created) {
+                    System.out.println("Lưu ý: Không thể tạo tài khoản mặc định cho nhân viên " + nv.getMaNV());
+                } else {
+                    System.out.println("Đã tạo tài khoản mặc định cho nhân viên " + nv.getMaNV()
+                            + " (UserName=" + nv.getMaNV() + ")");
+                }
             }
 
         } catch (Exception e) {
@@ -169,19 +179,44 @@ public class NhanVienDAO {
 
     // Xóa nhân viên
     public static boolean xoaNhanVien(String maNV, String reason) {
-        String query = "UPDATE NHANVIEN SET TrangThai = 'inactive' WHERE MaNV = ?";
+        // 1) Kiểm tra trạng thái hiện tại
+        String getStatusSql = "SELECT TrangThai FROM NHANVIEN WHERE MaNV = ?";
+        String softDeleteSql = "UPDATE NHANVIEN SET TrangThai = 'inactive' WHERE MaNV = ?";
 
-        try (Connection conn = JDBCUtil.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setString(1, maNV);
-            int rowAffected = pstmt.executeUpdate();
-            if (rowAffected > 0) {
-                // Khóa login nếu có tài khoản
-                TaiKhoanDAO.lockAccountByEmployee(maNV);
-                // Audit log
-                String actor = (Main.CURRENT_ACCOUNT != null) ? Main.CURRENT_ACCOUNT.getUsername() : "unknown";
-                AuditLogger.logEmployeeStatusChange(actor, maNV, "active", "inactive", reason);
-                return true;
+        try (Connection conn = JDBCUtil.getConnection()) {
+            String currentStatus = null;
+            try (PreparedStatement psCheck = conn.prepareStatement(getStatusSql)) {
+                psCheck.setString(1, maNV);
+                try (ResultSet rs = psCheck.executeQuery()) {
+                    if (rs.next()) {
+                        currentStatus = rs.getString("TrangThai");
+                    } else {
+                        System.out.println("Không tìm thấy nhân viên với mã: " + maNV);
+                        return false;
+                    }
+                }
+            }
+
+            String actor = (Main.CURRENT_ACCOUNT != null) ? Main.CURRENT_ACCOUNT.getUsername() : "unknown";
+
+            // 2) Nếu đã inactive rồi: ghi thông báo cho quản trị và trả về false
+            if (currentStatus != null && currentStatus.equalsIgnoreCase("inactive")) {
+                AuditLogger.notifyAdminEmployeeAlreadyDeleted(actor, maNV, currentStatus, reason);
+                System.out.println("Nhân viên đã bị xóa trước đó (inactive). Đã thông báo cho quản trị.");
+                return false;
+            }
+
+            // 3) Thực hiện soft-delete như bình thường
+            try (PreparedStatement psDelete = conn.prepareStatement(softDeleteSql)) {
+                psDelete.setString(1, maNV);
+                int rowAffected = psDelete.executeUpdate();
+                if (rowAffected > 0) {
+                    // Khóa login nếu có tài khoản
+                    TaiKhoanDAO.lockAccountByEmployee(maNV);
+                    // Audit log trạng thái
+                    AuditLogger.logEmployeeStatusChange(actor, maNV, currentStatus, "inactive", reason);
+                    return true;
+                }
             }
             return false;
 
