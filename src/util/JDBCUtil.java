@@ -6,32 +6,15 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class JDBCUtil {
-    public static Connection conn = null;
     // Connect to database
-    // public static Connection getConnection() {
-    //     try {
-    //         DriverManager.registerDriver(new com.mysql.cj.jdbc.Driver());
 
-    //         String url  = "jdbc:mysql://localhost:3306/QL_chtienloi";
-    //         String username = "root";
-    //         String password = "";
+    public static Connection getConnection() {
+        Connection conn = null;
 
-    //         if (conn == null) {
-    //             conn = DriverManager.getConnection(url, username, password);
-    //         }
-    //         return conn;
-    //     } catch (SQLException e) {
-    //         e.printStackTrace();
-    //     }
-    //     return conn;
-    // }
-
-     public static Connection getConnection() {
-        Connection conn1 = null;
         try {
             DriverManager.registerDriver(new com.mysql.cj.jdbc.Driver());
 
-            String url  = "jdbc:mysql://localhost:3306/QL_chtienloi";
+            String url = "jdbc:mysql://localhost:3306/QL_chtienloi";
             String username = "root";
             String password = "";
 
