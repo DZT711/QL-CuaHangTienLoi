@@ -8,7 +8,26 @@ import java.sql.SQLException;
 public class JDBCUtil {
     public static Connection conn = null;
     // Connect to database
-    public static Connection getConnection() {
+    // public static Connection getConnection() {
+    //     try {
+    //         DriverManager.registerDriver(new com.mysql.cj.jdbc.Driver());
+
+    //         String url  = "jdbc:mysql://localhost:3306/QL_chtienloi";
+    //         String username = "root";
+    //         String password = "";
+
+    //         if (conn == null) {
+    //             conn = DriverManager.getConnection(url, username, password);
+    //         }
+    //         return conn;
+    //     } catch (SQLException e) {
+    //         e.printStackTrace();
+    //     }
+    //     return conn;
+    // }
+
+     public static Connection getConnection() {
+        Connection conn1 = null;
         try {
             DriverManager.registerDriver(new com.mysql.cj.jdbc.Driver());
 
@@ -16,16 +35,12 @@ public class JDBCUtil {
             String username = "root";
             String password = "";
 
-            if (conn == null) {
-                conn = DriverManager.getConnection(url, username, password);
-            }
-            return conn;
+            conn1 = DriverManager.getConnection(url, username, password);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return conn;
+        return conn1;
     }
-
     // Close connection
     public static void closeConnection(Connection conn) {
         try {
