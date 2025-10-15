@@ -8,7 +8,7 @@ import java.util.List;
 import dao.NhanVienDAO;
 import dto.NhanVienDTO;
 import main.Main;
-
+import util.tablePrinter;
 public class QuanLyNhanVien {
     public void menuQuanLyNhanVien() {
         Scanner scanner = new Scanner(System.in);
@@ -395,9 +395,9 @@ public class QuanLyNhanVien {
 
     public void xoaNhanVien() {
         Scanner sc = new Scanner(System.in);
-        System.out.println("\n╔════════════════════════════════════════════════════════════════════████████████╗");
-        System.out.println("║                              XÓA NHÂN VIÊN THEO MÃ                              ║");
-        System.out.println("╚════════════════════════════════════════════════════════════════════████████████╝");
+        System.out.println("\n╔════════════════════════════════════════════════════════════════════╗");
+        System.out.println("║                              XÓA NHÂN VIÊN THEO MÃ                     ║");
+        System.out.println("╚════════════════════════════════════════════════════════════════════╝");
 
         System.out.print("📝 Nhập mã nhân viên cần xóa: ");
         String maNV = sc.nextLine().trim();
@@ -626,9 +626,9 @@ public class QuanLyNhanVien {
 
     public void xemDanhSachNhanVien() {
         Scanner sc = new Scanner(System.in);
-        System.out.println("\n╔════════════════════════════════════════════════════════════════════████████████╗");
-        System.out.println("║                              DANH SÁCH NHÂN VIÊN                                 ║");
-        System.out.println("╚════════════════════════════════════════════════════════════════════████████████╝");
+        System.out.println("\n╔════════════════════════════════════════════════════════════════════╗");
+        System.out.println("║                        DANH SÁCH NHÂN VIÊN                        ║");
+        System.out.println("╚════════════════════════════════════════════════════════════════════╝");
 
         List<NhanVienDTO> danhSachNV = NhanVienDAO.getAllNhanVien();
 
@@ -640,36 +640,51 @@ public class QuanLyNhanVien {
         System.out.println("📊 Tổng số nhân viên: " + danhSachNV.size());
         System.out.println();
 
-        // Header bảng
-        System.out.println(
-                "┌─────┬──────────┬─────────────────────┬────────┬────────────┬─────────────────────┬──────────────┬────────┬────────────┐");
-        System.out.println(
-                "│ STT │ Mã NV    │ Họ và tên           │ Giới tính │ Ngày sinh    │ Email               │ Lương        │ Chức vụ │ Trạng thái │");
-        System.out.println(
-                "├─────┼──────────┼─────────────────────┼────────┼────────────┼─────────────────────┼──────────────┼────────┼────────────┤");
+        // // Header bảng
+        // System.out.println(
+        //         "┌─────┬──────────┬─────────────────────┬────────┬────────────┬─────────────────────┬──────────────┬────────┬────────────┐");
+        // System.out.println(
+        //         "│ STT │ Mã NV    │ Họ và tên           │ Giới tính │ Ngày sinh    │ Email               │ Lương        │ Chức vụ │ Trạng thái │");
+        // System.out.println(
+        //         "├─────┼──────────┼─────────────────────┼────────┼────────────┼─────────────────────┼──────────────┼────────┼────────────┤");
 
-        int count = 1;
+        // int count = 1;
+        // for (NhanVienDTO nv : danhSachNV) {
+        //     String stt = String.format("%3d", count);
+        //     String maNV = String.format("%-8s", nv.getMaNV());
+        //     String hoTen = String.format("%-19s",
+        //             nv.getFullName().length() > 19 ? nv.getFullName().substring(0, 16) + "..." : nv.getFullName());
+        //     String gioiTinh = String.format("%-6s", nv.getGioiTinh());
+        //     String ngaySinh = String.format("%-10s", nv.getNgaySinh() != null ? nv.getNgaySinhFormat() : "N/A");
+        //     String email = String.format("%-19s",
+        //             nv.getEmail().length() > 19 ? nv.getEmail().substring(0, 16) + "..." : nv.getEmail());
+        //     String luong = String.format("%-12s", String.format("%,d VNĐ", nv.getLuong()));
+        //     String chucVu = String.format("%-6s", nv.getChucVu());
+        //     String trangThai = String.format("%-10s", nv.getTrangThai() != null ? nv.getTrangThai() : "N/A");
+
+        //     System.out.printf("│%s│ %s │ %s │ %s │ %s │ %s │ %s │ %s │ %s │%n",
+        //             stt, maNV, hoTen, gioiTinh, ngaySinh, email, luong, chucVu, trangThai);
+        //     count++;
+        // }
+
+        // System.out.println(
+        //         "└─────┴──────────┴─────────────────────┴────────┴────────────┴─────────────────────┴──────────────┴────────┴────────────┘");
+        List<String> headers = List.of("STT", "Mã NV", "Họ và tên", "Giới tính", "Ngày sinh", "Email", "Lương", "Chức vụ", "Trạng thái");
+        List<List<String>> rows = new java.util.ArrayList<>();  
         for (NhanVienDTO nv : danhSachNV) {
-            String stt = String.format("%3d", count);
-            String maNV = String.format("%-8s", nv.getMaNV());
-            String hoTen = String.format("%-19s",
-                    nv.getFullName().length() > 19 ? nv.getFullName().substring(0, 16) + "..." : nv.getFullName());
-            String gioiTinh = String.format("%-6s", nv.getGioiTinh());
-            String ngaySinh = String.format("%-10s", nv.getNgaySinh() != null ? nv.getNgaySinhFormat() : "N/A");
-            String email = String.format("%-19s",
-                    nv.getEmail().length() > 19 ? nv.getEmail().substring(0, 16) + "..." : nv.getEmail());
-            String luong = String.format("%-12s", String.format("%,d VNĐ", nv.getLuong()));
-            String chucVu = String.format("%-6s", nv.getChucVu());
-            String trangThai = String.format("%-10s", nv.getTrangThai() != null ? nv.getTrangThai() : "N/A");
-
-            System.out.printf("│%s│ %s │ %s │ %s │ %s │ %s │ %s │ %s │ %s │%n",
-                    stt, maNV, hoTen, gioiTinh, ngaySinh, email, luong, chucVu, trangThai);
-            count++;
+            List<String> row = new java.util.ArrayList<>();
+            row.add(String.valueOf(rows.size() + 1));
+            row.add(nv.getMaNV());
+            row.add(nv.getFullName());
+            row.add(nv.getGioiTinh());
+            row.add(nv.getNgaySinh() != null ? nv.getNgaySinhFormat() : "N/A");
+            row.add(nv.getEmail());
+            row.add(String.format("%,d VNĐ", nv.getLuong()));
+            row.add(nv.getChucVu());
+            row.add(nv.getTrangThai() != null ? nv.getTrangThai() : "N/A");
+            rows.add(row);
         }
-
-        System.out.println(
-                "└─────┴──────────┴─────────────────────┴────────┴────────────┴─────────────────────┴──────────────┴────────┴────────────┘");
-
+        tablePrinter.printTable(headers, rows);
         System.out.print("\n⏸️  Nhấn Enter để tiếp tục...");
         sc.nextLine();
     }
