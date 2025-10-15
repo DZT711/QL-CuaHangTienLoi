@@ -29,7 +29,8 @@ public class TaiKhoanDAO {
                 String role = rs.getString("VaiTro");
                 String fullName = rs.getString("HoTen");
                 String maNV = rs.getString("MaNV");
-                taiKhoan = new TaiKhoanDTO(username, password, maNV, role, fullName);
+                String status = rs.getString("TrangThai");
+                taiKhoan = new TaiKhoanDTO(username, password, maNV, role, fullName, status);
             }
         } catch (SQLException e) {
             System.err.println("Lỗi khi kiểm tra tài khoản: " + e.getMessage());

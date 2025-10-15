@@ -193,7 +193,7 @@ INSERT INTO TAIKHOAN (UserName, PassWord, maNV, HoTen, VaiTro, TrangThai, Email)
 ('sonadmin', 'sonadmin', 'SonCuBe', 'Admin', 'Active', 'simpson061125@gmail.com'),
 ('an', 'an', 'ThuyAn', 'Admin', 'Active', 'an@gmail.com'),
 ('anh', 'anh', 'NgocAnh', 'NhanVien', 'Active', 'anh@gmail.com'),
-('staff', 'staff', 'Staff', 'NhanVien', 'Active', 'staff@gmail.com');
+('staff', 'staff', 'Staff', 'NhanVien', 'Inactive', 'staff@gmail.com');
 
 INSERT INTO KHACHHANG (MaKH, Ho, Ten, GioiTinh, NgaySinh, DienThoai, DiaChi, TrangThai) VALUES
 ('KH001', 'Nguyen Van', 'Nam', 'Nam', '1995-04-10', '0901234567', 'TP. Hồ Chí Minh', 'active'),

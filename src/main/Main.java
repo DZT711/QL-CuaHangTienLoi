@@ -27,7 +27,7 @@ public class Main {
             System.out.println("║                                                          ║");
             System.out.println("║            Chào mừng đến với hệ thống quản lý            ║");
             System.out.println("║                                                          ║");
-            System.out.println("║                    Cửa hàng tiện lợi                     ║");
+            System.out.println("║                🏪  Cửa hàng tiện lợi  🏪                 ║");
             System.out.println("║                                                          ║");
             System.out.println("║                                                          ║");
             System.out.println("╚══════════════════════════════════════════════════════════╝");
@@ -58,9 +58,9 @@ public class Main {
                     System.out.println("✗ Không tìm thấy thông tin nhân viên cho tài khoản này.");
                     continue;
                 }
-                if ("inactive".equalsIgnoreCase(nvLogin.getTrangThai())) {
+                if ("inactive".equalsIgnoreCase(nvLogin.getTrangThai()) || "inactive".equalsIgnoreCase(taiKhoan.getStatus())) {
                     System.out.println(
-                            "✗ Tài khoản thuộc nhân viên đã bị vô hiệu hóa (inactive). Vui lòng liên hệ quản trị.");
+                            "✗ Tài khoản của bạn đã bị vô hiệu hóa . Vui lòng liên hệ với người quản trị để biết thêm thông tin.");
                     continue;
                 }
                 CURRENT_ACCOUNT = taiKhoan;
@@ -170,12 +170,10 @@ public class Main {
                     break;
                 case 0:
                     System.out.println("Đăng xuất thành công!");
-                    System.out
-                            .println("╔════════════════════════════════════════════════════════════════════════════╗");
-                    System.out
-                            .println("║                CẢM ƠN BẠN ĐÃ SỬ DỤNG PHẦN MỀM, HẸN GẶP LẠI!                ║");
-                    System.out
-                            .println("╚════════════════════════════════════════════════════════════════════════════╝");
+                    
+                    System.out.println("╔═══════════════════════════════════════════════════╗");
+                    System.out.println("║  CẢM ƠN BẠN ĐÃ SỬ DỤNG PHẦN MỀM, CHÀO TẠM BIỆT !  ║");
+                    System.out.println("╚═══════════════════════════════════════════════════╝");
                     return; // quay ra form login
                 default:
                     System.out.println("Lựa chọn không hợp lệ.");
@@ -194,16 +192,20 @@ public class Main {
             int padding = (totalWidth - title.length()) / 2;
             String paddedTitle = String.format("%" + padding + "s%s%" + padding + "s", "", title, "");
 
-            System.out.println("\n    ──────────────────────────────────────────────────────────────");
-            System.out.println("    ║" + paddedTitle + " ");
+            System.out.println("\n    ─────────────────────────────────────────────────────────────");
+            System.out.println("    │" + paddedTitle.toUpperCase() + " ");
             System.out.println("    ┌────────────────────────────────────────────────────────────┐");
+            System.out.println("    │                                                            │");
+            System.out.println("    ├─ CHỨC NĂNG CHÍNH ──────────────────────────────────────────┤");
             System.out.println("    │                                                            │");
             System.out.println("    │  [1] ➜ Bán hàng                                            │");
             System.out.println("    │  [2] ➜ Xem sản phẩm                                        │");
             System.out.println("    │  [3] ➜ Quản lý khách hàng (cơ bản)                         │");
             System.out.println("    │  [4] ➜ Xem hóa đơn đã lập                                  │");
             System.out.println("    │                                                            │");
-            System.out.println("    │  [0] ➜ Đăng xuất                                           │");
+            System.out.println("    ├─ HỆ THỐNG ─────────────────────────────────────────────────┤");
+            System.out.println("    │                                                            │");
+            System.out.println("    │  [0] ✗ Đăng xuất                                           │");
             System.out.println("    │                                                            │");
             System.out.println("    └────────────────────────────────────────────────────────────┘");
 
