@@ -58,9 +58,9 @@ public class Main {
                     System.out.println("✗ Không tìm thấy thông tin nhân viên cho tài khoản này.");
                     continue;
                 }
-                if ("inactive".equalsIgnoreCase(nvLogin.getTrangThai())) {
+                if ("inactive".equalsIgnoreCase(nvLogin.getTrangThai()) || "inactive".equalsIgnoreCase(taiKhoan.getStatus())) {
                     System.out.println(
-                            "✗ Tài khoản thuộc nhân viên đã bị vô hiệu hóa . Vui lòng liên hệ với người quản trị để biết thêm thông tin.");
+                            "✗ Tài khoản của bạn đã bị vô hiệu hóa . Vui lòng liên hệ với người quản trị để biết thêm thông tin.");
                     continue;
                 }
                 CURRENT_ACCOUNT = taiKhoan;
