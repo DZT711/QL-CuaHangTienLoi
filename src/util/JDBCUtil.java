@@ -7,8 +7,10 @@ import java.sql.SQLException;
 
 public class JDBCUtil {
     // Connect to database
+
     public static Connection getConnection() {
         Connection conn = null;
+
         try {
             DriverManager.registerDriver(new com.mysql.cj.jdbc.Driver());
 

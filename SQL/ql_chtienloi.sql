@@ -106,14 +106,12 @@ CREATE TABLE NHANVIEN (
   TrangThai ENUM('active', 'inactive') DEFAULT 'active'
 );
 
-INSERT INTO NHANVIEN (MaNV, Ho, Ten, GioiTinh, NgaySinh, DiaChi, Email, Luong, ChucVu, TrangThai) VALUES
-('NV001', 'Truong Van', 'Tuan', 'Nam', '1999-01-01', 'Quảng Ngãi', 'vantuanw911@gmail.com', 15000000, 'QL', 'active'),
-('NV002', 'Nguyen Si', 'Huy', 'Nam', '2000-03-05', 'TP.HCM', 'nguyensihuynsh711@gmail.com', 14000000, 'QL', 'active'),
-('NV003', 'Nguyen Van', 'Cuong', 'Nam', '1998-07-09', 'Biên Hòa', 'vancuonghp9014@gmail.com', 13500000, 'QL', 'active'),
-('NV004', 'Dang Thanh', 'Son', 'Nam', '2001-11-25', 'Đà Lạt', 'simpson061125@gmail.com', 13000000, 'QL', 'active'),
-('NV005', 'Nguyen', 'Staff', 'Nam', '2002-04-20', 'Cần Thơ', 'staff@gmail.com', 10000000, 'NV', 'active'),
-('NV404', '...', 'Thúy An', 'Nu', '2000-01-01', '...', 'an@example.com', 10000000, 'NV', 'active'),
-('NV006', '...', 'Minh Ánh', 'Nu', '2000-05-05', '...', 'anh@example.com', 10000000, 'NV', 'active');
+INSERT INTO TAIKHOAN (UserName, PassWord, HoTen, MaNV, VaiTro, TrangThai, Email) VALUES
+('tuanadmin', 'tuanadmin', 'TuanRemix', 'NV001', 'Admin', 'Active', 'vantuanw911@gmail.com'),
+('huyadmin', 'huyadmin', 'HuyDapZai', 'NV002', 'Admin', 'Active', 'nguyensihuynsh711@gmail.com'),
+('cuongadmin', 'cuongadmin', 'CuongHaySuy', 'NV003', 'Admin', 'Active', 'vancuonghp9014@gmail.com'),
+('sonadmin', 'sonadmin', 'SonCuBe', 'NV004', 'Admin', 'Active', 'simpson061125@gmail.com'),
+('staff', 'staff', 'Staff', 'NV005', 'NhanVien', 'Active', 'staff@gmail.com');
 
 -- Bảng KHACHHANG
 CREATE TABLE KHACHHANG (
@@ -188,7 +186,7 @@ CREATE TABLE TAIKHOAN (
   CONSTRAINT fk_taikhoan_nv FOREIGN KEY (MaNV) REFERENCES NHANVIEN (MaNV)
 );
 
-INSERT INTO TAIKHOAN (UserName, PassWord, HoTen, VaiTro, TrangThai, Email) VALUES
+INSERT INTO TAIKHOAN (UserName, PassWord, maNV, HoTen, VaiTro, TrangThai, Email) VALUES
 ('tuanadmin', 'tuanadmin', 'TuanRemix', 'Admin', 'Active', 'vantuanw911@gmail.com'),
 ('huyadmin', 'huyadmin', 'HuyDapZai', 'Admin', 'Active', 'nguyensihuynsh711@gmail.com'),
 ('cuongadmin', 'cuongadmin', 'CuongHaySuy', 'Admin', 'Active', 'vancuonghp9014@gmail.com'),
