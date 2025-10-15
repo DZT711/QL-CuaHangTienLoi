@@ -1,6 +1,4 @@
 CREATE DATABASE IF NOT EXISTS QL_chtienloi;
-ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 USE QL_chtienloi;
 
 -- Bảng LOAI
@@ -105,13 +103,15 @@ CREATE TABLE NHANVIEN (
   ChucVu ENUM('QL', 'NV') NOT NULL,
   TrangThai ENUM('active', 'inactive') DEFAULT 'active'
 );
-
-INSERT INTO TAIKHOAN (UserName, PassWord, HoTen, MaNV, VaiTro, TrangThai, Email) VALUES
-('tuanadmin', 'tuanadmin', 'TuanRemix', 'NV001', 'Admin', 'Active', 'vantuanw911@gmail.com'),
-('huyadmin', 'huyadmin', 'HuyDapZai', 'NV002', 'Admin', 'Active', 'nguyensihuynsh711@gmail.com'),
-('cuongadmin', 'cuongadmin', 'CuongHaySuy', 'NV003', 'Admin', 'Active', 'vancuonghp9014@gmail.com'),
-('sonadmin', 'sonadmin', 'SonCuBe', 'NV004', 'Admin', 'Active', 'simpson061125@gmail.com'),
-('staff', 'staff', 'Staff', 'NV005', 'NhanVien', 'Active', 'staff@gmail.com');
+INSERT INTO NHANVIEN (MaNV, Ho, Ten, GioiTinh, NgaySinh, DiaChi, Email, Luong, ChucVu, TrangThai) VALUES
+('NV001', 'Truong Van', 'Tuan', 'Nam', '1999-01-01', 'Quảng Ngãi', 'vantuanw911@gmail.com', 15000000, 'QL', 'active'),
+('NV002', 'Nguyen Si', 'Huy', 'Nam', '2000-03-05', 'TP.HCM', 'nguyensihuynsh711@gmail.com', 14000000, 'QL', 'active'),
+('NV003', 'Nguyen Van', 'Cuong', 'Nam', '1998-07-09', 'Biên Hòa', 'vancuonghp9014@gmail.com', 13500000, 'QL', 'active'),
+('NV004', 'Dang Thanh', 'Son', 'Nam', '2001-11-25', 'Đà Lạt', 'simpson061125@gmail.com', 13000000, 'QL', 'active'),
+('NV005', 'Nguyen', 'Staff', 'Nam', '2002-04-20', 'Cần Thơ', 'staff@gmail.com', 10000000, 'NV', 'active'),
+('NV404', '...', 'Thúy An', 'Nu', '2000-01-01', '...', 'an@example.com', 10000000, 'NV', 'active'),
+('NV006', '...', 'Minh Ánh', 'Nu', '2000-05-05', '...', 'anh@example.com', 10000000, 'NV', 'active'),
+('NV007', '...', 'Quốc Bình', 'Nam', '1999-09-09', '...', 'binh@example.com', 10000000, 'NV', 'inactive');
 
 -- Bảng KHACHHANG
 CREATE TABLE KHACHHANG (
@@ -185,15 +185,14 @@ CREATE TABLE TAIKHOAN (
   Email VARCHAR(50) DEFAULT NULL,
   CONSTRAINT fk_taikhoan_nv FOREIGN KEY (MaNV) REFERENCES NHANVIEN (MaNV)
 );
-
-INSERT INTO TAIKHOAN (UserName, PassWord, maNV, HoTen, VaiTro, TrangThai, Email) VALUES
-('tuanadmin', 'tuanadmin', 'TuanRemix', 'Admin', 'Active', 'vantuanw911@gmail.com'),
-('huyadmin', 'huyadmin', 'HuyDapZai', 'Admin', 'Active', 'nguyensihuynsh711@gmail.com'),
-('cuongadmin', 'cuongadmin', 'CuongHaySuy', 'Admin', 'Active', 'vancuonghp9014@gmail.com'),
-('sonadmin', 'sonadmin', 'SonCuBe', 'Admin', 'Active', 'simpson061125@gmail.com'),
-('an', 'an', 'ThuyAn', 'Admin', 'Active', 'an@gmail.com'),
-('anh', 'anh', 'NgocAnh', 'NhanVien', 'Active', 'anh@gmail.com'),
-('staff', 'staff', 'Staff', 'NhanVien', 'Inactive', 'staff@gmail.com');
+INSERT INTO TAIKHOAN (UserName, PassWord, HoTen, MaNV, VaiTro, TrangThai, Email) VALUES
+('tuanadmin', 'tuanadmin', 'TuanRemix', 'NV001', 'Admin', 'Active', 'vantuanw911@gmail.com'),
+('huyadmin', 'huyadmin', 'HuyDapZai', 'NV002', 'Admin', 'Active', 'nguyensihuynsh711@gmail.com'),
+('cuongadmin', 'cuongadmin', 'CuongHaySuy', 'NV003', 'Admin', 'Active', 'vancuonghp9014@gmail.com'),
+('sonadmin', 'sonadmin', 'SonCuBe', 'NV004', 'Admin', 'Active', 'simpson061125@gmail.com'),
+('an', 'an', 'Thúy An', 'NV404', 'Admin', 'Active', 'an@example.com'),
+('anh', 'anh', 'Minh Ánh', 'NV006', 'NhanVien', 'Active', 'anh@example.com'),
+('binh', 'binh', 'Quốc Bình', 'NV007', 'NhanVien', 'Inactive', 'binh@example.com');
 
 INSERT INTO KHACHHANG (MaKH, Ho, Ten, GioiTinh, NgaySinh, DienThoai, DiaChi, TrangThai) VALUES
 ('KH001', 'Nguyen Van', 'Nam', 'Nam', '1995-04-10', '0901234567', 'TP. Hồ Chí Minh', 'active'),
