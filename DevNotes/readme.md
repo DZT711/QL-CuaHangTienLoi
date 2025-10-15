@@ -51,6 +51,13 @@ Exception in thread "main" java.util.NoSuchElementException
 - **Thêm khả năng đổi trạng thái sản phẩm từ `inactive -> active`** .  ⏳
 - **Thống nhất 1 ngôn ngữ cho data** vd loại bỏ `active/inactive` thành `có sẵn/hết hàng/vô hiệu hóa` .  ⏳
 - **Thống nhất 1 giao diện cho các kết quả tìm kiếm khách hàng** .  ⏳
+- **Lỗi lặp vô tận khi nhà cung cấp không tồn tại trong khi tạo phiếu nhập không thể thoát dù nhập n** .  ⏳
+- **Lỗi khi thêm chi tiết phiếu nhập:** .
+
+```cmd
+Cannot add or update a child row: a foreign key constraint fails (`ql_chtienloi`.`chitietphieunhap`, CONSTRAINT `fk_ctpn_phieu` FOREIGN KEY (`MaPhieu`) REFERENCES `phieunhap` (`MaPhieu`) ON DELETE CASCADE)
+```
+
 - **Thêm khả năng Handling Transactions** dùng `commit()` `rollback()` giúp tránh lỗi cho DAO .  ⏳
 
 ---
