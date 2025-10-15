@@ -18,12 +18,13 @@ public class JDBCUtil {
             String username = "root";
             String password = "";
 
-            conn1 = DriverManager.getConnection(url, username, password);
+            conn = DriverManager.getConnection(url, username, password);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return conn1;
+        return conn;
     }
+
     // Close connection
     public static void closeConnection(Connection conn) {
         try {

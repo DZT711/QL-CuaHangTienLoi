@@ -32,7 +32,7 @@ public class QuanLyNhapHang {
             System.out.println("▒ [2] ➜ Tìm kiếm phiếu nhập                                                    ▒");
             System.out.println("▒ [3] ➜ Chỉnh sửa phiếu nhập                                                   ▒");
             System.out.println("▒ [4] ➜ Thống kê phiếu nhập                                                    ▒");
-            System.out.println("▒ [2] ➜ Xem chi tiết phiếu nhập                                                ▒");
+            System.out.println("▒ [5] ➜ Xem chi tiết phiếu nhập                                                ▒");
             System.out.println("▒ [6] ➜ Quản lý nhà cung cấp                                                   ▒");
             System.out.println("▒ [7] ➜ Thống kê nhập hàng                                                     ▒");
             System.out.println("▒ [8] ➜ Xuất báo cáo nhập hàng                                                 ▒");
@@ -150,6 +150,9 @@ public class QuanLyNhapHang {
                 default:
                     System.out.println("⚠️ Lựa chọn không hợp lệ!");
                     break;
+                case 0: 
+                    System.out.println("Quay lại menu chính thành công.");
+                    return;
             }
         }
     }
