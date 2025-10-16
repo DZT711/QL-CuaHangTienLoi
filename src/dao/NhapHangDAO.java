@@ -354,4 +354,45 @@ public class NhapHangDAO {
         }
         return result;
     }
+
+    public static List<Map<String, Object>> thongKePhieuNhapTheoSanPham(LocalDate fromDate, LocalDate toDate) {
+        String query = """
+            SELECT sp.MaSP, sp.TenSP,
+            COUNT (DISTINCT ctpn.MaPhieu) AS soPhieu,
+            SUM (ctpn.SoLuong) AS tongSoLuong,
+            SUM (ctpn.ThanhTien) AS tongGiaTri
+            FROM CHITIETPHIEUNHAP ctpn
+            JOIN SANPHAM sp ON ctpn.MaSP = sp.MaSP
+            WHERE pn.NgayLapPhieu >= ? AND pn.NgayLapPhieu < ?
+            GROUP BY sp.MaSP, sp.TenSP
+            ORDER BY tongGiaTri DESC;
+        """;
+
+        List<Map<String,Object>> result = new ArrayList<>();
+
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            LocalDateTime fromDateTime = fromDate.atStartOfDay();
+            LocalDateTime toDateTime = toDate.plusDays(1).atStartOfDay();
+
+            stmt.setTimestamp(1, Timestamp.valueOf(fromDateTime));
+            stmt.setTimestamp(2, Timestamp.valueOf(toDateTime));
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Map<String, Object> row = new HashMap<>();
+                row.put("MaSP", rs.getString("MaSP"));
+                row.put("TenSP", rs.getString("TenSP"));
+                row.put("SoPhieu", rs.getInt("soPhieu"));
+                row.put("TongSanPham", rs.getInt("tongSoLuong"));
+                row.put("TongGiaTri", rs.getLong("tongGiaTri"));
+                result.add(row);
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi thống kê phiếu nhập theo sản phẩm: " + e.getMessage());
+        }
+        return result;
+    }
 }
