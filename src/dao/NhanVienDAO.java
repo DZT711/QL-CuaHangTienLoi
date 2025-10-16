@@ -227,14 +227,6 @@ public class NhanVienDAO {
 
     }
 
-    // tính độ dài và khung danh sách
-    private static String repeat(char ch, int n) {
-        StringBuilder sb = new StringBuilder(n);
-        for (int i = 0; i < n; i++)
-            sb.append(ch);
-        return sb.toString();
-    }
-
     // Lấy toàn bộ dữ liệu nhân viên
     public static List<NhanVienDTO> getAllNhanVien() {
         String query = "SELECT nv.MaNV, nv.Ho, nv.Ten, nv.GioiTinh, nv.NgaySinh, nv.DiaChi, nv.Email, nv.Luong, nv.ChucVu, nv.TrangThai "
@@ -271,66 +263,6 @@ public class NhanVienDAO {
         return list;
     }
 
-    // In toàn bộ danh sách nhân viên
-    public static void inDanhSachNhanVien() {
-        List<NhanVienDTO> list = getAllNhanVien();
-        final int innerWidth = 126; // điều chỉnh nếu bạn thay đổi độ rộng cột
-        String top = "╔" + repeat('═', innerWidth) + "╗";
-        String sep = "╟" + repeat('─', innerWidth) + "╢";
-        String bottom = "╚" + repeat('═', innerWidth) + "╝";
-
-        System.out.println(top);
-        System.out.printf("║ %-8s │ %-22s │ %-6s │ %-12s │ %-22s │ %-25s │ %-10s │ %-6s ║%n",
-                "MaNV", "Họ tên", "GT", "Ngày sinh", "Địa chỉ", "Email", "Lương", "Chức");
-        System.out.println(sep);
-
-        if (list == null || list.isEmpty()) {
-            String msg = "⚠️  Không có nhân viên nào trong hệ thống.";
-            System.out.printf("║ %-" + (innerWidth - 1) + "s║%n", msg);
-        } else {
-            for (NhanVienDTO nv : list) {
-                String fullName = nv.getFullName();
-                String ngaySinh = nv.getNgaySinh() != null ? nv.getNgaySinhFormat() : "";
-                System.out.printf("║ %-8s │ %-22s │ %-6s │ %-12s │ %-22s │ %-25s │ %-10d │ %-6s ║%n",
-                        nv.getMaNV(),
-                        fullName,
-                        nv.getGioiTinh(),
-                        ngaySinh,
-                        nv.getDiaChi(),
-                        nv.getEmail(),
-                        nv.getLuong(),
-                        nv.getChucVu());
-            }
-        }
-        System.out.println(bottom);
-    }
-
-    // In thông tin một nhân viên
-    public static void inThongTinNhanVien(NhanVienDTO nv) {
-        if (nv == null) {
-            System.out.println("❌ Không có thông tin nhân viên để hiển thị!");
-            return;
-        }
-
-        System.out.println("\n╔════════════════════════════════════════════════════════════════════════════════════╗");
-        System.out.println("║                              THÔNG TIN NHÂN VIÊN                                  ║");
-        System.out.println("╚════════════════════════════════════════════════════════════════════════════════════╝");
-
-        System.out.println("┌─────────────────────────────────────────────────────────────────────────────────┐");
-        System.out.println("│ 📋 Mã nhân viên    │ " + String.format("%-45s", nv.getMaNV()) + " │");
-        System.out.println("│ 👤 Họ và tên       │ " + String.format("%-45s", nv.getFullName()) + " │");
-        System.out.println("│ ⚧ Giới tính       │ " + String.format("%-45s", nv.getGioiTinh()) + " │");
-        System.out.println("│ 🎂 Ngày sinh       │ " + String.format("%-45s",
-                nv.getNgaySinh() != null ? nv.getNgaySinhFormat() : "Không có") + " │");
-        System.out.println("│ 🏠 Địa chỉ         │ " + String.format("%-45s",
-                nv.getDiaChi() != null ? nv.getDiaChi() : "Không có") + " │");
-        System.out.println("│ 📧 Email           │ " + String.format("%-45s", nv.getEmail()) + " │");
-        System.out.println("│ 💰 Lương           │ " + String.format("%,d VNĐ", nv.getLuong())
-                + String.format("%" + (45 - String.format("%,d VNĐ", nv.getLuong()).length()) + "s", "") + " │");
-        System.out.println("│ 💼 Chức vụ         │ " + String.format("%-45s", nv.getChucVu()) + " │");
-        System.out.println("│ 🚦 Trạng thái      │ "
-                + String.format("%-45s", nv.getTrangThai() != null ? nv.getTrangThai() : "Không có") + " │");
-        System.out.println("└─────────────────────────────────────────────────────────────────────────────────┘");
-    }
+    // IN thống kê nhân viên theo
 
 }

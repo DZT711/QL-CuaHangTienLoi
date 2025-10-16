@@ -17,3 +17,5 @@
 [2025-10-15 09:53:15] actor=sonadmin , target=NV777 , old= inactive , new =active ,lí do Khác
 [2025-10-15 09:53:48] actor=sonadmin , target=NV097 , old= active , new =inactive ,lí do Tái cơ cấu/bố trí nhân sự, tạm dừng công việc
 [2025-10-15 09:56:55] actor=sonadmin , target=NV097 , old= inactive , new =active ,lí do Khác
+[2025-10-16 15:57:45] actor=sonadmin , target=NV097 , old= active , new =active ,lí do 
+[2025-10-16 15:58:11] actor=sonadmin , target=NV097 , old= active , new =active ,lí do 
