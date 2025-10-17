@@ -114,6 +114,7 @@ public class QuanLyNhapHang {
                             System.out.println("2. Thống kê phiếu nhập theo nhà cung cấp");
                             System.out.println("3. Thống kê phiếu nhập theo nhân viên nhập");
                             System.out.println("4. Thống kê phiếu nhập theo sản phẩm nhập");
+                            System.out.println("5. Thống kê phiếu nhập theo tháng / năm");
                             System.out.println("0. Thoát");
                             System.out.print("\n💡 Nhập lựa chọn của bạn: ");
 
@@ -136,7 +137,7 @@ public class QuanLyNhapHang {
                                     thongKePhieuNhapTheoNV();
                                     break;
                                 case 4:
-                                    // thongKePhieuNhapTheoSanPham();
+                                     thongKePhieuNhapTheoSanPham();
                                     break;
                                 default:
                                     System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
@@ -150,8 +151,8 @@ public class QuanLyNhapHang {
                     break;
                 // case 5: timKiem(); break;
                 case 6: 
-                    QuanLyNhaCungCap qlncc = new QuanLyNhaCungCap();
-                    qlncc.menuQuanLyNhaCungCap();
+//                    QuanLyNhaCungCap qlncc = new QuanLyNhaCungCap();
+//                    qlncc.menuQuanLyNhaCungCap();
                     break;
                 // case 7: thongKePhieuNhap(); break;
                 // case 8: xuatBaoCao(); break;
@@ -780,5 +781,55 @@ public class QuanLyNhapHang {
             }
         }
     }
-    
+
+    public void thongKePhieuNhapTheoThang() {
+        Scanner scanner = new Scanner(System.in);
+        int year = 0;
+
+        while (true) {
+            try {
+                System.out.println("Nhập năm cần thống kê (yyyy): ");
+                year = Integer.parseInt(scanner.nextLine().trim());
+                if (year < 2000 || year > LocalDate.now().getYear()) {
+                    System.out.println("Năm không hợp lệ, vui lòng nhập lại.");
+                    continue;
+                }
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Năm không hợp lệ, vui lòng nhập lại.");
+                scanner.nextLine();
+            }
+        }
+
+        List<Map<String, Object>> result = NhapHangDAO.thongKePhieuNhapTheoNam(year);
+        System.out.println("\n=== THỐNG KÊ PHIẾU NHẬP THEO THÁNG NĂM " + year + " ===");
+        System.out.println("+-----------+------------+------------------+------------------+");
+        System.out.printf("| %-9s | %-10s | %-16s | %-16s |%n",
+                "Tháng", "Số Phiếu", "Tổng Số Lượng", "Tổng Giá Trị");
+        System.out.println("+-----------+------------+------------------+------------------+");
+
+        int tongPhieu = 0;
+        long tongSoLuong = 0;
+        long tongGiaTri = 0;
+
+        for (Map<String, Object> row : result) {
+            int thang = (int) row.get("Thang");
+            int soPhieu = (int) row.get("SoPhieu");
+            long soLuong = (long) row.get("TongSoLuong");
+            long giaTri = (long) row.get("TongGiaTri");
+
+            tongPhieu += soPhieu;
+            tongSoLuong += soLuong;
+            tongGiaTri += giaTri;
+
+
+            System.out.printf("| %-9d | %-10d | %-16d | %-16s |%n",
+                    thang, soPhieu, tongSoLuong, FormatUtil.formatVND(giaTri));
+        }
+
+        System.out.println("+-----------+------------+------------------+------------------+");
+        System.out.printf("| %-9s | %-10d | %-16d | %-16s |%n",
+                "TỔNG CỘNG", tongPhieu, tongSoLuong, FormatUtil.formatVND(tongGiaTri));
+        System.out.println("+-----------+------------+------------------+------------------+");
+    }
 }

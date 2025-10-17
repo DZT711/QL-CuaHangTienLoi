@@ -395,4 +395,45 @@ public class NhapHangDAO {
         }
         return result;
     }
+
+    public static List<Map<String, Object>> thongKePhieuNhapTheoNam (int year) {
+        String query = """
+            SELECT 
+                MONTH(pn.NgayLapPhieu) AS Thang,
+                COUNT(DISTINCT pn.MaPhieu) AS SoPhieu,
+                SUM (ctpn.SoLuong) AS TongSanPham,
+                SUM (pn.TongTien) AS TongGiaTri
+            FROM PHIEUNHAP pn
+            JOIN (
+                SELECT MaPhieu, SUM(SoLuong) AS TongSoLuong
+                FROM CHITIETPHIEUNHAP
+                GROUP BY MaPhieu
+            ) ctpn ON pn.MaPhieu = ctpn.MaPhieu
+            WHERE YEAR(pn.NgayLapPhieu) = ?
+            GROUP BY MONTH(pn.NgayLapPhieu)
+            ORDER BY Thang ASC;
+        """;
+
+        List<Map<String,Object>> result = new ArrayList<>();
+
+        try (Connection conn = JDBCUtil.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, year);
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Map<String, Object> row = new HashMap<>();
+                row.put("Thang", rs.getInt("Thang"));
+                row.put("SoPhieu", rs.getInt("SoPhieu"));
+                row.put("TongSanPham", rs.getInt("TongSanPham"));
+                row.put("TongGiaTri", rs.getLong("TongGiaTri"));
+                result.add(row);
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi thống kê phiếu nhập theo năm: " + e.getMessage());
+        }
+        return result;
+    }
 }
