@@ -19,3 +19,6 @@
 [2025-10-15 09:56:55] actor=sonadmin , target=NV097 , old= inactive , new =active ,lí do Khác
 [2025-10-16 15:57:45] actor=sonadmin , target=NV097 , old= active , new =active ,lí do 
 [2025-10-16 15:58:11] actor=sonadmin , target=NV097 , old= active , new =active ,lí do 
+[2025-10-17 09:58:44] actor=an , target=NV097 , old= active , new =inactive ,lí do Tạm nghỉ dài hạn (thai sản/ốm đau/cá nhân)
+[2025-10-17 09:58:53] NOTICE: actor=an cố gắng xóa target=NV097 nhưng trạng thái hiện tại=inactive , lí do Tạm nghỉ dài hạn (thai sản/ốm đau/cá nhân)
+[2025-10-17 09:59:35] actor=an , target=NV097 , old= inactive , new =active ,lí do Hết thời gian tạm đình chỉ/kỷ luật

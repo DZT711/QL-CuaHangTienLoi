@@ -12,6 +12,8 @@ import util.tablePrinter;
 
 //========= MENU QL NHÂN VIÊN ======= 
 public class QuanLyNhanVien {
+    private static final Scanner STDIN = new Scanner(System.in);
+
     public void menuQuanLyNhanVien() {
         Scanner scanner = new Scanner(System.in);
 
@@ -269,7 +271,7 @@ public class QuanLyNhanVien {
 
                     // Hiển thị thông tin hiện tại
                     System.out.println("\n--- THÔNG TIN HIỆN TẠI ---");
-                    tablePrinter.inThongTinNhanVienChiTiet(nvCanSua);
+                    inThongTinNhanVienChiTiet(nvCanSua);
 
                     System.out.println("\n--- NHẬP THÔNG TIN MỚI (Enter để giữ nguyên) ---");
 
@@ -420,7 +422,7 @@ public class QuanLyNhanVien {
 
         // Hiển thị thông tin nhân viên cần xóa
         System.out.println("\n--- THÔNG TIN NHÂN VIÊN CẦN XÓA ---");
-        tablePrinter.inThongTinNhanVienChiTiet(nv);
+        inThongTinNhanVienChiTiet(nv);
 
         System.out.print("\n⚠️  Bạn có chắc chắn muốn xóa nhân viên này? (y/n): ");
         String confirm = sc.nextLine().trim().toLowerCase();
@@ -525,7 +527,7 @@ public class QuanLyNhanVien {
             return;
         }
 
-        tablePrinter.inThongTinNhanVienChiTiet(nv);
+        inThongTinNhanVienChiTiet(nv);
 
         System.out.print("\n⏸️  Nhấn Enter để tiếp tục...");
         sc.nextLine();
@@ -563,7 +565,7 @@ public class QuanLyNhanVien {
             // Chỉ có 1 kết quả - hiển thị bình thường
             System.out.println("🔍 Tìm thấy 1 nhân viên với từ khóa: \"" + tuKhoa + "\"");
             System.out.println();
-            tablePrinter.inThongTinNhanVienChiTiet(results.get(0));
+            inThongTinNhanVienChiTiet(results.get(0));
         } else {
             // Có nhiều kết quả - tự động chuyển sang tìm kiếm nâng cao
             System.out
@@ -572,10 +574,10 @@ public class QuanLyNhanVien {
             System.out.println();
 
             // Hiển thị bảng tóm tắt và cho phép chọn
-            NhanVienDTO selected = tablePrinter.hienThiBangTomTatVaChon(results);
+            NhanVienDTO selected = hienThiBangTomTatVaChon(results);
             if (selected != null) {
                 System.out.println("\n--- THÔNG TIN CHI TIẾT ---");
-                tablePrinter.inThongTinNhanVienChiTiet(selected);
+                inThongTinNhanVienChiTiet(selected);
             }
         }
 
@@ -660,6 +662,111 @@ public class QuanLyNhanVien {
         tablePrinter.printTable(headers, rows);
         System.out.print("\n⏸️  Nhấn Enter để tiếp tục...");
         sc.nextLine();
+    }
+
+    // ========= HIỂN THỊ THÔNG TIN CHI TIẾT NHÂN VIÊN =======
+    /**
+     * In chi tiết đầy đủ một nhân viên theo định dạng đẹp.
+     */
+    public static void inThongTinNhanVienChiTiet(NhanVienDTO nv) {
+        if (nv == null) {
+            System.out.println("❌ Nhân viên không tồn tại!");
+            return;
+        }
+        int contentWidth = 60;
+        String maNV = nv.getMaNV();
+        String hoTen = nv.getFullName();
+        String gioiTinh = nv.getGioiTinh();
+        String ngaySinh = nv.getNgaySinh() != null ? nv.getNgaySinhFormat() : "Không có";
+        String diaChi = nv.getDiaChi() != null ? nv.getDiaChi() : "Không có";
+        String email = nv.getEmail();
+        String luong = String.format("%,d VNĐ", nv.getLuong());
+        String chucVu = nv.getChucVu();
+        String trangThai = nv.getTrangThai() != null ? nv.getTrangThai() : "Không có";
+
+        System.out.println("\n╔════════════════════════════════════════════════════════════════════════════════════╗");
+        System.out.println("║                                 THÔNG TIN NHÂN VIÊN                                ║");
+        System.out.println("╚════════════════════════════════════════════════════════════════════════════════════╝");
+
+        System.out.println("┌──────────────────────────────────────────────────────────────────────────────────┐");
+        System.out.println("│ 📋 Mã nhân viên   │ " + String.format("%-" + contentWidth + "s", maNV) + " │");
+        System.out.println("│ 👤 Họ và tên      │ " + String.format("%-" + contentWidth + "s", hoTen) + " │");
+        System.out.println("│ ⚧ Giới tính       │ " + String.format("%-" + contentWidth + "s", gioiTinh) + " │");
+        System.out.println("│ 🎂 Ngày sinh      │ " + String.format("%-" + contentWidth + "s", ngaySinh) + " │");
+        System.out.println("│ 🏠 Địa chỉ        │ " + String.format("%-" + contentWidth + "s", diaChi) + " │");
+        System.out.println("│ 📧 Email          │ " + String.format("%-" + contentWidth + "s", email) + " │");
+        System.out.println("│ 💰 Lương          │ " + String.format("%-" + contentWidth + "s", luong) + " │");
+        System.out.println("│ 💼 Chức vụ        │ " + String.format("%-" + contentWidth + "s", chucVu) + " │");
+        System.out.println("│ 🚦 Trạng thái     │ " + String.format("%-" + contentWidth + "s", trangThai) + " │");
+        System.out.println("└──────────────────────────────────────────────────────────────────────────────────┘");
+    }
+
+    /**
+     * In bảng tóm tắt danh sách nhân viên (STT, Mã, Họ tên, Giới tính, Chức vụ)
+     */
+    // ========= HIỂN THỊ LỰA CHỌN NHÂN VIÊN TỪ TÌM KIẾM NV BẰNG TÊN =======
+    public static void inBangTomTatNhanVien(List<NhanVienDTO> results) {
+        if (results == null || results.isEmpty()) {
+            System.out.println("❌ Không có nhân viên để hiển thị!");
+            return;
+        }
+
+        System.out.println("┌─────┬──────────┬────────────────────────────────────────┬───────────┬─────────┐");
+        System.out.println("│ STT │ Mã NV    │ Họ và tên                              │ Giới tính │ Chức vụ │");
+        System.out.println("├─────┼──────────┼────────────────────────────────────────┼───────────┼─────────┤");
+
+        for (int i = 0; i < results.size(); i++) {
+            NhanVienDTO nv = results.get(i);
+
+            String stt = String.format(" %-3s ", i + 1);
+            String maNV = String.format(" %-8s ", nv.getMaNV());
+            String gioiTinh = String.format(" %-9s ", nv.getGioiTinh());
+            String chucVu = String.format(" %-7s ", nv.getChucVu());
+
+            String fullName = nv.getFullName();
+
+            String hoTenFormatted = fullName.length() > 38
+                    ? fullName.substring(0, 35) + "..."
+                    : fullName;
+
+            String hoTen = String.format(" %-38s ", hoTenFormatted);
+
+            System.out.printf("│%s│%s│%s│%s│%s│%n",
+                    stt, maNV, hoTen, gioiTinh, chucVu);
+        }
+
+        System.out.println("└─────┴──────────┴────────────────────────────────────────┴───────────┴─────────┘");
+    }
+
+    /**
+     * Hiển thị bảng tóm tắt và cho phép người dùng chọn 1 nhân viên.
+     * Trả về nhân viên đã chọn hoặc null nếu hủy/chọn sai.
+     */
+    public static NhanVienDTO hienThiBangTomTatVaChon(List<NhanVienDTO> results) {
+        if (results == null || results.isEmpty()) {
+            System.out.println("❌ Không có nhân viên để chọn!");
+            return null;
+        }
+
+        inBangTomTatNhanVien(results);
+
+        System.out.println("\n💡 Chọn nhân viên để xem chi tiết:");
+        System.out.print("📝 Nhập số thứ tự (1-" + results.size() + ") hoặc 0 để thoát: ");
+
+        try {
+            int choice = Integer.parseInt(STDIN.nextLine().trim());
+            if (choice == 0) {
+                System.out.println("❌ Đã hủy.");
+                return null;
+            }
+            if (choice >= 1 && choice <= results.size()) {
+                return results.get(choice - 1);
+            }
+            System.out.println("❌ Lựa chọn không hợp lệ!");
+        } catch (NumberFormatException e) {
+            System.out.println("❌ Vui lòng nhập số hợp lệ!");
+        }
+        return null;
     }
 
     // ========= KIỂM TRA DỮ LIỆU ĐẦU VÀO KHI SỬA NHÂN VIÊN =======
