@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.sql.ResultSet;
 import util.JDBCUtil;
+import dao.SanPhamDAO;
 
 public class ChiTietPhieuNhapDAO {
     public static void themChiTietPhieuNhap(ChiTietPhieuNhapDTO ctPhieuNhap) {
