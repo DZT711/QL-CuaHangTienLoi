@@ -95,12 +95,13 @@ public class ChiTietPhieuNhapDAO {
 
     public static List<ChiTietPhieuNhapDTO> timChiTietPhieuNhap(String maPhieu) {
         String query = """
-                SELECT ctpn.MaSP, sp.TenSP, dv.TenDonVi AS DonViTinh, ctpn.SoLuong, ctpn.GiaNhap, ctpn.ThanhTien
+                SELECT ctpn.MaSP, sp.TenSP, dv.TenDonVi AS DonViTinh, 
+                       ctpn.SoLuong, ctpn.GiaNhap, ctpn.ThanhTien
                 FROM CHITIETPHIEUNHAP ctpn
                 INNER JOIN SANPHAM sp ON ctpn.MaSP = sp.MaSP
                 INNER JOIN DONVI dv ON sp.MaDonVi = dv.MaDonVi
-                INNER JOIN PHIEUNHAP pn ON ctpn.MaPhieu = pn.MaPhieu
-                WHERE ctpn.MaPhieu = ?;
+                WHERE ctpn.MaPhieu = ?
+                ORDER BY ctpn.MaSP ASC;
         """;
 
         List<ChiTietPhieuNhapDTO> list = new ArrayList<>();
@@ -124,6 +125,39 @@ public class ChiTietPhieuNhapDAO {
             }
         } catch (SQLException e) {
             System.err.println("Lỗi khi tìm chi tiết phiếu nhập: " + e.getMessage());
+        }
+        return list;
+    }
+
+    public static List<ChiTietPhieuNhapDTO> getAllChiTietPhieuNhap() {
+        List<ChiTietPhieuNhapDTO> list  = new ArrayList<>();
+
+        String query = """
+                SELECT ctpn.MaPhieu, ctpn.MaSP, sp.TenSP, dv.TenDonVi AS DonViTinh, 
+                       ctpn.SoLuong, ctpn.GiaNhap, ctpn.ThanhTien
+                FROM CHITIETPHIEUNHAP ctpn
+                INNER JOIN SANPHAM sp ON ctpn.MaSP = sp.MaSP
+                INNER JOIN DONVI dv ON sp.MaDonVi = dv.MaDonVi
+                ORDER BY ctpn.MaPhieu ASC, ctpn.MaSP ASC;
+        """;
+
+        try (Connection conn = JDBCUtil.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                list.add(new ChiTietPhieuNhapDTO(
+                    rs.getString("MaPhieu"),
+                    rs.getString("MaSP"),
+                    rs.getString("TenSP"),
+                    rs.getString("DonViTinh"),
+                    rs.getInt("SoLuong"),
+                    rs.getInt("GiaNhap"),
+                    rs.getInt("ThanhTien")
+                ));
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi lấy tất cả chi tiết phiếu nhập: " + e.getMessage());
         }
         return list;
     }

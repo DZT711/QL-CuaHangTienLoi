@@ -22,9 +22,8 @@ public class QuanLyChiTietPhieuNhap {
             System.out.println("████████████████████████████████████████████████████████████████████████████████");
             System.out.println("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ MENU CHỨC NĂNG ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓");
             System.out.println("▒ [1] ➜ Thêm chi tiết vào phiếu nhập                                         ▒");
-            System.out.println("▒ [2] ➜ Xóa chi tiết phiếu nhập                                            ▒");
-            System.out.println("▒ [3] ➜ Tìm kiếm chi tiết phiếu nhập                                        ▒");
-            System.out.println("▒ [4] ➜ Xem danh sách chi tiết phiếu nhập                                  ▒");
+            System.out.println("▒ [2] ➜ Tìm kiếm chi tiết phiếu nhập                                        ▒");
+            System.out.println("▒ [3] ➜ Xem danh sách chi tiết phiếu nhập                                  ▒");
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░");
             System.out.println("░ [0] ✗ Quay lại menu chính                                                    ░");
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░");
@@ -37,9 +36,9 @@ public class QuanLyChiTietPhieuNhap {
                     choice = scanner.nextInt();
                     scanner.nextLine();
                     if (choice >= 0 && choice <= 4) break;
-                    System.out.print("⚠️  Vui lòng nhập số trong khoảng 0–4: ");
+                    System.out.print("Vui lòng nhập số trong khoảng 0–4: ");
                 } else {
-                    System.out.print("⚠️  Nhập không hợp lệ. Vui lòng nhập lại: ");
+                    System.out.print("Nhập không hợp lệ. Vui lòng nhập lại: ");
                     scanner.next();
                 }
             }
@@ -49,13 +48,10 @@ public class QuanLyChiTietPhieuNhap {
                     themChiTietVaoPhieuNhap(scanner);
                     break;
                 case 2:
-                    // xoaChiTietPhieuNhap();
+                    timTheoMaPhieu(scanner);
                     break;
                 case 3:
-                    // timKiemChiTietPhieuNhap();
-                    break;
-                case 4:
-                    // xemDanhSachChiTietPhieuNhap();
+                    xemDanhSachChiTietPhieuNhap();
                     break;
                 case 0:
                     System.out.println("Quay lại menu chính.");
@@ -66,7 +62,6 @@ public class QuanLyChiTietPhieuNhap {
             }
         }
     }
-
 
     public static void themChiTietVaoPhieuNhap(Scanner scanner) {
         Connection conn = null;
@@ -154,66 +149,70 @@ public class QuanLyChiTietPhieuNhap {
         }
     }
 
-    /**
-     * Tìm kiếm và hiển thị chi tiết phiếu nhập theo mã phiếu
-     */
-    private static void timKiemChiTietPhieuNhap(Scanner scanner) {
-        System.out.print("\nNhập mã phiếu nhập cần tìm: ");
-        String maPhieu = scanner.nextLine().trim();
-
-        List<ChiTietPhieuNhapDTO> danhSach = ChiTietPhieuNhapDAO.timChiTietPhieuNhap(maPhieu);
-
-        if (danhSach.isEmpty()) {
-            System.out.println("❌ Không tìm thấy chi tiết cho phiếu nhập: " + maPhieu);
-        } else {
-            inChiTietPhieuNhap(maPhieu, danhSach);
-        }
-    }
-
-    /**
-     * Xem danh sách chi tiết phiếu nhập
-     */
-    private static void xemDanhSachChiTietPhieuNhap(Scanner scanner) {
+    public static void timTheoMaPhieu(Scanner scanner) {
         System.out.print("\nNhập mã phiếu nhập: ");
         String maPhieu = scanner.nextLine().trim();
 
-        List<ChiTietPhieuNhapDTO> danhSach = ChiTietPhieuNhapDAO.timChiTietPhieuNhap(maPhieu);
+        List<ChiTietPhieuNhapDTO> chiTietList = ChiTietPhieuNhapDAO.timChiTietPhieuNhap(maPhieu);
 
-        if (danhSach.isEmpty()) {
-            System.out.println("❌ Phiếu nhập không có chi tiết hoặc không tồn tại.");
+        if (chiTietList.isEmpty()) {
+            System.out.println("Không tìm thấy chi tiết phiếu nhập với mã: " + maPhieu);
         } else {
-            inChiTietPhieuNhap(maPhieu, danhSach);
+            System.out.println("Kết quả tìm kiếm chi tiết phiếu nhập với mã: " + maPhieu);
+            inBangChiTiet(chiTietList);
         }
     }
 
-    /**
-     * In bảng chi tiết phiếu nhập
-     */
-    private static void inChiTietPhieuNhap(String maPhieu, List<ChiTietPhieuNhapDTO> danhSach) {
-        System.out.println("\n╔══════════════════════════════════════════════════════════════════════╗");
-        System.out.println("║           CHI TIẾT PHIẾU NHẬP: " + maPhieu + "                          ║");
-        System.out.println("╚══════════════════════════════════════════════════════════════════════╝");
-        System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-        System.out.printf("%-5s | %-10s | %-20s | %-10s | %-10s | %-12s | %-12s%n",
-                "STT", "Mã SP", "Tên SP", "Đơn vị", "Số lượng", "Giá nhập", "Thành tiền");
-        System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    public static void xemDanhSachChiTietPhieuNhap() {
+        List<ChiTietPhieuNhapDTO> chiTietList = ChiTietPhieuNhapDAO.getAllChiTietPhieuNhap();
+
+        if (chiTietList.isEmpty()) {
+            System.out.println("Không có chi tiết phiếu nhập nào trong hệ thống.");
+            return;
+        }
+
+        System.out.println("Danh sách tất cả chi tiết phiếu nhập:");
+        System.out.println("==================================================================================");
+        System.out.printf("| %-10s | %-10s | %-20s | %-10s | %-8s | %-10s | %-10s |\n",
+                "Mã phiếu", "Mã SP", "Tên SP", "Đơn vị", "SL", "Giá nhập", "Thành tiền");
+        System.out.println("==================================================================================");
+
+        int tongSoLuong = 0;
+        int tongThanhTien = 0;
+
+        for (ChiTietPhieuNhapDTO ct : chiTietList) {
+            System.out.printf("| %-10s | %-10s | %-20s | %-10s | %-8d | %-10d | %-10d |\n",
+                    ct.getMaPhieu(), ct.getMaSP(), ct.getTenSP(), ct.getDonViTinh(),
+                    ct.getSoLuong(), ct.getGiaNhap(), ct.getThanhTien());
+            tongSoLuong += ct.getSoLuong();
+            tongThanhTien += ct.getThanhTien();
+        }
+
+        System.out.println("==================================================================================");
+        System.out.printf("Tổng số lượng SP: %d | Tổng giá trị: %,d VNĐ\n", tongSoLuong, tongThanhTien);
+    }
+
+    private static void inBangChiTiet(List<ChiTietPhieuNhapDTO> danhSach) {
+        System.out.println("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        System.out.printf("%-5s | %-10s | %-10s | %-20s | %-8s | %-12s | %-12s%n",
+                "STT", "Mã Phiếu", "Mã SP", "Tên SP", "Số lượng", "Giá nhập", "Thành tiền");
+        System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
         int stt = 1;
-        int tongTien = 0;
+        long tongTien = 0;
+
         for (ChiTietPhieuNhapDTO ct : danhSach) {
-            System.out.printf("%-5d | %-10s | %-20s | %-10s | %-10d | %-12s | %-12s%n",
+            System.out.printf("%-5d | %-10s | %-10s | %-20s | %-8d | %-12s | %-12s%n",
                     stt++,
+                    ct.getMaPhieu(),
                     ct.getMaSP(),
                     ct.getTenSP(),
-                    ct.getDonViTinh(),
                     ct.getSoLuong(),
                     FormatUtil.formatVND(ct.getGiaNhap()),
                     FormatUtil.formatVND(ct.getThanhTien()));
             tongTien += ct.getThanhTien();
         }
 
-        System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-        System.out.println("💰 TỔNG TIỀN: " + FormatUtil.formatVND(tongTien));
-        System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     }
 }
