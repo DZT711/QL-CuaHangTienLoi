@@ -11,6 +11,7 @@ import view.QuanLyNhaCungCap;
 import view.QuanLyNhanVien;
 import view.QuanLyNhapHang;
 import view.QuanLySanPham;
+import view.QuanLyHoaDon;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -113,10 +114,11 @@ public class Main {
             System.out.println("│  [3] ➜ Quản lý khách hàng                                  │");
             System.out.println("│  [4] ➜ Quản lý nhà cung cấp                                │");
             System.out.println("│  [5] ➜ Quản lý nhập hàng                                   │");
+            System.out.println("│  [6] ➜ Quản lý hóa đơn                                     │");
             System.out.println("│                                                            │");
             System.out.println("├─ BÁO CÁO & THỐNG KÊ ───────────────────────────────────────┤");
             System.out.println("│                                                            │");
-            System.out.println("│  [6] ➜ Xem báo cáo / thống kê                              │");
+            System.out.println("│  [7] ➜ Xem báo cáo / thống kê                              │");
             System.out.println("│                                                            │");
             System.out.println("├─ HỆ THỐNG ─────────────────────────────────────────────────┤");
             System.out.println("│                                                            │");
@@ -166,6 +168,10 @@ public class Main {
                     qlnh.menuQuanLyNhapHang();
                     break;
                 case 6:
+                    QuanLyHoaDon qlhd = new QuanLyHoaDon();
+                    qlhd.menuQuanLyHoaDon();
+                    break;
+                case 7:
                     // xem báo cáo / thống kê
                     break;
                 case 0:

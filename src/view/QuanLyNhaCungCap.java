@@ -59,8 +59,8 @@ public class QuanLyNhaCungCap {
                             System.out.println("    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
                             System.out.println("    ┃                           TÌM KIẾM SẢN PHẨM                        ┃");
                             System.out.println("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
-                            System.out.println("    ┃ [1] ➜ Tìm kiếm nhà cung cấp theo mã                                    ┃");
-                            System.out.println("    ┃ [2] ➜ Tìm kiếm nhà cung cấp theo tên                                   ┃");
+                            System.out.println("    ┃ [1] ➜ Tìm kiếm nhà cung cấp theo mã                                ┃");
+                            System.out.println("    ┃ [2] ➜ Tìm kiếm nhà cung cấp theo tên                               ┃");
                             System.out.println("    ┃ [0] ➜ Thoát                                                        ┃");
                             System.out.println("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
                             System.out.print("\n💡 Nhập lựa chọn của bạn: ");
