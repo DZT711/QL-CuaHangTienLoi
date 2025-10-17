@@ -49,9 +49,9 @@ public class QuanLyNhapHang {
                     choice = scanner.nextInt();
                     scanner.nextLine();
                     if (choice >= 0 && choice <= 4) break;
-                    System.out.print("⚠️  Vui lòng nhập số trong khoảng 0–4: ");
+                    System.out.print("Vui lòng nhập số trong khoảng 0–4: ");
                 } else {
-                    System.out.print("⚠️  Nhập không hợp lệ. Vui lòng nhập lại: ");
+                    System.out.print("Nhập không hợp lệ. Vui lòng nhập lại: ");
                     scanner.next();
                 }
             }
@@ -140,6 +140,9 @@ public class QuanLyNhapHang {
                                 case 4:
                                      thongKePhieuNhapTheoSanPham();
                                     break;
+                                case 5:
+                                    thongKePhieuNhapTheoThang();
+                                    break;
                                 default:
                                     System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
                                     break;
@@ -154,7 +157,7 @@ public class QuanLyNhapHang {
                     view.QuanLyChiTietPhieuNhap.menuQuanLyChiTietPhieuNhap();
                     break;
                 default:
-                    System.out.println("⚠️ Lựa chọn không hợp lệ!");
+                    System.out.println("Lựa chọn không hợp lệ!");
                     break;
                 case 0: 
                     System.out.println("Quay lại menu chính thành công.");

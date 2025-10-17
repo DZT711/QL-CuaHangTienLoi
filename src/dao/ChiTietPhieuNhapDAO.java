@@ -1,14 +1,14 @@
 package dao;
 
 import dto.ChiTietPhieuNhapDTO;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+
+import java.sql.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
-import java.sql.ResultSet;
 import java.util.Map;
-
 import util.JDBCUtil;
 import dao.SanPhamDAO;
 
@@ -95,7 +95,6 @@ public class ChiTietPhieuNhapDAO {
         return true;
     }
 
-
     public static List<ChiTietPhieuNhapDTO> timChiTietPhieuNhap(String maPhieu) {
         String query = """
                 SELECT ctpn.MaSP, sp.TenSP, dv.TenDonVi AS DonViTinh, 
@@ -165,7 +164,7 @@ public class ChiTietPhieuNhapDAO {
         return list;
     }
 
-    public static List<Map<String, Object>> thongKeSanPhamNhapNhieuNhat(int limit) {
+    public static List<Map<String, Object>> thongKeSanPhamNhapNhieuNhat(LocalDate fromDate, LocalDate toDate, int limit) {
         String query = """
                 SELECT 
                     sp.MaSP,
@@ -175,6 +174,8 @@ public class ChiTietPhieuNhapDAO {
                     SUM(ctpn.ThanhTien) AS TongGiaTriNhap
                 FROM CHITIETPHIEUNHAP ctpn
                 INNER JOIN SANPHAM sp ON ctpn.MaSP = sp.MaSP
+                INNER JOIN PHIEUNHAP pn ON ctpn.MaPhieu = pn.MaPhieu
+                WHERE pn.NgayLapPhieu >= ? AND pn.NgayLapPhieu < ?
                 GROUP BY sp.MaSP, sp.TenSP
                 ORDER BY TongSoLuongNhap DESC
                 LIMIT ?;
@@ -185,11 +186,16 @@ public class ChiTietPhieuNhapDAO {
         try (Connection conn = JDBCUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            stmt.setInt(1, limit);
+            LocalDateTime fromDateTime = fromDate.atStartOfDay();
+            LocalDateTime toDateTime = toDate.plusDays(1).atStartOfDay();
+
+            stmt.setTimestamp(1, Timestamp.valueOf(fromDateTime));
+            stmt.setTimestamp(2, Timestamp.valueOf(toDateTime));
+            stmt.setInt(3, limit);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    Map<String, Object> row = new java.util.HashMap<>();
+                    Map<String, Object> row = new HashMap<>();
                     row.put("MaSP", rs.getString("MaSP"));
                     row.put("TenSP", rs.getString("TenSP"));
                     row.put("TongSoLuongNhap", rs.getInt("TongSoLuongNhap"));
@@ -199,9 +205,8 @@ public class ChiTietPhieuNhapDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi thống kê sản phẩm nhập nhiều nhất: " + e.getMessage());
+            System.err.println("Lỗi khi thống kê sản phẩm nhập nhiều nhất theo ngày: " + e.getMessage());
         }
         return result;
     }
-
 }
