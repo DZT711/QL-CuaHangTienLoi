@@ -9,6 +9,7 @@ import dao.NhapHangDAO;
 import dto.ChiTietPhieuNhapDTO;
 import dto.NhapHangDTO;
 import util.FormatUtil;
+import java.util.Map;
 
 public class QuanLyChiTietPhieuNhap {
     public static void menuQuanLyChiTietPhieuNhap() {
@@ -24,6 +25,7 @@ public class QuanLyChiTietPhieuNhap {
             System.out.println("▒ [1] ➜ Thêm chi tiết vào phiếu nhập                                         ▒");
             System.out.println("▒ [2] ➜ Tìm kiếm chi tiết phiếu nhập                                        ▒");
             System.out.println("▒ [3] ➜ Xem danh sách chi tiết phiếu nhập                                  ▒");
+            System.out.println("▒ [4] ➜ Thống kê sản phẩm nhập nhiều nhất                                  ▒");
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░");
             System.out.println("░ [0] ✗ Quay lại menu chính                                                    ░");
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░");
@@ -52,6 +54,9 @@ public class QuanLyChiTietPhieuNhap {
                     break;
                 case 3:
                     xemDanhSachChiTietPhieuNhap();
+                    break;
+                case 4:
+                    thongKeTongThe(scanner);
                     break;
                 case 0:
                     System.out.println("Quay lại menu chính.");
@@ -192,11 +197,11 @@ public class QuanLyChiTietPhieuNhap {
         System.out.printf("Tổng số lượng SP: %d | Tổng giá trị: %,d VNĐ\n", tongSoLuong, tongThanhTien);
     }
 
-    private static void inBangChiTiet(List<ChiTietPhieuNhapDTO> danhSach) {
+    public static void inBangChiTiet(List<ChiTietPhieuNhapDTO> danhSach) {
         System.out.println("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
         System.out.printf("%-5s | %-10s | %-10s | %-20s | %-8s | %-12s | %-12s%n",
                 "STT", "Mã Phiếu", "Mã SP", "Tên SP", "Số lượng", "Giá nhập", "Thành tiền");
-        System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━���━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━���━━");
 
         int stt = 1;
         long tongTien = 0;
@@ -213,6 +218,62 @@ public class QuanLyChiTietPhieuNhap {
             tongTien += ct.getThanhTien();
         }
 
-        System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━���━━━━━━━━━━━━━━━━━━━━━━━���━━━━━━━━━━━━━━━━━━");
+    }
+
+    public static void thongKeTongThe (Scanner scanner) {
+        System.out.println("\n Nhập số lượng sản phẩm để thống kê: ");
+        int limit;
+        try {
+            limit = Integer.parseInt(scanner.nextLine().trim());
+            if (limit <= 0) {
+                System.out.println("Số lượng phải lớn hơn 0.");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Số lượng không hợp lệ.");
+            return;
+        }
+
+        List<Map<String, Object>> results = ChiTietPhieuNhapDAO.thongKeSanPhamNhapNhieuNhat(limit);
+
+        if (results.isEmpty()) {
+            System.out.println("Chưa có dữ liệu nhập hàng.");
+            return;
+        }
+
+        System.out.println("\n╔═══════════════════════════════════════════════════════════════════════════════════╗");
+        System.out.println("║                    TOP " + limit + " SẢN PHẨM NHẬP NHIỀU NHẤT                            ║");
+        System.out.println("╚═══════════════════════════════════════════════════════���═══════════════════════════╝");
+        System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━���━━━━━━━━━━━━━━━━━━━");
+        System.out.printf("%-5s | %-10s | %-25s | %-12s | %-10s | %-15s%n",
+                "Top", "Mã SP", "Tên sản phẩm", "Tổng SL nhập", "Số lần", "Tổng giá trị");
+        System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━���━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+
+        int top = 1;
+        int tongSoLuong = 0;
+        long tongGiaTri = 0;
+
+        for (Map<String, Object> row : results) {
+            tongSoLuong += (int) row.get("TongSoLuongNhap");
+            tongGiaTri += (long) row.get("TongGiaTriNhap");
+
+            String tenSP = (String) row.get("TenSP");
+            if (tenSP.length() > 25) tenSP = tenSP.substring(0, 22) + "...";
+
+            System.out.printf("%-5d | %-10s | %-25s | %-12d | %-10d | %-15s%n",
+                    top++,
+                    row.get("MaSP"),
+                    tenSP,
+                    row.get("TongSoLuongNhap"),
+                    row.get("SoLanNhap"),
+                    FormatUtil.formatVND((Long) row.get("TongGiaTriNhap")));
+        }
+
+        System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        System.out.println("\n TỔNG KẾT:");
+        System.out.println("  • Tổng số lượng nhập (TOP " + limit + "): " + tongSoLuong);
+        System.out.println("  • Tổng giá trị nhập: " + util.FormatUtil.formatVND(tongGiaTri));
+        System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
     }
 }

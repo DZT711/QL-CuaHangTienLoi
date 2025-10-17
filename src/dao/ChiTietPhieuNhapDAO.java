@@ -7,8 +7,11 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.ArrayList;
 import java.sql.ResultSet;
+import java.util.Map;
+
 import util.JDBCUtil;
 import dao.SanPhamDAO;
+
 
 public class ChiTietPhieuNhapDAO {
 
@@ -161,4 +164,44 @@ public class ChiTietPhieuNhapDAO {
         }
         return list;
     }
+
+    public static List<Map<String, Object>> thongKeSanPhamNhapNhieuNhat(int limit) {
+        String query = """
+                SELECT 
+                    sp.MaSP,
+                    sp.TenSP,
+                    SUM(ctpn.SoLuong) AS TongSoLuongNhap,
+                    COUNT(DISTINCT ctpn.MaPhieu) AS SoLanNhap,
+                    SUM(ctpn.ThanhTien) AS TongGiaTriNhap
+                FROM CHITIETPHIEUNHAP ctpn
+                INNER JOIN SANPHAM sp ON ctpn.MaSP = sp.MaSP
+                GROUP BY sp.MaSP, sp.TenSP
+                ORDER BY TongSoLuongNhap DESC
+                LIMIT ?;
+        """;
+
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        try (Connection conn = JDBCUtil.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, limit);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> row = new java.util.HashMap<>();
+                    row.put("MaSP", rs.getString("MaSP"));
+                    row.put("TenSP", rs.getString("TenSP"));
+                    row.put("TongSoLuongNhap", rs.getInt("TongSoLuongNhap"));
+                    row.put("SoLanNhap", rs.getInt("SoLanNhap"));
+                    row.put("TongGiaTriNhap", rs.getLong("TongGiaTriNhap"));
+                    result.add(row);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi thống kê sản phẩm nhập nhiều nhất: " + e.getMessage());
+        }
+        return result;
+    }
+
 }
