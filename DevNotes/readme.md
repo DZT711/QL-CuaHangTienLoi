@@ -23,15 +23,15 @@ Xây dựng hệ thống quản lý bán hàng cho cửa hàng tiện lợi, h�
 
 ## ⚠ Các vấn đề, ghi chú cần được sửa/cải tiến
 
-- **Không xóa dữ liệu thật**: dùng cột `TrangThai / Status` thay vì `DELETE`, để tránh mất dữ liệu lịch sử.⏳  
-- **Xác nhận trước khi xóa/ chỉnh dữ liệu** từ UI: hiển thị popup “Bạn có chắc muốn xóa / chỉnh sửa?”  ⏳
+- **Không xóa dữ liệu thật**: dùng cột `TrangThai / Status` thay vì `DELETE`, để tránh mất dữ liệu lịch sử. ✔  
+- **Xác nhận trước khi xóa/ chỉnh dữ liệu** từ UI: hiển thị popup “Bạn có chắc muốn xóa / chỉnh sửa?”  ✔
 - **Xóa phiếu nhập → xóa chi tiết phiếu nhập** theo cascade hoặc trigger để giữ tính liên kết.  ⏳
 - **Giới hạn ký tự nhập**: .  ⏳
 - **Hạn chế HSD (ngày hết hạn)**: không cho nhập HSD ≤ ngày hiện tại — kiểm tra từ ứng dụng hoặc trigger.  ⏳
-- **Cấu trúc mô hình 3 lớp (Presentation – Business – Data Access)** giúp tách biệt logic giao diện, nghiệp vụ, truy xuất dữ liệu dễ bảo trì.  ⏳
+
 - **Thống nhất ngôn ngữ** sài 1 định dạng ngôn ngữ cho data / database.  ⏳
 - **Thống nhất UI** sài 1 định dạng giao diện cho các menu admin & nhân viên và các menu khác.  ⏳
-- **Menu nhân viên** .  ⏳
+- **Menu nhân viên** .  ✔
 - **Chưa kiếm được tên sản phẩm bằng tiếng việt** .  ⏳
 - **Lỗi thống kê sản phẩm** .  ⏳
 - **Lỗi xóa khách hàng**  xóa được nhưng sau đó xuất hiện lỗi :
@@ -54,11 +54,15 @@ Exception in thread "main" java.util.NoSuchElementException
 - **Lỗi lặp vô tận khi nhà cung cấp không tồn tại trong khi tạo phiếu nhập không thể thoát dù nhập n** .  ⏳
 - **Lỗi khi thêm chi tiết phiếu nhập:** .
 
-```cmd
+```sql
 Cannot add or update a child row: a foreign key constraint fails (`ql_chtienloi`.`chitietphieunhap`, CONSTRAINT `fk_ctpn_phieu` FOREIGN KEY (`MaPhieu`) REFERENCES `phieunhap` (`MaPhieu`) ON DELETE CASCADE)
 ```
 
 - **Thêm khả năng Handling Transactions** dùng `commit()` `rollback()` giúp tránh lỗi cho DAO .  ⏳
+
+- **Tìm kiếm tên nhà cung cấp chưa đúng chuỗi**  .  ⏳
+- **Báo lỗi ngay sau ki nhập sai SĐT & email khi thêm NCC**  .  ⏳
+- **Lặp vô hạn sau khi sửa xong 1 NCC thêm (y/n)**  .  ⏳
 
 ---
 
