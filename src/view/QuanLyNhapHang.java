@@ -16,6 +16,7 @@ import dto.NhapHangDTO;
 import main.Main;
 import util.FormatUtil;
 import java.util.Map;
+import java.sql.Connection;
 
 public class QuanLyNhapHang {
     public void menuQuanLyNhapHang() {
@@ -32,7 +33,7 @@ public class QuanLyNhapHang {
             System.out.println("▒ [2] ➜ Tìm kiếm phiếu nhập                                                    ▒");
             System.out.println("▒ [3] ➜ Chỉnh sửa phiếu nhập                                                   ▒");
             System.out.println("▒ [4] ➜ Thống kê phiếu nhập                                                    ▒");
-            System.out.println("▒ [5] ➜ Xem chi tiết phiếu nhập                                                ▒");
+            System.out.println("▒ [5] ➜ Quản lý chi tiết phiếu nhập hàng                                       ▒");
             System.out.println("▒ [6] ➜ Quản lý nhà cung cấp                                                   ▒");
             System.out.println("▒ [7] ➜ Thống kê nhập hàng                                                     ▒");
             System.out.println("▒ [8] ➜ Xuất báo cáo nhập hàng                                                 ▒");
@@ -149,13 +150,9 @@ public class QuanLyNhapHang {
                         }
                     }
                     break;
-                // case 5: timKiem(); break;
-                case 6: 
-//                    QuanLyNhaCungCap qlncc = new QuanLyNhaCungCap();
-//                    qlncc.menuQuanLyNhaCungCap();
+                case 5:
+                    view.QuanLyChiTietPhieuNhap.menuQuanLyChiTietPhieuNhap();
                     break;
-                // case 7: thongKePhieuNhap(); break;
-                // case 8: xuatBaoCao(); break;
                 default:
                     System.out.println("⚠️ Lựa chọn không hợp lệ!");
                     break;
@@ -170,13 +167,15 @@ public class QuanLyNhapHang {
         Scanner scanner = new Scanner(System.in);
         
         while (true) {
+            Connection conn = null;
             try {
+                conn = util.JDBCUtil.getConnection();
+
                 String maPhieu = NhapHangDAO.generateMaPhieuNhap();
                 System.out.println("Mã phiếu nhập: " + maPhieu);
                 
                 System.out.println("Nhập mã nhà cung cấp: ");
                 String maNCC = scanner.nextLine().trim();
-
 
                 NhaCungCapDTO ncc = NhaCungCapDAO.timnccTheoMa(maNCC);
                 if (ncc == null) {
@@ -238,15 +237,17 @@ public class QuanLyNhapHang {
                     continue;
                 }
 
-                // Nhập danh sách sản phẩm
+
                 int tongTien = 0;
+                int countSuccess = 0;
+                System.out.println("\n📦 Nhập chi tiết sản phẩm (nhập mã SP = '0' để kết thúc):");
 
                 while (true) {
-                    System.out.println("Nhập mã sản phẩm ");
+                    System.out.print("\nNhập mã sản phẩm: ");
                     String maSP = scanner.nextLine().trim();
                     if (maSP.equals("0")) break;
 
-                    System.out.println("Nhập số lượng:");
+                    System.out.print("Nhập số lượng: ");
                     String slStr = scanner.nextLine().trim();
                     int soLuong;
                     try {
@@ -260,7 +261,7 @@ public class QuanLyNhapHang {
                         continue;
                     }
 
-                    System.out.println("Nhập giá nhập: ");
+                    System.out.print("Nhập giá nhập: ");
                     String giaNhapStr = scanner.nextLine().trim();
                     int giaNhap;
                     try {
@@ -275,30 +276,52 @@ public class QuanLyNhapHang {
                     }
 
                     int thanhTien = soLuong * giaNhap;
-                    // Tạo chi tiết phiếu nhập
+
+                    // Tạo chi tiết phiếu nhập (DAO tự kiểm tra trùng mã + giá)
                     ChiTietPhieuNhapDTO chiTiet = new ChiTietPhieuNhapDTO(maPhieu, maSP, null, null, soLuong, giaNhap, thanhTien);
-                    ChiTietPhieuNhapDAO.themChiTietPhieuNhap(chiTiet);
-                    tongTien += thanhTien;
+                    boolean added = ChiTietPhieuNhapDAO.themChiTietPhieuNhap(conn, chiTiet);
+
+                    if (added) {
+                        tongTien += thanhTien; // Cộng dần tổng tiền
+                        countSuccess++; // Đếm sản phẩm thêm thành công
+                    }
+                    // Nếu thất bại (giá khác) thì DAO đã in thông báo lỗi rồi
                 }
 
-                if (tongTien == 0) {
-                    System.out.println("Không có sản phẩm nào. Hủy tạo phiếu nhập");
+
+                if (countSuccess == 0) {
+                    System.out.println("⚠️  Không có sản phẩm nào được thêm. Hủy tạo phiếu nhập.");
                     continue;
                 }
 
-                // Tạo phiếu nhập với tổng tiền 
-                NhapHangDTO pn = new NhapHangDTO(maPhieu, maNCC, maNV, tongTien, LocalDateTime.now());
-                NhapHangDAO.themPhieuNhap(pn);
-                System.out.println("Tạo phiếu nhập thành công!");
-                System.out.println("Tổng tiền: " + FormatUtil.formatVND(tongTien));
 
-                System.out.println("Bạn có muốn tạo phiếu nhập khác không? (y/n)");
+                NhapHangDTO pn = new NhapHangDTO(maPhieu, maNCC, maNV, tongTien, LocalDateTime.now());
+                boolean phieuCreated = NhapHangDAO.themPhieuNhap(pn);
+
+                if (phieuCreated) {
+                    System.out.println("\nTạo phiếu nhập thành công!");
+                    System.out.println("Mã phiếu: " + maPhieu);
+                    System.out.println("Số sản phẩm: " + countSuccess);
+                    System.out.println("Tổng tiền: " + FormatUtil.formatVND(tongTien));
+                } else {
+                    System.out.println("Lỗi khi tạo phiếu nhập!");
+                }
+
+                System.out.print("\nBạn có muốn tạo phiếu nhập khác không? (y/n): ");
                 String cont = scanner.nextLine().trim();
                 if (!"y".equalsIgnoreCase(cont)) break;
 
             } catch (Exception e) {
-                System.out.println("Lỗi: " + e.getMessage());
-                scanner.nextLine();
+                System.out.println("❌ Lỗi: " + e.getMessage());
+                e.printStackTrace();
+            } finally {
+                if (conn != null) {
+                    try {
+                        conn.close();
+                    } catch (Exception e) {
+                        System.err.println("Lỗi đóng connection: " + e.getMessage());
+                    }
+                }
             }
         }
     }
@@ -833,3 +856,4 @@ public class QuanLyNhapHang {
         System.out.println("+-----------+------------+------------------+------------------+");
     }
 }
+

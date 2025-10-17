@@ -37,7 +37,7 @@ public class NhapHangDAO {
         return newID;
     }
 
-    public static void themPhieuNhap(NhapHangDTO pn) {
+    public static boolean themPhieuNhap(NhapHangDTO pn) {
         String query = "INSERT INTO PHIEUNHAP (MaPhieu, MaNCC, MaNV, TongTien) VALUES (?, ?, ?, ?);";
 
         try (Connection conn = JDBCUtil.getConnection();
@@ -51,11 +51,14 @@ public class NhapHangDAO {
             int rowAffected = stmt.executeUpdate();
             if (rowAffected > 0) {
                 System.out.println("Thêm phiếu nhập thành công");
+                return true;
             } else {
                 System.out.println("Thêm phiếu nhập thất bại");
+                return false;
             }
         } catch (SQLException e) {
             System.err.println("Lỗi khi thêm phiếu nhập: " + e.getMessage());
+            return false;
         }
     }
 

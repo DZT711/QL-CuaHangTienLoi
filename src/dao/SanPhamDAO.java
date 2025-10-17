@@ -695,6 +695,17 @@ public static String removeAccent(String s) {
         }
     }
 
+
+    public static boolean congSoLuongTon(Connection conn, String maSP, int soLuong) throws SQLException {
+        String query = "UPDATE SANPHAM SET SoLuongTon = SoLuongTon + ? WHERE MaSP = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, soLuong);
+            stmt.setString(2, maSP);
+            int rowAffected = stmt.executeUpdate();
+            return rowAffected > 0;
+        }
+    }
+
     public static void truSoLuongTon(String maSP, int soLuong) {
         String query = "UPDATE SANPHAM SET SoLuongTon = SoLuongTon - ? WHERE MaSP = ?";
 
