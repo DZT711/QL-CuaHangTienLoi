@@ -80,54 +80,71 @@ public class NhaCungCapDTO {
     public boolean sua() {
         Scanner scanner = new Scanner(System.in);
         try {
-            System.out.print("Nhập tên NCC mới: ");
+            System.out.print("Nhập tên NCC mới (ENTER ĐỂ GIỮ NGUYÊN): ");
             String ten = scanner.nextLine().trim();
             if (ten.equals("0")) return false;
             if (!ten.isEmpty()) this.tenNCC = ten;
 
-            System.out.print("Nhập địa chỉ mới: ");
+            System.out.print("Nhập địa chỉ mới (ENTER ĐỂ GIỮ NGUYÊN):  ");
             String dc = scanner.nextLine().trim();
             if (dc.equals("0")) return false;
             if (!dc.isEmpty()) this.diaChi = dc;
 
-            System.out.print("Nhập điện thoại mới: ");
-            String sdt = scanner.nextLine().trim();
-            if (sdt.equals("0")) return false;
-            if (!sdt.isEmpty()) this.dienThoai = sdt;
+            while (true) {
+                System.out.print("Nhập điện thoại mới (ENTER để giữ nguyên): ");
+                String sdt = scanner.nextLine().trim();
 
-            System.out.print("Nhập email mới: ");
-            String mail = scanner.nextLine().trim();
-            if (mail.equals("0")) return false;
-            if (!mail.isEmpty()) this.email = mail;
+                if (sdt.equals("0")) return false; // hủy toàn bộ thao tác sửa
 
-            System.out.print("Nhập trạng thái mới (active/inactive): ");
-            String tt = scanner.nextLine().trim();
-            if (tt.equals("0")) return false;
-            if (!tt.isEmpty()) this.trangThai = tt;
+                if (sdt.isEmpty()) break; // giữ nguyên (ENTER)
+
+                if (!sdt.matches("\\d{9,11}")) {
+                    System.out.println("  Số điện thoại không hợp lệ (phải có 9–11 chữ số). Vui lòng nhập lại hoặc nhấn ENTER để giữ nguyên:");
+                    continue; // 
+                }
+
+                this.dienThoai = sdt; 
+                break; 
+            }
+
+            while (true) {
+                System.out.print("Nhập email mới (ENTER ĐỂ GIỮ NGUYÊN): ");
+                String mail = scanner.nextLine().trim();
+                if (mail.equals("0")) return false; // hủy toàn bộ thao tác sửa
+                if (mail.isEmpty()) break; // giữ nguyên (ENTER)
+                if (!mail.matches("^[\\w-.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
+                    System.out.println("Email không hợp lệ. Vui lòng nhập lại hoặc nhấn ENTER để giữ nguyên");
+                    continue;
+                }
+                this.email = mail;
+                break;
+            }
+         
+            while (true) {
+                System.out.print("Nhập trạng thái mới (active / inactive) (ENTER để giữ nguyên): ");
+                String tt = scanner.nextLine().trim(); // nhập thường, xử lý thống nhất
+
+                if (tt.equals("0")) return false; // hủy toàn bộ thao tác sửa
+                if (tt.isEmpty()) break; // giữ nguyên trạng thái cũ nếu Enter
+
+                if (!tt.equals("active") && !tt.equals("inactive")) {
+                    System.out.println("  Trạng thái không hợp lệ! Chỉ được nhập 'active' hoặc 'inactive'.");
+                    continue; // yêu cầu nhập lại
+                }
+
+                this.trangThai = tt; // hợp lệ → cập nhật
+                break;
+            }
             return true;
+
         } catch (Exception e) {
             System.out.println("Lỗi khi sửa thông tin NCC: " + e.getMessage());
             return false;
         }
     }
-    public boolean isValid() {
-        // Kiểm tra số điện thoại hợp lệ hay không 
-        if (dienThoai != null && !dienThoai.trim().isEmpty()) {
-            if (!dienThoai.matches("\\d{9,11}")) {
-                System.out.println("Số điện thoại phải là 9–11 chữ số.");
-                return false;
-            }
-        }
-        // Kiểm tra email hợp lệ hay không
-        if (email != null && !email.trim().isEmpty()) {
-            if (!email.matches("^[\\w-.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
-                System.out.println("Email không hợp lệ.");
-                return false;
-            }
-        }
-        return true; 
-    }
 }
+
+
 
 
 

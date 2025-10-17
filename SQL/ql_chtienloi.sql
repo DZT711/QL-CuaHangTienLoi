@@ -90,6 +90,15 @@ CREATE TABLE NHACUNGCAP (
   TrangThai ENUM('active', 'inactive') NOT NULL
 );
 
+INSERT INTO NHACUNGCAP (MaNCC, TenNCC, DiaChi, DienThoai, Email, TrangThai) VALUES
+('NCC001', N'Công ty TNHH Vinamilk', N'12 Đinh Tiên Hoàng, Q.1, TP.HCM', '0909123456', 'contact@vinamilk.com.vn', 'active'),
+('NCC002', N'Công ty CP Acecook Việt Nam', N'45 Nguyễn Văn Linh, TP. Cần Thơ', '0912123456', 'info@acecookvietnam.vn', 'active'),
+('NCC003', N'Công ty TNHH Tân Hiệp Phát', N'219 Đại lộ Bình Dương, Bình Dương', '0933456789', 'support@thp.com.vn', 'active'),
+('NCC004', N'Công ty CP Masan Consumer', N'9 Nguyễn Đình Chiểu, Q.1, TP.HCM', '0908787878', 'masan@consumer.vn', 'active'),
+('NCC005', N'Công ty CP Bibica', N'443 Lý Thường Kiệt, Q.10, TP.HCM', '0977888999', 'lienhe@bibica.vn', 'active'),
+('NCC006', N'Công ty CP Sữa TH', N'Nghĩa Đàn, Nghệ An', '0944666777', 'thmilk@thgroup.vn', 'active'),
+('NCC007', N'Công ty CP Vissan', N'420 Nơ Trang Long, Q.Bình Thạnh, TP.HCM', '0909555444', 'info@vissan.com.vn', 'active');
+
 -- Bảng NHANVIEN
 CREATE TABLE NHANVIEN (
   MaNV VARCHAR(20) PRIMARY KEY,
