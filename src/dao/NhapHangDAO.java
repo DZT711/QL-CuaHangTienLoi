@@ -202,7 +202,7 @@ public class NhapHangDAO {
                 COUNT(DISTINCT pn.MaPhieu) AS tongPhieuNhap,
                 SUM(pn.TongTien) AS tongGiaTRi,
                 COUNT(DISTINCT pn.MaNCC) AS soNCC,
-                SUM(ct.SoLuong) AS tongSanPham,
+                SUM(ct.SoLuong) AS tongSanPham
             FROM PHIEUNHAP pn
             JOIN CHITIETPHIEUNHAP ct ON pn.MaPhieu = ct.MaPhieu
             WHERE pn.NgayLapPhieu >= ? AND pn.NgayLapPhieu < ?
@@ -240,7 +240,7 @@ public class NhapHangDAO {
             SELECT 
                 pn.NgayLapPhieu,
                 COUNT(pn.MaPhieu) AS soPhieu,
-                SUM(pn.TongTien) AS tongTien,
+                SUM(pn.TongTien) AS tongTien
             FROM PHIEUNHAP pn
             WHERE pn.NgayLapPhieu >= ? AND pn.NgayLapPhieu < ?
             GROUp BY pn.NgayLapPhieu
@@ -366,6 +366,7 @@ public class NhapHangDAO {
             SUM (ctpn.ThanhTien) AS tongGiaTri
             FROM CHITIETPHIEUNHAP ctpn
             JOIN SANPHAM sp ON ctpn.MaSP = sp.MaSP
+            JOIN PHIEUNHAP pn ON ctpn.MaPhieu = pn.MaPhieu
             WHERE pn.NgayLapPhieu >= ? AND pn.NgayLapPhieu < ?
             GROUP BY sp.MaSP, sp.TenSP
             ORDER BY tongGiaTri DESC;
@@ -403,9 +404,9 @@ public class NhapHangDAO {
         String query = """
             SELECT 
                 MONTH(pn.NgayLapPhieu) AS Thang,
-                COUNT(DISTINCT pn.MaPhieu) AS SoPhieu,
-                SUM (ctpn.SoLuong) AS TongSanPham,
-                SUM (pn.TongTien) AS TongGiaTri
+                COUNT(pn.MaPhieu) AS SoPhieu,
+                SUM(ctpn.TongSoLuong) AS TongSanPham,
+                SUM(pn.TongTien) AS TongGiaTri
             FROM PHIEUNHAP pn
             JOIN (
                 SELECT MaPhieu, SUM(SoLuong) AS TongSoLuong
