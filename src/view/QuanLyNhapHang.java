@@ -5,11 +5,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
+import java.util.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.InputMismatchException;
-import java.util.Scanner;
+
 import dao.NhapHangDAO;
 import dao.NhaCungCapDAO;
 import dao.ChiTietPhieuNhapDAO;
@@ -18,7 +17,7 @@ import dto.NhaCungCapDTO;
 import dto.NhapHangDTO;
 import main.Main;
 import util.FormatUtil;
-import java.util.Map;
+
 import java.sql.Connection;
 
 
@@ -39,8 +38,7 @@ public class QuanLyNhapHang {
             System.out.println("▒ [4] ➜ Thống kê phiếu nhập                                                    ▒");
             System.out.println("▒ [5] ➜ Quản lý chi tiết phiếu nhập hàng                                       ▒");
             System.out.println("▒ [6] ➜ Xuất file phiếu nhập hàng                                              ▒");
-            System.out.println("▒ [7] ➜ Thống kê nhập hàng                                                     ▒");
-            System.out.println("▒ [8] ➜ Xuất báo cáo nhập hàng                                                 ▒");
+            System.out.println("▒ [7] ➜ Xuất báo cáo nhập hàng                                                 ▒");
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░");
             System.out.println("░ [0] ✗ Quay lại menu chính                                                    ░");
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░");
@@ -161,35 +159,10 @@ public class QuanLyNhapHang {
                     view.QuanLyChiTietPhieuNhap.menuQuanLyChiTietPhieuNhap();
                     break;
                 case 6:
-                    while (true) {
-                        try {
-                            System.out.println("\n");
-                            System.out.println("Xuất file phiếu nhập hàng");
-                            System.out.println("1. Xuất file phiếu nhập theo mã phiếu");
-                            System.out.println("0. Thoát");
-                            System.out.print("\n💡 Nhập lựa chọn của bạn: ");
-
-                            int opt = scanner.nextInt();
-                            scanner.nextLine();
-
-                            if (opt == 0) {
-                                System.out.println("Thoát xuất file phiếu nhập thành công.");
-                                break;
-                            }
-
-                            switch (opt) {
-                                case 1:
-                                    xuatPhieuNhapTheoMaPhieuNhap();
-                                    break;
-                                default:
-                                    System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
-                                    break;
-                            }
-                        } catch (Exception e) {
-                            System.out.println("Lỗi xảy ra: " + e.getMessage());
-                            scanner.nextLine();
-                        }
-                    }
+                    xuatPhieuNhapTheoMaPhieuNhap();
+                    break;
+                case 7:
+                    xuatBaoCaoNhapHangTheoNgay();
                     break;
                 default:
                     System.out.println("Lựa chọn không hợp lệ!");
@@ -954,6 +927,82 @@ public class QuanLyNhapHang {
             }
         } catch (Exception e) {
             System.out.println("Lỗi khi xuất phiếu nhập: " + e.getMessage());
+        }
+    }
+
+    public void xuatBaoCaoNhapHangTheoNgay() {
+        Scanner scanner = new Scanner(System.in);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+        DateTimeFormatter displayFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        while (true) {
+            try {
+                System.out.println("Nhập ngày bắt đầu: ");
+                String from = scanner.nextLine().trim();
+
+                System.out.println("Nhập ngày kết thúc: ");
+                String to = scanner.nextLine().trim();
+
+                if (!from.matches("\\d{8}") || !to.matches("\\d{8}")) {
+                    System.out.println("Định dạng ngày không hợp lệ! Vui lòng nhập theo dạng.");
+                    continue;
+                }
+
+                LocalDate fromDate = LocalDate.parse(from, formatter);
+                LocalDate toDate = LocalDate.parse(to, formatter);
+
+                if (fromDate.isAfter(toDate)) {
+                    System.out.println("Ngày bắt đầu phải trước ngày kết thúc, vui lòng nhập lại.");
+                    continue;
+                }
+
+                List<NhapHangDTO> danhSach = NhapHangDAO.timPhieuNhapTheoNgay(fromDate, toDate);
+
+                if (danhSach.isEmpty()) {
+                    System.out.println("Không có phiếu nhập nào trong khoảng thời gian này.");
+                    System.out.print("\nBạn có muốn thử lại không? (y/n): ");
+                    String retry = scanner.nextLine().trim();
+                    if (!retry.equalsIgnoreCase("y")) break;
+                    continue;
+                }
+
+                String fileName = "BaoCaoNhapHang_" + fromDate.format(formatter) + "_den_" + toDate.format(formatter) + ".txt";
+
+                long tongCong = 0;
+                try (PrintWriter writer = new PrintWriter(new FileWriter(fileName))) {
+                    writer.println("══════════════════════════════════════════════════════════════");
+                    writer.println("                   BÁO CÁO NHẬP HÀNG                          ");
+                    writer.println("Ngày lập báo cáo: " + LocalDate.now().format(displayFormatter));
+                    writer.println(" Từ ngày: " + fromDate.format(displayFormatter) + " Đến ngày: " + toDate.format(displayFormatter));
+                    writer.println("══════════════════════════════════════════════════════════════");
+                    writer.printf("%-10s | %-15s | %-10s | %-10s | %-15s%n",
+                            "Mã Phiếu", "Ngày Nhập", "Mã NV", "Mã NCC", "Tổng Tiền");
+                    writer.println("──────────────────────────────────────────────────────────────");
+
+                    for (NhapHangDTO pn : danhSach) {
+                        writer.printf("%-10s | %-15s | %-10s | %-10s | %-15s%n",
+                                pn.getMaPhieu(),
+                                pn.getNgayLapPhieu().toLocalDate().format(displayFormatter),
+                                pn.getMaNV(),
+                                pn.getMaNCC(),
+                                FormatUtil.formatVND(pn.getTongTien()));
+                        tongCong += pn.getTongTien();
+                    }
+                    writer.println("──────────────────────────────────────────────────────────────");
+                    writer.println("TỔNG CỘNG: " + FormatUtil.formatVND(tongCong));
+                    writer.println("══════════════════════════════════════════════════════════════");
+                } catch (IOException e) {
+                    System.out.println("Lỗi khi xuất báo cáo nhập hàng: " + e.getMessage());
+                    return;
+                }
+
+                System.out.println("Xuất báo cáo nhập hàng thành công. Tệp được lưu tại: " + fileName);
+
+            } catch (DateTimeParseException e) {
+                System.out.println("Định dạng ngày không hợp lệ, vui lòng nhập lại.");
+            } catch (Exception e) {
+                System.out.println("Lỗi khi xuất báo cáo nhập hàng: " + e.getMessage());
+            }
         }
     }
 }
