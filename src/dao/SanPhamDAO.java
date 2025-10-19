@@ -23,25 +23,15 @@ public class SanPhamDAO {
                 PreparedStatement stmt = conn.prepareStatement(query)) {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                LocalDate ngaySanXuat = rs.getDate("NgaySanXuat").toLocalDate();
-
-                // HSD (Date -> int ddMMyyyy)
-                LocalDate hSD = rs.getDate("HanSuDung").toLocalDate();
-                int hsdInt = hSD.getDayOfMonth() * 1000000
-                        + hSD.getMonthValue() * 10000
-                        + hSD.getYear();
-
                 list.add(new sanPhamDTO(
-                        rs.getString("MaSP"),
-                        rs.getString("TenSP"),
-                        rs.getInt("Loai"),
-                        rs.getInt("DonViTinh"),
-                        rs.getInt("SoLuongTon"),
-                        rs.getInt("GiaBan"),
-                        ngaySanXuat,
-                        hsdInt,
-                        rs.getString("MoTa"),
-                        rs.getString("TrangThai")));
+                    rs.getString("MaSP"),
+                    rs.getString("TenSP"),
+                    rs.getInt("Loai"),
+                    rs.getInt("DonViTinh"),
+                    rs.getInt("SoLuongTon"),
+                    rs.getInt("GiaBan"),
+                    rs.getString("MoTa"),
+                    rs.getString("TrangThai")));
             }
         } catch (SQLException e) {
             System.err.println("Lỗi khi lấy tất cả sản phẩm: " + e.getMessage());
@@ -49,122 +39,103 @@ public class SanPhamDAO {
         return list;
     }
 
-public static List<sanPhamDTO> timSanPhamTheoTen(String input) {
-    String[] parts = input.split(",");
-    List<String> keywords = new ArrayList<>();
-    for (String p : parts) {
-        String k = p.trim();
-        if (!k.isEmpty()) {
-            // loại bỏ dấu từ khóa
-            keywords.add(removeAccent(k.toLowerCase()));
+    public static List<sanPhamDTO> timSanPhamTheoTen(String input) {
+        String[] parts = input.split(",");
+        List<String> keywords = new ArrayList<>();
+        for (String p : parts) {
+            String k = p.trim();
+            if (!k.isEmpty()) {
+                // loại bỏ dấu từ khóa
+                keywords.add(removeAccent(k.toLowerCase()));
+            }
         }
-    }
-    if (keywords.isEmpty()) {
-        return new ArrayList<>();
-    }
+        if (keywords.isEmpty()) {
+            return new ArrayList<>();
+        }
 
-    StringBuilder sb = new StringBuilder();
-    sb.append("SELECT DISTINCT sp.MaSP, sp.TenSP, sp.Loai, sp.SoLuongTon, sp.DonViTinh, sp.GiaBan, ")
-      .append("sp.NgaySanXuat, sp.HanSuDung, sp.MoTa, sp.TrangThai ")
-      .append("FROM SANPHAM sp ")
-      .append("INNER JOIN LOAI l ON sp.Loai = l.MaLoai ")
-      .append("INNER JOIN DONVI d ON sp.DonViTinh = d.MaDonVi ")
-      .append("WHERE ");
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT DISTINCT sp.MaSP, sp.TenSP, sp.Loai, sp.SoLuongTon, sp.DonViTinh, sp.GiaBan, ")
+        .append("sp.NgaySanXuat, sp.HanSuDung, sp.MoTa, sp.TrangThai ")
+        .append("FROM SANPHAM sp ")
+        .append("INNER JOIN LOAI l ON sp.Loai = l.MaLoai ")
+        .append("INNER JOIN DONVI d ON sp.DonViTinh = d.MaDonVi ")
+        .append("WHERE ");
 
-    // Sử dụng LIKE trên tên sản phẩm (có dấu) nhưng để lọc sơ
-    List<String> conds = new ArrayList<>();
-    for (int i = 0; i < keywords.size(); i++) {
-        conds.add("LOWER(sp.TenSP) LIKE ?");
-    }
-    sb.append(String.join(" OR ", conds));
-    String query = sb.toString();
-
-    List<sanPhamDTO> list = new ArrayList<>();
-    try (Connection conn = JDBCUtil.getConnection();
-         PreparedStatement stmt = conn.prepareStatement(query)) {
-
+        // Sử dụng LIKE trên tên sản phẩm (có dấu) nhưng để lọc sơ
+        List<String> conds = new ArrayList<>();
         for (int i = 0; i < keywords.size(); i++) {
-            String kw = keywords.get(i);
-            stmt.setString(i + 1, "%" + kw + "%");
+            conds.add("LOWER(sp.TenSP) LIKE ?");
         }
+        sb.append(String.join(" OR ", conds));
+        String query = sb.toString();
 
-        ResultSet rs = stmt.executeQuery();
-        while (rs.next()) {
-            String tenSP = rs.getString("TenSP");
-            // loại bỏ dấu tên sản phẩm
-            String tenSPNoAccent = removeAccent(tenSP.toLowerCase());
+        List<sanPhamDTO> list = new ArrayList<>();
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            boolean matches = false;
-            for (String kw : keywords) {
-                if (containsWholeWord(tenSPNoAccent, kw)) {
-                    matches = true;
-                    break;
+            for (int i = 0; i < keywords.size(); i++) {
+                String kw = keywords.get(i);
+                stmt.setString(i + 1, "%" + kw + "%");
+            }
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                String tenSP = rs.getString("TenSP");
+                // loại bỏ dấu tên sản phẩm
+                String tenSPNoAccent = removeAccent(tenSP.toLowerCase());
+
+                boolean matches = false;
+                for (String kw : keywords) {
+                    if (containsWholeWord(tenSPNoAccent, kw)) {
+                        matches = true;
+                        break;
+                    }
                 }
+                if (!matches) {
+                    continue;
+                }
+
+                
+
+                sanPhamDTO sp = new sanPhamDTO(
+                    rs.getString("MaSP"),
+                    rs.getString("TenSP"),
+                    rs.getInt("Loai"),
+                    rs.getInt("DonViTinh"),
+                    rs.getInt("SoLuongTon"),
+                    rs.getInt("GiaBan"),
+                    rs.getString("MoTa"),
+                    rs.getString("TrangThai")
+                );
+                list.add(sp);
             }
-            if (!matches) {
-                continue;
-            }
-
-            LocalDate ngaySanXuat = null;
-            Date d1 = rs.getDate("NgaySanXuat");
-            if (d1 != null) ngaySanXuat = d1.toLocalDate();
-
-            LocalDate hsdDate = null;
-            Date d2 = rs.getDate("HanSuDung");
-            if (d2 != null) hsdDate = d2.toLocalDate();
-
-            int hsdInt = 0;
-            if (hsdDate != null) {
-                hsdInt = hsdDate.getDayOfMonth() * 1000000
-                        + hsdDate.getMonthValue() * 10000
-                        + hsdDate.getYear();
-            }
-
-            sanPhamDTO sp = new sanPhamDTO(
-                rs.getString("MaSP"),
-                rs.getString("TenSP"),
-                rs.getInt("Loai"),
-                rs.getInt("DonViTinh"),
-                rs.getInt("SoLuongTon"),
-                rs.getInt("GiaBan"),
-                ngaySanXuat,
-                hsdInt,
-                rs.getString("MoTa"),
-                rs.getString("TrangThai")
-            );
-            list.add(sp);
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi tìm sản phẩm theo tên: " + e.getMessage());
         }
-    } catch (SQLException e) {
-        System.err.println("Lỗi khi tìm sản phẩm theo tên: " + e.getMessage());
+        return list;
     }
-    return list;
-}
 
-// containsWholeWord giống như trước
-private static boolean containsWholeWord(String fullName, String keyword) {
-    if (fullName == null || keyword == null) return false;
-    int idx = fullName.indexOf(keyword);
-    if (idx < 0) {
-        return false;
+    // containsWholeWord giống như trước
+    private static boolean containsWholeWord(String fullName, String keyword) {
+        if (fullName == null || keyword == null) return false;
+        int idx = fullName.indexOf(keyword);
+        if (idx < 0) {
+            return false;
+        }
+        boolean beforeOk = (idx == 0) || !Character.isLetterOrDigit(fullName.charAt(idx - 1));
+        int endPos = idx + keyword.length();
+        boolean afterOk = (endPos == fullName.length()) || !Character.isLetterOrDigit(fullName.charAt(endPos));
+        return beforeOk && afterOk;
     }
-    boolean beforeOk = (idx == 0) || !Character.isLetterOrDigit(fullName.charAt(idx - 1));
-    int endPos = idx + keyword.length();
-    boolean afterOk = (endPos == fullName.length()) || !Character.isLetterOrDigit(fullName.charAt(endPos));
-    return beforeOk && afterOk;
-}
 
-// hàm removeAccent
-
-
-public static String removeAccent(String s) {
-    if (s == null) return null;
-    String normalized = Normalizer.normalize(s, Normalizer.Form.NFD);
-    String noMarks = normalized.replaceAll("\\p{M}", "");
-    noMarks = noMarks.replace('đ', 'd').replace('Đ', 'D');
-    return noMarks;
-}
-
-
+    // hàm removeAccent
+    public static String removeAccent(String s) {
+        if (s == null) return null;
+        String normalized = Normalizer.normalize(s, Normalizer.Form.NFD);
+        String noMarks = normalized.replaceAll("\\p{M}", "");
+        noMarks = noMarks.replace('đ', 'd').replace('Đ', 'D');
+        return noMarks;
+    }
 
     public static sanPhamDTO timSanPhamTheoMa(String ma) {
         String query = "SELECT sp.MaSP, sp.TenSP, sp.Loai, sp.SoLuongTon, sp.DonViTinh, sp.GiaBan, " +
@@ -181,25 +152,15 @@ public static String removeAccent(String s) {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                LocalDate ngaySanXuat = rs.getDate("NgaySanXuat").toLocalDate();
-
-                // HSD (Date -> int ddMMyyyy)
-                LocalDate hSD = rs.getDate("HanSuDung").toLocalDate();
-                int hsdInt = hSD.getDayOfMonth() * 1000000
-                        + hSD.getMonthValue() * 10000
-                        + hSD.getYear();
-
                 return new sanPhamDTO(
-                        rs.getString("MaSP"),
-                        rs.getString("TenSP"),
-                        rs.getInt("Loai"),
-                        rs.getInt("DonViTinh"),
-                        rs.getInt("SoLuongTon"),
-                        rs.getInt("GiaBan"),
-                        ngaySanXuat,
-                        hsdInt,
-                        rs.getString("MoTa"),
-                        rs.getString("TrangThai"));
+                    rs.getString("MaSP"),
+                    rs.getString("TenSP"),
+                    rs.getInt("Loai"),
+                    rs.getInt("DonViTinh"),
+                    rs.getInt("SoLuongTon"),
+                    rs.getInt("GiaBan"),
+                    rs.getString("MoTa"),
+                    rs.getString("TrangThai"));
             }
         } catch (SQLException e) {
             System.err.println("Lỗi khi tìm sản phẩm theo mã: " + e.getMessage());
@@ -207,24 +168,41 @@ public static String removeAccent(String s) {
         return null;
     }
 
-    public static void themSanPham(sanPhamDTO sp, int loai, int donVi) {
-        String query = "INSERT INTO SANPHAM (MaSP, TenSP, Loai, DonViTinh, GiaBan, NgaySanXuat, HanSuDung, MoTa, TrangThai) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    public static String generateMaSP() {
+        String prefix = "SP";
+        String newID = prefix + "001";
+        String query = "SELECT MaSP FROM SANPHAM ORDER BY CAST(SUBSTRING(MaSP, 3) AS UNSIGNED) DESC LIMIT 1";
 
         try (Connection conn = JDBCUtil.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(query)) {
+            PreparedStatement stmt = conn.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery()) {
+
+            if (rs.next()) {
+                String lastID = rs.getString("MaSP");
+                int number = Integer.parseInt(lastID.substring(2)) + 1;
+                newID = prefix + String.format("%03d", number);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi tạo mã sản phẩm: " + e.getMessage());
+        }
+
+    return newID;
+}
+
+
+    public static void themSanPham(sanPhamDTO sp) {
+        String query = "INSERT INTO SANPHAM (MaSP, TenSP, Loai, DonViTinh, GiaBan, MoTa, TrangThai) VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
             stmt.setString(1, sp.getMaSP());
             stmt.setString(2, sp.getTenSP());
             stmt.setInt(3, sp.getLoaiSP());
             stmt.setInt(4, sp.getDonViTinh());
             stmt.setInt(5, sp.getGiaBan());
-            stmt.setDate(6, Date.valueOf(sp.getNgaySanXuat()));
-
-            // HSD (int ddMMyyyy -> LocalDate -> Date)
-            int hSD = sp.getHSD();
-            String hSDStr = String.format("%08d", hSD);
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
-            LocalDate hSDDate = LocalDate.parse(hSDStr, formatter);
-            stmt.setDate(7, Date.valueOf(hSDDate));
+            
 
             stmt.setString(8, sp.getMoTa());
             stmt.setString(9, sp.getTrangThai());
@@ -240,8 +218,8 @@ public static String removeAccent(String s) {
     }
 
     public static void suaSanPham(sanPhamDTO sp, String maSP) {
-        String query = "UPDATE SANPHAM SET TenSP = ?, Loai = ?, DonViTinh = ?, GiaBan = ?, NgaySanXuat = ?, " +
-                "HanSuDung = ?, MoTa = ?, TrangThai = ? WHERE MaSP = ?";
+        String query = "UPDATE SANPHAM SET TenSP = ?, Loai = ?, DonViTinh = ?, GiaBan = ?,  " +
+                " MoTa = ?, TrangThai = ? WHERE MaSP = ?";
 
         try (Connection conn = JDBCUtil.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -249,15 +227,8 @@ public static String removeAccent(String s) {
             stmt.setInt(2, sp.getLoaiSP());
             stmt.setInt(3, sp.getDonViTinh());
             stmt.setInt(4, sp.getGiaBan());
-            stmt.setDate(5, Date.valueOf(sp.getNgaySanXuat()));
-
-            // HSD (int ddMMyyyy -> LocalDate -> Date)
-            int hSD = sp.getHSD();
-            String hSDStr = String.format("%08d", hSD);
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
-            LocalDate hSDDate = LocalDate.parse(hSDStr, formatter);
-            stmt.setDate(6, Date.valueOf(hSDDate));
-
+            
+    
             stmt.setString(7, sp.getMoTa());
             stmt.setString(8, sp.getTrangThai());
             stmt.setString(9, maSP);
