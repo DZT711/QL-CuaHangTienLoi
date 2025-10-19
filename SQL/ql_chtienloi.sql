@@ -54,7 +54,7 @@ CREATE TABLE SANPHAM (
   CONSTRAINT fk_sanpham_donvi FOREIGN KEY (DonViTinh) REFERENCES DONVI (MaDonVi)
 );
 
-INSERT INTO SANPHAM (MaSP, TenSP, Loai, SoLuongTon, DonViTinh, GiaBan, MoTa, TrangThai) VALUES
+
 INSERT INTO SANPHAM (MaSP, TenSP, Loai, SoLuongTon, DonViTinh, GiaBan, MoTa, TrangThai) VALUES
 -- 1. ĐỒ UỐNG
 ('SP001', 'Coca-Cola 330ml', 1, 80, 3, 10000, 'Nước giải khát có gas vị truyền thống', 'active'),
