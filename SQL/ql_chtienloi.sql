@@ -117,7 +117,7 @@ CREATE TABLE HANGHOA (
     SoLuongNhap INT(11) NOT NULL CHECK (SoLuongNhap >= 0),
     SoLuongConLai INT(11) NOT NULL CHECK (SoLuongConLai >= 0),
     NgaySanXuat DATE DEFAUlT NULL,
-    HanSuDUng DATE DEFAULT NULL,
+    HanSuDung DATE DEFAULT NULL,
     TrangThai ENUM ('active', 'inactive', 'expired') DEFAULT 'active',
     CONSTRAINT fk_hanghoa_sanpham FOREIGN KEY (MaSP) REFERENCES SANPHAM (MaSP),
     CONSTRAINT fk_hanghoa_ncc FOREIGN KEY (MaNCC) REFERENCES NHACUNGCAP (MaNCC)
