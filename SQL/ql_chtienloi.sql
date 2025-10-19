@@ -9,13 +9,16 @@ CREATE TABLE LOAI (
 );
 
 INSERT INTO LOAI (MaLoai, TenLoai, MoTa) VALUES
-(1, 'Đồ uống', 'Các loại nước giải khát và đồ uống đóng chai, lon, hộp'),
-(2, 'Thực phẩm ăn liền & khô', 'Thực phẩm chế biến sẵn, tiện lợi, dễ bảo quản'),
-(3, 'Thực phẩm tươi & đông lạnh', 'Thực phẩm tươi sống, đóng gói hoặc bảo quản lạnh'),
-(4, 'Gia dụng & vệ sinh cá nhân', 'Sản phẩm gia dụng và chăm sóc cá nhân hằng ngày'),
-(5, 'Văn phòng phẩm & tiện ích', 'Đồ dùng học tập, văn phòng và các vật dụng tiện ích nhỏ'),
-(6, 'Thức ăn cho thú cưng', 'Sản phẩm dinh dưỡng cho thú nuôi'),
-(7, 'Y tế & mỹ phẩm cơ bản', 'Sản phẩm chăm sóc sức khỏe và mỹ phẩm thiết yếu');
+(1, 'Đồ uống', 'Các sản phẩm phục vụ nhu cầu giải khát hằng ngày'),
+(2, 'Thực phẩm ăn liền', 'Thực phẩm chế biến sẵn, tiện lợi, sử dụng nhanh'),
+(3, 'Bánh kẹo & Snack', 'Sản phẩm ăn vặt, dùng trong các bữa phụ hoặc giải trí'),
+(4, 'Sữa & sản phẩm từ sữa', 'Sản phẩm cung cấp dinh dưỡng từ sữa và chế phẩm liên quan')
+(5, 'Thực phẩm khô & gia vị', 'Sản phẩm dùng trong nấu nướng và bảo quản lâu dài'),
+(6, 'Đồ gia dụng & vệ sinh cá nhân', 'Sản phẩm phục vụ sinh hoạt và chăm sóc cá nhân hằng ngày'),
+(7, 'Mỹ phẩm & chăm sóc cơ thể', 'Sản phẩm làm đẹp và chăm sóc da, tóc, cơ thể'),
+(8, 'Đồ dùng văn phòng & tiện ích', 'Sản phẩm phục vụ học tập, làm việc và sinh hoạt hằng ngày'),
+(9, 'Thức ăn & phụ kiện thú cưng', 'Sản phẩm dành cho chăm sóc và dinh dưỡng thú nuôi'),
+(10, 'Đồ y tế & chăm sóc sức khỏe', 'Sản phẩm hỗ trợ bảo vệ và chăm sóc sức khỏe cá nhân');
 
 
 -- Bảng DONVI
@@ -46,38 +49,133 @@ CREATE TABLE SANPHAM (
   SoLuongTon INT(11) NOT NULL DEFAULT 0,
   DonViTinh INT(11) NOT NULL,
   GiaBan INT(11) NOT NULL CHECK (GiaBan >= 0),
-  NgaySanXuat DATE DEFAULT NULL,
-  HanSuDung DATE DEFAULT NULL,
   MoTa VARCHAR(255) DEFAULT NULL,
   TrangThai ENUM('active', 'inactive') DEFAULT 'active',
   CONSTRAINT fk_sanpham_loai FOREIGN KEY (Loai) REFERENCES LOAI (MaLoai),
   CONSTRAINT fk_sanpham_donvi FOREIGN KEY (DonViTinh) REFERENCES DONVI (MaDonVi)
 );
 
-INSERT INTO SANPHAM (MaSP, TenSP, Loai, SoLuongTon, DonViTinh, GiaBan, NgaySanXuat, HanSuDung, MoTa, TrangThai) VALUES
-('SP001', 'Coca Cola 330ml', 1, 100, 3, 10000, '2025-01-01', '2026-01-01', 'Nước ngọt có gas Coca Cola lon 330ml', 'active'),
-('SP002', 'Sting Dâu 330ml', 1, 80, 3, 9000, '2025-01-10', '2026-01-10', 'Nước tăng lực Sting hương dâu lon 330ml', 'active'),
-('SP003', 'Sữa tươi Vinamilk 1L', 1, 50, 1, 30000, '2025-02-01', '2025-08-01', 'Sữa tươi tiệt trùng Vinamilk hộp 1 lít', 'active'),
-('SP004', 'Aquafina 500ml', 1, 120, 1, 7000, '2025-01-15', '2026-01-15', 'Nước tinh khiết Aquafina chai 500ml', 'active'),
-('SP005', 'Mì Hảo Hảo tôm chua cay', 2, 200, 2, 4000, '2025-02-01', '2026-02-01', 'Mì gói Hảo Hảo vị tôm chua cay 75g', 'active'),
-('SP006', 'Phở ăn liền Cung Đình bò hầm', 2, 150, 2, 6500, '2025-01-20', '2026-01-20', 'Phở ăn liền Cung Đình vị bò hầm', 'active'),
-('SP007', 'Bánh Oreo 133g', 2, 90, 2, 15000, '2025-01-05', '2025-07-05', 'Bánh quy Oreo nhân kem', 'active'),
-('SP008', 'Snack khoai tây Lays 52g', 2, 100, 2, 12000, '2025-02-10', '2026-02-10', 'Snack khoai tây Lays vị BBQ', 'active'),
-('SP009', 'Thịt gà đông lạnh 1kg', 3, 40, 11, 75000, '2025-01-25', '2025-06-25', 'Thịt gà đông lạnh đóng bao 1kg', 'active'),
-('SP010', 'Cá basa phi lê 500g', 3, 60, 11, 55000, '2025-02-01', '2025-07-01', 'Cá basa phi lê đông lạnh 500g', 'active'),
-('SP011', 'Rau cải ngọt 500g', 3, 70, 9, 20000, '2025-02-20', '2025-02-28', 'Rau cải ngọt tươi 500g', 'active'),
-('SP012', 'Nước giặt OMO 3.8L', 4, 30, 10, 145000, '2025-01-15', '2028-01-15', 'Nước giặt OMO matic hương ngàn hoa', 'active'),
-('SP013', 'Nước rửa chén Sunlight 750ml', 4, 60, 1, 32000, '2025-01-20', '2028-01-20', 'Nước rửa chén Sunlight chanh 750ml', 'active'),
-('SP014', 'Bàn chải đánh răng P/S', 4, 100, 4, 12000, '2025-02-01', '2028-02-01', 'Bàn chải đánh răng P/S lông mềm', 'active'),
-('SP015', 'Giấy vệ sinh Bless You 10 cuộn', 4, 40, 8, 50000, '2025-01-25', '2028-01-25', 'Giấy vệ sinh Bless You 3 lớp', 'active'),
-('SP016', 'Bút bi Thiên Long xanh', 5, 200, 4, 5000, '2025-01-01', '2028-01-01', 'Bút bi Thiên Long mực xanh', 'active'),
-('SP017', 'Tập vở 200 trang', 5, 150, 4, 12000, '2025-02-01', '2028-02-01', 'Tập vở kẻ ngang 200 trang', 'active'),
-('SP018', 'Kéo cắt giấy 18cm', 5, 50, 4, 25000, '2025-01-15', '2028-01-15', 'Kéo cắt giấy cán nhựa 18cm', 'active'),
-('SP019', 'Pate cho mèo Whiskas 85g', 6, 80, 2, 18000, '2025-01-10', '2026-01-10', 'Pate Whiskas vị cá ngừ cho mèo', 'active'),
-('SP020', 'Thức ăn hạt cho chó Pedigree 1.5kg', 6, 40, 11, 120000, '2025-01-20', '2026-01-20', 'Thức ăn hạt Pedigree vị gà 1.5kg', 'active'),
-('SP021', 'Khẩu trang y tế 50 cái', 7, 100, 11, 40000, '2025-01-01', '2026-01-01', 'Khẩu trang y tế 4 lớp hộp 50 cái', 'active'),
-('SP022', 'Nước rửa tay Lifebuoy 500ml', 7, 60, 1, 45000, '2025-01-25', '2026-01-25', 'Nước rửa tay Lifebuoy diệt khuẩn', 'active'),
-('SP023', 'Kem đánh răng Colgate 200g', 7, 90, 2, 30000, '2025-01-15', '2026-01-15', 'Kem đánh răng Colgate hương bạc hà', 'active');
+INSERT INTO SANPHAM (MaSP, TenSP, Loai, SoLuongTon, DonViTinh, GiaBan, MoTa, TrangThai) VALUES
+-- 1. ĐỒ UỐNG
+('SP001', 'Coca-Cola 330ml', 1, 100, 3, 10000, 'Nước giải khát có gas vị truyền thống', 'active'),
+('SP002', 'Pepsi 330ml', 1, 100, 3, 10000, 'Nước giải khát có gas vị cola', 'active'),
+('SP003', '7Up 330ml', 1, 80, 3, 10000, 'Nước giải khát có gas vị chanh', 'active'),
+('SP004', 'Aquafina 500ml', 1, 120, 1, 8000, 'Nước suối tinh khiết', 'active'),
+('SP005', 'Trà xanh 0 độ 455ml', 1, 90, 1, 12000, 'Trà xanh hương tự nhiên', 'active'),
+
+-- 2. THỰC PHẨM ĂN LIỀN
+('SP006', 'Mì Hảo Hảo tôm chua cay', 2, 200, 2, 6000, 'Mì gói ăn liền hương tôm chua cay', 'active'),
+('SP007', 'Phở ăn liền Gấu Đỏ bò hầm', 2, 150, 2, 7000, 'Phở ăn liền tiện lợi', 'active'),
+('SP008', 'Miến Phú Hương gà hầm', 2, 120, 2, 7000, 'Miến ăn liền vị gà hầm', 'active'),
+
+-- 3. BÁNH KẸO & SNACK
+('SP009', 'Snack khoai tây Lay’s vị muối biển 52g', 3, 100, 2, 15000, 'Snack khoai tây chiên giòn', 'active'),
+('SP010', 'Bánh ChocoPie hộp 6 cái', 3, 60, 4, 30000, 'Bánh mềm nhân marshmallow phủ socola', 'active'),
+('SP011', 'Kẹo bạc hà Mentos 37g', 3, 80, 2, 12000, 'Kẹo thơm miệng vị bạc hà', 'active'),
+
+-- 4. SỮA & SẢN PHẨM TỪ SỮA
+('SP012', 'Sữa tươi Vinamilk 180ml', 4, 100, 1, 8000, 'Sữa tươi tiệt trùng có đường', 'active'),
+('SP013', 'Sữa chua uống Yomost 180ml', 4, 70, 1, 9000, 'Sữa chua uống vị cam', 'active'),
+('SP014', 'Sữa Milo hộp 180ml', 4, 80, 4, 10000, 'Thức uống lúa mạch bổ sung năng lượng', 'active'),
+
+-- 5. THỰC PHẨM KHÔ & GIA VỊ
+('SP015', 'Nước mắm Nam Ngư 500ml', 5, 40, 1, 18000, 'Nước mắm cá cơm truyền thống', 'active'),
+('SP016', 'Tương ớt Chinsu 250g', 5, 60, 1, 12000, 'Tương ớt đậm vị cay', 'active'),
+('SP017', 'Muối i-ốt 500g', 5, 80, 9, 5000, 'Muối i-ốt tinh khiết', 'active'),
+
+-- 6. ĐỒ GIA DỤNG & VỆ SINH CÁ NHÂN
+('SP018', 'Bàn chải P/S trung bình', 6, 50, 1, 15000, 'Bàn chải đánh răng lông mềm', 'active'),
+('SP019', 'Kem đánh răng CloseUp 180g', 6, 40, 1, 25000, 'Kem đánh răng hương bạc hà', 'active'),
+('SP020', 'Giấy vệ sinh Bless You 10 cuộn', 6, 30, 8, 48000, 'Giấy vệ sinh cao cấp', 'active'),
+
+-- 7. MỸ PHẨM & CHĂM SÓC CƠ THỂ
+('SP021', 'Sữa rửa mặt Hazeline 100g', 7, 40, 1, 45000, 'Sữa rửa mặt chiết xuất nghệ & kiwi', 'active'),
+('SP022', 'Dầu gội Clear Men 340ml', 7, 40, 1, 75000, 'Dầu gội sạch gàu cho nam', 'active'),
+('SP023', 'Lăn khử mùi Nivea Men 50ml', 7, 35, 1, 65000, 'Khử mùi và chăm sóc da', 'active'),
+
+-- 8. ĐỒ DÙNG VĂN PHÒNG & TIỆN ÍCH
+('SP024', 'Bút bi Thiên Long TL-027', 8, 100, 1, 5000, 'Bút bi màu xanh 0.5mm', 'active'),
+('SP025', 'Tập 200 trang Campus', 8, 80, 1, 18000, 'Tập học sinh 200 trang kẻ ngang', 'active'),
+('SP026', 'Keo dán giấy Thiên Long', 8, 60, 1, 12000, 'Keo dán tiện lợi', 'active'),
+
+-- 9. THỨC ĂN & PHỤ KIỆN THÚ CƯNG
+('SP027', 'Thức ăn mèo Whiskas 1.2kg', 9, 20, 9, 95000, 'Thức ăn khô cho mèo trưởng thành', 'active'),
+('SP028', 'Thức ăn chó Pedigree 1.3kg', 9, 20, 9, 100000, 'Thức ăn khô cho chó lớn', 'active'),
+('SP029', 'Bát ăn nhựa cho thú cưng', 9, 15, 1, 25000, 'Bát nhựa dùng cho chó mèo', 'active'),
+
+-- 10. ĐỒ Y TẾ & CHĂM SÓC SỨC KHỎE
+('SP030', 'Khẩu trang y tế 4 lớp hộp 50 cái', 10, 100, 4, 45000, 'Khẩu trang y tế lọc bụi, vi khuẩn', 'active'),
+('SP031', 'Nhiệt kế điện tử Microlife', 10, 10, 1, 120000, 'Nhiệt kế đo thân nhiệt nhanh', 'active'),
+('SP032', 'Dung dịch rửa tay Lifebuoy 235ml', 10, 40, 1, 40000, 'Dung dịch rửa tay kháng khuẩn', 'active');
+
+
+CREATE TABLE HANGHOA (
+    MaHang VARCHAR(20) PRIMARY KEY,
+    MaSP VARCHAR(20) NOT NULL,
+    MaNCC VARCHAR(20) NOT NULL,
+    GiaNhap INT(11) NOT NULL CHECK (GiaNhap >= 0),
+    SoLuongNhap INT(11) NOT NULL CHECK (SoLuongNhap >= 0),
+    SoLuongConLai INT(11) NOT NULL CHECK (SoLuongConLai >= 0),
+    NgaySanXuat DATE DEFAUlT NULL,
+    HanSuDUng DATE DEFAULT NULL,
+    TrangThai ENUM ('active', 'inactive', 'expired') DEFAULT 'active',
+    CONSTRAINT fk_hanghoa_sanpham FOREIGN KEY (MaSP) REFERENCES SANPHAM (MaSP),
+    CONSTRAINT fk_hanghoa_ncc FOREIGN KEY (MaNCC) REFERENCES NHACUNGCAP (MaNCC)
+)
+
+INSERT INTO HANGHOA (MaHang, MaSP, MaNCC, GiaNhap, SoLuongNhap, SoLuongConLai, NgaySanXuat, HanSuDung, TrangThai) VALUES
+-- 1. Đồ uống (Coca, Pepsi, 7Up, Aquafina, Trà xanh)
+('MH001', 'SP001', 'NCC003', 7000, 50, 50, '2025-08-01', '2026-08-01', 'active'),
+('MH002', 'SP001', 'NCC003', 7200, 30, 30, '2025-09-10', '2026-09-10', 'active'),
+('MH003', 'SP002', 'NCC004', 6800, 40, 40, '2025-08-15', '2026-08-15', 'active'),
+('MH004', 'SP004', 'NCC003', 5000, 100, 100, '2025-07-01', '2026-07-01', 'active'),
+('MH005', 'SP005', 'NCC003', 8000, 60, 60, '2025-09-01', '2026-09-01', 'active'),
+
+-- 2. Thực phẩm ăn liền
+('MH006', 'SP006', 'NCC002', 3500, 100, 100, '2025-06-01', '2026-06-01', 'active'),
+('MH007', 'SP007', 'NCC002', 4000, 80, 80, '2025-07-15', '2026-07-15', 'active'),
+('MH008', 'SP008', 'NCC002', 4200, 70, 70, '2025-07-20', '2026-07-20', 'active'),
+
+-- 3. Bánh kẹo & Snack
+('MH009', 'SP009', 'NCC005', 9000, 60, 60, '2025-08-05', '2026-08-05', 'active'),
+('MH010', 'SP010', 'NCC005', 22000, 40, 40, '2025-07-01', '2026-07-01', 'active'),
+('MH011', 'SP011', 'NCC005', 8000, 50, 50, '2025-08-01', '2026-08-01', 'active'),
+
+-- 4. Sữa & sản phẩm từ sữa
+('MH012', 'SP012', 'NCC001', 6000, 100, 100, '2025-09-01', '2025-12-01', 'active'),
+('MH013', 'SP013', 'NCC001', 7000, 70, 70, '2025-08-15', '2025-11-15', 'active'),
+('MH014', 'SP014', 'NCC001', 7500, 80, 80, '2025-09-05', '2025-12-05', 'active'),
+
+-- 5. Thực phẩm khô & gia vị
+('MH015', 'SP015', 'NCC004', 12000, 40, 40, '2025-05-10', '2027-05-10', 'active'),
+('MH016', 'SP016', 'NCC004', 8000, 50, 50, '2025-04-01', '2026-04-01', 'active'),
+('MH017', 'SP017', 'NCC004', 3000, 60, 60, '2025-03-01', '2027-03-01', 'active'),
+
+-- 6. Đồ gia dụng & vệ sinh cá nhân
+('MH018', 'SP018', 'NCC004', 10000, 40, 40, '2025-01-01', NULL, 'active'),
+('MH019', 'SP019', 'NCC004', 18000, 30, 30, '2025-02-01', '2028-02-01', 'active'),
+('MH020', 'SP020', 'NCC004', 35000, 30, 30, '2025-06-01', NULL, 'active'),
+
+-- 7. Mỹ phẩm & chăm sóc cơ thể
+('MH021', 'SP021', 'NCC004', 30000, 40, 40, '2025-03-01', '2027-03-01', 'active'),
+('MH022', 'SP022', 'NCC004', 50000, 40, 40, '2025-02-15', '2027-02-15', 'active'),
+('MH023', 'SP023', 'NCC004', 45000, 35, 35, '2025-02-20', '2027-02-20', 'active'),
+
+-- 8. Văn phòng phẩm & tiện ích
+('MH024', 'SP024', 'NCC004', 2500, 100, 100, '2025-01-01', NULL, 'active'),
+('MH025', 'SP025', 'NCC004', 12000, 80, 80, '2025-01-01', NULL, 'active'),
+('MH026', 'SP026', 'NCC004', 8000, 60, 60, '2025-01-01', NULL, 'active'),
+
+-- 9. Thức ăn & phụ kiện thú cưng
+('MH027', 'SP027', 'NCC007', 70000, 20, 20, '2025-05-01', '2026-05-01', 'active'),
+('MH028', 'SP028', 'NCC007', 75000, 20, 20, '2025-05-01', '2026-05-01', 'active'),
+('MH029', 'SP029', 'NCC007', 18000, 15, 15, '2025-05-01', NULL, 'active'),
+
+-- 10. Đồ y tế & chăm sóc sức khỏe
+('MH030', 'SP030', 'NCC007', 30000, 50, 50, '2025-06-01', '2027-06-01', 'active'),
+('MH031', 'SP031', 'NCC007', 85000, 10, 10, '2025-06-01', '2028-06-01', 'active'),
+('MH032', 'SP032', 'NCC007', 25000, 40, 40, '2025-07-01', '2027-07-01', 'active');
+
 
 
 -- Bảng NHACUNGCAP
