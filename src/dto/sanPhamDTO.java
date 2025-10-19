@@ -1,8 +1,7 @@
 package dto;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
+import dao.SanPhamDAO;
 
 public class sanPhamDTO {
     private String maSP;
@@ -90,19 +89,37 @@ public class sanPhamDTO {
         this.trangThai = trangThai;
     }
 
-    /*
-    public void inthongTinSanPham() {
-        String hsdStr = String.format("%08d", hSD);
-        hsdStr = hsdStr.substring(0, 2) + "/" + hsdStr.substring(2, 4) + "/" + hsdStr.substring(4, 8);
-
-        System.out.printf("%-10s | %-20s | %-10s | %-10s | %-10s | %-10s | %-15s | %-10s | %-20s\n",
-                maSP, tenSP, loaiSP, donViTinh, soLuongTon, giaBan, ngaySanXuat.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), hsdStr, moTa, trangThai);
-
-    }
-     */
 
     public void nhapThongTinSanPham() {
+        Scanner scanner = new Scanner(System.in);
+        this.maSP = SanPhamDAO.generateMaSP();
 
+        System.out.println("Nhập tên sản phẩm: ");
+        this.tenSP = scanner.nextLine().trim();
+
+        System.out.println("Nhập loại sản phẩm: ");
+        this.loaiSP = Integer.parseInt(scanner.nextLine().trim());
+        if (this.loaiSP < 1 || this.loaiSP > 10) {
+            System.out.println("Loại sản phẩm không hợp lệ, vui lòng nhập lại");
+            return;
+        }
+
+        System.out.println("Nhập đơn vị tính: ");
+        this.donViTinh = Integer.parseInt(scanner.nextLine().trim());
+        if (this.donViTinh < 1 || this.donViTinh > 11) {
+            System.out.println("Đơn vị tính không hợp lệ, vui lòng nhập lại");
+            return;
+        }
+
+        System.out.println("Nhập giá bán: ");
+        this.giaBan = Integer.parseInt(scanner.nextLine().trim());
+        if (this.giaBan < 0) {
+            System.out.println("Giá bán không hợp lệ, vui lòng nhập lại");
+            return;
+        }
+
+        System.out.println("Nhập mô tả: ");
+        this.moTa = scanner.nextLine().trim();
     }
 
     public boolean sua() {
