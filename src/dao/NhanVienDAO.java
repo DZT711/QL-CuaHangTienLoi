@@ -263,6 +263,111 @@ public class NhanVienDAO {
         return list;
     }
 
-    // IN thống kê nhân viên theo
+    // ========= THỐNG KÊ NHÂN VIÊN =======
+
+    // Lấy thống kê cơ bản: [tổng số, đang làm việc, đã nghỉ việc]
+    public static int[] layThongKeCoBan() {
+        String query = "SELECT " +
+                "COUNT(*) as total, " +
+                "SUM(CASE WHEN TrangThai = 'active' THEN 1 ELSE 0 END) as active, " +
+                "SUM(CASE WHEN TrangThai = 'inactive' THEN 1 ELSE 0 END) as inactive " +
+                "FROM NHANVIEN";
+
+        try (Connection conn = JDBCUtil.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return new int[] {
+                        rs.getInt("total"),
+                        rs.getInt("active"),
+                        rs.getInt("inactive")
+                };
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi lấy thống kê cơ bản: " + e.getMessage());
+        }
+        return new int[] { 0, 0, 0 };
+    }
+
+    // Lấy lương trung bình
+    public static long layLuongTrungBinh() {
+        String query = "SELECT AVG(Luong) as avgSalary FROM NHANVIEN WHERE TrangThai = 'active'";
+
+        try (Connection conn = JDBCUtil.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return Math.round(rs.getDouble("avgSalary"));
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi lấy lương trung bình: " + e.getMessage());
+        }
+        return 0;
+    }
+
+    // Lấy tổng quỹ lương (chính xác từ database)
+    public static long layTongQuyLuong() {
+        String query = "SELECT SUM(Luong) as totalSalary FROM NHANVIEN WHERE TrangThai = 'active'";
+
+        try (Connection conn = JDBCUtil.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getLong("totalSalary");
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi lấy tổng quỹ lương: " + e.getMessage());
+        }
+        return 0;
+    }
+
+    // Lấy thống kê theo chức vụ: [số nhân viên, số quản lý]
+    public static int[] layThongKeTheoChucVu() {
+        String query = "SELECT " +
+                "SUM(CASE WHEN ChucVu = 'NV' THEN 1 ELSE 0 END) as nv, " +
+                "SUM(CASE WHEN ChucVu = 'QL' THEN 1 ELSE 0 END) as ql " +
+                "FROM NHANVIEN WHERE TrangThai = 'active'";
+
+        try (Connection conn = JDBCUtil.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return new int[] {
+                        rs.getInt("nv"),
+                        rs.getInt("ql")
+                };
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi lấy thống kê chức vụ: " + e.getMessage());
+        }
+        return new int[] { 0, 0 };
+    }
+
+    // Lấy thống kê theo giới tính: [số nam, số nữ]
+    public static int[] layThongKeTheoGioiTinh() {
+        String query = "SELECT " +
+                "SUM(CASE WHEN GioiTinh = 'Nam' THEN 1 ELSE 0 END) as nam, " +
+                "SUM(CASE WHEN GioiTinh = 'Nu' THEN 1 ELSE 0 END) as nu " +
+                "FROM NHANVIEN WHERE TrangThai = 'active'";
+
+        try (Connection conn = JDBCUtil.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return new int[] {
+                        rs.getInt("nam"),
+                        rs.getInt("nu")
+                };
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi lấy thống kê giới tính: " + e.getMessage());
+        }
+        return new int[] { 0, 0 };
+    }
 
 }

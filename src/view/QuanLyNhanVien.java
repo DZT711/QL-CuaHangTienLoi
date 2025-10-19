@@ -4,6 +4,7 @@ import java.util.Scanner;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.InputMismatchException;
 import java.util.List;
 import dao.NhanVienDAO;
 import dto.NhanVienDTO;
@@ -70,7 +71,7 @@ public class QuanLyNhanVien {
                     timKiemNhanVien();
                     break;
                 case 5:
-                    // thongKeNhanVien();
+                    thongKeNhanVien();
                     break;
                 case 6:
                     xemDanhSachNhanVien();
@@ -403,8 +404,8 @@ public class QuanLyNhanVien {
     public void xoaNhanVien() {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n╔════════════════════════════════════════════════════════════════════╗");
-          System.out.println("║                       XÓA NHÂN VIÊN THEO MÃ                        ║");
-          System.out.println("╚════════════════════════════════════════════════════════════════════╝");
+        System.out.println("║                       XÓA NHÂN VIÊN THEO MÃ                        ║");
+        System.out.println("╚════════════════════════════════════════════════════════════════════╝");
 
         System.out.print("📝 Nhập mã nhân viên cần xóa: ");
         String maNV = sc.nextLine().trim();
@@ -587,11 +588,149 @@ public class QuanLyNhanVien {
 
     // Các phương thức hiển thị/ chọn đã được gom về util.tablePrinter
 
-    // ========= THỐNG KÊ NHÂN VIÊN =======
+    // ========= THỐNG KÊ NHÂN VIÊN ==========
     public void thongKeNhanVien() {
+        Scanner sc = new Scanner(System.in);
+
+        // Lấy thống kê từ DAO
+        int[] basicStats = NhanVienDAO.layThongKeCoBan();
+        int tongSoNV = basicStats[0];
+        int dangLamViec = basicStats[1];
+        int daNghiViec = basicStats[2];
+
+        if (tongSoNV == 0) {
+            System.out.println("❌ Không có dữ liệu nhân viên để thống kê!");
+            System.out.print("\n⏸️  Nhấn Enter để tiếp tục...");
+            sc.nextLine();
+            return;
+        }
+
+        // Lấy lương (chính xác từ database)
+        long luongTrungBinh = NhanVienDAO.layLuongTrungBinh();
+        long tongQuyLuong = NhanVienDAO.layTongQuyLuong(); // Chính xác: SUM(luong) từ SQL
+
+        // Hiển thị giao diện cải thiện
+        System.out.println("\n╔════════════════════════════════════════════════════════════════════════════════════╗");
+        System.out.println("║                          📊 THỐNG KÊ TỔNG QUAN NHÂN VIÊN 📊                        ║");
+        System.out.println("╚════════════════════════════════════════════════════════════════════════════════════╝");
+
+        System.out.println("\n┌──────────────────────────────────────────────────────────────────────────────────┐");
+        System.out.println("│                                📈 SỐ LIỆU CHÍNH 📈                               │");
+        System.out.println("└──────────────────────────────────────────────────────────────────────────────────┘");
+
+        // Tính tỷ lệ phần trăm
+        double tyLeDangLamViec = (double) dangLamViec / tongSoNV * 100;
+        double tyLeDaNghiViec = (double) daNghiViec / tongSoNV * 100;
+
+        // Định dạng giá trị (làm cho code printf gọn hơn)
+        String valDangLam = String.format("%d (%.1f%%)", dangLamViec, tyLeDangLamViec);
+        String valDaNghi = String.format("%d (%.1f%%)", daNghiViec, tyLeDaNghiViec);
+        String valTongLuong = String.format("%,d VNĐ", tongQuyLuong);
+        String valLuongTB = String.format("%,d VNĐ", luongTrungBinh);
+
+        System.out.println("┌──────────────────────────────────────────────────────────────────────────────────┐");
+        System.out.printf("│ %-50s %29d │%n", "📊 Tổng số nhân viên:", tongSoNV);
+        System.out.printf("│ %-50s %28s │%n", "✅ Đang làm việc:", valDangLam);
+        System.out.printf("│ %-50s %28s │%n", "❌ Đã nghỉ việc:", valDaNghi);
+        System.out.printf("│ %-50s %29s │%n", "💰 Tổng quỹ lương (tháng):", valTongLuong);
+        System.out.printf("│ %-50s %29s │%n", "💵 Lương trung bình:", valLuongTB);
+        System.out.println("└──────────────────────────────────────────────────────────────────────────────────┘");
+
+        // Menu xem chi tiết với vòng lặp
+        while (true) {
+            System.out
+                    .println("\n┌──────────────────────────────────────────────────────────────────────────────────┐");
+            System.out.println("│                           📋 MENU CHI TIẾT THỐNG KÊ 📋                           │");
+            System.out.println("└──────────────────────────────────────────────────────────────────────────────────┘");
+            System.out.println("┌──────────────────────────────────────────────────────────────────────────────────┐");
+            System.out.printf("│ %-80s │%n", " 1. 👔 Thống kê theo chức vụ (NV/QL)");
+            System.out.printf("│ %-80s │%n", " 2. ⚧ Thống kê theo giới tính (Nam/Nữ)");
+            System.out.printf("│ %-80s │%n", " 0. 🔙 Quay lại menu chính");
+            System.out.println("└──────────────────────────────────────────────────────────────────────────────────┘");
+            System.out.print("\n➤ Nhập lựa chọn: ");
+
+            int choice;
+            try {
+                choice = sc.nextInt();
+                sc.nextLine();
+            } catch (InputMismatchException e) {
+                System.out.println("❌ Lựa chọn phải là một con số!");
+                sc.nextLine();
+                continue;
+            }
+
+            switch (choice) {
+                case 1:
+                    hienThiBieuDoChucVu();
+                    System.out.print("\n⏸️  Nhấn Enter để tiếp tục...");
+                    sc.nextLine();
+                    break;
+                case 2:
+                    hienThiBieuDoGioiTinh();
+                    System.out.print("\n⏸️  Nhấn Enter để tiếp tục...");
+                    sc.nextLine();
+                    break;
+                case 0:
+                    return;
+                default:
+                    System.out.println("❌ Lựa chọn không hợp lệ! Vui lòng chọn từ 0 đến 2.");
+            }
+        }
     }
 
-    // ========= IN TOÀN BỘ NHÂN VIÊN =======
+    // Hiển thị biểu đồ chức vụ
+    private void hienThiBieuDoChucVu() {
+        int[] positionStats = NhanVienDAO.layThongKeTheoChucVu();
+        int soNV = positionStats[0];
+        int soQL = positionStats[1];
+        int tongSo = soNV + soQL;
+
+        if (tongSo == 0) {
+            System.out.println("❌ Không có dữ liệu chức vụ!");
+            return;
+        }
+
+        double tyLeNV = (double) soNV / tongSo * 100;
+        double tyLeQL = (double) soQL / tongSo * 100;
+
+        System.out.println("\n╔════════════════════════════════════════════════════════════════════════════════════╗");
+        System.out.println("║                           👔 THỐNG KÊ THEO CHỨC VỤ 👔                              ║");
+        System.out.println("╚════════════════════════════════════════════════════════════════════════════════════╝");
+
+        System.out.println("┌──────────────────────────────────────────────────────────────────────────────────┐");
+        System.out.printf("│ 👷 Nhân viên (NV): %-61s │%n", String.format("%d người (%.1f%%)", soNV, tyLeNV));
+        System.out.printf("│ 👨‍💼 Quản lý (QL): %-61s │%n", String.format("%d người (%.1f%%)", soQL, tyLeQL));
+        System.out.println("└──────────────────────────────────────────────────────────────────────────────────┘");
+
+    }
+
+    // Hiển thị biểu đồ giới tính
+    private void hienThiBieuDoGioiTinh() {
+        int[] genderStats = NhanVienDAO.layThongKeTheoGioiTinh();
+        int soNam = genderStats[0];
+        int soNu = genderStats[1];
+        int tongSo = soNam + soNu;
+
+        if (tongSo == 0) {
+            System.out.println("❌ Không có dữ liệu giới tính!");
+            return;
+        }
+
+        double tyLeNam = (double) soNam / tongSo * 100;
+        double tyLeNu = (double) soNu / tongSo * 100;
+
+        System.out.println("\n╔════════════════════════════════════════════════════════════════════════════════════╗");
+        System.out.println("║                            ⚧ THỐNG KÊ THEO GIỚI TÍNH ⚧                             ║");
+        System.out.println("╚════════════════════════════════════════════════════════════════════════════════════╝");
+
+        System.out.println("┌──────────────────────────────────────────────────────────────────────────────────┐");
+        System.out.printf("│ 👨 Nam: %-72s │%n", String.format("%d người (%.1f%%)", soNam, tyLeNam));
+        System.out.printf("│ 👩 Nữ: %-73s │%n", String.format("%d người (%.1f%%)", soNu, tyLeNu));
+        System.out.println("└──────────────────────────────────────────────────────────────────────────────────┘");
+
+    }
+
+    // ========= IN TOÀN BỘ NHÂN VIÊN ===========
     public void xemDanhSachNhanVien() {
         Scanner sc = new Scanner(System.in);
         System.out.println("\n╔════════════════════════════════════════════════════════════════════╗");
@@ -664,7 +803,7 @@ public class QuanLyNhanVien {
         sc.nextLine();
     }
 
-    // ========= HIỂN THỊ THÔNG TIN CHI TIẾT NHÂN VIÊN =======
+    // ========= HIỂN THỊ THÔNG TIN CHI TIẾT NHÂN VIÊN ==============
     /**
      * In chi tiết đầy đủ một nhân viên theo định dạng đẹp.
      */
