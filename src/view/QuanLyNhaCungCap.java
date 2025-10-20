@@ -59,8 +59,8 @@ public class QuanLyNhaCungCap {
                             System.out.println("    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
                             System.out.println("    ┃                           TÌM KIẾM SẢN PHẨM                        ┃");
                             System.out.println("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
-                            System.out.println("    ┃ [1] ➜ Tìm kiếm nhà cung cấp theo mã                                    ┃");
-                            System.out.println("    ┃ [2] ➜ Tìm kiếm nhà cung cấp theo tên                                   ┃");
+                            System.out.println("    ┃ [1] ➜ Tìm kiếm nhà cung cấp theo mã                                ┃");
+                            System.out.println("    ┃ [2] ➜ Tìm kiếm nhà cung cấp theo tên                               ┃");
                             System.out.println("    ┃ [0] ➜ Thoát                                                        ┃");
                             System.out.println("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
                             System.out.print("\n💡 Nhập lựa chọn của bạn: ");
@@ -99,36 +99,105 @@ public class QuanLyNhaCungCap {
     public void themNhaCungCap() {
         Scanner sc = new Scanner(System.in);
 
-        System.out.println("\n➕ Nhập thông tin nhà cung cấp mới:");
-        System.out.print("Mã NCC: ");
-        String ma = sc.nextLine();
-        System.out.print("Tên NCC: ");
-        String ten = sc.nextLine();
-        System.out.print("Địa chỉ: ");
-        String diaChi = sc.nextLine();
-        System.out.print("Điện thoại: ");
-        String dienThoai = sc.nextLine();
-        System.out.print("Email: ");
-        String email = sc.nextLine();
-        System.out.print("Trạng thái: ");
-        String trangThai = sc.nextLine();
+        System.out.println("\n Nhập thông tin nhà cung cấp mới:");
+        // kiểm tra trống hay trùng lặp mã ncc 
+        String ma;
+        while (true) {
+            System.out.print("Mã NCC: ");
+            ma = sc.nextLine().trim();
+
+            if (ma.isEmpty()) {
+                System.out.println("  Mã NCC không được để trống!");
+                continue;
+            }
+
+            if (NhaCungCapDAO.timnccTheoMa(ma) != null) {
+                System.out.println("  Mã NCC đã tồn tại. Vui lòng nhập mã khác!");
+                continue;
+            }
+
+            break; 
+        }
+
+        String ten;
+        while (true) {
+            System.out.print("Tên NCC: ");
+            ten = sc.nextLine().trim();
+            
+            if (ten.isEmpty()) {
+                System.out.println("Tên NCC không được để trống!");
+                continue;
+            }
+            break;
+        }
+
+        String diaChi; 
+        while (true) {
+            System.out.print("Địa chỉ NCC: ");
+            diaChi = sc.nextLine().trim();
+
+            if (diaChi.isEmpty()) {
+                System.out.println("Địa chỉ NCC không được để trống!");
+                continue;
+            }
+            break;
+        }
+        // nhập và kiểm tra tính hợp lệ của số điện thoại
+        String dienThoai ;
+        while (true) {
+            System.out.print("Điện thoại (9–11 số): ");
+            dienThoai = sc.nextLine().trim();
+            if (dienThoai.matches("\\d{9,11}")) break;
+            System.out.println("  Số điện thoại không hợp lệ. Vui lòng nhập lại!");
+        }
+        // Nhập và kiểm tra tính hợp lệ của email 
+        String email;
+        while (true) {
+            System.out.print("Email: ");
+            email = sc.nextLine().trim();
+            if (email.matches("^[\\w-.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) break;
+            System.out.println("  Email không hợp lệ. Vui lòng nhập lại!");
+        }
+
+        String trangThai;
+        while (true) {
+            System.out.print("Trạng thái NCC (active / inactive): ");
+            trangThai = sc.nextLine().trim();
+            if (!trangThai.equals("active") && !trangThai.equals("inactive")) {
+                System.out.println("  Chỉ được nhập active hoặc inactive!");
+                continue;
+            }
+            break;
+        }
 
         NhaCungCapDTO ncc = new NhaCungCapDTO(ma, ten, diaChi, dienThoai, email, trangThai);
-        // kiểm tra có trùng mã ncc không
-        if (NhaCungCapDAO.timnccTheoMa(ma) != null) {
-            System.out.println("Mã NCC đã tồn tại. Vui lòng nhập mã khác!");
-            return;
-        }
-        if (!ncc.isValid()) {
-            System.out.println("Thông tin nhà cung cấp không hợp lệ. Vui lòng nhập lại!");
-            return;
+
+        // Xác nhận thông tin
+        System.out.println("╔════════════════════════════════════════════════════════════════════════════════════╗");
+        System.out.println("║                             XÁC NHẬN THÔNG TIN NHÀ CUNG CẤP                        ║");
+        System.out.println("╚════════════════════════════════════════════════════════════════════════════════════╝");
+        System.out.println("Mã NCC: " + ma);
+        System.out.println("Tên NCC: " + ten);
+        System.out.println("Địa chỉ: " + diaChi);
+        System.out.println("Điện thoại: " + dienThoai);
+        System.out.println("Email: " + email);
+        System.out.println("Trạng thái: " + trangThai);
+
+        System.out.print("\n Bạn có muốn thêm nhà cung cấp này? (y/n): ");
+        String confirm = sc.nextLine().trim().toLowerCase();
+
+        if (confirm.equals("y") || confirm.equals("yes")) {
+            if (NhaCungCapDAO.themNCC(ncc)) {
+                System.out.println(" Thêm nhà cung cấp thành công!");
+            } else {
+                System.out.println(" Thêm nhà cung cấp thất bại!");
+            }
+        } else {
+            System.out.println(" Đã hủy thêm nhà cung cấp!");
         }
 
-        if (NhaCungCapDAO.themNCC(ncc)) {
-            System.out.println(" Thêm nhà cung cấp thành công!");
-        } else {
-            System.out.println("Thêm nhà cung cấp thất bại!");
-        }
+        System.out.print("\n Nhấn Enter để tiếp tục...");
+        sc.nextLine();
     }
 
         public void suaNhaCungCap() {
@@ -141,7 +210,7 @@ public class QuanLyNhaCungCap {
                         String maNCC = scanner.nextLine().trim();
                         if (maNCC.equals("0")) {
                             System.out.println("Thoát sửa nhà cung cấp ");
-                            break;
+                            return;
                         }
                         
                         if (NhaCungCapDAO.timnccTheoMa(maNCC)==null) {
@@ -158,17 +227,24 @@ public class QuanLyNhaCungCap {
                         System.out.println("nhập thông tin mới cho nhà cung cấp: ");
                         if(!ncc.sua()) {
                             System.out.println("Đã hủy sửa nhà cung cấp, quay lại menu...");
-                            break;
+                            return;
                         }
-                        if (!ncc.isValid()) {
-                            System.out.println("⚠️ Thông tin không hợp lệ (số điện thoại hoặc email sai định dạng). Hủy cập nhật!");
-                            break;
-                        }
+
 
                         //Cập nhật lại DB sau khi sửa
                         NhaCungCapDAO.suaNhaCungCap(ncc);
                         System.out.println("Sửa nhà cung cáp thành công. ");
-                        break;
+                        
+
+                        //  Hỏi người dùng có muốn sửa tiếp không
+                        System.out.print("Bạn có muốn sửa nhà cung cấp khác không? (Y/N): ");
+                        String choice = scanner.nextLine().trim();
+                        if (!choice.equalsIgnoreCase("y")) {
+                            continueWithAnotherProduct = false; // dừng vòng ngoài
+                        }
+
+                        break; // dừng vòng trong, tránh lặp lại việc sửa cùng NCC
+
                     } catch (Exception e) {
                         System.err.println("Lỗi nhập liệu" + e.getMessage());
                         scanner.nextLine();
@@ -187,6 +263,20 @@ public class QuanLyNhaCungCap {
             System.out.println("Mã nhà cung cấp không tồn tại!");
             return;
         }
+
+
+        //  Kiểm tra trạng thái trước khi xóa
+        if ("inactive".equalsIgnoreCase(ncc.getTrangThai())) {
+            System.out.println(" Nhà cung cấp [" + ncc.getMaNCC() + "] đã bị ngừng hoạt động (đã xóa trước đó).");
+            System.out.println(" Không thể xóa lại nhà cung cấp này!");
+            return;
+        }
+        
+        System.out.println("\nThông tin nhà cung cấp muốn xóa:");
+        System.out.printf("%-10s | %-25s | %-25s | %-12s | %-25s | %-10s\n",
+         "Mã NCC", "Tên NCC", "Địa chỉ", "Điện thoại", "Email", "Trạng thái");
+        ncc.inThongTinNCC();
+
 
         System.out.print(" Bạn có chắc muốn xóa (y/n)? ");
         String confirm = scanner.nextLine();

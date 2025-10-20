@@ -227,14 +227,6 @@ public class NhanVienDAO {
 
     }
 
-    // tính độ dài và khung danh sách
-    private static String repeat(char ch, int n) {
-        StringBuilder sb = new StringBuilder(n);
-        for (int i = 0; i < n; i++)
-            sb.append(ch);
-        return sb.toString();
-    }
-
     // Lấy toàn bộ dữ liệu nhân viên
     public static List<NhanVienDTO> getAllNhanVien() {
         String query = "SELECT nv.MaNV, nv.Ho, nv.Ten, nv.GioiTinh, nv.NgaySinh, nv.DiaChi, nv.Email, nv.Luong, nv.ChucVu, nv.TrangThai "
@@ -271,66 +263,111 @@ public class NhanVienDAO {
         return list;
     }
 
-    // In toàn bộ danh sách nhân viên
-    public static void inDanhSachNhanVien() {
-        List<NhanVienDTO> list = getAllNhanVien();
-        final int innerWidth = 126; // điều chỉnh nếu bạn thay đổi độ rộng cột
-        String top = "╔" + repeat('═', innerWidth) + "╗";
-        String sep = "╟" + repeat('─', innerWidth) + "╢";
-        String bottom = "╚" + repeat('═', innerWidth) + "╝";
+    // ========= THỐNG KÊ NHÂN VIÊN =======
 
-        System.out.println(top);
-        System.out.printf("║ %-8s │ %-22s │ %-6s │ %-12s │ %-22s │ %-25s │ %-10s │ %-6s ║%n",
-                "MaNV", "Họ tên", "GT", "Ngày sinh", "Địa chỉ", "Email", "Lương", "Chức");
-        System.out.println(sep);
+    // Lấy thống kê cơ bản: [tổng số, đang làm việc, đã nghỉ việc]
+    public static int[] layThongKeCoBan() {
+        String query = "SELECT " +
+                "COUNT(*) as total, " +
+                "SUM(CASE WHEN TrangThai = 'active' THEN 1 ELSE 0 END) as active, " +
+                "SUM(CASE WHEN TrangThai = 'inactive' THEN 1 ELSE 0 END) as inactive " +
+                "FROM NHANVIEN";
 
-        if (list == null || list.isEmpty()) {
-            String msg = "⚠️  Không có nhân viên nào trong hệ thống.";
-            System.out.printf("║ %-" + (innerWidth - 1) + "s║%n", msg);
-        } else {
-            for (NhanVienDTO nv : list) {
-                String fullName = nv.getFullName();
-                String ngaySinh = nv.getNgaySinh() != null ? nv.getNgaySinhFormat() : "";
-                System.out.printf("║ %-8s │ %-22s │ %-6s │ %-12s │ %-22s │ %-25s │ %-10d │ %-6s ║%n",
-                        nv.getMaNV(),
-                        fullName,
-                        nv.getGioiTinh(),
-                        ngaySinh,
-                        nv.getDiaChi(),
-                        nv.getEmail(),
-                        nv.getLuong(),
-                        nv.getChucVu());
+        try (Connection conn = JDBCUtil.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return new int[] {
+                        rs.getInt("total"),
+                        rs.getInt("active"),
+                        rs.getInt("inactive")
+                };
             }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi lấy thống kê cơ bản: " + e.getMessage());
         }
-        System.out.println(bottom);
+        return new int[] { 0, 0, 0 };
     }
 
-    // In thông tin một nhân viên
-    public static void inThongTinNhanVien(NhanVienDTO nv) {
-        if (nv == null) {
-            System.out.println("❌ Không có thông tin nhân viên để hiển thị!");
-            return;
+    // Lấy lương trung bình
+    public static long layLuongTrungBinh() {
+        String query = "SELECT AVG(Luong) as avgSalary FROM NHANVIEN WHERE TrangThai = 'active'";
+
+        try (Connection conn = JDBCUtil.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return Math.round(rs.getDouble("avgSalary"));
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi lấy lương trung bình: " + e.getMessage());
         }
+        return 0;
+    }
 
-        System.out.println("\n╔════════════════════════════════════════════════════════════════════════════════════╗");
-        System.out.println("║                              THÔNG TIN NHÂN VIÊN                                  ║");
-        System.out.println("╚════════════════════════════════════════════════════════════════════════════════════╝");
+    // Lấy tổng quỹ lương (chính xác từ database)
+    public static long layTongQuyLuong() {
+        String query = "SELECT SUM(Luong) as totalSalary FROM NHANVIEN WHERE TrangThai = 'active'";
 
-        System.out.println("┌─────────────────────────────────────────────────────────────────────────────────┐");
-        System.out.println("│ 📋 Mã nhân viên    │ " + String.format("%-45s", nv.getMaNV()) + " │");
-        System.out.println("│ 👤 Họ và tên       │ " + String.format("%-45s", nv.getFullName()) + " │");
-        System.out.println("│ ⚧ Giới tính       │ " + String.format("%-45s", nv.getGioiTinh()) + " │");
-        System.out.println("│ 🎂 Ngày sinh       │ " + String.format("%-45s",
-                nv.getNgaySinh() != null ? nv.getNgaySinhFormat() : "Không có") + " │");
-        System.out.println("│ 🏠 Địa chỉ         │ " + String.format("%-45s",
-                nv.getDiaChi() != null ? nv.getDiaChi() : "Không có") + " │");
-        System.out.println("│ 📧 Email           │ " + String.format("%-45s", nv.getEmail()) + " │");
-        System.out.println("│ 💰 Lương           │ " + String.format("%,d VNĐ", nv.getLuong())
-                + String.format("%" + (45 - String.format("%,d VNĐ", nv.getLuong()).length()) + "s", "") + " │");
-        System.out.println("│ 💼 Chức vụ         │ " + String.format("%-45s", nv.getChucVu()) + " │");
-        System.out.println("│ 🚦 Trạng thái      │ "
-                + String.format("%-45s", nv.getTrangThai() != null ? nv.getTrangThai() : "Không có") + " │");
-        System.out.println("└─────────────────────────────────────────────────────────────────────────────────┘");
+        try (Connection conn = JDBCUtil.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getLong("totalSalary");
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi lấy tổng quỹ lương: " + e.getMessage());
+        }
+        return 0;
+    }
+
+    // Lấy thống kê theo chức vụ: [số nhân viên, số quản lý]
+    public static int[] layThongKeTheoChucVu() {
+        String query = "SELECT " +
+                "SUM(CASE WHEN ChucVu = 'NV' THEN 1 ELSE 0 END) as nv, " +
+                "SUM(CASE WHEN ChucVu = 'QL' THEN 1 ELSE 0 END) as ql " +
+                "FROM NHANVIEN WHERE TrangThai = 'active'";
+
+        try (Connection conn = JDBCUtil.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return new int[] {
+                        rs.getInt("nv"),
+                        rs.getInt("ql")
+                };
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi lấy thống kê chức vụ: " + e.getMessage());
+        }
+        return new int[] { 0, 0 };
+    }
+
+    // Lấy thống kê theo giới tính: [số nam, số nữ]
+    public static int[] layThongKeTheoGioiTinh() {
+        String query = "SELECT " +
+                "SUM(CASE WHEN GioiTinh = 'Nam' THEN 1 ELSE 0 END) as nam, " +
+                "SUM(CASE WHEN GioiTinh = 'Nu' THEN 1 ELSE 0 END) as nu " +
+                "FROM NHANVIEN WHERE TrangThai = 'active'";
+
+        try (Connection conn = JDBCUtil.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return new int[] {
+                        rs.getInt("nam"),
+                        rs.getInt("nu")
+                };
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi lấy thống kê giới tính: " + e.getMessage());
+        }
+        return new int[] { 0, 0 };
     }
 
 }

@@ -1,11 +1,15 @@
 package util;
 
 import java.util.List;
+
 public class tablePrinter {
+
     /**
      * In bảng với header + các dòng, tự động tính độ rộng mỗi cột.
+     * 
      * @param headers danh sách tiêu đề cột
-     * @param rows danh sách dòng, mỗi dòng là danh sách chuỗi chứa giá trị cột tương ứng
+     * @param rows    danh sách dòng, mỗi dòng là danh sách chuỗi chứa giá trị cột
+     *                tương ứng
      */
     public static void printTable(List<String> headers, List<List<String>> rows) {
         int cols = headers.size();
@@ -40,9 +44,9 @@ public class tablePrinter {
 
         // In đường kẻ phân cách
         // Tính tổng độ rộng bảng
-        int totalWidth = 1;  // bắt đầu với ký tự '|'
+        int totalWidth = 1; // bắt đầu với ký tự '|'
         for (int w : colWidths) {
-            totalWidth += 1 + w + 1 + 1; // " space" + nội dung + " space" + "|" 
+            totalWidth += 1 + w + 1 + 1; // " space" + nội dung + " space" + "|"
         }
         for (int i = 0; i < totalWidth; i++) {
             System.out.print("-");
@@ -54,5 +58,5 @@ public class tablePrinter {
             System.out.printf(fmt + "%n", row.toArray());
         }
     }
-}
 
+}

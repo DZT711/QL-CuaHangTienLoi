@@ -640,9 +640,9 @@ public class QuanLyHoaDon {
         while (true) {
             try {
                 System.out.print("Nhập năm muốn thống kê: ");
-                year = Integer.parseInt(scanner.nextLine().trim()); 
-                if (year <= 0) {
-                    System.out.println("Năm phải lớn hơn 0, vui lòng nhập lại.");
+                year = Integer.parseInt(scanner.nextLine().trim());
+                if (year < 2000 || year > LocalDate.now().getYear()) {
+                    System.out.println("Năm không hợp lệ, vui lòng nhập lại.");
                     continue;
                 }
                 break; 

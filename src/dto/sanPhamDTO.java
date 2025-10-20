@@ -1,8 +1,7 @@
 package dto;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
+import dao.SanPhamDAO;
 
 public class sanPhamDTO {
     private String maSP;
@@ -11,21 +10,17 @@ public class sanPhamDTO {
     private int donViTinh;
     private int soLuongTon; 
     private int giaBan;
-    private LocalDate ngaySanXuat;
-    private int hSD;
     private String moTa;
     private String trangThai;
     public sanPhamDTO() {}
 
-    public sanPhamDTO(String maSP, String tenSP, int loaiSP, int donViTinh, int soLuongTon, int giaBan, LocalDate ngaySanXuat, int hSD, String moTa, String trangThai) {
+    public sanPhamDTO(String maSP, String tenSP, int loaiSP, int donViTinh, int soLuongTon, int giaBan, String moTa, String trangThai) {
         this.maSP = maSP;
         this.tenSP = tenSP;
         this.loaiSP = loaiSP;
         this.donViTinh = donViTinh;
         this.soLuongTon = soLuongTon;
         this.giaBan = giaBan;
-        this.ngaySanXuat = ngaySanXuat;
-        this.hSD = hSD;
         this.moTa = moTa;
         this.trangThai = trangThai;
     }
@@ -78,22 +73,6 @@ public class sanPhamDTO {
         this.giaBan = giaBan;
     }
 
-    public LocalDate getNgaySanXuat() {
-        return ngaySanXuat;
-    }
-
-    public void setNgaySanXuat(LocalDate ngaySanXuat) {
-        this.ngaySanXuat = ngaySanXuat;
-    }
-    
-    public int getHSD() {
-        return hSD;
-    }
-
-    public void setHSD(int hSD) {
-        this.hSD = hSD;
-    }
-                    
     public String getMoTa() {
         return moTa;
     }
@@ -110,15 +89,38 @@ public class sanPhamDTO {
         this.trangThai = trangThai;
     }
 
-    public void inthongTinSanPham() {
-        String hsdStr = String.format("%08d", hSD);
-        hsdStr = hsdStr.substring(0, 2) + "/" + hsdStr.substring(2, 4) + "/" + hsdStr.substring(4, 8);
 
-        System.out.printf("%-10s | %-20s | %-10s | %-10s | %-10s | %-10s | %-15s | %-10s | %-20s\n",
-                maSP, tenSP, loaiSP, donViTinh, soLuongTon, giaBan, ngaySanXuat.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), hsdStr, moTa, trangThai);
-        
+    public void nhapThongTinSanPham() {
+        Scanner scanner = new Scanner(System.in);
+        this.maSP = SanPhamDAO.generateMaSP();
+
+        System.out.println("Nhập tên sản phẩm: ");
+        this.tenSP = scanner.nextLine().trim();
+
+        System.out.println("Nhập loại sản phẩm: ");
+        this.loaiSP = Integer.parseInt(scanner.nextLine().trim());
+        if (this.loaiSP < 1 || this.loaiSP > 10) {
+            System.out.println("Loại sản phẩm không hợp lệ, vui lòng nhập lại");
+            return;
+        }
+
+        System.out.println("Nhập đơn vị tính: ");
+        this.donViTinh = Integer.parseInt(scanner.nextLine().trim());
+        if (this.donViTinh < 1 || this.donViTinh > 11) {
+            System.out.println("Đơn vị tính không hợp lệ, vui lòng nhập lại");
+            return;
+        }
+
+        System.out.println("Nhập giá bán: ");
+        this.giaBan = Integer.parseInt(scanner.nextLine().trim());
+        if (this.giaBan < 0) {
+            System.out.println("Giá bán không hợp lệ, vui lòng nhập lại");
+            return;
+        }
+
+        System.out.println("Nhập mô tả: ");
+        this.moTa = scanner.nextLine().trim();
     }
-
 
     public boolean sua() {
         Scanner scanner = new Scanner(System.in);
@@ -161,31 +163,6 @@ public class sanPhamDTO {
                 if (newGia > 0) this.giaBan = newGia;
             } catch (NumberFormatException e) {
                 System.out.println("Giá trị không hợp lệ, giữ nguyên giá");
-            }
-        }
-        
-        System.out.println("Sửa ngày sản xuất: ");
-        String inputNSX = scanner.nextLine().trim();
-        if (inputNSX.equals("0")) return false;
-        if (!inputNSX.isEmpty()) {
-            try {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-                LocalDate newNgaySanXuat = LocalDate.parse(inputNSX, formatter);
-                this.ngaySanXuat = newNgaySanXuat;
-            } catch (Exception e) {
-                System.out.println("Ngày sản xuất không hợp lệ, giữ nguyên ngày sản xuất");
-            }
-        }
-
-        System.out.println("Sửa hạn sử dụng: ");
-        String inputHSD = scanner.nextLine().trim();
-        if (inputHSD.equals("0")) return false;
-        if (!inputHSD.isEmpty()) {
-            try {
-                int newHSD = Integer.parseInt(inputHSD);
-                if (newHSD > 0) this.hSD = newHSD;
-            } catch (NumberFormatException e) {
-                System.out.println("Giá trị không hợp lệ, giữ nguyên hạn sử dụng");
             }
         }
 
