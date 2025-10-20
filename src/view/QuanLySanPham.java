@@ -245,34 +245,35 @@ public class QuanLySanPham {
     }
 
 
-    public void timKiemSanPhamTheoTen() {
+        public void timKiemSanPhamTheoTen() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Nhập tên sản phẩm cần tìm: ");
-        String input = scanner.nextLine().trim();
-        List<sanPhamDTO> results = SanPhamDAO.timSanPhamTheoTen(input);
-
-        if (results.isEmpty()) {
-            System.out.println("Không tìm thấy sản phẩm nào.");
+        String tenSP = scanner.nextLine().trim();
+        List<sanPhamDTO> danhSachSP = SanPhamDAO.timSanPhamTheoTen(tenSP);
+        
+        if (danhSachSP.isEmpty()) {
+            System.out.println("Không tìm thấy sản phẩm");
         } else {
-            // Chuẩn bị header
             List<String> headers = List.of(
-                "MaSP", "TenSP", "Loai", "SoLuongTon", "DonViTinh",
-                "GiaBan", "NgaySanXuat", "HanSuDung", "MoTa", "TrangThai"
-            );
+                    "MaSP", "TenSP", "Loai", "SoLuongTon", "DonViTinh",
+                    "GiaBan", "NgaySanXuat", "HanSuDung", "MoTa", "TrangThai");
+            
             // Chuẩn bị rows
             List<List<String>> rows = new ArrayList<>();
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-            for (sanPhamDTO sp : results) {
+            
+            for (sanPhamDTO sanPham : danhSachSP) {
                 List<String> row = new ArrayList<>();
-                row.add(sp.getMaSP());
-                row.add(sp.getTenSP());
-                row.add(String.valueOf(sp.getLoaiSP()));
-                row.add(String.valueOf(sp.getSoLuongTon()));
-                row.add(String.valueOf(sp.getDonViTinh()));
-                row.add(String.valueOf(sp.getGiaBan()));
-                row.add(sp.getNgaySanXuat() != null ? sp.getNgaySanXuat().format(dtf) : "");
+                row.add(sanPham.getMaSP());
+                row.add(sanPham.getTenSP());
+                row.add(String.valueOf(sanPham.getLoaiSP()));
+                row.add(String.valueOf(sanPham.getSoLuongTon()));
+                row.add(String.valueOf(sanPham.getDonViTinh()));
+                row.add(String.valueOf(sanPham.getGiaBan()));
+                row.add(sanPham.getNgaySanXuat() != null ? sanPham.getNgaySanXuat().format(dtf) : "");
+                
                 // chuyển hsd int về ddMMyyyy
-                int hsd = sp.getHSD();
+                int hsd = sanPham.getHSD();
                 String hsdStr = "";
                 if (hsd > 0) {
                     String s = String.format("%08d", hsd);
@@ -281,11 +282,11 @@ public class QuanLySanPham {
                     hsdStr = d.format(dtf);
                 }
                 row.add(hsdStr);
-                row.add(sp.getMoTa() != null ? sp.getMoTa() : "");
-                row.add(sp.getTrangThai());
+                row.add(sanPham.getMoTa() != null ? sanPham.getMoTa() : "");
+                row.add(sanPham.getTrangThai());
                 rows.add(row);
             }
-
+    
             // Gọi hàm in bảng
             tablePrinter.printTable(headers, rows);
         }
