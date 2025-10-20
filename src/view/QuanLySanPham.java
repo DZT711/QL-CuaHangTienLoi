@@ -112,11 +112,9 @@ public class QuanLySanPham {
                             System.out.println(
                                     "    ┃ [1] ➜ Thống kê theo loại sản phẩm                                  ┃");
                             System.out.println(
-                                    "    ┃ [2] ➜ Thống kê sản phẩm theo ngày sản xuất                         ┃");
+                                    "    ┃ [2] ➜ Thống kê sản phẩm sắp hết trong kho                          ┃");
                             System.out.println(
-                                    "    ┃ [3] ➜ Thống kê sản phẩm sắp hết trong kho                          ┃");
-                            System.out.println(
-                                    "    ┃ [4] ➜ Thống kê top sản phẩm bán chạy nhất                          ┃");
+                                    "    ┃ [3] ➜ Thống kê top sản phẩm bán chạy nhất                          ┃");
                             System.out.println(
                                     "    ┃ [0] ➜ Thoát                                                        ┃");
                             System.out.println(
@@ -132,10 +130,8 @@ public class QuanLySanPham {
                             } else if (opt == 1) {
                                 SanPhamDAO.thongKeTheoLoai();
                             } else if (opt == 2) {
-                                SanPhamDAO.thongKeTheoNSX();
-                            } else if (opt == 3) {
                                 SanPhamDAO.sanPhamSapHetTrongKho(10);
-                            } else if (opt == 4) {
+                            } else if (opt == 3) {
                                 thongKeTopSanPhamBanChay();
                             } else {
                                 System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
@@ -258,11 +254,10 @@ public class QuanLySanPham {
         } else {
             List<String> headers = List.of(
                     "MaSP", "TenSP", "Loai", "SoLuongTon", "DonViTinh",
-                    "GiaBan", "NgaySanXuat", "HanSuDung", "MoTa", "TrangThai");
+                    "GiaBan","MoTa", "TrangThai");
             
             // Chuẩn bị rows
             List<List<String>> rows = new ArrayList<>();
-            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             
             for (sanPhamDTO sanPham : danhSachSP) {
                 List<String> row = new ArrayList<>();
@@ -272,18 +267,6 @@ public class QuanLySanPham {
                 row.add(String.valueOf(sanPham.getSoLuongTon()));
                 row.add(String.valueOf(sanPham.getDonViTinh()));
                 row.add(String.valueOf(sanPham.getGiaBan()));
-                row.add(sanPham.getNgaySanXuat() != null ? sanPham.getNgaySanXuat().format(dtf) : "");
-                
-                // chuyển hsd int về ddMMyyyy
-                int hsd = sanPham.getHSD();
-                String hsdStr = "";
-                if (hsd > 0) {
-                    String s = String.format("%08d", hsd);
-                    DateTimeFormatter ft = DateTimeFormatter.ofPattern("ddMMyyyy");
-                    LocalDate d = LocalDate.parse(s, ft);
-                    hsdStr = d.format(dtf);
-                }
-                row.add(hsdStr);
                 row.add(sanPham.getMoTa() != null ? sanPham.getMoTa() : "");
                 row.add(sanPham.getTrangThai());
                 rows.add(row);

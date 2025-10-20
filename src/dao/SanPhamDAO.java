@@ -16,7 +16,7 @@ import java.text.Normalizer;
 public class SanPhamDAO {
     public static List<sanPhamDTO> getAllSanPham() {
         String query = "SELECT sp.MaSP, sp.TenSP, sp.Loai, sp.SoLuongTon, sp.DonViTinh, sp.GiaBan, " +
-                "sp.NgaySanXuat, sp.HanSuDung, sp.MoTa, sp.TrangThai " +
+                "sp.MoTa, sp.TrangThai " +
                 "FROM SANPHAM sp " +
                 "INNER JOIN LOAI l ON sp.Loai = l.MaLoai " +
                 "INNER JOIN DONVI d ON sp.DonViTinh = d.MaDonVi";
@@ -43,74 +43,31 @@ public class SanPhamDAO {
         return list;
     }
 
-    public static List<sanPhamDTO> timSanPhamTheoTen(String input) {
-        String[] parts = input.split(",");
-        List<String> keywords = new ArrayList<>();
-        for (String p : parts) {
-            String k = p.trim();
-            if (!k.isEmpty()) {
-                // loại bỏ dấu từ khóa
-                keywords.add(removeAccent(k.toLowerCase()));
-            }
-        }
-        if (keywords.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("SELECT DISTINCT sp.MaSP, sp.TenSP, sp.Loai, sp.SoLuongTon, sp.DonViTinh, sp.GiaBan, ")
-        .append("sp.NgaySanXuat, sp.HanSuDung, sp.MoTa, sp.TrangThai ")
-        .append("FROM SANPHAM sp ")
-        .append("INNER JOIN LOAI l ON sp.Loai = l.MaLoai ")
-        .append("INNER JOIN DONVI d ON sp.DonViTinh = d.MaDonVi ")
-        .append("WHERE ");
-
-        // Sử dụng LIKE trên tên sản phẩm (có dấu) nhưng để lọc sơ
-        List<String> conds = new ArrayList<>();
-        for (int i = 0; i < keywords.size(); i++) {
-            conds.add("LOWER(sp.TenSP) LIKE ?");
-        }
-        sb.append(String.join(" OR ", conds));
-        String query = sb.toString();
+    public static List<sanPhamDTO> timSanPhamTheoTen(String name) {
+        String query = "SELECT sp.MaSP, sp.TenSP, sp.Loai, sp.SoLuongTon, sp.DonViTinh, sp.GiaBan, " +
+                "sp.MoTa, sp.TrangThai " +
+                "FROM SANPHAM sp " +
+                "INNER JOIN LOAI l ON sp.Loai = l.MaLoai " +
+                "INNER JOIN DONVI d ON sp.DonViTinh = d.MaDonVi " +
+                "WHERE sp.TenSP LIKE ?";
 
         List<sanPhamDTO> list = new ArrayList<>();
 
         try (Connection conn = JDBCUtil.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(query)) {
+            PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, "%" + name + "%");
             ResultSet rs = stmt.executeQuery();
 
-            while (rs.next()) {
-                String tenSP = rs.getString("TenSP");
-                // loại bỏ dấu tên sản phẩm
-                String tenSPNoAccent = removeAccent(tenSP.toLowerCase());
-
-                boolean matches = false;
-                for (String kw : keywords) {
-                    if (containsWholeWord(tenSPNoAccent, kw)) {
-                        matches = true;
-                        break;
-                    }
-                }
-                if (!matches) {
-                    continue;
-                }
-
-                
-
-                sanPhamDTO sp = new sanPhamDTO(
-                    rs.getString("MaSP"),
-                    rs.getString("TenSP"),
-                    rs.getInt("Loai"),
-                    rs.getInt("DonViTinh"),
-                    rs.getInt("SoLuongTon"),
-                    rs.getInt("GiaBan"),
-                    rs.getString("MoTa"),
-                    rs.getString("TrangThai")
-                );
-                list.add(sp);
-            }
+            list.add(new sanPhamDTO(
+                        rs.getString("MaSP"),
+                        rs.getString("TenSP"),
+                        rs.getInt("Loai"),
+                        rs.getInt("DonViTinh"),
+                        rs.getInt("SoLuongTon"),
+                        rs.getInt("GiaBan"),
+                        rs.getString("MoTa"),
+                        rs.getString("TrangThai")));
         } catch (SQLException e) {
             System.err.println("Lỗi khi tìm sản phẩm theo tên: " + e.getMessage());
         }
@@ -190,10 +147,8 @@ public class SanPhamDAO {
             stmt.setInt(3, sp.getLoaiSP());
             stmt.setInt(4, sp.getDonViTinh());
             stmt.setInt(5, sp.getGiaBan());
-            
-
-            stmt.setString(8, sp.getMoTa());
-            stmt.setString(9, sp.getTrangThai());
+            stmt.setString(6, sp.getMoTa());
+            stmt.setString(7, sp.getTrangThai());
             int rowAffected = stmt.executeUpdate();
             if (rowAffected > 0) {
                 System.out.println("Thêm sản phẩm thành công");
@@ -246,6 +201,7 @@ public class SanPhamDAO {
         return false;
     }
 
+    //sửa
     public static void capnhatTrangThaiHetHan() {
         String query = "UPDATE SANPHAM SET TrangThai = 'inactive' WHERE HanSuDung < CURDATE() AND TrangThai = 'active'";
 
@@ -476,12 +432,11 @@ public class SanPhamDAO {
         } catch (SQLException e) {
             System.err.println("Lỗi khi thống kê sản phẩm sắp hết trong kho: " + e.getMessage());
         }
-
     }
 
     // public static void xuatDanhSachSanPham() {
     //     String query =
-    //     "SELECT sp.MaSP, sp.TenSP, l.TenLoai, sp.SoLuongTon, sp.GiaBan, sp.NgaySanXuat, sp.HanSuDung, sp.TrangThai " +
+    //     "SELECT sp.MaSP, sp.TenSP, l.TenLoai, sp.SoLuongTon, sp.GiaBan, sp.TrangThai " +
     //     "FROM SANPHAM sp " +
     //     "INNER JOIN LOAI l ON sp.Loai = l.MaLoai " +
     //     "ORDER BY sp.MaSP ASC";
@@ -492,9 +447,9 @@ public class SanPhamDAO {
     //         ResultSet rs = stmt.executeQuery();
     //         System.out.println("\n╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
     //         System.out.println("║                                          DANH SÁCH SẢN PHẨM TRONG CỬA HÀNG                                               ║");
-    //         System.out.println("╠════════════════╤═══════════════════════╤═══════════════╤═══════════════╤═══════════════╤═══════════════╤════════════════╤═════════════╣");
-    //         System.out.printf("║ %-12s │ %-21s │ %-13s │ %-13s │ %-13s │ %-13s │ %-14s │ %-11s ║\n",
-    //                     "MÃ SP", "TÊN SP", "LOẠI", "SỐ LƯỢNG", "GIÁ BÁN", "NGÀY SX", "HẠN SỬ DỤNG", "TRẠNG THÁI");
+    //         System.out.println("╠════════════════╤═══════════════════════╤═══════════════╤═══════════════╤═══════════════╤═════════════╤════════════════╤═════════════╣");
+    //         System.out.printf("║ %-12s │ %-21s │ %-13s │ %-13s │ %-13s │ %-11s ║\n",
+    //                     "MÃ SP", "TÊN SP", "LOẠI", "SỐ LƯỢNG", "GIÁ BÁN", "TRẠNG THÁI");
     //         System.out.println("╠════════════════╪═══════════════════════╪═══════════════╪═══════════════╪═══════════════╪═══════════════╪════════════════╪═════════════╣");
 
     //         int count = 0;
@@ -506,18 +461,12 @@ public class SanPhamDAO {
 
     //             int giaBan = rs.getInt("GiaBan");
     //             String giaBanStr = FormatUtil.formatVND(giaBan);
-
-    //             Date ngaySanXuat = rs.getDate("NgaySanXuat");
-    //             String NSXStr = (ngaySanXuat != null) ? ngaySanXuat.toLocalDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "Không xác định";
-
-    //             Date hanSuDung = rs.getDate("HanSuDung");
-    //             String HSDStr = (hanSuDung != null) ? hanSuDung.toLocalDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "Không xác định";
-
+    //
     //             String trangThai = rs.getString("TrangThai");
-
-    //             System.out.printf("║ %-12s │ %-21s │ %-13s │ %-13d │ %-13s │ %-13s │ %-14s │ %-11s ║\n",
+    //
+    //             System.out.printf("║ %-12s │ %-21s │ %-13s │ %-13d │ %-13s │ %-11s ║\n",
     //                         maSP, tenSP, tenLoai, soLuongTon,
-    //                         giaBanStr, NSXStr, HSDStr, trangThai);
+    //                         giaBanStr, trangThai);
     //             count++;
     //         }
 
@@ -529,12 +478,12 @@ public class SanPhamDAO {
     //     }
     // }
     public static void xuatDanhSachSanPham() {
-        String query = "SELECT sp.MaSP, sp.TenSP, loai.TenLoai AS Loai, sp.SoLuongTon, sp.GiaBan, sp.NgaySanXuat, sp.HanSuDung, sp.TrangThai " +
+        String query = "SELECT sp.MaSP, sp.TenSP, loai.TenLoai AS Loai, sp.SoLuongTon, sp.GiaBan, sp.TrangThai " +
                     "FROM SANPHAM sp " +
                     "INNER JOIN LOAI ON sp.Loai = Loai.MaLoai " +
                     "ORDER BY sp.MaSP ASC";
 
-        List<String> headers = List.of("MÃ SP", "TÊN SP", "LOẠI", "SỐ LƯỢNG", "GIÁ BÁN", "NGÀY SX", "HẠN SỬ DỤNG", "TRẠNG THÁI");
+        List<String> headers = List.of("MÃ SP", "TÊN SP", "LOẠI", "SỐ LƯỢNG", "GIÁ BÁN", "TRẠNG THÁI");
         List<List<String>> rows = new ArrayList<>();
 
         try (Connection conn = JDBCUtil.getConnection();
@@ -547,20 +496,6 @@ public class SanPhamDAO {
                 String loai = rs.getString("Loai");
                 String soLuong = Integer.toString(rs.getInt("SoLuongTon"));
                 String giaBan = FormatUtil.formatVND(rs.getInt("GiaBan"));
-                String ngaySX = null;
-                Date d1 = rs.getDate("NgaySanXuat");
-                if (d1 != null) {
-                    ngaySX = d1.toLocalDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-                } else {
-                    ngaySX = "";
-                }
-                String hsd = null;
-                Date d2 = rs.getDate("HanSuDung");
-                if (d2 != null) {
-                    hsd = d2.toLocalDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-                } else {
-                    hsd = "";
-                }
                 String trangThai = rs.getString("TrangThai");
 
                 List<String> row = new ArrayList<>();
@@ -569,10 +504,7 @@ public class SanPhamDAO {
                 row.add(loai);
                 row.add(soLuong);
                 row.add(giaBan);
-                row.add(ngaySX);
-                row.add(hsd);
                 row.add(trangThai);
-
                 rows.add(row);
             }
         } catch (SQLException e) {
