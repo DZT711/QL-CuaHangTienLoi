@@ -3,11 +3,13 @@ package view;
 import java.util.Scanner;
 import dao.SanPhamDAO;
 import dto.sanPhamDTO;
+import util.FormatUtil;
 import util.tablePrinter;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class QuanLySanPham {
     public void menuQuanLySanPham() {
@@ -20,11 +22,12 @@ public class QuanLySanPham {
             System.out.println("██                                                                            ██");
             System.out.println("████████████████████████████████████████████████████████████████████████████████");
             System.out.println("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ MENU CHỨC NĂNG ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓");
-            System.out.println("▒ [1] ➜ Chỉnh sửa thông tin sản phẩm                                           ▒");
-            System.out.println("▒ [2] ➜ Đổi trạng thái sản phẩm                                                ▒");
-            System.out.println("▒ [3] ➜ Tìm kiếm sản phẩm                                                      ▒");
-            System.out.println("▒ [4] ➜ Thống kê sản phẩm                                                      ▒");
-            System.out.println("▒ [5] ➜ Xuất danh sách sản phẩm                                                ▒");
+            System.out.println("▒ [1] ➜ Thêm sản phẩm                                                          ▒");
+            System.out.println("▒ [2] ➜ Chỉnh sửa thông tin sản phẩm                                           ▒");
+            System.out.println("▒ [3] ➜ Đổi trạng thái sản phẩm                                                ▒");
+            System.out.println("▒ [4] ➜ Tìm kiếm sản phẩm                                                      ▒");
+            System.out.println("▒ [5] ➜ Thống kê sản phẩm                                                      ▒");
+            System.out.println("▒ [6] ➜ Xuất danh sách sản phẩm                                                ▒");
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ");
             System.out.println("░ [0] ⮐ Quay lại menu chính                                                    ░ ");
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ");
@@ -36,28 +39,28 @@ public class QuanLySanPham {
                 if (scanner.hasNextInt()) {
                     choice = scanner.nextInt();
                     scanner.nextLine();
-                    if (choice > 0 && choice <= 5) {
-                        break;
-                    } else if (choice == 0) {
-                        return;
-                    } else {
-                        System.out.println("Vui lòng nhập số trong khoảng 0–5.");
-                        System.out.print("\n💡 Nhập lựa chọn của bạn: ");
-                    }
+                    if (choice >= 0 && choice <= 6) break;
+                    System.out.print("Vui lòng nhập số trong khoảng 0–6: ");
                 } else {
-                    System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập số trong khoảng 0–5.");
-                    System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+                    System.out.print("Nhập không hợp lệ. Vui lòng nhập lại: ");
+                    scanner.next();
                 }
             }
 
             switch (choice) {
                 case 1:
-                    suaSanPham();
+                    sanPhamDTO sp = new sanPhamDTO();
+                    sp.nhapThongTinSanPham();
+                    SanPhamDAO.themSanPham(sp);
+                    System.out.println("Thêm sản phẩm thành công.");
                     break;
                 case 2:
+                    suaSanPham();
+                    break;
+                case 3: 
                     xoaSanPhamTheoMa();
                     break;
-                case 3:
+                case 4:
                     while (true) {
                         try {
                             System.out.println("\n");
@@ -96,7 +99,7 @@ public class QuanLySanPham {
                         }
                     }
                     break;
-                case 4:
+                case 5:
                     while (true) {
                         try {
                             System.out.println("\n");
@@ -112,6 +115,8 @@ public class QuanLySanPham {
                                     "    ┃ [2] ➜ Thống kê sản phẩm theo ngày sản xuất                         ┃");
                             System.out.println(
                                     "    ┃ [3] ➜ Thống kê sản phẩm sắp hết trong kho                          ┃");
+                            System.out.println(
+                                    "    ┃ [4] ➜ Thống kê top sản phẩm bán chạy nhất                          ┃");
                             System.out.println(
                                     "    ┃ [0] ➜ Thoát                                                        ┃");
                             System.out.println(
@@ -130,6 +135,8 @@ public class QuanLySanPham {
                                 SanPhamDAO.thongKeTheoNSX();
                             } else if (opt == 3) {
                                 SanPhamDAO.sanPhamSapHetTrongKho(10);
+                            } else if (opt == 4) {
+                                thongKeTopSanPhamBanChay();
                             } else {
                                 System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
                             }
@@ -139,7 +146,7 @@ public class QuanLySanPham {
                         }
                     }
                     break;
-                case 5:
+                case 6:
                     SanPhamDAO.xuatDanhSachSanPham();
                     break;
                 case 0:
@@ -172,10 +179,7 @@ public class QuanLySanPham {
 
                     sanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
                     System.out.println("Thông tin sản phẩm trước khi sửa: ");
-                    System.out.printf("%-10s | %-20s | %-10s | %-10s | %-10s | %-10s | %-15s | %-10s | %-20s | %-10s\n",
-                            "MaSP", "TenSP", "Loai", "SoLuongTon", "DonViTinh", "GiaBan",
-                            "NgaySanXuat", "HanSuDung", "MoTa", "TrangThai");
-                    sp.inthongTinSanPham();
+                    sp.inThongTinSanPham();
 
                     System.out.println("Nhập thông tin mới cho sản phẩm: ");
                     if (!sp.sua()) {
@@ -183,8 +187,7 @@ public class QuanLySanPham {
                         break;
                     }
 
-                    // Cập nhật vô DB sau khi sửa 
-                    SanPhamDAO.suaSanPham(sp, maSP);
+                    SanPhamDAO.suaSanPham(sp);
                     System.out.println("Sửa sản phẩm thành công.");
                     break;
                 } catch (Exception e) {
@@ -240,10 +243,9 @@ public class QuanLySanPham {
             System.out.printf("%-10s | %-20s | %-10s | %-10s | %-10s | %-10s | %-15s | %-10s | %-20s | %-10s\n",
                     "MaSP", "TenSP", "Loai", "SoLuongTon", "DonViTinh", "GiaBan",
                     "NgaySanXuat", "HanSuDung", "MoTa", "TrangThai");
-            sp.inthongTinSanPham();
+            sp.inThongTinSanPham();
         }
     }
-
 
     public void timKiemSanPhamTheoTen() {
         Scanner scanner = new Scanner(System.in);
@@ -291,4 +293,68 @@ public class QuanLySanPham {
         }
     }
 
+    public void thongKeTopSanPhamBanChay() {
+        Scanner scanner = new Scanner (System.in);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+
+        try {
+            System.out.print("\nNhập ngày bắt đầu (ddMMyyyy): ");
+            String from = scanner.nextLine().trim();
+
+            System.out.print("Nhập ngày kết thúc (ddMMyyyy): ");
+            String to = scanner.nextLine().trim();
+
+            LocalDate fromDate = LocalDate.parse(from, formatter);
+            LocalDate toDate = LocalDate.parse(to, formatter);
+
+            if (fromDate.isAfter(toDate)) {
+                System.out.println("Ngày bắt đầu phải trước ngày kết thúc.");
+                return;
+            }
+
+            System.out.print("Nhập số lượng sản phẩm top bán chạy: ");
+            int limit;
+            
+            try {
+                limit = Integer.parseInt(scanner.nextLine().trim());
+                if (limit <= 0) {
+                    System.out.println("Số lượng phải lớn hơn 0.");
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Số lượng không hợp lệ.");
+                return;
+            }
+
+            List<Map<String, Object>> topProducts = SanPhamDAO.thongKeSanPhamBanChayNhat(fromDate, toDate, limit);
+
+            if (topProducts.isEmpty()) {
+                System.out.println("Không có sản phẩm bán chạy trong khoảng thời gian này.");
+                return;
+            }
+
+            System.out.println("\nDanh sách top " + limit + " sản phẩm bán chạy từ " +
+                fromDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + " đến " +
+                toDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + ":");
+            
+            List<String> headers = List.of("Top", "Mã SP", "Tên Sản Phẩm", "Số Lượng Bán", "Doanh Thu");
+            List<List<String>> rows = new ArrayList<>();
+            int rank = 1;
+
+            for (Map<String, Object> product : topProducts) {
+                List<String> row = new ArrayList<>();
+                row.add(String.valueOf(rank++));
+                row.add((String) product.get("maSP"));
+                row.add((String) product.get("tenSP"));
+                row.add(String.valueOf(product.get("soLuongBan")));
+                row.add(FormatUtil.formatVND((long) product.get("doanhThu")));
+                rows.add(row);
+            }
+
+            tablePrinter.printTable(headers, rows);
+        } catch (Exception e) {
+            System.out.println("Đã xảy ra lỗi: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 }

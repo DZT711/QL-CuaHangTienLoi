@@ -89,7 +89,6 @@ public class sanPhamDTO {
         this.trangThai = trangThai;
     }
 
-
     public void nhapThongTinSanPham() {
         Scanner scanner = new Scanner(System.in);
         this.maSP = SanPhamDAO.generateMaSP();
@@ -122,6 +121,11 @@ public class sanPhamDTO {
         this.moTa = scanner.nextLine().trim();
     }
 
+    public void inThongTinSanPham() {
+        System.out.printf("%-10s | %-20s | %-10s | %-10s | %-10s | %-10s | %-20s | %-10s\n",
+                maSP, tenSP, loaiSP, donViTinh, soLuongTon, giaBan, moTa, trangThai);
+    }
+    
     public boolean sua() {
         Scanner scanner = new Scanner(System.in);
 

@@ -3,9 +3,13 @@ package dao;
 import dto.sanPhamDTO;
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import util.FormatUtil;
 import util.JDBCUtil;
 import java.text.Normalizer;
@@ -55,7 +59,7 @@ public class SanPhamDAO {
 
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT DISTINCT sp.MaSP, sp.TenSP, sp.Loai, sp.SoLuongTon, sp.DonViTinh, sp.GiaBan, ")
-        .append("sp.NgaySanXuat, sp.HanSuDung, sp.MoTa, sp.TrangThai ")
+        .append("sp.MoTa, sp.TrangThai ")
         .append("FROM SANPHAM sp ")
         .append("INNER JOIN LOAI l ON sp.Loai = l.MaLoai ")
         .append("INNER JOIN DONVI d ON sp.DonViTinh = d.MaDonVi ")
@@ -91,11 +95,7 @@ public class SanPhamDAO {
                         break;
                     }
                 }
-                if (!matches) {
-                    continue;
-                }
-
-                
+                if (!matches) continue;
 
                 sanPhamDTO sp = new sanPhamDTO(
                     rs.getString("MaSP"),
@@ -139,14 +139,14 @@ public class SanPhamDAO {
 
     public static sanPhamDTO timSanPhamTheoMa(String ma) {
         String query = "SELECT sp.MaSP, sp.TenSP, sp.Loai, sp.SoLuongTon, sp.DonViTinh, sp.GiaBan, " +
-                "sp.NgaySanXuat, sp.HanSuDung, sp.MoTa, sp.TrangThai " +
+                " sp.MoTa, sp.TrangThai " +
                 "FROM SANPHAM sp " +
                 "INNER JOIN LOAI l ON sp.Loai = l.MaLoai " +
                 "INNER JOIN DONVI d ON sp.DonViTinh = d.MaDonVi " +
                 "WHERE sp.MaSP = ?";
 
         try (Connection conn = JDBCUtil.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(query)) {
+            PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, ma);
             ResultSet rs = stmt.executeQuery();
@@ -190,7 +190,6 @@ public class SanPhamDAO {
     return newID;
 }
 
-
     public static void themSanPham(sanPhamDTO sp) {
         String query = "INSERT INTO SANPHAM (MaSP, TenSP, Loai, DonViTinh, GiaBan, MoTa, TrangThai) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
@@ -217,21 +216,21 @@ public class SanPhamDAO {
         }
     }
 
-    public static void suaSanPham(sanPhamDTO sp, String maSP) {
+    public static void suaSanPham(sanPhamDTO sp) {
         String query = "UPDATE SANPHAM SET TenSP = ?, Loai = ?, DonViTinh = ?, GiaBan = ?,  " +
                 " MoTa = ?, TrangThai = ? WHERE MaSP = ?";
 
         try (Connection conn = JDBCUtil.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(query)) {
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+            
             stmt.setString(1, sp.getTenSP());
             stmt.setInt(2, sp.getLoaiSP());
             stmt.setInt(3, sp.getDonViTinh());
             stmt.setInt(4, sp.getGiaBan());
-            
-    
-            stmt.setString(7, sp.getMoTa());
-            stmt.setString(8, sp.getTrangThai());
-            stmt.setString(9, maSP);
+            stmt.setString(5, sp.getMoTa());
+            stmt.setString(6, sp.getTrangThai());
+            stmt.setString(7, sp.getMaSP());
+
             int rowAffected = stmt.executeUpdate();
             if (rowAffected > 0) {
                 System.out.println("Sửa sản phẩm thành công");
@@ -239,7 +238,7 @@ public class SanPhamDAO {
                 System.out.println("Sửa sản phẩm thất bại");
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi sửa sản phẩm theo mã: " + e.getMessage());
+            System.err.println("Lỗi khi sửa sản phẩm: " + e.getMessage());
         }
     }
 
@@ -247,7 +246,8 @@ public class SanPhamDAO {
         String query = "UPDATE SANPHAM SET TrangThai = 'inactive' WHERE MaSP = ?";
 
         try (Connection conn = JDBCUtil.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(query)) {
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
             stmt.setString(1, ma);
             int rowAffected = stmt.executeUpdate();
             return rowAffected > 0;
@@ -397,6 +397,47 @@ public class SanPhamDAO {
         } catch (SQLException e) {
             System.err.println("Lỗi khi thống kê sản phẩm theo ngày sản xuất: " + e.getMessage());
         }
+    }
+
+    public static List<Map<String, Object>> thongKeSanPhamBanChayNhat(LocalDate fromDate, LocalDate toDate, int limit) {
+        List<Map<String, Object>> result = new ArrayList<>();
+        
+        String query = """
+                SELECT sp.MaSP, sp.TenSP, SUM (ct.SoLuong) AS TongSoLuongBan, SUM (ct.ThanhTien) AS DoanhThu
+                FROM CHITIETHOADON ct
+                JOIN SanPham sp ON sp.MaSP = ct.MaSP
+                JOIN HoaDon hd ON hd.MaHD = ct.MaHD
+                WHERE hd.NgayLapHD >= ? AND hd.NgayLapHD < ?
+                GROUP BY sp.MaSP, sp.TenSP
+                ORDER BY TongSoLuongBan DESC
+                LIMIT ?;
+        """;
+
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            LocalDateTime fromDateTime = fromDate.atStartOfDay();
+            LocalDateTime toDateTime = toDate.plusDays(1).atStartOfDay();
+            
+            stmt.setTimestamp(1, Timestamp.valueOf(fromDateTime));
+            stmt.setTimestamp(2, Timestamp.valueOf(toDateTime));
+            stmt.setInt(3, limit);
+
+            ResultSet rs = stmt.executeQuery(); 
+
+            while (rs.next()) {
+                Map<String, Object> row = new HashMap<>();
+                row.put("MaSP", rs.getString("MaSP"));
+                row.put("TenSP", rs.getString("TenSP"));
+                row.put("TongSoLuongBan", rs.getInt("TongSoLuongBan"));
+                row.put("DoanhThu", rs.getLong("DoanhThu"));
+                result.add(row);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi thống kê sản phẩm bán chạy nhất: " + e.getMessage());
+        }
+        return result;
     }
 
     public static void sanPhamSapHetTrongKho(int soLuong) {
@@ -665,7 +706,6 @@ public class SanPhamDAO {
             System.err.println("Lỗi khi cộng số lượng tồn: " + e.getMessage());
         }
     }
-
 
     public static boolean congSoLuongTon(Connection conn, String maSP, int soLuong) throws SQLException {
         String query = "UPDATE SANPHAM SET SoLuongTon = SoLuongTon + ? WHERE MaSP = ?";
