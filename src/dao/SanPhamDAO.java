@@ -59,7 +59,7 @@ public class SanPhamDAO {
 
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT DISTINCT sp.MaSP, sp.TenSP, sp.Loai, sp.SoLuongTon, sp.DonViTinh, sp.GiaBan, ")
-        .append("sp.MoTa, sp.TrangThai ")
+        .append("sp.NgaySanXuat, sp.HanSuDung, sp.MoTa, sp.TrangThai ")
         .append("FROM SANPHAM sp ")
         .append("INNER JOIN LOAI l ON sp.Loai = l.MaLoai ")
         .append("INNER JOIN DONVI d ON sp.DonViTinh = d.MaDonVi ")
@@ -74,15 +74,13 @@ public class SanPhamDAO {
         String query = sb.toString();
 
         List<sanPhamDTO> list = new ArrayList<>();
+
         try (Connection conn = JDBCUtil.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(query)) {
+                PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            for (int i = 0; i < keywords.size(); i++) {
-                String kw = keywords.get(i);
-                stmt.setString(i + 1, "%" + kw + "%");
-            }
-
+            stmt.setString(1, "%" + name + "%");
             ResultSet rs = stmt.executeQuery();
+
             while (rs.next()) {
                 String tenSP = rs.getString("TenSP");
                 // loại bỏ dấu tên sản phẩm
@@ -95,7 +93,11 @@ public class SanPhamDAO {
                         break;
                     }
                 }
-                if (!matches) continue;
+                if (!matches) {
+                    continue;
+                }
+
+                
 
                 sanPhamDTO sp = new sanPhamDTO(
                     rs.getString("MaSP"),
@@ -113,19 +115,6 @@ public class SanPhamDAO {
             System.err.println("Lỗi khi tìm sản phẩm theo tên: " + e.getMessage());
         }
         return list;
-    }
-
-    // containsWholeWord giống như trước
-    private static boolean containsWholeWord(String fullName, String keyword) {
-        if (fullName == null || keyword == null) return false;
-        int idx = fullName.indexOf(keyword);
-        if (idx < 0) {
-            return false;
-        }
-        boolean beforeOk = (idx == 0) || !Character.isLetterOrDigit(fullName.charAt(idx - 1));
-        int endPos = idx + keyword.length();
-        boolean afterOk = (endPos == fullName.length()) || !Character.isLetterOrDigit(fullName.charAt(endPos));
-        return beforeOk && afterOk;
     }
 
     // hàm removeAccent

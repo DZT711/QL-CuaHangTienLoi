@@ -916,7 +916,7 @@ public class QuanLyHoaDon {
 
         try (PrintWriter writer = new PrintWriter(new FileWriter(fileName))) {
             writer.println("============== HÓA ĐƠN ==============");
-            writer.println("ABC Store");
+            writer.println("HTCS MiniStore");
             writer.println("123 An Dương Vương, Q5, TP.HCM");
             writer.println("Điện thoại: 0909090909");
             writer.println("Hóa đơn bán hàng");
