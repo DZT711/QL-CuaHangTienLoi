@@ -628,11 +628,15 @@ public class SanPhamDAO {
         }
     }
 
-    public static boolean congSoLuongTon(Connection conn, String maSP, int soLuong) throws SQLException {
-        String query = "UPDATE SANPHAM SET SoLuongTon = SoLuongTon + ? WHERE MaSP = ?";
+    public static boolean congSoLuongTon(Connection conn, String maHang, int soLuong) throws SQLException {
+        String query = """
+            UPDATE SANPHAM 
+            SET SoLuongTon = SoLuongTon + ? 
+            WHERE MaSP = (SELECT MaSP FROM HANGHOA WHERE MaHang = ?)        
+        """;
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, soLuong);
-            stmt.setString(2, maSP);
+            stmt.setString(2, maHang);
             int rowAffected = stmt.executeUpdate();
             return rowAffected > 0;
         }
