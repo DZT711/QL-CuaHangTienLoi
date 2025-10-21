@@ -612,9 +612,15 @@ public class QuanLyNhapHang {
                         FormatUtil.formatVND((long)row.get("TongTien")));
                 }
                 System.out.println("+------------+------------+-----------------+");
+                
+                System.out.print("\nBạn có muốn thống kê tiếp không? (y/n): ");
+                String choice = scanner.nextLine().trim();
+                if (!choice.equalsIgnoreCase("y")) {
+                    System.out.println("Thoát thống kê phiếu nhập theo ngày.");
+                    break;
+                }
             } catch (DateTimeParseException e) {
                 System.out.println("Định dạng ngày không hợp lệ, vui lòng nhập lại.");
-                scanner.nextLine();
             }
         }
     }
@@ -634,12 +640,28 @@ public class QuanLyNhapHang {
                 LocalDate fromDate = LocalDate.parse(from, formatter);
                 LocalDate toDate = LocalDate.parse(to, formatter);
 
+                if (fromDate.isAfter(toDate)) {
+                    System.out.println("⚠️  Ngày bắt đầu phải trước ngày kết thúc, vui lòng nhập lại.");
+                    continue;
+                }
+
                 List<Map<String, Object>> result = NhapHangDAO.thongKePhieuNhapTheoNCC(fromDate, toDate);
 
                 System.out.println("=== THỐNG KÊ PHIẾU NHẬP THEO NHÀ CUNG CẤP ===");
                 System.out.println("Từ ngày: " + fromDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
                 System.out.println("Đến ngày: " + toDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
                 System.out.println("---------------------------------------------------------");
+
+                if (result == null || result.isEmpty()) {
+                    System.out.println("❌ Không có dữ liệu phiếu nhập trong khoảng thời gian này.");
+                    System.out.println("---------------------------------------------------------");
+                    System.out.print("\n✅ Bạn có muốn thống kê tiếp không? (y/n): ");
+                    String choice = scanner.nextLine().trim().toLowerCase();
+                    if (!choice.equals("y")) {
+                        break;
+                    }
+                    continue;
+                }
 
                 System.out.printf("| %-7s | %-22s | %-8s | %-6s | %-13s |%n",
                 "Mã NCC", "Tên Nhà Cung Cấp", "Số Phiếu", "Số SP", "Tổng Giá Trị");
@@ -668,9 +690,15 @@ public class QuanLyNhapHang {
                 System.out.println("Tổng số sản phẩm: " + tongSanPham);
                 System.out.println("Tổng giá trị nhập: " + FormatUtil.formatVND(tongGiaTri));
                 System.out.println("---------------------------------------------------------");
+
+                // Hỏi người dùng có muốn thống kê tiếp không
+                System.out.print("\n✅ Bạn có muốn thống kê tiếp không? (y/n): ");
+                String choice = scanner.nextLine().trim().toLowerCase();
+                if (!choice.equals("y")) {
+                    break;
+                }
             } catch (DateTimeParseException e) {
-                System.out.println("Định dạng ngày không hợp lệ, vui lòng nhập lại.");
-                scanner.nextLine();
+                System.out.println("⚠️ Định dạng ngày không hợp lệ, vui lòng nhập lại (ddMMyyyy).");
             }
         }
     }
@@ -701,6 +729,16 @@ public class QuanLyNhapHang {
                 System.out.println("Từ ngày: " + fromDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
                 System.out.println("Đến ngày: " + toDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
                 System.out.println("---------------------------------------------------------");
+
+                if (result == null || result.isEmpty()) {
+                    System.out.println("❌ Không có dữ liệu phiếu nhập trong khoảng thời gian này.");
+                    System.out.println("---------------------------------------------------------");
+                    System.out.print("\n✅ Bạn có muốn thống kê tiếp không? (y/n): ");
+                    String choice = scanner.nextLine().trim().toLowerCase();
+                    if (!choice.equals("y")) break;
+                    continue;
+                }
+
                 System.out.printf("| %-5s | %-10s | %-20s | %-10s | %-10s | %-10s |%n", 
                 "STT", "Mã NV", "Họ Tên", "Số Phiếu", "Số SP", "Tổng Giá Trị");
                 System.out.println("+---------+------------------------+-----------+--------+-----------+---------------+");
@@ -717,12 +755,14 @@ public class QuanLyNhapHang {
                     );
                 }
                 System.out.println("+---------+------------------------+-----------+--------+-----------+---------------+");
+
+                System.out.print("\n✅ Bạn có muốn thống kê tiếp không? (y/n): ");
+                String choice = scanner.nextLine().trim().toLowerCase();
+                if (!choice.equals("y")) break;
             } catch (DateTimeParseException e) {
-                System.out.println("Định dạng ngày không hợp lệ, vui lòng nhập lại.");
-                scanner.nextLine();
+                System.out.println("⚠️ Định dạng ngày không hợp lệ, vui lòng nhập lại (ddMMyyyy).");
             }
         }
-
     }
 
     public void thongKePhieuNhapTheoSanPham() {
@@ -741,7 +781,7 @@ public class QuanLyNhapHang {
                 LocalDate toDate = LocalDate.parse(to, formatter);
 
                 if (fromDate.isAfter(toDate)) {
-                    System.out.println("Ngày bắt đầu phải trước ngày kết thúc, vui lòng nhập lại.");
+                    System.out.println("⚠️  Ngày bắt đầu phải trước ngày kết thúc, vui lòng nhập lại.");
                     continue;
                 }
 
@@ -751,10 +791,21 @@ public class QuanLyNhapHang {
                 System.out.println("Từ ngày: " + fromDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
                 System.out.println("Đến ngày: " + toDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
                 System.out.println("---------------------------------------------------------");
+
+                if (result == null || result.isEmpty()) {
+                    System.out.println("❌ Không có dữ liệu phiếu nhập trong khoảng thời gian này.");
+                    System.out.println("---------------------------------------------------------");
+                    System.out.print("\n✅ Bạn có muốn thống kê tiếp không? (y/n): ");
+                    String choice = scanner.nextLine().trim().toLowerCase();
+                    if (!choice.equals("y")) {
+                        break;
+                    }
+                    continue;
+                }
+
                 System.out.printf("| %-5s | %-15s | %-20s | %-10s | %-10s | %-10s |%n", 
                 "STT", "Mã SP", "Tên SP", "Số Phiếu", "Số SP", "Tổng Giá Trị");
                 System.out.println("+---------+----------------------+-----------+--------+-----------+---------------+");
-                
                 
                 int stt = 1;
                 for (Map<String, Object> row : result) {
@@ -768,9 +819,14 @@ public class QuanLyNhapHang {
                     );
                 }
                 System.out.println("+---------+----------------------+-----------+--------+-----------+---------------+");
+
+                System.out.print("\n✅ Bạn có muốn thống kê tiếp không? (y/n): ");
+                String choice = scanner.nextLine().trim().toLowerCase();
+                if (!choice.equals("y")) {
+                    break;
+                }
             } catch (DateTimeParseException e) {
-                System.out.println("Định dạng ngày không hợp lệ, vui lòng nhập lại.");
-                scanner.nextLine();
+                System.out.println("⚠️ Định dạng ngày không hợp lệ, vui lòng nhập lại (ddMMyyyy).");
             }
         }
     }
@@ -784,17 +840,22 @@ public class QuanLyNhapHang {
                 System.out.println("Nhập năm cần thống kê (yyyy): ");
                 year = Integer.parseInt(scanner.nextLine().trim());
                 if (year < 2000 || year > LocalDate.now().getYear()) {
-                    System.out.println("Năm không hợp lệ, vui lòng nhập lại.");
+                    System.out.println("⚠️  Năm không hợp lệ, vui lòng nhập lại.");
                     continue;
                 }
                 break;
             } catch (NumberFormatException e) {
-                System.out.println("Năm không hợp lệ, vui lòng nhập lại.");
-                scanner.nextLine();
+                System.out.println("⚠️  Năm không hợp lệ, vui lòng nhập lại.");
             }
         }
 
         List<Map<String, Object>> result = NhapHangDAO.thongKePhieuNhapTheoNam(year);
+
+        if (result == null || result.isEmpty()) {
+            System.out.println("❌ Không có dữ liệu phiếu nhập trong năm " + year + ".");
+            return;
+        }
+
         System.out.println("\n=== THỐNG KÊ PHIẾU NHẬP THEO THÁNG NĂM " + year + " ===");
         System.out.println("+-----------+------------+------------------+------------------+");
         System.out.printf("| %-9s | %-10s | %-16s | %-16s |%n",
@@ -808,16 +869,15 @@ public class QuanLyNhapHang {
         for (Map<String, Object> row : result) {
             int thang = (int) row.get("Thang");
             int soPhieu = (int) row.get("SoPhieu");
-            long soLuong = (long) row.get("TongSoLuong");
+            long soLuong = (long) row.get("TongSanPham");  
             long giaTri = (long) row.get("TongGiaTri");
 
             tongPhieu += soPhieu;
             tongSoLuong += soLuong;
             tongGiaTri += giaTri;
 
-
             System.out.printf("| %-9d | %-10d | %-16d | %-16s |%n",
-                    thang, soPhieu, tongSoLuong, FormatUtil.formatVND(giaTri));
+                    thang, soPhieu, soLuong, FormatUtil.formatVND(giaTri));  
         }
 
         System.out.println("+-----------+------------+------------------+------------------+");

@@ -190,7 +190,6 @@ public class NhapHangDAO {
         }
     }
 
-    // New: Cập nhật tổng tiền (dùng connection riêng)
     public static boolean capNhatTongTien(String maPhieu, int tongTien) {
         String sql = "UPDATE PHIEUNHAP SET TongTien = ? WHERE MaPhieu = ?";
         try (Connection conn = JDBCUtil.getConnection();
@@ -204,7 +203,6 @@ public class NhapHangDAO {
         }
     }
 
-    // New: Xóa phiếu nhập theo mã (khi cần rollback header vì không có chi tiết)
     public static boolean xoaPhieuNhapTheoMa(String maPhieu) {
         String sql = "DELETE FROM PHIEUNHAP WHERE MaPhieu = ?";
         try (Connection conn = JDBCUtil.getConnection();
@@ -264,7 +262,7 @@ public class NhapHangDAO {
                 SUM(pn.TongTien) AS tongTien
             FROM PHIEUNHAP pn
             WHERE pn.NgayLapPhieu >= ? AND pn.NgayLapPhieu < ?
-            GROUp BY pn.NgayLapPhieu
+            GROUP BY pn.NgayLapPhieu
             ORDER BY pn.NgayLapPhieu ASC;
         """;
 
@@ -300,7 +298,7 @@ public class NhapHangDAO {
                 ncc.MaNCC, ncc.TenNCC,
                 COUNT(DISTINCT pn.MaPhieu) AS soPhieu,
                 SUM(ct.SoLuong) AS tongSanPham,
-                SUM(pn.TongTien) AS tongGiaTri
+                SUM(ct.ThanhTien) AS tongGiaTri
             FROM PHIEUNHAP pn
             JOIN NHACUNGCAP ncc ON pn.MaNCC = ncc.MaNCC
             JOIN CHITIETPHIEUNHAP ct ON pn.MaPhieu = ct.MaPhieu
@@ -386,7 +384,8 @@ public class NhapHangDAO {
             SUM (ctpn.SoLuong) AS tongSoLuong,
             SUM (ctpn.ThanhTien) AS tongGiaTri
             FROM CHITIETPHIEUNHAP ctpn
-            JOIN SANPHAM sp ON ctpn.MaSP = sp.MaSP
+            JOIN HANGHOA hh ON ctpn.MaHang = hh.MaHang
+            JOIN SANPHAM sp ON hh.MaSP = sp.MaSP
             JOIN PHIEUNHAP pn ON ctpn.MaPhieu = pn.MaPhieu
             WHERE pn.NgayLapPhieu >= ? AND pn.NgayLapPhieu < ?
             GROUP BY sp.MaSP, sp.TenSP
@@ -425,18 +424,14 @@ public class NhapHangDAO {
         String query = """
             SELECT 
                 MONTH(pn.NgayLapPhieu) AS Thang,
-                COUNT(pn.MaPhieu) AS SoPhieu,
-                SUM(ctpn.TongSoLuong) AS TongSanPham,
-                SUM(pn.TongTien) AS TongGiaTri
-            FROM PHIEUNHAP pn
-            JOIN (
-                SELECT MaPhieu, SUM(SoLuong) AS TongSoLuong
-                FROM CHITIETPHIEUNHAP
-                GROUP BY MaPhieu
-            ) ctpn ON pn.MaPhieu = ctpn.MaPhieu
-            WHERE YEAR(pn.NgayLapPhieu) = ?
-            GROUP BY MONTH(pn.NgayLapPhieu)
-            ORDER BY Thang ASC;
+                COUNT(DISTINCT pn.MaPhieu) AS SoPhieu,
+                SUM(ct.SoLuong) AS TongSanPham,
+                SUM(ct.ThanhTien) AS TongGiaTri  -- Thay pn.TongTien
+                FROM PHIEUNHAP pn
+                JOIN CHITIETPHIEUNHAP ct ON pn.MaPhieu = ct.MaPhieu
+                WHERE YEAR(pn.NgayLapPhieu) = ?ff
+                GROUP BY MONTH(pn.NgayLapPhieu)
+                ORDER BY Thang ASC;
         """;
 
         List<Map<String,Object>> result = new ArrayList<>();
