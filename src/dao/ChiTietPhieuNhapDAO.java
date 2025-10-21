@@ -72,7 +72,8 @@ public class ChiTietPhieuNhapDAO {
                 SELECT ctpn.MaHang, sp.TenSP, dv.TenDonVi AS DonViTinh, 
                     ctpn.SoLuong, ctpn.GiaNhap, ctpn.ThanhTien
                 FROM CHITIETPHIEUNHAP ctpn
-                INNER JOIN SANPHAM sp ON ctpn.MaHang = sp.MaHang
+                INNER JOIN HANGHOA hh ON ctpn.MaHang = hh.MaHang
+                INNER JOIN SANPHAM sp ON hh.MaSP = sp.MaSP
                 INNER JOIN DONVI dv ON sp.MaDonVi = dv.MaDonVi
                 WHERE ctpn.MaPhieu = ?
                 ORDER BY ctpn.MaHang ASC;
@@ -110,7 +111,8 @@ public class ChiTietPhieuNhapDAO {
                 SELECT ctpn.MaPhieu, ctpn.MaHang, sp.TenSP, dv.TenDonVi AS DonViTinh, 
                     ctpn.SoLuong, ctpn.GiaNhap, ctpn.ThanhTien
                 FROM CHITIETPHIEUNHAP ctpn
-                INNER JOIN SANPHAM sp ON ctpn.MaHang = sp.MaHang
+                INNER JOIN HANGHOA hh ON ctpn.MaHang = hh.MaHang
+                INNER JOIN SANPHAM sp ON hh.MaSP = sp.MaSP
                 INNER JOIN DONVI dv ON sp.MaDonVi = dv.MaDonVi
                 ORDER BY ctpn.MaPhieu ASC, ctpn.MaHang ASC;
         """;
