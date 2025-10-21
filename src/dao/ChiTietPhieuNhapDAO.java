@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import util.JDBCUtil;
-import dao.SanPhamDAO;
 
 
 public class ChiTietPhieuNhapDAO {
@@ -20,9 +19,8 @@ public class ChiTietPhieuNhapDAO {
         if (ctPhieuNhap.getSoLuong() <= 0) return false;
         if (ctPhieuNhap.getGiaNhap() < 0) return false;
 
-        String selectQuery = "SELECT SoLuong, ThanhTien FROM CHITIETPHIEUNHAP WHERE MaPhieu = ? AND MaSP = ?";
-        String updateQuery = "UPDATE CHITIETPHIEUNHAP SET SoLuong = ?, GiaNhap = ?, ThanhTien = ? WHERE MaPhieu = ? AND MaSP = ?";
-        String insertQuery = "INSERT INTO CHITIETPHIEUNHAP (MaPhieu, MaSP, SoLuong, GiaNhap, ThanhTien) VALUES (?, ?, ?, ?, ?)";
+        String selectQuery = "SELECT 1 FROM CHITIETPHIEUNHAP WHERE MaPhieu = ? AND MaHang = ?";
+        String insertQuery = "INSERT INTO CHITIETPHIEUNHAP (MaPhieu, MaHang, SoLuong, GiaNhap, ThanhTien) VALUES (?, ?, ?, ?, ?)";
 
         int soLuong = ctPhieuNhap.getSoLuong();
         int giaNhap = ctPhieuNhap.getGiaNhap();
@@ -31,61 +29,35 @@ public class ChiTietPhieuNhapDAO {
         try {
             conn.setAutoCommit(false);
 
-            // Check sản phẩm đã tồn tại trong chi tiết phiếu nhập chưa
+            // Kiểm tra double entry
             try (PreparedStatement check = conn.prepareStatement(selectQuery)) {
                 check.setString(1, ctPhieuNhap.getMaPhieu());
-                check.setString(2, ctPhieuNhap.getMaSP());
+                check.setString(2, ctPhieuNhap.getMaHang());
                 try (ResultSet rs = check.executeQuery()) {
-
                     if (rs.next()) {
-                        // sản phẩm đã tồn tại trong chi tiết phiếu nhập
-                        int soLuongCu = rs.getInt("SoLuong");
-                        int giaNhapCu = rs.getInt("GiaNhap");
-
-                        // nếu giá mới khác giá cũ → lỗi
-                        if (giaNhap != giaNhapCu) {
-                            System.out.println("❌ LỖI: Sản phẩm " + ctPhieuNhap.getMaSP() +
-                                " đã tồn tại với giá " + giaNhapCu +
-                                ". Không thể thêm với giá khác (" + giaNhap + "). Bỏ qua!");
-                            conn.rollback();
-                            return false;
-                        }
-
-                        // giá giống nhau -> Cộng dồn số lượng
-                        int soLuongMoi = soLuongCu + soLuong;
-                        int thanhTienMoi = soLuongMoi * giaNhap;
-
-                        // update cộng dồn
-                        try (PreparedStatement update = conn.prepareStatement(updateQuery)) {
-                            update.setInt(1, soLuongMoi);
-                            update.setInt(2, giaNhap);
-                            update.setInt(3, thanhTienMoi);
-                            update.setString(4, ctPhieuNhap.getMaPhieu());
-                            update.setString(5, ctPhieuNhap.getMaSP());
-                            update.executeUpdate();
-                        }
-
-                    } else {
-                        // sản phẩm chưa tồn tại trong chi tiết phiếu nhập -> Thêm mới
-                        try (PreparedStatement insert = conn.prepareStatement(insertQuery)) {
-                            insert.setString(1, ctPhieuNhap.getMaPhieu());
-                            insert.setString(2, ctPhieuNhap.getMaSP());
-                            insert.setInt(3, soLuong);
-                            insert.setInt(4, giaNhap);
-                            insert.setInt(5, thanhTien);
-                            insert.executeUpdate();
-                        }
+                        System.out.println("LỖI: Sản phẩm " + ctPhieuNhap.getTenSP() + " đã tồn tại trong phiếu nhập " + ctPhieuNhap.getMaPhieu() + ". Không thể thêm trùng!");
+                        conn.rollback();
+                        return false;
                     }
                 }
             }
 
+            // Thêm mới chi tiết phiếu nhập
+            try (PreparedStatement insert = conn.prepareStatement(insertQuery)) {
+                insert.setString(1, ctPhieuNhap.getMaPhieu());
+                insert.setString(2, ctPhieuNhap.getMaHang());
+                insert.setInt(3, soLuong);
+                insert.setInt(4, giaNhap);
+                insert.setInt(5, thanhTien);
+                insert.executeUpdate();
+            }
+
             // cập nhật tồn kho
-            boolean stockUpdated = SanPhamDAO.congSoLuongTon(conn, ctPhieuNhap.getMaSP(), soLuong);
+            boolean stockUpdated = SanPhamDAO.congSoLuongTon(conn, ctPhieuNhap.getMaHang(), soLuong);
             if (!stockUpdated)
-                throw new SQLException("Cập nhật tồn kho thất bại cho sản phẩm: " + ctPhieuNhap.getMaSP());
+                throw new SQLException("Cập nhật tồn kho thất bại cho sản phẩm: " + ctPhieuNhap.getMaHang());
 
             conn.commit();
-
         } catch (SQLException e) {
             conn.rollback();
             throw e;
@@ -97,13 +69,13 @@ public class ChiTietPhieuNhapDAO {
 
     public static List<ChiTietPhieuNhapDTO> timChiTietPhieuNhap(String maPhieu) {
         String query = """
-                SELECT ctpn.MaSP, sp.TenSP, dv.TenDonVi AS DonViTinh, 
-                       ctpn.SoLuong, ctpn.GiaNhap, ctpn.ThanhTien
+                SELECT ctpn.MaHang, sp.TenSP, dv.TenDonVi AS DonViTinh, 
+                    ctpn.SoLuong, ctpn.GiaNhap, ctpn.ThanhTien
                 FROM CHITIETPHIEUNHAP ctpn
-                INNER JOIN SANPHAM sp ON ctpn.MaSP = sp.MaSP
+                INNER JOIN SANPHAM sp ON ctpn.MaHang = sp.MaHang
                 INNER JOIN DONVI dv ON sp.MaDonVi = dv.MaDonVi
                 WHERE ctpn.MaPhieu = ?
-                ORDER BY ctpn.MaSP ASC;
+                ORDER BY ctpn.MaHang ASC;
         """;
 
         List<ChiTietPhieuNhapDTO> list = new ArrayList<>();
@@ -116,7 +88,7 @@ public class ChiTietPhieuNhapDAO {
                 while (rs.next()) {
                     list.add(new ChiTietPhieuNhapDTO(
                         maPhieu,
-                        rs.getString("MaSP"),
+                        rs.getString("MaHang"),
                         rs.getString("TenSP"),
                         rs.getString("DonViTinh"),
                         rs.getInt("SoLuong"),
@@ -135,22 +107,22 @@ public class ChiTietPhieuNhapDAO {
         List<ChiTietPhieuNhapDTO> list  = new ArrayList<>();
 
         String query = """
-                SELECT ctpn.MaPhieu, ctpn.MaSP, sp.TenSP, dv.TenDonVi AS DonViTinh, 
-                       ctpn.SoLuong, ctpn.GiaNhap, ctpn.ThanhTien
+                SELECT ctpn.MaPhieu, ctpn.MaHang, sp.TenSP, dv.TenDonVi AS DonViTinh, 
+                    ctpn.SoLuong, ctpn.GiaNhap, ctpn.ThanhTien
                 FROM CHITIETPHIEUNHAP ctpn
-                INNER JOIN SANPHAM sp ON ctpn.MaSP = sp.MaSP
+                INNER JOIN SANPHAM sp ON ctpn.MaHang = sp.MaHang
                 INNER JOIN DONVI dv ON sp.MaDonVi = dv.MaDonVi
-                ORDER BY ctpn.MaPhieu ASC, ctpn.MaSP ASC;
+                ORDER BY ctpn.MaPhieu ASC, ctpn.MaHang ASC;
         """;
 
         try (Connection conn = JDBCUtil.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query);
-             ResultSet rs = stmt.executeQuery()) {
+            PreparedStatement stmt = conn.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 list.add(new ChiTietPhieuNhapDTO(
                     rs.getString("MaPhieu"),
-                    rs.getString("MaSP"),
+                    rs.getString("MaHang"),
                     rs.getString("TenSP"),
                     rs.getString("DonViTinh"),
                     rs.getInt("SoLuong"),
@@ -173,7 +145,8 @@ public class ChiTietPhieuNhapDAO {
                     COUNT(DISTINCT ctpn.MaPhieu) AS SoLanNhap,
                     SUM(ctpn.ThanhTien) AS TongGiaTriNhap
                 FROM CHITIETPHIEUNHAP ctpn
-                INNER JOIN SANPHAM sp ON ctpn.MaSP = sp.MaSP
+                INNER JOIN HANGHOA hh ON ctpn.MaHang = hh.MaHang
+                INNER JOIN SANPHAM sp ON hh.MaSP = sp.MaSP
                 INNER JOIN PHIEUNHAP pn ON ctpn.MaPhieu = pn.MaPhieu
                 WHERE pn.NgayLapPhieu >= ? AND pn.NgayLapPhieu < ?
                 GROUP BY sp.MaSP, sp.TenSP
@@ -184,7 +157,7 @@ public class ChiTietPhieuNhapDAO {
         List<Map<String, Object>> result = new ArrayList<>();
 
         try (Connection conn = JDBCUtil.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+            PreparedStatement stmt = conn.prepareStatement(query)) {
 
             LocalDateTime fromDateTime = fromDate.atStartOfDay();
             LocalDateTime toDateTime = toDate.plusDays(1).atStartOfDay();
