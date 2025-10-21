@@ -50,8 +50,8 @@ public class QuanLyNhapHang {
                 if (scanner.hasNextInt()) {
                     choice = scanner.nextInt();
                     scanner.nextLine();
-                    if (choice >= 0 && choice <= 4) break;
-                    System.out.print("Vui lòng nhập số trong khoảng 0–4: ");
+                    if (choice >= 0 && choice <= 7) break;
+                    System.out.print("Vui lòng nhập số trong khoảng 0–7: ");
                 } else {
                     System.out.print("Nhập không hợp lệ. Vui lòng nhập lại: ");
                     scanner.next();
@@ -140,7 +140,7 @@ public class QuanLyNhapHang {
                                     thongKePhieuNhapTheoNV();
                                     break;
                                 case 4:
-                                     thongKePhieuNhapTheoSanPham();
+                                    thongKePhieuNhapTheoSanPham();
                                     break;
                                 case 5:
                                     thongKePhieuNhapTheoThang();
@@ -237,9 +237,7 @@ public class QuanLyNhapHang {
                         ncc = new NhaCungCapDTO(maNCC, tenNCC, diaChi, dienThoai, email, "active");
                         NhaCungCapDAO.themNCC(ncc);
                         System.out.println("Thêm nhà cung cấp thành công");
-                    } else {
-                        continue;
-                    }
+                    } else continue;
                 }
 
                 String maNV = Main.CURRENT_ACCOUNT.getMaNV();
@@ -248,15 +246,21 @@ public class QuanLyNhapHang {
                     continue;
                 }
 
-
                 int tongTien = 0;
                 int countSuccess = 0;
-                System.out.println("\n📦 Nhập chi tiết sản phẩm (nhập mã SP = '0' để kết thúc):");
 
+                NhapHangDTO pn = new NhapHangDTO(maPhieu, maNCC, maNV, 0, LocalDateTime.now());
+                boolean headerCreated = NhapHangDAO.themPhieuNhap(pn);
+                if (!headerCreated) {
+                    System.out.println("Không thể tạo phiếu nhập. Vui lòng thử lại.");
+                    continue;
+                }
+
+                System.out.println("\n📦 Nhập chi tiết hàng hóa (nhập mã hàng = '0' để kết thúc):");
                 while (true) {
-                    System.out.print("\nNhập mã sản phẩm: ");
-                    String maSP = scanner.nextLine().trim();
-                    if (maSP.equals("0")) break;
+                    System.out.print("\nNhập mã hàng: ");
+                    String maHang = scanner.nextLine().trim();
+                    if (maHang.equals("0")) break;
 
                     System.out.print("Nhập số lượng: ");
                     String slStr = scanner.nextLine().trim();
@@ -288,35 +292,31 @@ public class QuanLyNhapHang {
 
                     int thanhTien = soLuong * giaNhap;
 
-                    // Tạo chi tiết phiếu nhập (DAO tự kiểm tra trùng mã + giá)
-                    ChiTietPhieuNhapDTO chiTiet = new ChiTietPhieuNhapDTO(maPhieu, maSP, null, null, soLuong, giaNhap, thanhTien);
+                    ChiTietPhieuNhapDTO chiTiet = new ChiTietPhieuNhapDTO(maPhieu, maHang, null, null, soLuong, giaNhap, thanhTien);
                     boolean added = ChiTietPhieuNhapDAO.themChiTietPhieuNhap(conn, chiTiet);
 
                     if (added) {
-                        tongTien += thanhTien; // Cộng dần tổng tiền
-                        countSuccess++; // Đếm sản phẩm thêm thành công
+                        tongTien += thanhTien;
+                        countSuccess++;
                     }
-                    // Nếu thất bại (giá khác) thì DAO đã in thông báo lỗi rồi
                 }
 
-
                 if (countSuccess == 0) {
-                    System.out.println("⚠️  Không có sản phẩm nào được thêm. Hủy tạo phiếu nhập.");
+                    System.out.println("⚠️  Không có hàng hóa nào được thêm. Hủy phiếu nhập vừa tạo.");
+                    NhapHangDAO.xoaPhieuNhapTheoMa(maPhieu);
                     continue;
                 }
 
-
-                NhapHangDTO pn = new NhapHangDTO(maPhieu, maNCC, maNV, tongTien, LocalDateTime.now());
-                boolean phieuCreated = NhapHangDAO.themPhieuNhap(pn);
-
-                if (phieuCreated) {
-                    System.out.println("\nTạo phiếu nhập thành công!");
-                    System.out.println("Mã phiếu: " + maPhieu);
-                    System.out.println("Số sản phẩm: " + countSuccess);
-                    System.out.println("Tổng tiền: " + FormatUtil.formatVND(tongTien));
-                } else {
-                    System.out.println("Lỗi khi tạo phiếu nhập!");
+                // Cập nhật tổng tiền cho header
+                if (!NhapHangDAO.capNhatTongTien(maPhieu, tongTien)) {
+                    System.out.println("Không thể cập nhật tổng tiền phiếu nhập.");
+                    // Không xóa header vì đã có chi tiết và tồn kho đã cập nhật; báo để user xử lý thủ công.
                 }
+
+                System.out.println("\nTạo phiếu nhập thành công!");
+                System.out.println("Mã phiếu: " + maPhieu);
+                System.out.println("Số lượng sản phẩm nhập: " + countSuccess);
+                System.out.println("Tổng tiền: " + FormatUtil.formatVND(tongTien));
 
                 System.out.print("\nBạn có muốn tạo phiếu nhập khác không? (y/n): ");
                 String cont = scanner.nextLine().trim();

@@ -92,31 +92,31 @@ public class QuanLyChiTietPhieuNhap {
                 if (maSP.equals("0")) break;
 
                 System.out.print("Nhập số lượng: ");
-                int soLuong;
-                try {
-                    soLuong = Integer.parseInt(scanner.nextLine().trim());
-                    if (soLuong <= 0) {
-                        System.out.println("Số lượng phải lớn hơn 0.");
-                        continue;
+                int soLuong = 0, giaNhap = 0;
+                while (true) {
+                    System.out.print("Nhập số lượng: ");
+                    String soLuongStr = scanner.nextLine().trim();
+                    try {
+                        soLuong = Integer.parseInt(soLuongStr);
+                        if (soLuong > 0) break;
+                        System.out.println("Số lượng phải lớn hơn 0. Vui lòng nhập lại.");
+                    } catch (NumberFormatException e) {
+                        System.out.println("Số lượng không hợp lệ. Vui lòng nhập lại.");
                     }
-                } catch (NumberFormatException e) {
-                    System.out.println("Số lượng không hợp lệ.");
-                    continue;
                 }
-
-                System.out.print("Nhập giá nhập: ");
-                int giaNhap;
-                try {
-                    giaNhap = Integer.parseInt(scanner.nextLine().trim());
-                    if (giaNhap <= 0) {
-                        System.out.println("Giá nhập phải lớn hơn 0.");
-                        continue;
+                
+                while (true) {
+                    System.out.print("Nhập giá nhập: ");
+                    String giaNhapStr = scanner.nextLine().trim();
+                    try {
+                        giaNhap = Integer.parseInt(giaNhapStr);
+                        if (giaNhap > 0) break;
+                        System.out.println("Giá nhập phải lớn hơn 0. Vui lòng nhập lại.");
+                    } catch (NumberFormatException e) {
+                        System.out.println("Giá nhập không hợp lệ. Vui lòng nhập lại.");
                     }
-                } catch (NumberFormatException e) {
-                    System.out.println("Giá nhập không hợp lệ.");
-                    continue;
                 }
-
+                
                 int thanhTien = soLuong * giaNhap;
 
                 // Thêm chi tiết (DAO tự kiểm tra trùng mã + giá)
@@ -131,16 +131,16 @@ public class QuanLyChiTietPhieuNhap {
 
             if (countSuccess > 0) {
                 int tongTienMoi = phieuNhap.getTongTien() + tongTienThem;
-                phieuNhap.setTongTien(tongTienMoi);
+                boolean updated = NhapHangDAO.capNhatTongTien(maPhieu, tongTienMoi);
+                if (updated) {
+                    System.out.println("Đã thêm " + countSuccess + " sản phẩm vào phiếu nhập.");
+                    System.out.println("Tổng tiền phiếu nhập đã được cập nhật: " + FormatUtil.formatVND(tongTienMoi));
+                } else {
+                    System.out.println("Lỗi cập nhật tổng tiền phiếu nhập.");
+                }
 
-                NhapHangDAO.suaPhieuNhap(phieuNhap, maPhieu);
-
-                System.out.println("\nĐã thêm " + countSuccess + " sản phẩm vào phiếu nhập " + maPhieu + ".");
-
-            } else {
-                System.out.println("Không có sản phẩm nào được thêm.");
-            }
-
+            } else System.out.println("Không có sản phẩm nào được thêm.");
+            
         } catch (Exception e) {
             System.out.println("Lỗi: " + e.getMessage());
             e.printStackTrace();
@@ -180,7 +180,7 @@ public class QuanLyChiTietPhieuNhap {
         System.out.println("Danh sách tất cả chi tiết phiếu nhập:");
         System.out.println("==================================================================================");
         System.out.printf("| %-10s | %-10s | %-20s | %-10s | %-8s | %-10s | %-10s |\n",
-                "Mã phiếu", "Mã SP", "Tên SP", "Đơn vị", "SL", "Giá nhập", "Thành tiền");
+                "Mã phiếu", "Mã Hàng", "Tên SP", "Đơn vị", "SL", "Giá nhập", "Thành tiền");
         System.out.println("==================================================================================");
 
         int tongSoLuong = 0;
@@ -188,7 +188,7 @@ public class QuanLyChiTietPhieuNhap {
 
         for (ChiTietPhieuNhapDTO ct : chiTietList) {
             System.out.printf("| %-10s | %-10s | %-20s | %-10s | %-8d | %-10d | %-10d |\n",
-                    ct.getMaPhieu(), ct.getMaSP(), ct.getTenSP(), ct.getDonViTinh(),
+                    ct.getMaPhieu(), ct.getMaHang(), ct.getTenSP(), ct.getDonViTinh(),
                     ct.getSoLuong(), ct.getGiaNhap(), ct.getThanhTien());
             tongSoLuong += ct.getSoLuong();
             tongThanhTien += ct.getThanhTien();
@@ -201,7 +201,7 @@ public class QuanLyChiTietPhieuNhap {
     public static void inBangChiTiet(List<ChiTietPhieuNhapDTO> danhSach) {
         System.out.println("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
         System.out.printf("%-5s | %-10s | %-10s | %-20s | %-8s | %-12s | %-12s%n",
-                "STT", "Mã Phiếu", "Mã SP", "Tên SP", "Số lượng", "Giá nhập", "Thành tiền");
+                "STT", "Mã Phiếu", "Mã Hàng", "Tên SP", "Số lượng", "Giá nhập", "Thành tiền");
         System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
         int stt = 1;
@@ -211,7 +211,7 @@ public class QuanLyChiTietPhieuNhap {
             System.out.printf("%-5d | %-10s | %-10s | %-20s | %-8d | %-12s | %-12s%n",
                     stt++,
                     ct.getMaPhieu(),
-                    ct.getMaSP(),
+                    ct.getMaHang(),
                     ct.getTenSP(),
                     ct.getSoLuong(),
                     FormatUtil.formatVND(ct.getGiaNhap()),
