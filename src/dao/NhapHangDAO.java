@@ -17,25 +17,26 @@ import util.JDBCUtil;
 
 public class NhapHangDAO {
     public static String generateMaPhieuNhap() {
-        String prefix = "PN";
-        String newID = prefix + "001";
-        String query = "SELECT MaPhieu FROM PHIEUNHAP ORDER BY MaPhieu DESC LIMIT 1";
+    String prefix = "PN";
+    String newID = prefix + "001";
+    String query = "SELECT MaPhieu FROM PHIEUNHAP ORDER BY CAST(SUBSTRING(MaPhieu, 3) AS UNSIGNED) DESC LIMIT 1";
 
-        try (Connection conn = JDBCUtil.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(query);
-            ResultSet rs = stmt.executeQuery();) {
+    try (Connection conn = JDBCUtil.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query);
+        ResultSet rs = stmt.executeQuery()) {
 
-            if (rs.next()) {
-                String lastID = rs.getString("MaPhieu");
-                int number = Integer.parseInt(lastID.substring(2));
-                number++;
-                newID = prefix + String.format("%03d", number);
-            }
-        } catch (SQLException e) {
-            System.err.println("Lỗi khi tạo mã phiếu nhập: " + e.getMessage());
+        if (rs.next()) {
+            String lastID = rs.getString("MaPhieu");
+            int number = Integer.parseInt(lastID.substring(2));
+            number++;
+            newID = prefix + String.format("%03d", number);
         }
-        return newID;
+    } catch (SQLException e) {
+        System.err.println("Lỗi khi tạo mã phiếu nhập: " + e.getMessage());
     }
+
+    return newID;
+}
 
     public static boolean themPhieuNhap(NhapHangDTO pn) {
         String query = "INSERT INTO PHIEUNHAP (MaPhieu, MaNCC, MaNV, TongTien) VALUES (?, ?, ?, ?);";
@@ -48,14 +49,7 @@ public class NhapHangDAO {
             stmt.setString(3, pn.getMaNV());
             stmt.setInt(4, pn.getTongTien());
 
-            int rowAffected = stmt.executeUpdate();
-            if (rowAffected > 0) {
-                System.out.println("Thêm phiếu nhập thành công");
-                return true;
-            } else {
-                System.out.println("Thêm phiếu nhập thất bại");
-                return false;
-            }
+            return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             System.err.println("Lỗi khi thêm phiếu nhập: " + e.getMessage());
             return false;
@@ -193,6 +187,33 @@ public class NhapHangDAO {
             }
         } catch (SQLException e) {
             System.err.println("Lỗi khi sửa phiếu nhập: " + e.getMessage());
+        }
+    }
+
+    // New: Cập nhật tổng tiền (dùng connection riêng)
+    public static boolean capNhatTongTien(String maPhieu, int tongTien) {
+        String sql = "UPDATE PHIEUNHAP SET TongTien = ? WHERE MaPhieu = ?";
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, tongTien);
+            stmt.setString(2, maPhieu);
+            return stmt.executeUpdate() == 1;
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi cập nhật tổng tiền phiếu nhập: " + e.getMessage());
+            return false;
+        }
+    }
+
+    // New: Xóa phiếu nhập theo mã (khi cần rollback header vì không có chi tiết)
+    public static boolean xoaPhieuNhapTheoMa(String maPhieu) {
+        String sql = "DELETE FROM PHIEUNHAP WHERE MaPhieu = ?";
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, maPhieu);
+            return stmt.executeUpdate() == 1;
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi xóa phiếu nhập: " + e.getMessage());
+            return false;
         }
     }
 
