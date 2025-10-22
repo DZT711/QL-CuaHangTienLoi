@@ -2,7 +2,7 @@ package dto;
 
 public class ChiTietHoaDonDTO {
     private String maHD;
-    private String maSP;
+    private String maHang;
     private String tenSP;
     private int soLuong;
     private int donGia;
@@ -10,9 +10,9 @@ public class ChiTietHoaDonDTO {
 
     public ChiTietHoaDonDTO() {}
 
-    public ChiTietHoaDonDTO(String maHD, String maSP, String tenSP, int soLuong, int donGia, int thanhTien) {
+    public ChiTietHoaDonDTO(String maHD, String maHang, String tenSP, int soLuong, int donGia, int thanhTien) {
         this.maHD = maHD;
-        this.maSP = maSP;
+        this.maHang = maHang;
         this.tenSP = tenSP;
         this.soLuong = soLuong;
         this.donGia = donGia;
@@ -26,13 +26,13 @@ public class ChiTietHoaDonDTO {
     public void setMaHD(String maHD) {
         this.maHD = maHD;
     }
-    
-    public String getMaSP() {
-        return maSP;
+
+    public String getMaHang() {
+        return maHang;
     }
 
-    public void setMaSP(String maSP) {
-        this.maSP = maSP;
+    public void setMaHang(String maHang) {
+        this.maHang = maHang;
     }
 
     public String getTenSP() {
@@ -69,7 +69,7 @@ public class ChiTietHoaDonDTO {
 
     // Làm lại giao diện cho giống thực tế, đẹp hơn
     public void inChiTietHoaDon() {
-        System.out.println("Mã sản phẩm: " + maSP);
+        System.out.println("Mã hàng hóa: " + maHang);
         System.out.println("Tên sản phẩm: " + tenSP);
         System.out.println("Số lượng: " + soLuong);
         System.out.println("Đơn giá: " + donGia);

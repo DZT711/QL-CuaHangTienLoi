@@ -11,13 +11,13 @@ import util.JDBCUtil;
 
 public class ChiTietHoaDonDAO {
     public static void themChiTietHoaDon(ChiTietHoaDonDTO ctHoaDon) {
-        String query = "INSERT INTO CHITIETHOADON (MaHD, MaSP, SoLuong, DonGia, ThanhTien) VALUES (?, ?, ?, ?, ?);";
+        String query = "INSERT INTO CHITIETHOADON (MaHD, MaHang, SoLuong, DonGia, ThanhTien) VALUES (?, ?, ?, ?, ?);";
 
         try (Connection conn = JDBCUtil.getConnection()) {
             PreparedStatement stmt = conn.prepareStatement(query);
             
             stmt.setString(1, ctHoaDon.getMaHD());
-            stmt.setString(2, ctHoaDon.getMaSP());
+            stmt.setString(2, ctHoaDon.getMaHang());
             stmt.setInt(3, ctHoaDon.getSoLuong());
             stmt.setInt(4, ctHoaDon.getDonGia());
             stmt.setInt(5, ctHoaDon.getThanhTien());
