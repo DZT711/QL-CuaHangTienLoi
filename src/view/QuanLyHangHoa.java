@@ -89,6 +89,7 @@ public class QuanLyHangHoa {
                             System.out.println("════════════════════════════════════════════════");
                             System.out.println("1. Tìm kiếm hàng hóa theo mã hàng");
                             System.out.println("2. Tìm kiếm hàng hóa theo mã sản phẩm");
+                            System.out.println("3. Tìm kiếm hàng hóa theo hạn sử dụng");
                             System.out.println("0. Quay lại");
                             System.out.println("════════════════════════════════════════════════");
                             System.out.print("\n💡 Nhập lựa chọn của bạn: ");
@@ -103,9 +104,10 @@ public class QuanLyHangHoa {
                                 timHangHoaTheoMaHang();
                             } else if (opt == 2) {
                                 timHangHoaTheoMaSP();
+                            } else if (opt == 3) {
+                                timHangHoaTheoHanSuDung();
                             } else {
                                 System.out.println("❌ Lựa chọn không hợp lệ!");
-
                             }
                         } catch (Exception e) {
                             System.out.println("❌ Lỗi xảy ra: " + e.getMessage());
@@ -416,6 +418,85 @@ public class QuanLyHangHoa {
             }
             
             System.out.println("════════════════════════════════════════════════════════════════════════════════");
+            System.out.println("📊 Tổng cộng: " + loHangList.size() + " lô hàng | Tổng số lượng: " + tongSL);
+            System.out.println();
+        }
+    }
+
+    public void timHangHoaTheoHanSuDung() {
+        Scanner scanner = new Scanner(System.in);
+        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+        DateTimeFormatter displayFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        
+        while (true) {
+            System.out.print("\nNhập hạn sử dụng cần tìm (ddMMyyyy) hoặc '0' để thoát: ");
+            String input = scanner.nextLine().trim();
+            
+            if ("0".equals(input)) {
+                System.out.println("✅ Thoát tìm kiếm hàng hóa.");
+                break;
+            }
+            
+            // Validation format
+            if (input.length() != 8) {
+                System.out.println("❌ Định dạng không hợp lệ! Vui lòng nhập đúng 8 ký tự (ddMMyyyy).");
+                continue;
+            }
+            
+            LocalDate hanSuDung;
+            try {
+                hanSuDung = LocalDate.parse(input, inputFormatter);
+            } catch (Exception e) {
+                System.out.println("❌ Ngày không hợp lệ! Vui lòng nhập lại.");
+                continue;
+            }
+            
+            // Tìm kiếm
+            List<Map<String, Object>> loHangList = HangHoaDAO.timHangHoaTheoHanSuDung(hanSuDung);
+            
+            if (loHangList == null || loHangList.isEmpty()) {
+                System.out.println("⚠️ Không tìm thấy lô hàng nào có hạn sử dụng: " + hanSuDung.format(displayFormatter));
+                continue;
+            }
+            
+            // Hiển thị kết quả
+            System.out.println("\n════════════════════════════════════════════════════════════════════════════════════════");
+            System.out.println("                    🔍 KẾT QUẢ TÌM KIẾM THEO HẠN SỬ DỤNG                              ");
+            System.out.println("════════════════════════════════════════════════════════════════════════════════════════");
+            System.out.println("Hạn sử dụng: " + hanSuDung.format(displayFormatter));
+            System.out.println("────────────────────────────────────────────────────────────────────────────────────────");
+            System.out.printf("%-12s %-12s %-25s %-12s %-12s %-18s%n",
+                "Mã hàng", "Mã SP", "Tên SP", "SL còn lại", "Ngày SX", "Trạng thái");
+            System.out.println("────────────────────────────────────────────────────────────────────────────────────────");
+            
+            int tongSL = 0;
+            for (Map<String, Object> loHang : loHangList) {
+                String ngaySXStr = (loHang.get("NgaySanXuat") != null) ? 
+                    ((LocalDate) loHang.get("NgaySanXuat")).format(displayFormatter) : "N/A";
+                
+                // Emoji cho trạng thái
+                String trangThaiIcon = "";
+                if ("active".equals(loHang.get("TrangThai"))) {
+                    trangThaiIcon = "✅ Active";
+                } else if ("inactive".equals(loHang.get("TrangThai"))) {
+                    trangThaiIcon = "⚠️ Inactive";
+                } else if ("expired".equals(loHang.get("TrangThai"))) {
+                    trangThaiIcon = "❌ Expired";
+                }
+                
+                System.out.printf("%-12s %-12s %-25s %-12d %-12s %-18s%n",
+                    loHang.get("MaHang"),
+                    loHang.get("MaSP"),
+                    loHang.get("TenSP"),
+                    loHang.get("SoLuongConLai"),
+                    ngaySXStr,
+                    trangThaiIcon
+                );
+                
+                tongSL += (int) loHang.get("SoLuongConLai");
+            }
+            
+            System.out.println("════════════════════════════════════════════════════════════════════════════════════════");
             System.out.println("📊 Tổng cộng: " + loHangList.size() + " lô hàng | Tổng số lượng: " + tongSL);
             System.out.println();
         }

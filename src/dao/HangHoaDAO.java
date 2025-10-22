@@ -1,9 +1,12 @@
 package dao;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.sql.ResultSet;
@@ -156,4 +159,43 @@ public class HangHoaDAO {
         }
         return result;
     }
+
+    // Tìm hàng hóa theo hạn sử dụng
+    public static List<Map<String, Object>> timHangHoaTheoHanSuDung(LocalDate hanSuDung) {
+        String query = """
+                SELECT hh.MaHang, hh.MaSP, sp.TenSP, hh.SoLuongConLai,
+                    hh.NgaySanXuat, hh.HanSuDung, hh.TrangThai, sp.GiaBan
+                FROM HANGHOA hh
+                INNER JOIN SANPHAM sp ON hh.MaSP = sp.MaSP
+                WHERE hh.HanSuDung = ?
+                ORDER BY hh.MaHang
+        """;
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setDate(1, Date.valueOf(hanSuDung));
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("MaHang", rs.getString("MaHang"));
+                    row.put("MaSP", rs.getString("MaSP"));
+                    row.put("TenSP", rs.getString("TenSP"));
+                    row.put("SoLuongConLai", rs.getInt("SoLuongConLai"));
+                    row.put("NgaySanXuat", rs.getDate("NgaySanXuat").toLocalDate());
+                    row.put("HanSuDung", rs.getDate("HanSuDung").toLocalDate());
+                    row.put("TrangThai", rs.getString("TrangThai"));
+                    row.put("GiaBan", rs.getInt("GiaBan"));
+                    result.add(row);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ Lỗi khi tìm hàng hóa theo hạn sử dụng: " + e.getMessage());
+        }
+        return result;
+    }
 }
+
