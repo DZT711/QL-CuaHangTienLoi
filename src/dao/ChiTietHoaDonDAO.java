@@ -11,10 +11,10 @@ import util.JDBCUtil;
 
 public class ChiTietHoaDonDAO {
     public static void themChiTietHoaDon(ChiTietHoaDonDTO ctHoaDon) {
-        String query = "INSERT INTO CHITIETHOADON (MaHD, MaHang, SoLuong, DonGia, ThanhTien) VALUES (?, ?, ?, ?, ?);";
+        String query = "INSERT INTO CHITIETHOADON (MaHD, MaHang, SoLuong, DonGia, ThanhTien) VALUES (?, ?, ?, ?, ?)";
 
-        try (Connection conn = JDBCUtil.getConnection()) {
-            PreparedStatement stmt = conn.prepareStatement(query);
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
             
             stmt.setString(1, ctHoaDon.getMaHD());
             stmt.setString(2, ctHoaDon.getMaHang());
@@ -24,45 +24,46 @@ public class ChiTietHoaDonDAO {
 
             int rowAffected = stmt.executeUpdate();
             if (rowAffected > 0) {
-                System.out.println("Thêm chi tiết hóa đơn thành công");
+                System.out.println("✅ Thêm chi tiết hóa đơn thành công");
             } else {
-                System.out.println("Thêm chi tiết hóa đơn thất bại");
+                System.out.println("❌ Thêm chi tiết hóa đơn thất bại");
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi thêm chi tiết hóa đơn: " + e.getMessage());
+            System.err.println("❌ Lỗi khi thêm chi tiết hóa đơn: " + e.getMessage());
         }
     }
 
-    
     public static List<ChiTietHoaDonDTO> timChiTietHoaDon(String maHD) {
         String query = 
-            "SELECT sp.MaSP, sp.TenSP, ct.SoLuong, ct.DonGia, ct.ThanhTien " + 
+            "SELECT ct.MaHang, sp.TenSP, ct.SoLuong, ct.DonGia, ct.ThanhTien " + 
             "FROM CHITIETHOADON ct " +
-            "INNER JOIN SANPHAM sp ON ct.MaSP = sp.MaSP " +
+            "INNER JOIN HANGHOA hh ON ct.MaHang = hh.MaHang " +
+            "INNER JOIN SANPHAM sp ON hh.MaSP = sp.MaSP " +
             "WHERE ct.MaHD = ?";
 
         List<ChiTietHoaDonDTO> list = new ArrayList<>();
 
-        try (Connection conn = JDBCUtil.getConnection()) {
-            PreparedStatement stmt = conn.prepareStatement(query);
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, maHD);
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                list.add(
-                    new ChiTietHoaDonDTO(
-                        maHD,
-                        rs.getString("MaSP"),
-                        rs.getString("TenSP"),
-                        rs.getInt("SoLuong"),
-                        rs.getInt("DonGia"),
-                        rs.getInt("ThanhTien")
-                    )
-                );
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    list.add(
+                        new ChiTietHoaDonDTO(
+                            maHD,
+                            rs.getString("MaHang"),
+                            rs.getString("TenSP"),
+                            rs.getInt("SoLuong"),
+                            rs.getInt("DonGia"),
+                            rs.getInt("ThanhTien")
+                        )
+                    );
+                }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi tìm chi tiết hóa đơn: " + e.getMessage());
+            System.err.println("❌ Lỗi khi tìm chi tiết hóa đơn: " + e.getMessage());
         }
         return list;
     }

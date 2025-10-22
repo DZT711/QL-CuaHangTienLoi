@@ -16,24 +16,27 @@ public class HoaDonDAO {
     public static List<HoaDonDTO> getAllHoaDon() {
         List<HoaDonDTO> list = new ArrayList<>();
 
-        String query = "SELECT MaHD, MaKH, MaNV, TongTien, NgayLapHD, PhuongThucTT FROM HOADON";
+        String query = "SELECT MaHD, MaKH, MaNV, TongTien, NgayLapHD, PhuongThucTT, TienKhachDua, TienThua FROM HOADON ORDER BY NgayLapHD DESC";
 
-        try (Connection conn = JDBCUtil.getConnection()) {
-            PreparedStatement stmt = conn.prepareStatement(query);
-            ResultSet rs = stmt.executeQuery();
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            while (rs.next()) {
-                HoaDonDTO hd = new HoaDonDTO();
-                hd.setMaHD(rs.getString("MaHD"));
-                hd.setMaKH(rs.getString("MaKH"));
-                hd.setMaNV(rs.getString("MaNV"));
-                hd.setTongTien(rs.getInt("TongTien"));
-                hd.setNgayLapHD(rs.getTimestamp("NgayLapHD").toLocalDateTime());
-                hd.setPhuongThucTT(rs.getString("PhuongThucTT"));
-                list.add(hd);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    HoaDonDTO hd = new HoaDonDTO();
+                    hd.setMaHD(rs.getString("MaHD"));
+                    hd.setMaKH(rs.getString("MaKH"));
+                    hd.setMaNV(rs.getString("MaNV"));
+                    hd.setTongTien(rs.getInt("TongTien"));
+                    hd.setNgayLapHD(rs.getTimestamp("NgayLapHD").toLocalDateTime());
+                    hd.setPhuongThucTT(rs.getString("PhuongThucTT"));
+                    hd.setTienKhachDua(rs.getInt("TienKhachDua"));
+                    hd.setTienThua(rs.getInt("TienThua"));
+                    list.add(hd);
+                }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi lấy tất cả hóa đơn: " + e.getMessage());
+            System.err.println("❌ Lỗi khi lấy tất cả hóa đơn: " + e.getMessage());
         }
         return list;
     }
@@ -106,8 +109,9 @@ public class HoaDonDAO {
     public static HoaDonDTO timHoaDon(String maHD) {
         String query = "SELECT MaKH, MaNV, TienKhachDua, TienThua, TongTien, PhuongThucTT, NgayLapHD FROM HOADON WHERE MaHD = ?";
 
-        try (Connection conn = JDBCUtil.getConnection()) {
-            PreparedStatement stmt = conn.prepareStatement(query);
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+            
             stmt.setString(1, maHD);
             ResultSet rs = stmt.executeQuery();
 
@@ -124,7 +128,7 @@ public class HoaDonDAO {
                 );
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi in hóa đơn: " + e.getMessage());
+            System.err.println("Lỗi khi tìm hóa đơn: " + e.getMessage());
         }
         return null;
     }
@@ -136,28 +140,28 @@ public class HoaDonDAO {
             "INNER JOIN NHANVIEN nv ON hd.MaNV = nv.MaNV " +
             "WHERE hd.MaKH = ?";
 
-        try (Connection conn = JDBCUtil.getConnection()) {
-            PreparedStatement stmt = conn.prepareStatement(query);
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, maKH);
-            ResultSet rs = stmt.executeQuery();
-
-            // Làm lại giao diện cho dễ nhìn
-            int count = 0;
-            while (rs.next()) {
-                System.out.println(
-                    "Mã hóa đơn: " + rs.getString("MaHD") +
-                    "Ngày lập hóa đơn: " + rs.getTimestamp("ThoiGianLapHD").toLocalDateTime() + 
-                    "Nhân viên: " + rs.getString("Ho") + " " + rs.getString("Ten") + 
-                    "Tổng tiền: " + FormatUtil.formatVND(rs.getInt("TongTien")) +
-                    "Phương thức thanh toán: " + rs.getString("PhuongThucTT")
-                );
-                count++;
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                int count = 0;
+                while (rs.next()) {
+                    System.out.println("--------------------------------");
+                    System.out.println("Mã hóa đơn         : " + rs.getString("MaHD"));
+                    System.out.println("Ngày lập           : " + rs.getTimestamp("NgayLapHD").toLocalDateTime()
+                        .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
+                    System.out.println("Nhân viên          : " + rs.getString("Ho") + " " + rs.getString("Ten"));
+                    System.out.println("Tổng tiền          : " + FormatUtil.formatVND(rs.getInt("TongTien")));
+                    System.out.println("Phương thức TT     : " + rs.getString("PhuongThucTT"));
+                    count++;
+                }
+                System.out.println("--------------------------------");
+                System.out.println("📊 Tổng cộng: " + count + " hóa đơn");
             }
-            // ưng thì sửa lại là tổng cộng hay gì cũng được
-            System.out.println("Tìm thấy " + count + " hóa đơn có mã khách hàng: " + maKH);
         } catch (SQLException e) {
-            System.err.println("Lỗi khi tìm hóa đơn theo mã khách hàng: " + e.getMessage());
+            System.err.println("❌ Lỗi khi tìm hóa đơn theo mã khách hàng: " + e.getMessage());
         }
     }
 
@@ -168,32 +172,32 @@ public class HoaDonDAO {
             "INNER JOIN NHANVIEN nv ON hd.MaNV = nv.MaNV " +
             "WHERE hd.MaNV = ?";
 
-        try (Connection conn = JDBCUtil.getConnection()) {
-            PreparedStatement stmt = conn.prepareStatement(query);
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, maNV);
-            ResultSet rs = stmt.executeQuery();
-
-            int count = 0;
-            while (rs.next()) {
-                // làm lại giao diện 
-                System.out.println(
-                    "Mã hóa đơn: " + rs.getString("MaHD") +
-                    "Mã khách hàng: " + rs.getString("MaKH") +
-                    "Ngày lập hóa đơn: " + rs.getTimestamp("ThoiGianLapHD").toLocalDateTime() +
-                    "Tổng tiền: " + FormatUtil.formatVND(rs.getInt("TongTien")) +
-                    "Phương thức thanh toán: " + rs.getString("PhuongThucTT")
-                );
-                count++;
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                int count = 0;
+                while (rs.next()) {
+                    System.out.println("--------------------------------");
+                    System.out.println("Mã hóa đơn         : " + rs.getString("MaHD"));
+                    System.out.println("Mã khách hàng      : " + rs.getString("MaKH"));
+                    System.out.println("Ngày lập           : " + rs.getTimestamp("NgayLapHD").toLocalDateTime()
+                        .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
+                    System.out.println("Tổng tiền          : " + FormatUtil.formatVND(rs.getInt("TongTien")));
+                    System.out.println("Phương thức TT     : " + rs.getString("PhuongThucTT"));
+                    count++;
+                }
+                System.out.println("--------------------------------");
+                if (count > 0) {
+                    System.out.println("📊 Tổng cộng: " + count + " hóa đơn");
+                } else {
+                    System.out.println("⚠️ Không tìm thấy hóa đơn nào");
+                }
             }
-            if (count > 0) {
-                System.out.println("Tìm thấy " + count + " hóa đơn đã lập bởi nhân viên: " + maNV);
-            } else {
-                System.out.println("Không tìm thấy hóa đơn đã lập bởi nhân viên: " + maNV);
-            }
-
         } catch (SQLException e) {
-            System.err.println("Lỗi khi tìm hóa đơn theo mã nhân viên: " + e.getMessage());
+            System.err.println("❌ Lỗi khi tìm hóa đơn theo mã nhân viên: " + e.getMessage());
         }
     }
     
@@ -201,13 +205,13 @@ public class HoaDonDAO {
         List<HoaDonDTO> list = new ArrayList<>();
 
         String query = 
-            "SELECT MaHD, MaKH, MaNV, TongTien, PhuongThucTT, NgayLapHD " +
+            "SELECT MaHD, MaKH, MaNV, TongTien, PhuongThucTT, NgayLapHD, TienKhachDua, TienThua " +
             "FROM HOADON " +
-            "WHERE NgayLapHD >= ? AND NgayLapHD < ?" +
+            "WHERE NgayLapHD >= ? AND NgayLapHD < ? " +
             "ORDER BY NgayLapHD ASC";
 
-        try (Connection conn = JDBCUtil.getConnection()) {
-            PreparedStatement stmt = conn.prepareStatement(query);
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
 
             LocalDateTime fromDateTime = fromDate.atStartOfDay();
             LocalDateTime toExclusive = toDate.plusDays(1).atStartOfDay();
@@ -215,20 +219,22 @@ public class HoaDonDAO {
             stmt.setTimestamp(1, Timestamp.valueOf(fromDateTime));
             stmt.setTimestamp(2, Timestamp.valueOf(toExclusive));
 
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                HoaDonDTO hd = new HoaDonDTO();
-                hd.setMaHD(rs.getString("MaHD"));
-                hd.setMaKH(rs.getString("MaKH"));
-                hd.setMaNV(rs.getString("MaNV"));
-                hd.setTongTien(rs.getInt("TongTien"));
-                hd.setNgayLapHD(rs.getTimestamp("NgayLapHD").toLocalDateTime());
-                hd.setPhuongThucTT(rs.getString("PhuongThucTT"));
-                list.add(hd);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    HoaDonDTO hd = new HoaDonDTO();
+                    hd.setMaHD(rs.getString("MaHD"));
+                    hd.setMaKH(rs.getString("MaKH"));
+                    hd.setMaNV(rs.getString("MaNV"));
+                    hd.setTongTien(rs.getInt("TongTien"));
+                    hd.setNgayLapHD(rs.getTimestamp("NgayLapHD").toLocalDateTime());
+                    hd.setPhuongThucTT(rs.getString("PhuongThucTT"));
+                    hd.setTienKhachDua(rs.getInt("TienKhachDua"));
+                    hd.setTienThua(rs.getInt("TienThua"));
+                    list.add(hd);
+                }
             }
         } catch (Exception e) {
-            System.err.println("Lỗi khi tìm hóa đơn theo ngày lập: " + e.getMessage());
+            System.err.println("❌ Lỗi khi tìm hóa đơn theo ngày lập: " + e.getMessage());
         }
         return list;
     }
@@ -250,14 +256,14 @@ public class HoaDonDAO {
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
-                LocalDateTime fromDateTime = fromDate.atStartOfDay();
-                LocalDateTime toDateTime = toDate.plusDays(1).atStartOfDay();
+                
+            LocalDateTime fromDateTime = fromDate.atStartOfDay();
+            LocalDateTime toDateTime = toDate.plusDays(1).atStartOfDay();
 
-                stmt.setTimestamp(1, Timestamp.valueOf(fromDateTime));
-                stmt.setTimestamp(2, Timestamp.valueOf(toDateTime));
+            stmt.setTimestamp(1, Timestamp.valueOf(fromDateTime));
+            stmt.setTimestamp(2, Timestamp.valueOf(toDateTime));
 
-                ResultSet rs = stmt.executeQuery();
-
+            try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     result.put("SoHoaDon", rs.getInt("SoHoaDon"));
                     result.put("SoKhachHang", rs.getInt("SoKhachHang"));
@@ -265,8 +271,9 @@ public class HoaDonDAO {
                     result.put("TongDoanhThu", rs.getLong("TongDoanhThu"));
                     result.put("DoanhThuTrungBinh", rs.getDouble("DoanhThuTrungBinh"));
                 }
+            }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi thống kê hóa đơn theo thời gian: " + e.getMessage());
+            System.err.println("❌ Lỗi khi thống kê hóa đơn theo thời gian: " + e.getMessage());
         }
         return result;
     }
@@ -299,20 +306,19 @@ public class HoaDonDAO {
             stmt.setTimestamp(1, Timestamp.valueOf(fromDateTime));
             stmt.setTimestamp(2, Timestamp.valueOf(toDateTime));
 
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                Map<String, Object> row = new HashMap<>();
-                row.put("MaNV", rs.getString("MaNV"));
-                row.put("Ho Ten", rs.getString("Ho") + " " + rs.getString("Ten"));
-                row.put("SoHoaDon", rs.getInt("SoHoaDon"));
-                row.put("TongSanPham", rs.getInt("TongSanPham"));
-                row.put("TongDoanhThu", rs.getLong("TongDoanhThu"));
-                result.add(row);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("MaNV", rs.getString("MaNV"));
+                    row.put("Ho Ten", rs.getString("Ho") + " " + rs.getString("Ten"));
+                    row.put("SoHoaDon", rs.getInt("SoHoaDon"));
+                    row.put("TongSanPham", rs.getInt("TongSanPham"));
+                    row.put("TongDoanhThu", rs.getLong("TongDoanhThu"));
+                    result.add(row);
+                }
             }
-
         } catch (SQLException e) {
-            System.err.println("Lỗi khi thống kê hóa đơn theo nhân viên: " + e.getMessage());
+            System.err.println("❌ Lỗi khi thống kê hóa đơn theo nhân viên: " + e.getMessage());
         }
         return result;
     }
@@ -345,19 +351,19 @@ public class HoaDonDAO {
             stmt.setTimestamp(1, Timestamp.valueOf(fromDateTime));
             stmt.setTimestamp(2, Timestamp.valueOf(toDateTime));
 
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                Map<String, Object> row = new HashMap<>();
-                row.put("MaKH", rs.getString("MaKH"));
-                row.put("Ho Ten", rs.getString("Ho") + " " + rs.getString("Ten"));
-                row.put("SoHoaDon", rs.getInt("SoHoaDon"));
-                row.put("TongSanPham", rs.getInt("TongSanPham"));
-                row.put("TongChiTieu", rs.getLong("TongChiTieu"));
-                result.add(row);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("MaKH", rs.getString("MaKH"));
+                    row.put("Ho Ten", rs.getString("Ho") + " " + rs.getString("Ten"));
+                    row.put("SoHoaDon", rs.getInt("SoHoaDon"));
+                    row.put("TongSanPham", rs.getInt("TongSanPham"));
+                    row.put("TongChiTieu", rs.getLong("TongChiTieu"));
+                    result.add(row);
+                }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi thống kê hóa đơn theo khách hàng: " + e.getMessage());
+            System.err.println("❌ Lỗi khi thống kê hóa đơn theo khách hàng: " + e.getMessage());
         }
         return result;
     }
@@ -383,19 +389,18 @@ public class HoaDonDAO {
                 
             stmt.setInt(1, year);
 
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                Map<String, Object> row = new HashMap<>();
-                row.put("Thang", rs.getInt("Thang"));
-                row.put("SoHoaDon", rs.getInt("SoHoaDon"));
-                row.put("TongSanPham", rs.getInt("TongSanPham"));
-                row.put("TongDoanhThu", rs.getLong("TongDoanhThu"));
-                result.add(row);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("Thang", rs.getInt("Thang"));
+                    row.put("SoHoaDon", rs.getInt("SoHoaDon"));
+                    row.put("TongSanPham", rs.getInt("TongSanPham"));
+                    row.put("TongDoanhThu", rs.getLong("TongDoanhThu"));
+                    result.add(row);
+                }
             }
-
         } catch (SQLException e) {
-            System.err.println("Lỗi khi thống kê hóa đơn theo năm: " + e.getMessage());
+            System.err.println("❌ Lỗi khi thống kê hóa đơn theo năm: " + e.getMessage());
         }
         return result;
     }
@@ -425,18 +430,18 @@ public class HoaDonDAO {
             stmt.setTimestamp(1, Timestamp.valueOf(fromDateTime));
             stmt.setTimestamp(2, Timestamp.valueOf(toDateTime));
 
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                Map<String, Object> row = new HashMap<>();
-                row.put("PTTT", rs.getString("PhuongThucTT"));
-                row.put("SoHoaDon", rs.getInt("SoHoaDon"));
-                row.put("TongSanPham", rs.getInt("TongSanPham"));
-                row.put("TongDoanhThu", rs.getLong("TongDoanhThu"));
-                result.add(row);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("PTTT", rs.getString("PhuongThucTT"));
+                    row.put("SoHoaDon", rs.getInt("SoHoaDon"));
+                    row.put("TongSanPham", rs.getInt("TongSanPham"));
+                    row.put("TongDoanhThu", rs.getLong("TongDoanhThu"));
+                    result.add(row);
+                }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi thống kê hóa đơn theo phương thức thanh toán: " + e.getMessage());
+            System.err.println("❌ Lỗi khi thống kê hóa đơn theo phương thức thanh toán: " + e.getMessage());
         }
         return result;
     }

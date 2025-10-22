@@ -386,7 +386,8 @@ public class QuanLyHoaDon {
                 }
                 
                 System.out.println("\n✅ Thêm hóa đơn thành công!");
-                inHoaDon(maHD);
+                HoaDonDTO hoaDonMoi = HoaDonDAO.timHoaDon(maHD);
+                inHoaDon(hoaDonMoi);
 
                 System.out.print("\nBạn có muốn tạo hóa đơn khác? (y/n): ");
                 String choice = scanner.nextLine().trim();
@@ -406,10 +407,10 @@ public class QuanLyHoaDon {
             String maHD = scanner.nextLine().trim();
             HoaDonDTO hd = HoaDonDAO.timHoaDon(maHD);
             if (hd != null) {
-                System.out.println("Thông tin hóa đơn tìm thấy với mã: " + maHD);
-                inHoaDon(maHD);
+                System.out.println("✅ Tìm thấy hóa đơn: " + maHD);
+                inHoaDon(hd);  
             } else {
-                System.out.println("Không tìm thấy hóa đơn với mã: " + maHD);
+                System.out.println("❌ Không tìm thấy hóa đơn với mã: " + maHD);
             }
         } catch (InputMismatchException e) {
             System.out.println("Lỗi: Vui lòng nhập mã hóa đơn hợp lệ");
@@ -434,7 +435,8 @@ public class QuanLyHoaDon {
                     if (tieptuc.equalsIgnoreCase("y")) {
                         System.out.println("Nhập mã hóa đơn cần xem chi tiết: ");
                         String maHD = scanner.nextLine().trim();
-                        inHoaDon(maHD);
+                        HoaDonDTO hoaDon = HoaDonDAO.timHoaDon(maHD);
+                        inHoaDon(hoaDon);
                     } else {
                         System.out.println("Không xem chi tiết hóa đơn nào.");
                     }
@@ -465,7 +467,8 @@ public class QuanLyHoaDon {
                     if (tieptuc.equalsIgnoreCase("y")) {
                         System.out.println("Nhập mã hóa đơn cần xem chi tiết: ");
                         String maHD = scanner.nextLine().trim();
-                        inHoaDon(maHD);
+                        HoaDonDTO hoaDon = HoaDonDAO.timHoaDon(maHD);
+                        inHoaDon(hoaDon);
                     } else {
                         System.out.println("Không xem chi tiết hóa đơn nào.");
                     }
@@ -480,26 +483,46 @@ public class QuanLyHoaDon {
     }
 
     // Làm lại giao diện cho giống thực tế, đẹp hơn, tự sắp xếp bố cục lại cho phù hợp
-    public void inHoaDon(String maHD) {
-        HoaDonDTO hoaDon = HoaDonDAO.timHoaDon(maHD);
-        List<ChiTietHoaDonDTO> chiTietHoaDon = ChiTietHoaDonDAO.timChiTietHoaDon(maHD);
-        
-        System.out.println("ABC Store");
-        System.out.println("123 An Dương Vương, Q5, TP.HCM");
-        System.out.println("Điện thoại: 0909090909");
-        System.out.println("Hóa đơn bán hàng");
-        System.out.println("Ngày lập hóa đơn: " + hoaDon.getNgayLapHD().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-        System.out.println("Phương thức thanh toán: " + hoaDon.getPhuongThucTT());
-        System.out.println("Tiền khách đưa: " + hoaDon.getTienKhachDua());
-        System.out.println("Tiền thừa: " + hoaDon.getTienThua());
-        System.out.println("Tổng tiền: " + hoaDon.getTongTien());
-        System.out.println("Khách hàng: " + hoaDon.getMaKH());
-        System.out.println("Nhân viên: " + hoaDon.getMaNV());
-        System.out.println("Chi tiết hóa đơn: ");
-
-        for (ChiTietHoaDonDTO ctHoaDon : chiTietHoaDon) {
-            ctHoaDon.inChiTietHoaDon();
+    public void inHoaDon(HoaDonDTO hoaDon) {
+        // Kiểm tra hóa đơn tồn tại
+        if (hoaDon == null) {
+            System.out.println("❌ Không có thông tin hóa đơn!");
+            return;
         }
+        
+        List<ChiTietHoaDonDTO> chiTietHoaDon = ChiTietHoaDonDAO.timChiTietHoaDon(hoaDon.getMaHD());
+        
+        System.out.println("\n════════════════════════════════════════════════════════");
+        System.out.println("                    ABC STORE                           ");
+        System.out.println("            123 An Dương Vương, Q5, TP.HCM             ");
+        System.out.println("               Điện thoại: 0909090909                   ");
+        System.out.println("════════════════════════════════════════════════════════");
+        System.out.println("                  HÓA ĐƠN BÁN HÀNG                      ");
+        System.out.println("════════════════════════════════════════════════════════");
+        System.out.println("Mã hóa đơn         : " + hoaDon.getMaHD());
+        System.out.println("Ngày lập           : " + hoaDon.getNgayLapHD().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
+        System.out.println("Khách hàng         : " + hoaDon.getMaKH());
+        System.out.println("Nhân viên          : " + hoaDon.getMaNV());
+        System.out.println("Phương thức TT     : " + hoaDon.getPhuongThucTT());
+        System.out.println("────────────────────────────────────────────────────────");
+        System.out.println("                   CHI TIẾT HÓA ĐƠN                     ");
+        System.out.println("────────────────────────────────────────────────────────");
+
+        if (chiTietHoaDon.isEmpty()) {
+            System.out.println("⚠️ Hóa đơn không có sản phẩm nào!");
+        } else {
+            for (ChiTietHoaDonDTO ctHoaDon : chiTietHoaDon) {
+                ctHoaDon.inChiTietHoaDon();
+            }
+        }
+        
+        System.out.println("────────────────────────────────────────────────────────");
+        System.out.println("Tổng tiền          : " + FormatUtil.formatVND(hoaDon.getTongTien()));
+        System.out.println("Tiền khách đưa     : " + FormatUtil.formatVND(hoaDon.getTienKhachDua()));
+        System.out.println("Tiền thừa          : " + FormatUtil.formatVND(hoaDon.getTienThua()));
+        System.out.println("════════════════════════════════════════════════════════");
+        System.out.println("           Cảm ơn quý khách! Hẹn gặp lại!              ");
+        System.out.println("════════════════════════════════════════════════════════\n");
     }
     
     public void xoaHoaDon() { 
@@ -534,48 +557,64 @@ public class QuanLyHoaDon {
             
             while (true) {
                 try {
-                    System.out.println("Nhập ngày bắt đầu: ");
+                    System.out.println("Nhập ngày bắt đầu (ddMMyyyy): ");
                     from = scanner.nextLine().trim();
     
-                    System.out.println("Nhập ngày kết thúc: ");
+                    System.out.println("Nhập ngày kết thúc (ddMMyyyy): ");
                     to = scanner.nextLine().trim();
     
                     fromDate = LocalDate.parse(from, formatter);
                     toDate = LocalDate.parse(to, formatter);
                     if (fromDate.isAfter(toDate)) {
-                        System.out.println("Ngày bắt đầu phải trước ngày kết thúc, vui lòng nhập lại.");
+                        System.out.println("❌ Ngày bắt đầu phải trước ngày kết thúc, vui lòng nhập lại.");
                         continue;
                     }
                     break;
                 } catch (DateTimeParseException e) {
-                    System.out.println("Định dạng ngày không hợp lệ, vui lòng nhập lại.");
-                    scanner.nextLine();
+                    System.out.println("❌ Định dạng ngày không hợp lệ, vui lòng nhập lại (ddMMyyyy).");
                 }
             }
             
             List<HoaDonDTO> list = HoaDonDAO.timHoaDonTheoNgayLap(fromDate, toDate);
 
-            System.out.println("Danh sách hóa đơn trong khoảng ngày: " + from + " đến " + to);
+            System.out.println("\n📅 DANH SÁCH HÓA ĐƠN");
+            System.out.println("Từ ngày: " + fromDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + 
+                                    " đến " + toDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+            System.out.println("════════════════════════════════════════════════════════");
 
-            // làm lại giao diện cho giống thực tế, đẹp hơn
             if (list.isEmpty()) {
-                System.out.println("Không tìm thấy hóa đơn trong khoảng ngày: " + from + " đến " + to);
+                System.out.println("⚠️ Không tìm thấy hóa đơn trong khoảng thời gian này");
             } else {
                 for (HoaDonDTO hd : list) {
-                    System.out.println("Mã hóa đơn: " + hd.getMaHD());
-                    System.out.println("Ngày lập hóa đơn: " + hd.getNgayLapHD().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-                    System.out.println("Phương thức thanh toán: " + hd.getPhuongThucTT());
-                    System.out.println("Tổng tiền: " + FormatUtil.formatVND(hd.getTongTien()));
-                    System.out.println("Khách hàng: " + hd.getMaKH());
-                    System.out.println("Nhân viên: " + hd.getMaNV());
+                    System.out.println("Mã hóa đơn         : " + hd.getMaHD());
+                    System.out.println("Ngày lập           : " + hd.getNgayLapHD().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
+                    System.out.println("Khách hàng         : " + hd.getMaKH());
+                    System.out.println("Nhân viên          : " + hd.getMaNV());
+                    System.out.println("Phương thức TT     : " + hd.getPhuongThucTT());
+                    System.out.println("Tổng tiền          : " + FormatUtil.formatVND(hd.getTongTien()));
+                    System.out.println("────────────────────────────────────────────────────────");
                 }
-                System.out.println("Tìm thấy " + list.size() + " hóa đơn trong khoảng ngày: " + from + " đến " + to);
+                System.out.println("📊 Tổng cộng: " + list.size() + " hóa đơn");
+                
+                // Option xem chi tiết hóa đơn
+                String tieptuc;
+                do {
+                    System.out.println("\nBạn có muốn xem chi tiết hóa đơn không (y/n): ");
+                    tieptuc = scanner.nextLine().trim();
+
+                    if (tieptuc.equalsIgnoreCase("y")) {
+                        System.out.println("Nhập mã hóa đơn cần xem chi tiết: ");
+                        String maHD = scanner.nextLine().trim();
+                        HoaDonDTO hoaDon = HoaDonDAO.timHoaDon(maHD);
+                        inHoaDon(hoaDon);
+                    }
+                } while (tieptuc.equalsIgnoreCase("y"));
             }
             
-            System.out.print("\n Bạn có muốn tìm tiếp không? (y/n): ");
+            System.out.print("\n❓ Bạn có muốn tìm tiếp không? (y/n): ");
             String choice = scanner.nextLine().trim();
             if (!choice.equalsIgnoreCase("y")) {
-                System.out.println("Thoát tìm kiếm hóa đơn thành công.");
+                System.out.println("✅ Thoát tìm kiếm hóa đơn thành công.");
                 break;
             }
         }
@@ -586,36 +625,38 @@ public class QuanLyHoaDon {
         Scanner scanner = new Scanner(System.in);
         List<HoaDonDTO> list = HoaDonDAO.getAllHoaDon();
 
-        System.out.println("Danh sách hóa đơn: ");
+        System.out.println("\n📋 DANH SÁCH TẤT CẢ HÓA ĐƠN");
+        System.out.println("════════════════════════════════════════════════════════");
 
         if (list.isEmpty()) {
-            System.out.println("Không có hóa đơn nào trong hệ thống.");
+            System.out.println("⚠️ Không có hóa đơn nào trong hệ thống.");
             return;
         } 
 
         for (HoaDonDTO hd : list) {
-            System.out.println("Mã hóa đơn: " + hd.getMaHD());
-            System.out.println("Ngày lập hóa đơn: " + hd.getNgayLapHD().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-            System.out.println("Phương thức thanh toán: " + hd.getPhuongThucTT());
-            System.out.println("Tổng tiền: " + FormatUtil.formatVND(hd.getTongTien()));
-            System.out.println("Khách hàng: " + hd.getMaKH());
-            System.out.println("Nhân viên: " + hd.getMaNV());
-            System.out.println("--------------------------------");
+            System.out.println("Mã hóa đơn         : " + hd.getMaHD());
+            System.out.println("Ngày lập           : " + hd.getNgayLapHD().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
+            System.out.println("Khách hàng         : " + hd.getMaKH());
+            System.out.println("Nhân viên          : " + hd.getMaNV());
+            System.out.println("Phương thức TT     : " + hd.getPhuongThucTT());
+            System.out.println("Tổng tiền          : " + FormatUtil.formatVND(hd.getTongTien()));
+            System.out.println("────────────────────────────────────────────────────────");
         }
 
-        System.out.println("Tìm thấy " + list.size() + " hóa đơn trong hệ thống.");
+        System.out.println("📊 Tổng cộng: " + list.size() + " hóa đơn");
 
         String tieptuc;
         do {
-            System.out.println("Bạn có muốn xem chi tiết hóa đơn không (y/n): ");
+            System.out.println("\nBạn có muốn xem chi tiết hóa đơn không (y/n): ");
             tieptuc = scanner.nextLine().trim();
 
             if (tieptuc.equalsIgnoreCase("y")) {
                 System.out.println("Nhập mã hóa đơn cần xem chi tiết: ");
                 String maHD = scanner.nextLine().trim();
-                inHoaDon(maHD);
+                HoaDonDTO hoaDon = HoaDonDAO.timHoaDon(maHD);
+                inHoaDon(hoaDon);
             } else {
-                System.out.println("Không xem chi tiết hóa đơn nào.");
+                System.out.println("✅ Không xem chi tiết hóa đơn nào.");
                 break;
             }
         } while (tieptuc.equalsIgnoreCase("y"));
@@ -872,102 +913,117 @@ public class QuanLyHoaDon {
 
     public void xuatHoaDonTheoMaHD() {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Nhập mã hóa đơn cần xuất: ");
+        System.out.print("Nhập mã hóa đơn cần xuất: ");
         String maHD = scanner.nextLine().trim();
 
         HoaDonDTO hoaDon = HoaDonDAO.timHoaDon(maHD);
         if (hoaDon == null) {
-            System.out.println("Không tìm thấy hóa đơn với mã: " + maHD);
+            System.out.println("❌ Không tìm thấy hóa đơn với mã: " + maHD);
             return;
         }
 
         String fileName = "HoaDon_" + maHD + ".txt";
 
         try (PrintWriter writer = new PrintWriter(new FileWriter(fileName))) {
-            writer.println("============== HÓA ĐƠN ==============");
-            writer.println("Mã hóa đơn      : " + hoaDon.getMaHD());
-            writer.println("Mã Khách hàng: " + hoaDon.getMaKH());
-            writer.println("Mã Nhân viên: " + hoaDon.getMaNV());
-            writer.println("Ngày lập hóa đơn: " + hoaDon.getNgayLapHD().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-            writer.println("Phương thức thanh toán: " + hoaDon.getPhuongThucTT());
-            writer.println("Tiền khách đưa: " + FormatUtil.formatVND(hoaDon.getTienKhachDua()));
-            writer.println("Tiền thừa: " + FormatUtil.formatVND(hoaDon.getTienThua()));
-            writer.println("Tổng tiền: " + FormatUtil.formatVND(hoaDon.getTongTien()));
-            writer.println("=======================================");
+            writer.println("════════════════════════════════════════════════════════");
+            writer.println("                    HÓA ĐƠN BÁN HÀNG                   ");
+            writer.println("════════════════════════════════════════════════════════");
+            writer.println("Mã hóa đơn         : " + hoaDon.getMaHD());
+            writer.println("Mã khách hàng      : " + hoaDon.getMaKH());
+            writer.println("Mã nhân viên       : " + hoaDon.getMaNV());
+            writer.println("Ngày lập hóa đơn   : " + hoaDon.getNgayLapHD().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
+            writer.println("Phương thức TT     : " + hoaDon.getPhuongThucTT());
+            writer.println("────────────────────────────────────────────────────────");
+            writer.println("Tổng tiền          : " + FormatUtil.formatVND(hoaDon.getTongTien()));
+            writer.println("Tiền khách đưa     : " + FormatUtil.formatVND(hoaDon.getTienKhachDua()));
+            writer.println("Tiền thừa          : " + FormatUtil.formatVND(hoaDon.getTienThua()));
+            writer.println("════════════════════════════════════════════════════════");
+            
+            System.out.println("✅ Xuất hóa đơn thành công! File: " + fileName);
         } catch (IOException e) {
-            System.out.println("Lỗi khi xuất hóa đơn: " + e.getMessage());
+            System.out.println("❌ Lỗi khi xuất hóa đơn: " + e.getMessage());
         }
     }
 
     public void xuatChiTietHoaDonTheoMaHD() {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Nhập mã hóa đơn muốn in chi tiết: ");
+        System.out.print("Nhập mã hóa đơn muốn in chi tiết: ");
         String maHD = scanner.nextLine().trim();
 
         List<ChiTietHoaDonDTO> chiTietHoaDon = ChiTietHoaDonDAO.timChiTietHoaDon(maHD);
         
         if (chiTietHoaDon.isEmpty()) {
-            System.out.println("Không tìm thấy chi tiết hóa đơn với mã: " + maHD);
+            System.out.println("❌ Không tìm thấy chi tiết hóa đơn với mã: " + maHD);
             return;
         }
 
         String fileName = "ChiTietHoaDon_" + maHD + ".txt";
 
         try (PrintWriter writer = new PrintWriter(new FileWriter(fileName))) {
-            writer.println("============== CHI TIẾT HÓA ĐƠN ==============");
+            writer.println("════════════════════════════════════════════════════════");
+            writer.println("                 CHI TIẾT HÓA ĐƠN                      ");
+            writer.println("════════════════════════════════════════════════════════");
             writer.println("Mã hóa đơn: " + maHD);
-            writer.println("Chi tiết hóa đơn: ");
-            writer.println("Mã hàng | Tên sản phẩm | Số lượng | Đơn giá | Thành tiền");
-            writer.println("----------------------------------------------------------");
+            writer.println("────────────────────────────────────────────────────────");
+            writer.printf("%-10s %-20s %-10s %-15s %-15s%n",
+                "Mã hàng", "Tên sản phẩm", "Số lượng", "Đơn giá", "Thành tiền");
+            writer.println("────────────────────────────────────────────────────────");
+            
             for (ChiTietHoaDonDTO ctHoaDon : chiTietHoaDon) {
-                writer.println(
-                    ctHoaDon.getMaHang() + " | " + 
-                    ctHoaDon.getTenSP() + " | " + 
-                    ctHoaDon.getSoLuong() + " | " + 
-                    FormatUtil.formatVND(ctHoaDon.getDonGia()) + " | " + 
+                writer.printf("%-10s %-20s %-10d %-15s %-15s%n",
+                    ctHoaDon.getMaHang(),
+                    ctHoaDon.getTenSP(),
+                    ctHoaDon.getSoLuong(),
+                    FormatUtil.formatVND(ctHoaDon.getDonGia()),
                     FormatUtil.formatVND(ctHoaDon.getThanhTien()));
             }
-            writer.println("========================================================");
+            writer.println("════════════════════════════════════════════════════════");
+            
+            System.out.println("✅ Xuất chi tiết hóa đơn thành công! File: " + fileName);
         } catch (IOException e) {
-            System.out.println("Lỗi khi xuất chi tiết hóa đơn: " + e.getMessage());
+            System.out.println("❌ Lỗi khi xuất chi tiết hóa đơn: " + e.getMessage());
         }
     }
 
     public void xuatHoaDonKemChiTietHoaDonTheoMaHD() {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Nhập mã hóa đơn muốn in: ");
+        System.out.print("Nhập mã hóa đơn muốn in: ");
         String maHD = scanner.nextLine().trim();
 
         HoaDonDTO hoaDon = HoaDonDAO.timHoaDon(maHD);
         if (hoaDon == null) {
-            System.out.println("Không tìm thấy hóa đơn với mã: " + maHD);
+            System.out.println("❌ Không tìm thấy hóa đơn với mã: " + maHD);
             return;
         }
+        
         List<ChiTietHoaDonDTO> chiTietHoaDon = ChiTietHoaDonDAO.timChiTietHoaDon(maHD);
 
         String fileName = "HoaDonChiTiet_" + maHD + ".txt";
 
         try (PrintWriter writer = new PrintWriter(new FileWriter(fileName))) {
-            writer.println("============== HÓA ĐƠN ==============");
-            writer.println("HTCS MiniStore");
-            writer.println("123 An Dương Vương, Q5, TP.HCM");
-            writer.println("Điện thoại: 0909090909");
-            writer.println("Hóa đơn bán hàng");
-            writer.println("Ngày lập hóa đơn: " + hoaDon.getNgayLapHD().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-            writer.println("Khách hàng: " + hoaDon.getMaKH());
-            writer.println("Nhân viên: " + hoaDon.getMaNV());
-            writer.println("Phương thức thanh toán: " + hoaDon.getPhuongThucTT());
-            writer.println("----------------------------------------------------------");
-            
+            writer.println("════════════════════════════════════════════════════════");
+            writer.println("                    ABC STORE                          ");
+            writer.println("            123 An Dương Vương, Q5, TP.HCM            ");
+            writer.println("               Điện thoại: 0909090909                  ");
+            writer.println("════════════════════════════════════════════════════════");
+            writer.println("                  HÓA ĐƠN BÁN HÀNG                     ");
+            writer.println("════════════════════════════════════════════════════════");
+            writer.println("Mã hóa đơn         : " + hoaDon.getMaHD());
+            writer.println("Ngày lập           : " + hoaDon.getNgayLapHD().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
+            writer.println("Khách hàng         : " + hoaDon.getMaKH());
+            writer.println("Nhân viên          : " + hoaDon.getMaNV());
+            writer.println("Phương thức TT     : " + hoaDon.getPhuongThucTT());
+            writer.println("────────────────────────────────────────────────────────");
+            writer.println("                   CHI TIẾT HÓA ĐƠN                    ");
+            writer.println("────────────────────────────────────────────────────────");
 
-            writer.printf("%-5s %-20s %-8s %-10s %-12s%n",
+            writer.printf("%-5s %-20s %-8s %-15s %-15s%n",
                 "STT", "Tên SP", "SL", "Đơn giá", "Thành tiền");
-            writer.println("------------------------------------------------------------");
+            writer.println("────────────────────────────────────────────────────────");
 
             int stt = 1;
-
             for (ChiTietHoaDonDTO ctHoaDon : chiTietHoaDon) {
-                writer.printf("%-5d %-20s %-8d %-10s %-12s%n",
+                writer.printf("%-5d %-20s %-8d %-15s %-15s%n",
                     stt++,
                     ctHoaDon.getTenSP(),
                     ctHoaDon.getSoLuong(),
@@ -975,15 +1031,17 @@ public class QuanLyHoaDon {
                     FormatUtil.formatVND(ctHoaDon.getThanhTien()));
             }
 
-            System.out.println("------------------------------------------------------------");
-            writer.println("Tổng tiền: " + FormatUtil.formatVND(hoaDon.getTongTien()));
-            writer.println("Tiền khách đưa: " + FormatUtil.formatVND(hoaDon.getTienKhachDua()));
-            writer.println("Tiền thừa: " + FormatUtil.formatVND(hoaDon.getTienThua()));
-
-            writer.println("======================================");
-            System.out.println("Xuất hóa đơn kèm chi tiết hóa đơn thành công");
+            writer.println("────────────────────────────────────────────────────────");
+            writer.println("Tổng tiền          : " + FormatUtil.formatVND(hoaDon.getTongTien()));
+            writer.println("Tiền khách đưa     : " + FormatUtil.formatVND(hoaDon.getTienKhachDua()));
+            writer.println("Tiền thừa          : " + FormatUtil.formatVND(hoaDon.getTienThua()));
+            writer.println("════════════════════════════════════════════════════════");
+            writer.println("           Cảm ơn quý khách! Hẹn gặp lại!             ");
+            writer.println("════════════════════════════════════════════════════════");
+            
+            System.out.println("✅ Xuất hóa đơn kèm chi tiết thành công! File: " + fileName);
         } catch (IOException e) {
-            System.out.println("Lỗi khi xuất hóa đơn kèm chi tiết hóa đơn: " + e.getMessage());
+            System.out.println("❌ Lỗi khi xuất hóa đơn kèm chi tiết: " + e.getMessage());
         }
     }
 }
