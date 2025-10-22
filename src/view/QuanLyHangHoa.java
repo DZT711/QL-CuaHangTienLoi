@@ -1,6 +1,7 @@
 package view;
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
@@ -201,5 +202,50 @@ public class QuanLyHangHoa {
         System.out.println("════════════════════════════════════════════════════════════════════════════════");
         System.out.println("📊 Tổng cộng: " + count + " lô hàng | Tổng số lượng: " + tongSL);
         System.out.println();
+    }
+
+    public void xemTatCaHangHoa() {
+        List<Map<String, Object>> loHangList = HangHoaDAO.layDanhSachHangHoa();
+
+        if (loHangList == null || loHangList.isEmpty()) {
+            System.out.println("❌ Không có hàng hóa trong kho.");
+            return;
+        }
+
+        System.out.println("\n════════════════════════════════════════════════════════════════════════════════");
+        System.out.println("                           📦 DANH SÁCH TẤT CẢ HÀNG HÓA                          ");
+        System.out.println("════════════════════════════════════════════════════════════════════════════════");
+        System.out.printf("%-15s %-15s %-15s %-15s %-15s %-15s%n",
+            "Mã hàng", "Mã SP", "Tên SP", "SL còn lại", "Ngày SX", "Hạn SD", "Trạng thái");
+        System.out.println("────────────────────────────────────────────────────────────────────────────────");
+        
+        int tongSL = 0;
+        for (Map<String, Object> loHang : loHangList) {
+            String ngaySXStr = (loHang.get("NgaySanXuat") != null) ? ((LocalDate) loHang.get("NgaySanXuat")).format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "N/A";
+            String hanSDStr = (loHang.get("HanSuDung") != null) ? ((LocalDate) loHang.get("HanSuDung")).format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "N/A";
+
+            // Emoji cho trạng thái
+            String trangThaiIcon = "";
+            if ("active".equals(loHang.get("TrangThai"))) {
+                trangThaiIcon = "✅ Active";
+            } else if ("inactive".equals(loHang.get("TrangThai"))) {
+                trangThaiIcon = "⚠️ Inactive";
+            } else if ("expired".equals(loHang.get("TrangThai"))) {
+                trangThaiIcon = "❌ Expired";
+            }
+
+            System.out.printf("%-15s %-15s %-25s %-15d %-15s %-15s %-15s%n",
+                loHang.get("MaHang"),
+                loHang.get("MaSP"),
+                loHang.get("TenSP"),  
+                loHang.get("SoLuongConLai"),
+                ngaySXStr,
+                hanSDStr,
+                trangThaiIcon
+            );
+            tongSL += (int) loHang.get("SoLuongConLai");
+        }
+        System.out.println("════════════════════════════════════════════════════════════════════════════════");
+        System.out.println("📊 Tổng cộng: " + loHangList.size() + " lô hàng | Tổng số lượng: " + tongSL);
     }
 }

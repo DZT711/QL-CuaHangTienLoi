@@ -105,10 +105,10 @@ public class HangHoaDAO {
         List<HangHoaDTO> result = new ArrayList<>();
 
         try (Connection conn = JDBCUtil.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(query);
-            ResultSet rs = stmt.executeQuery()) {
+            PreparedStatement stmt = conn.prepareStatement(query);) {
 
             stmt.setString(1, maSP);
+            ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
                 result.add(new HangHoaDTO(
@@ -122,6 +122,39 @@ public class HangHoaDAO {
             }
         } catch (SQLException e) {
             System.err.println("❌ Lỗi khi xem chi tiết lô hàng: " + e.getMessage());
+        }
+        return result;
+    }
+
+    // Xem tất cả hàng hóa
+    public static List<Map<String, Object>> layDanhSachHangHoa() {
+        String query = """
+                SELECT hh.MaHang, hh.MaSP, sp.TenSP, hh.SoLuongConLai,
+                    hh.NgaySanXuat, hh.HanSuDung, hh.TrangThai, sp.GiaBan
+                FROM HANGHOA hh
+                INNER JOIN SANPHAM sp ON hh.MaSP = sp.MaSP
+                ORDER BY hh.HanSuDung ASC        
+        """;
+
+        List<Map<String, Object>> result  = new ArrayList<>();
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Map<String, Object> row = new java.util.HashMap<>();
+                row.put("MaHang", rs.getString("MaHang"));
+                row.put("MaSP", rs.getString("MaSP"));
+                row.put("TenSP", rs.getString("TenSP"));
+                row.put("SoLuongConLai", rs.getInt("SoLuongConLai"));
+                row.put("NgaySanXuat", rs.getDate("NgaySanXuat").toLocalDate());
+                row.put("HanSuDung", rs.getDate("HanSuDung").toLocalDate());
+                row.put("TrangThai", rs.getString("TrangThai"));
+                row.put("GiaBan", rs.getInt("GiaBan"));
+                result.add(row);
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ Lỗi khi lấy danh sách hàng hóa: " + e.getMessage());
         }
         return result;
     }
