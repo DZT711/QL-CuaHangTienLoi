@@ -88,7 +88,7 @@ public class QuanLyHangHoa {
                             System.out.println("        📦 TÌM KIẾM HÀNG HÓA TRONG KHO     ");
                             System.out.println("════════════════════════════════════════════════");
                             System.out.println("1. Tìm kiếm hàng hóa theo mã hàng");
-                            System.out.println("2. ");
+                            System.out.println("2. Tìm kiếm hàng hóa theo mã sản phẩm");
                             System.out.println("0. Quay lại");
                             System.out.println("════════════════════════════════════════════════");
                             System.out.print("\n💡 Nhập lựa chọn của bạn: ");
@@ -100,9 +100,9 @@ public class QuanLyHangHoa {
                                 System.out.println("✅ Quay lại menu quản lý hàng hóa.");
                                 break;
                             } else if (opt == 1) {
-                                
+                                timHangHoaTheoMaHang();
                             } else if (opt == 2) {
-                                
+                                timHangHoaTheoMaSP();
                             } else {
                                 System.out.println("❌ Lựa chọn không hợp lệ!");
 
@@ -337,6 +337,87 @@ public class QuanLyHangHoa {
             
             System.out.println("Trạng thái         : " + trangThaiIcon);
             System.out.println("════════════════════════════════════════════════════════");
+        }
+    }
+
+    public void timHangHoaTheoMaSP() {
+        Scanner scanner = new Scanner(System.in);
+        
+        while (true) {
+            System.out.print("\nNhập mã sản phẩm cần tìm (hoặc '0' để thoát): ");
+            String maSP = scanner.nextLine().trim();
+            
+            if ("0".equals(maSP)) {
+                System.out.println("✅ Thoát tìm kiếm hàng hóa.");
+                break;
+            }
+            
+            if (maSP.isEmpty()) {
+                System.out.println("❌ Mã sản phẩm không được để trống!");
+                continue;
+            }
+            
+            // Kiểm tra sản phẩm tồn tại
+            sanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
+            if (sp == null) {
+                System.out.println("❌ Không tìm thấy sản phẩm với mã: " + maSP);
+                continue;
+            }
+            
+            // Lấy danh sách lô hàng
+            List<HangHoaDTO> loHangList = HangHoaDAO.timChiTietLoHangTheoSanPham(maSP);
+            
+            if (loHangList == null || loHangList.isEmpty()) {
+                System.out.println("⚠️ Sản phẩm này chưa có lô hàng nào trong kho.");
+                continue;
+            }
+            
+            // Hiển thị thông tin
+            System.out.println("\n════════════════════════════════════════════════════════════════════════════════");
+            System.out.println("                    🔍 KẾT QUẢ TÌM KIẾM THEO SẢN PHẨM                          ");
+            System.out.println("════════════════════════════════════════════════════════════════════════════════");
+            System.out.println("Mã sản phẩm        : " + sp.getMaSP());
+            System.out.println("Tên sản phẩm       : " + sp.getTenSP());
+            System.out.println("Giá bán            : " + util.FormatUtil.formatVND(sp.getGiaBan()));
+            System.out.println("Tồn kho tổng       : " + sp.getSoLuongTon());
+            System.out.println("────────────────────────────────────────────────────────────────────────────────");
+            System.out.println("                           DANH SÁCH CÁC LÔ HÀNG                               ");
+            System.out.println("────────────────────────────────────────────────────────────────────────────────");
+            System.out.printf("%-15s %-15s %-15s %-15s %-18s%n",
+                "Mã hàng", "SL còn lại", "Ngày SX", "Hạn SD", "Trạng thái");
+            System.out.println("────────────────────────────────────────────────────────────────────────────────");
+            
+            int tongSL = 0;
+            for (HangHoaDTO loHang : loHangList) {
+                String ngaySXStr = (loHang.getNgaySanXuat() != null) ? 
+                    loHang.getNgaySanXuat().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "N/A";
+                String hanSDStr = (loHang.getHanSuDung() != null) ? 
+                    loHang.getHanSuDung().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "N/A";
+                
+                // Emoji cho trạng thái
+                String trangThaiIcon = "";
+                if ("active".equals(loHang.getTrangThai())) {
+                    trangThaiIcon = "✅ Active";
+                } else if ("inactive".equals(loHang.getTrangThai())) {
+                    trangThaiIcon = "⚠️ Inactive";
+                } else if ("expired".equals(loHang.getTrangThai())) {
+                    trangThaiIcon = "❌ Expired";
+                }
+                
+                System.out.printf("%-15s %-15d %-15s %-15s %-18s%n",
+                    loHang.getMaHang(),
+                    loHang.getSoLuongConLai(),
+                    ngaySXStr,
+                    hanSDStr,
+                    trangThaiIcon
+                );
+                
+                tongSL += loHang.getSoLuongConLai();
+            }
+            
+            System.out.println("════════════════════════════════════════════════════════════════════════════════");
+            System.out.println("📊 Tổng cộng: " + loHangList.size() + " lô hàng | Tổng số lượng: " + tongSL);
+            System.out.println();
         }
     }
 }
