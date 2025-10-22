@@ -197,5 +197,66 @@ public class HangHoaDAO {
         }
         return result;
     }
+
+    // Xem chi tiết lô hàng theo mã hàng
+    public static Map<String, Object> xemChiTietLoHang(String maHang) {
+        String query = """
+                SELECT 
+                    hh.MaHang,
+                    hh.MaSP,
+                    sp.TenSP,
+                    sp.LoaiSP,
+                    sp.GiaBan,
+                    ncc.TenNCC,
+                    hh.NgaySanXuat,
+                    hh.HanSuDung,
+                    hh.SoLuongNhap,
+                    hh.SoLuongConLai,
+                    (hh.SoLuongNhap - hh.SoLuongConLai) AS SoLuongDaBan,
+                    hh.TrangThai,
+                    CASE
+                        WHEN hh.HanSuDung < CURDATE() THEN 'Đã hết hạn'
+                        WHEN hh.HanSuDung BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY) THEN 'Sắp hết hạn'
+                        ELSE 'Còn hạn'
+                    END AS TinhTrang,
+                    DATEDIFF(hh.HanSuDung, CURDATE()) AS SoNgayConLai
+                FROM HANGHOA hh
+                JOIN SANPHAM sp ON hh.MaSP = sp.MaSP
+                LEFT JOIN NHACUNGCAP ncc ON sp.MaNCC = ncc.MaNCC
+                WHERE hh.MaHang = ?
+        """;
+
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, maHang);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Map<String, Object> result = new HashMap<>();
+                    result.put("MaHang", rs.getString("MaHang"));
+                    result.put("MaSP", rs.getString("MaSP"));
+                    result.put("TenSP", rs.getString("TenSP"));
+                    result.put("LoaiSP", rs.getString("LoaiSP"));
+                    result.put("GiaBan", rs.getInt("GiaBan"));
+                    result.put("TenNCC", rs.getString("TenNCC"));
+                    result.put("NgaySanXuat", rs.getDate("NgaySanXuat") != null ? 
+                        rs.getDate("NgaySanXuat").toLocalDate() : null);
+                    result.put("HanSuDung", rs.getDate("HanSuDung") != null ? 
+                        rs.getDate("HanSuDung").toLocalDate() : null);
+                    result.put("SoLuongNhap", rs.getInt("SoLuongNhap"));
+                    result.put("SoLuongConLai", rs.getInt("SoLuongConLai"));
+                    result.put("SoLuongDaBan", rs.getInt("SoLuongDaBan"));
+                    result.put("TrangThai", rs.getString("TrangThai"));
+                    result.put("TinhTrang", rs.getString("TinhTrang"));
+                    result.put("SoNgayConLai", rs.getInt("SoNgayConLai"));
+                    return result;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ Lỗi khi xem chi tiết lô hàng: " + e.getMessage());
+        }
+        return null;
+    }
 }
 

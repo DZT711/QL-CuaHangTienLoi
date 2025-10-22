@@ -24,7 +24,7 @@ public class QuanLyHangHoa {
             System.out.println("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ MENU CHỨC NĂNG ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓");
             System.out.println("▒ [1] ➜ Xem danh sách hàng hóa trong kho                                       ▒");
             System.out.println("▒ [2] ➜ Tìm kiếm hàng hóa                                                      ▒");
-            System.out.println("▒ [3] ➜ Chỉnh sửa phiếu nhập                                                   ▒");
+            System.out.println("▒ [3] ➜ Xem chi tiết lô hàng                                                   ▒");
             System.out.println("▒ [4] ➜ Thống kê phiếu nhập                                                    ▒");
             System.out.println("▒ [5] ➜ Quản lý chi tiết phiếu nhập hàng                                       ▒");
             System.out.println("▒ [6] ➜ Xuất file phiếu nhập hàng                                              ▒");
@@ -114,6 +114,9 @@ public class QuanLyHangHoa {
                             scanner.nextLine();
                         }
                     }
+                    break;
+                case 3:
+                    xemChiTietLoHang();
                     break;
                 case 0:
                     System.out.println("✅ Quay lại menu chính.");
@@ -499,6 +502,95 @@ public class QuanLyHangHoa {
             System.out.println("════════════════════════════════════════════════════════════════════════════════════════");
             System.out.println("📊 Tổng cộng: " + loHangList.size() + " lô hàng | Tổng số lượng: " + tongSL);
             System.out.println();
+        }
+    }
+
+    public void xemChiTietLoHang() {
+        Scanner scanner = new Scanner(System.in);
+        DateTimeFormatter displayFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        while (true) {
+            System.out.print("\nNhập mã hàng cần xem chi tiết hoặc '0' để thoát: ");
+            String maHang = scanner.nextLine().trim();
+
+            if ("0".equals(maHang)) {
+                System.out.println("✅ Thoát xem chi tiết lô hàng.");
+                break;
+            }
+
+            // Lấy thông tin chi tiết
+            Map<String, Object> chiTiet = HangHoaDAO.xemChiTietLoHang(maHang);
+
+            if (chiTiet == null) {
+                System.out.println("⚠️ Không tìm thấy lô hàng với mã: " + maHang);
+                continue;
+            }
+
+            // Hiển thị thông tin chi tiết
+            System.out.println("\n╔════════════════════════════════════════════════════════════════════════════════════════╗");
+            System.out.println("║                          📦 CHI TIẾT LÔ HÀNG                                          ║");
+            System.out.println("╚════════════════════════════════════════════════════════════════════════════════════════╝");
+            
+            // Thông tin cơ bản
+            System.out.println("\n┌─── THÔNG TIN CƠ BẢN ───────────────────────────────────────────────────────────────┐");
+            System.out.printf("│ %-20s : %-60s │%n", "Mã hàng", chiTiet.get("MaHang"));
+            System.out.printf("│ %-20s : %-60s │%n", "Mã sản phẩm", chiTiet.get("MaSP"));
+            System.out.printf("│ %-20s : %-60s │%n", "Tên sản phẩm", chiTiet.get("TenSP"));
+            System.out.printf("│ %-20s : %-60s │%n", "Loại sản phẩm", chiTiet.get("LoaiSP"));
+            System.out.printf("│ %-20s : %-60s │%n", "Nhà cung cấp", 
+                chiTiet.get("TenNCC") != null ? chiTiet.get("TenNCC") : "N/A");
+            System.out.printf("│ %-20s : %-60s │%n", "Giá bán", 
+                util.FormatUtil.formatVND((int) chiTiet.get("GiaBan")));
+            System.out.println("└─────────────────────────────────────────────────────────────────────────────────────┘");
+
+            // Thông tin số lượng
+            System.out.println("\n┌─── THÔNG TIN SỐ LƯỢNG ─────────────────────────────────────────────────────────────┐");
+            System.out.printf("│ %-20s : %-60s │%n", "Số lượng nhập", chiTiet.get("SoLuongNhap"));
+            System.out.printf("│ %-20s : %-60s │%n", "Số lượng còn lại", chiTiet.get("SoLuongConLai"));
+            System.out.printf("│ %-20s : %-60s │%n", "Số lượng đã bán", chiTiet.get("SoLuongDaBan"));
+            System.out.println("└─────────────────────────────────────────────────────────────────────────────────────┘");
+
+            // Thông tin ngày tháng
+            System.out.println("\n┌─── THÔNG TIN HẠN SỬ DỤNG ─────────────────────────────────────────────────────────┐");
+            LocalDate ngaySX = (LocalDate) chiTiet.get("NgaySanXuat");
+            LocalDate hanSD = (LocalDate) chiTiet.get("HanSuDung");
+            System.out.printf("│ %-20s : %-60s │%n", "Ngày sản xuất", 
+                ngaySX != null ? ngaySX.format(displayFormatter) : "N/A");
+            System.out.printf("│ %-20s : %-60s │%n", "Hạn sử dụng", 
+                hanSD != null ? hanSD.format(displayFormatter) : "N/A");
+            System.out.printf("│ %-20s : %-60s │%n", "Số ngày còn lại", chiTiet.get("SoNgayConLai"));
+            System.out.println("└─────────────────────────────────────────────────────────────────────────────────────┘");
+
+            // Trạng thái
+            System.out.println("\n┌─── TRẠNG THÁI ─────────────────────────────────────────────────────────────────────┐");
+            
+            // Emoji cho trạng thái
+            String trangThaiIcon = "";
+            String trangThai = (String) chiTiet.get("TrangThai");
+            if ("active".equals(trangThai)) {
+                trangThaiIcon = "✅ Active";
+            } else if ("inactive".equals(trangThai)) {
+                trangThaiIcon = "⚠️ Inactive";
+            } else if ("expired".equals(trangThai)) {
+                trangThaiIcon = "❌ Expired";
+            }
+            
+            // Emoji cho tình trạng HSD
+            String tinhTrangIcon = "";
+            String tinhTrang = (String) chiTiet.get("TinhTrang");
+            if ("Còn hạn".equals(tinhTrang)) {
+                tinhTrangIcon = "✅ " + tinhTrang;
+            } else if ("Sắp hết hạn".equals(tinhTrang)) {
+                tinhTrangIcon = "⚠️ " + tinhTrang + " (trong 7 ngày)";
+            } else if ("Đã hết hạn".equals(tinhTrang)) {
+                tinhTrangIcon = "❌ " + tinhTrang;
+            }
+            
+            System.out.printf("│ %-20s : %-60s │%n", "Trạng thái lô hàng", trangThaiIcon);
+            System.out.printf("│ %-20s : %-60s │%n", "Tình trạng HSD", tinhTrangIcon);
+            System.out.println("└─────────────────────────────────────────────────────────────────────────────────────┘");
+            
+            System.out.println("\n════════════════════════════════════════════════════════════════════════════════════════\n");
         }
     }
 }
