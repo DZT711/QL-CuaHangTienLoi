@@ -4,12 +4,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.sql.ResultSet;
 import dto.HangHoaDTO;
-import dto.sanPhamDTO;
 import util.JDBCUtil;
 
 public class HangHoaDAO {

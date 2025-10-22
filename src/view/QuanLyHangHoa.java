@@ -23,7 +23,7 @@ public class QuanLyHangHoa {
             System.out.println("████████████████████████████████████████████████████████████████████████████████");
             System.out.println("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ MENU CHỨC NĂNG ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓");
             System.out.println("▒ [1] ➜ Xem danh sách hàng hóa trong kho                                       ▒");
-            System.out.println("▒ [2] ➜ Tìm kiếm phiếu nhập                                                    ▒");
+            System.out.println("▒ [2] ➜ Tìm kiếm hàng hóa                                                      ▒");
             System.out.println("▒ [3] ➜ Chỉnh sửa phiếu nhập                                                   ▒");
             System.out.println("▒ [4] ➜ Thống kê phiếu nhập                                                    ▒");
             System.out.println("▒ [5] ➜ Quản lý chi tiết phiếu nhập hàng                                       ▒");
@@ -70,11 +70,43 @@ public class QuanLyHangHoa {
                             } else if (opt == 1) {
                                 xemDanhSachTheoSanPham();
                             } else if (opt == 2) {
+                                xemTatCaHangHoa();
+                            } else {
+                                System.out.println("❌ Lựa chọn không hợp lệ!");
+
+                            }
+                        } catch (Exception e) {
+                            System.out.println("❌ Lỗi xảy ra: " + e.getMessage());
+                            scanner.nextLine();
+                        }
+                    }
+                    break;
+                case 2:
+                    while (true) {
+                        try {
+                            System.out.println("\n════════════════════════════════════════════════");
+                            System.out.println("        📦 TÌM KIẾM HÀNG HÓA TRONG KHO     ");
+                            System.out.println("════════════════════════════════════════════════");
+                            System.out.println("1. Tìm kiếm hàng hóa theo mã hàng");
+                            System.out.println("2. ");
+                            System.out.println("0. Quay lại");
+                            System.out.println("════════════════════════════════════════════════");
+                            System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+
+                            int opt = scanner.nextInt();
+                            scanner.nextLine();
+
+                            if (opt == 0) {
+                                System.out.println("✅ Quay lại menu quản lý hàng hóa.");
+                                break;
+                            } else if (opt == 1) {
+                                
+                            } else if (opt == 2) {
                                 
                             } else {
                                 System.out.println("❌ Lựa chọn không hợp lệ!");
-                            }
 
+                            }
                         } catch (Exception e) {
                             System.out.println("❌ Lỗi xảy ra: " + e.getMessage());
                             scanner.nextLine();
@@ -215,8 +247,8 @@ public class QuanLyHangHoa {
         System.out.println("\n════════════════════════════════════════════════════════════════════════════════");
         System.out.println("                           📦 DANH SÁCH TẤT CẢ HÀNG HÓA                          ");
         System.out.println("════════════════════════════════════════════════════════════════════════════════");
-        System.out.printf("%-15s %-15s %-15s %-15s %-15s %-15s%n",
-            "Mã hàng", "Mã SP", "Tên SP", "SL còn lại", "Ngày SX", "Hạn SD", "Trạng thái");
+        System.out.printf("%-15s %-15s %-25s %-15s %-15s %-15s %-15s%n",
+                "Mã hàng", "Mã SP", "Tên SP", "SL còn lại", "Ngày SX", "Hạn SD", "Trạng thái");
         System.out.println("────────────────────────────────────────────────────────────────────────────────");
         
         int tongSL = 0;
@@ -247,5 +279,64 @@ public class QuanLyHangHoa {
         }
         System.out.println("════════════════════════════════════════════════════════════════════════════════");
         System.out.println("📊 Tổng cộng: " + loHangList.size() + " lô hàng | Tổng số lượng: " + tongSL);
+    }
+
+    public void timHangHoaTheoMaHang() {
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            System.out.print("\nNhập mã hàng cần tìm (hoặc '0' để thoát): ");
+            String maHang = scanner.nextLine().trim();
+            
+            if ("0".equals(maHang)) {
+                System.out.println("✅ Thoát tìm kiếm hàng hóa.");
+                break;
+            }
+            
+            if (maHang.isEmpty()) {
+                System.out.println("❌ Mã hàng không được để trống!");
+                continue;
+            }
+            
+            HangHoaDTO hangHoa = HangHoaDAO.timHangHoaTheoMa(maHang);
+            
+            if (hangHoa == null) {
+                System.out.println("❌ Không tìm thấy lô hàng với mã: " + maHang);
+                continue;
+            }
+            
+            // Lấy thông tin sản phẩm
+            sanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(hangHoa.getMaSP());
+            if (sp == null) {
+                System.out.println("❌ Lỗi: Không tìm thấy thông tin sản phẩm!");
+                continue;
+            }
+            
+            // Hiển thị thông tin
+            System.out.println("\n════════════════════════════════════════════════════════");
+            System.out.println("              📦 THÔNG TIN LÔ HÀNG                      ");
+            System.out.println("════════════════════════════════════════════════════════");
+            System.out.println("Mã hàng            : " + hangHoa.getMaHang());
+            System.out.println("Mã sản phẩm        : " + hangHoa.getMaSP());
+            System.out.println("Tên sản phẩm       : " + sp.getTenSP());
+            System.out.println("Giá bán            : " + util.FormatUtil.formatVND(sp.getGiaBan()));
+            System.out.println("Số lượng còn lại   : " + hangHoa.getSoLuongConLai());
+            System.out.println("Ngày sản xuất      : " + 
+                (hangHoa.getNgaySanXuat() != null ? hangHoa.getNgaySanXuat().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "N/A"));
+            System.out.println("Hạn sử dụng        : " + 
+                (hangHoa.getHanSuDung() != null ? hangHoa.getHanSuDung().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "N/A"));
+            
+            // Emoji cho trạng thái
+            String trangThaiIcon = "";
+            if ("active".equals(hangHoa.getTrangThai())) {
+                trangThaiIcon = "✅ Active";
+            } else if ("inactive".equals(hangHoa.getTrangThai())) {
+                trangThaiIcon = "⚠️ Inactive";
+            } else if ("expired".equals(hangHoa.getTrangThai())) {
+                trangThaiIcon = "❌ Expired";
+            }
+            
+            System.out.println("Trạng thái         : " + trangThaiIcon);
+            System.out.println("════════════════════════════════════════════════════════");
+        }
     }
 }
