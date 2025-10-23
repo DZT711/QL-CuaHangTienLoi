@@ -27,8 +27,8 @@ public class QuanLyHangHoa {
             System.out.println("▒ [2] ➜ Tìm kiếm hàng hóa                                                      ▒");
             System.out.println("▒ [3] ➜ Xem chi tiết lô hàng                                                   ▒");
             System.out.println("▒ [4] ➜ Kiểm tra hàng sắp hết hạn                                              ▒");
-            System.out.println("▒ [5] ➜ Quản lý chi tiết phiếu nhập hàng                                       ▒");
-            System.out.println("▒ [6] ➜ Xuất file phiếu nhập hàng                                              ▒");
+            System.out.println("▒ [5] ➜ Cập nhật trạng thái                                                    ▒");
+            System.out.println("▒ [6] ➜ Thống kê hàng hóa                                                      ▒");
             System.out.println("▒ [7] ➜ Xuất báo cáo nhập hàng                                                 ▒");
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░");
             System.out.println("░ [0] ✗ Quay lại menu chính                                                    ░");
@@ -121,6 +121,39 @@ public class QuanLyHangHoa {
                     break;
                 case 4:
                     kiemTraHangSapHetHan();
+                    break;
+                case 5: 
+                    while (true) {
+                        try {
+                            System.out.println("\n════════════════════════════════════════════════");
+                            System.out.println("        📦 CẬP NHẬT TRẠNG THÁI HÀNG HÓA     ");
+                            System.out.println("════════════════════════════════════════════════");
+                            System.out.println("1. Cập nhật trạng thái hết hạn sử dụng");
+                            System.out.println("2. Cập nhật trạng thái thủ công");
+                            System.out.println("0. Quay lại");
+                            System.out.println("════════════════════════════════════════════════");
+                            System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+
+                            int opt = scanner.nextInt();
+                            scanner.nextLine();
+
+                            if (opt == 0) {
+                                System.out.println("✅ Quay lại menu quản lý hàng hóa.");
+                                break;
+                            } else if (opt == 1) {
+                                if (HangHoaDAO.capNhatTrangThaiExpired() > 0) {
+                                    System.out.println("✅ Cập nhật trạng thái hết hạn sử dụng thành công!");
+                                } else {
+                                    System.out.println("❌ Cập nhật trạng thái hết hạn sử dụng thất bại!");
+                                }
+                            } else if (opt == 2) {
+                                capNhatTrangThaiHangHoa();
+                            } else System.out.println("❌ Lựa chọn không hợp lệ!");
+                        } catch (Exception e) {
+                            System.out.println("❌ Lỗi xảy ra: " + e.getMessage());
+                            scanner.nextLine();
+                        }
+                    }
                     break;
                 case 0:
                     System.out.println("✅ Quay lại menu chính.");
@@ -687,6 +720,78 @@ public class QuanLyHangHoa {
                 System.out.println("ℹ️ Các lô này sẽ không thể bán trong hệ thống.");
             } else {
                 System.out.println("ℹ️ Bỏ qua cập nhật trạng thái.");
+            }
+        }
+    }
+
+    public void capNhatTrangThaiHangHoa() {
+        Scanner scanner = new Scanner(System.in);
+        DateTimeFormatter displayFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        
+        while (true) {
+            System.out.println("\n════════════════════════════════════════════════");
+            System.out.println("        🔄 CẬP NHẬT TRẠNG THÁI HÀNG HÓA     ");
+            System.out.println("════════════════════════════════════════════════");
+            System.out.print("Nhập mã hàng cần cập nhật trạng thái (hoặc '0' để thoát): ");
+            String maHang = scanner.nextLine().trim();
+
+            if ("0".equals(maHang)) {
+                System.out.println("✅ Thoát cập nhật trạng thái hàng hóa.");
+                break;
+            }
+
+            HangHoaDTO hangHoa = HangHoaDAO.timHangHoaTheoMa(maHang);
+
+            if (hangHoa == null) {
+                System.out.println("❌ Không tìm thấy lô hàng với mã: " + maHang);
+                continue;
+            }
+
+            System.out.println("\n────────────────────────────────────────────────");
+            System.out.println("📦 Thông tin lô hàng:");
+            System.out.println("Mã hàng         : " + hangHoa.getMaHang());
+            System.out.println("Mã sản phẩm     : " + hangHoa.getMaSP());
+            System.out.println("Số lượng còn lại: " + hangHoa.getSoLuongConLai());
+            System.out.println("Hạn sử dụng     : " + 
+                (hangHoa.getHanSuDung() != null ? hangHoa.getHanSuDung().format(displayFormatter) : "N/A"));
+            
+            String trangThaiIcon = "";
+            if ("active".equals(hangHoa.getTrangThai())) {
+                trangThaiIcon = "✅ Active";
+            } else if ("inactive".equals(hangHoa.getTrangThai())) {
+                trangThaiIcon = "⚠️ Inactive";
+            } else if ("expired".equals(hangHoa.getTrangThai())) {
+                trangThaiIcon = "❌ Expired";
+            }
+            System.out.println("Trạng thái      : " + trangThaiIcon);
+            System.out.println("────────────────────────────────────────────────");
+            
+            System.out.print("\nNhập trạng thái mới (active/inactive/expired): ");
+            String trangThaiMoi = scanner.nextLine().trim().toLowerCase();
+
+            if (!"active".equals(trangThaiMoi) && !"inactive".equals(trangThaiMoi) && !"expired".equals(trangThaiMoi)) {
+                System.out.println("❌ Trạng thái không hợp lệ!");
+                continue;
+            }
+
+            // Kiểm tra nhập expired khi hàng vẫn còn HSD
+            if ("expired".equals(trangThaiMoi) && hangHoa.getHanSuDung() != null) {
+                if (hangHoa.getHanSuDung().isAfter(LocalDate.now()) || 
+                    hangHoa.getHanSuDung().isEqual(LocalDate.now())) {
+                    System.out.println("❌ Không thể cập nhật sang 'expired'!");
+                    System.out.println("   Lý do: Hàng vẫn còn hạn sử dụng (" + 
+                        hangHoa.getHanSuDung().format(displayFormatter) + ")");
+                    continue;
+                }
+            }
+
+            boolean success = HangHoaDAO.capNhatTrangThai(maHang, trangThaiMoi);
+
+            if (success) {
+                System.out.println("✅ Cập nhật trạng thái lô hàng thành công!");
+                System.out.println("   " + hangHoa.getTrangThai() + " → " + trangThaiMoi);
+            } else {
+                System.out.println("❌ Cập nhật trạng thái lô hàng thất bại!");
             }
         }
     }

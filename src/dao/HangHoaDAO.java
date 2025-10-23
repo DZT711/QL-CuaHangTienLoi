@@ -315,5 +315,22 @@ public class HangHoaDAO {
             return 0;
         }
     }
+
+    public static boolean capNhatTrangThai(String maHang, String trangThaiMoi) {
+        String query = "UPDATE HANGHOA SET TrangThai = ? WHERE MaHang = ?";
+
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, trangThaiMoi);
+            stmt.setString(2, maHang);
+
+            int rowAffected = stmt.executeUpdate();
+            return rowAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("❌ Lỗi khi cập nhật trạng thái hàng hóa: " + e.getMessage());
+            return false;
+        }
+    }
 }
 
