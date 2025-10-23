@@ -39,51 +39,72 @@ public class Main {
             String password = scanner.nextLine();
             System.out.println("═══════════════════════════════════════════════════════════");
 
-            /* System.out.print("\nVui lòng chờ 1 lát , hệ thống đang xác thực");
-            for (int i = 0; i < 3; i++) {
-                try {
-                    Thread.sleep(1000);
-                    System.out.print(".");
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            System.out.println("\n");
-              */
+            /*
+             * System.out.print("\nVui lòng chờ 1 lát , hệ thống đang xác thực");
+             * for (int i = 0; i < 3; i++) {
+             * try {
+             * Thread.sleep(1000);
+             * System.out.print(".");
+             * } catch (InterruptedException e) {
+             * e.printStackTrace();
+             * }
+             * }
+             * System.out.println("\n");
+             */
 
+            // Bước A: Xác thực (Authentication) - Kiểm tra username và password
             TaiKhoanDTO taiKhoan = TaiKhoanDAO.checkAccount(username, password);
             if (taiKhoan != null) {
-                // Kiểm tra trạng thái nhân viên
+                // Bước A thành công - Xác thực thành công
+
+                // Kiểm tra trạng thái nhân viên TRƯỚC khi thực hiện Bước B và C
                 NhanVienDTO nvLogin = NhanVienDAO.timNhanVienTheoMa(taiKhoan.getMaNV());
                 if (nvLogin == null) {
-                    System.out.println("Không tìm thấy thông tin nhân viên cho tài khoản này.");
+                    System.out.println("❌ Không tìm thấy thông tin nhân viên cho tài khoản này.");
                     continue;
                 }
-                if ("inactive".equalsIgnoreCase(nvLogin.getTrangThai()) || "inactive".equalsIgnoreCase(taiKhoan.getStatus())) {
+                if ("inactive".equalsIgnoreCase(nvLogin.getTrangThai())
+                        || "inactive".equalsIgnoreCase(taiKhoan.getStatus())) {
                     System.out.println(
-                            "Tài khoản của bạn đã bị vô hiệu hóa . Vui lòng liên hệ với người quản trị để biết thêm thông tin.");
+                            "❌ Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ với người quản trị để biết thêm thông tin.");
                     continue;
                 }
+
+                // Lưu thông tin tài khoản hiện tại
                 CURRENT_ACCOUNT = taiKhoan;
 
-                /* System.out.println("✓ Đăng nhập thành công! Xin chào "+taiKhoan.getRole()+" " + taiKhoan.getUsername() + "!");
-                String[] greetingInfo = getGreeting();
-                 System.out.println(greetingInfo[0] + " " + greetingInfo[1] + ", hiện tại là " + greetingInfo[2]);
-
-                System.out.println("✓ Đăng nhập thành công! Xin " + greetingInfo[1] + " " + taiKhoan.getRole() + " "
-                        + taiKhoan.getUsername() + "!");
-                System.out.println(greetingInfo[0] + " Thời gian hiện tại của sever là " + greetingInfo[2]);
-                System.out.println("═══════════════════════════════════════════════════════════");
-                */
+                // Bước B: Kiểm tra mật khẩu mặc định (Default Check)
+                // Bước C: Phân luồng (Routing)
+                if (taiKhoan.isDefaultPassword()) {
+                    // Trường hợp 1: isDefaultPassword == true - Bắt buộc đổi mật khẩu
+                    if (forceChangePasswordLoop(taiKhoan.getUsername(), taiKhoan.getMaNV())) {
+                        System.out.println("✅ Đổi mật khẩu thành công! Bạn có thể tiếp tục sử dụng hệ thống.");
+                    } else {
+                        System.out.println("❌ Không thể đổi mật khẩu. Vui lòng thử lại sau.");
+                        continue;
+                    }
+                } else {
+                    // Trường hợp 2: isDefaultPassword == false
+                    System.out.println("✅ Đăng nhập thành công!");
+                    System.out.println("✓ Mật khẩu đã được đổi - Bảo mật tốt!");
+                }
 
                 // Tự động inactive sản phẩm hết hạn
                 SanPhamDAO.capnhatTrangThaiHetHan();
 
-                if ("Admin".equals(taiKhoan.getRole())) menuAdmin();
-                else if ("NhanVien".equals(taiKhoan.getRole())) menuNhanVien(taiKhoan.getfullName());
+                // Hiển thị Menu dựa trên vai tròanan
+                if ("Admin".equals(taiKhoan.getRole())) {
+                    menuAdmin();
+                } else if ("NhanVien".equals(taiKhoan.getRole())) {
+                    menuNhanVien(taiKhoan.getfullName());
+                } else {
+                    System.out.println("❌ Vai trò không hợp lệ: " + taiKhoan.getRole());
+                }
                 break;
             } else {
-                System.out.println("Sai tài khoản hoặc mật khẩu, vui lòng thử lại!");
+                // Bước A thất bại - Xác thực không thành công
+                // Thông báo lỗi đã được xử lý trong TaiKhoanDAO.checkAccount()
+                System.out.println("Đăng nhập thất bại, vui lòng thử lại!");
                 clearScreen();
             }
         }
@@ -173,7 +194,7 @@ public class Main {
                     break;
                 case 0:
                     System.out.println("Đăng xuất thành công!");
-                    
+
                     System.out.println("╔═══════════════════════════════════════════════════╗");
                     System.out.println("║  CẢM ƠN BẠN ĐÃ SỬ DỤNG PHẦN MỀM, CHÀO TẠM BIỆT !  ║");
                     System.out.println("╚═══════════════════════════════════════════════════╝");
@@ -256,6 +277,54 @@ public class Main {
         }
     }
 
+    /**
+     * Bước C: Vòng lặp bắt buộc đổi mật khẩu
+     * 
+     * @param username Tên đăng nhập
+     * @param maNV     Mã nhân viên (mật khẩu mặc định)
+     * @return true nếu đổi mật khẩu thành công
+     */
+    public static boolean forceChangePasswordLoop(String username, String maNV) {
+        Scanner scanner = new Scanner(System.in);
+
+        while (true) {
+            System.out.println("\n" + "═".repeat(60));
+            System.out.println("🔒 BẮT BUỘC ĐỔI MẬT KHẨU");
+            System.out.println("═".repeat(60));
+            System.out.println("⚠️  Bạn đang sử dụng mật khẩu mặc định!");
+            System.out.println("   Để bảo mật tài khoản, bạn PHẢI đổi mật khẩu ngay bây giờ.");
+            System.out.println("   Mật khẩu mặc định hiện tại: " + maNV);
+            System.out.println("\n📋 YÊU CẦU MẬT KHẨU MỚI:");
+            System.out.println("   • Ít nhất 3 ký tự");
+            System.out.println("   • Không được trùng với mật khẩu mặc định (" + maNV + ")");
+            System.out.println("   • Nên chứa chữ và số để tăng bảo mật");
+            System.out.println("═".repeat(60));
+
+            System.out.print("🔑 Nhập mật khẩu mới: ");
+            String newPassword = scanner.nextLine();
+
+            System.out.print("🔑 Xác nhận mật khẩu mới: ");
+            String confirmPassword = scanner.nextLine();
+
+            // Kiểm tra xác nhận mật khẩu
+            if (!newPassword.equals(confirmPassword)) {
+                System.out.println("❌ Mật khẩu xác nhận không khớp! Vui lòng thử lại.");
+                continue;
+            }
+
+            // Thử đổi mật khẩu
+            if (dao.TaiKhoanDAO.forceChangePassword(username, newPassword, maNV)) {
+                System.out.println("\n🎉 CHÚC MỪNG! Bạn đã đổi mật khẩu thành công!");
+                System.out.println("   Tài khoản của bạn giờ đây đã an toàn hơn.");
+                return true;
+            } else {
+                System.out.println("\n❌ Đổi mật khẩu thất bại! Vui lòng thử lại.");
+                System.out.print("   Nhấn Enter để tiếp tục...");
+                scanner.nextLine();
+            }
+        }
+    }
+
     public static String[] getGreeting() {
         LocalDateTime now = LocalDateTime.now();
         int hour = now.getHour();
@@ -284,4 +353,3 @@ public class Main {
         return new String[] { icon, greeting, dateTime };
     }
 }
-
