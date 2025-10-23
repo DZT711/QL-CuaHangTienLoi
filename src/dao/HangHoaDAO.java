@@ -258,5 +258,62 @@ public class HangHoaDAO {
         }
         return null;
     }
+
+    // Lấy danh sách hàng sắp hết hạn và đã hết hạn (không cập nhật trạng thái)
+    public static List<Map<String, Object>> layHangSapHetHan() {
+        String query = """
+                SELECT hh.MaHang, hh.MaSP, sp.TenSP, hh.SoLuongConLai,
+                    DATEDIFF(hh.HanSuDung, CURDATE()) AS SoNgayConLai,
+                    CASE
+                        WHEN hh.HanSuDung < CURDATE() THEN 'Đã hết hạn'
+                        WHEN hh.HanSuDung BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY) THEN 'Sắp hết hạn'
+                        ELSE 'Còn hạn'
+                    END AS TinhTrangHSD
+                FROM HANGHOA hh
+                INNER JOIN SANPHAM sp ON hh.MaSP = sp.MaSP
+                WHERE hh.HanSuDung <= DATE_ADD(CURDATE(), INTERVAL 7 DAY)
+                ORDER BY hh.HanSuDung ASC
+        """;
+
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Map<String, Object> row = new HashMap<>();
+                row.put("MaHang", rs.getString("MaHang"));
+                row.put("MaSP", rs.getString("MaSP"));
+                row.put("TenSP", rs.getString("TenSP"));
+                row.put("SoLuongConLai", rs.getInt("SoLuongConLai"));
+                row.put("SoNgayConLai", rs.getInt("SoNgayConLai"));
+                row.put("TinhTrangHSD", rs.getString("TinhTrangHSD"));
+                result.add(row);
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ Lỗi khi lấy danh sách hàng sắp hết hạn: " + e.getMessage());
+        }
+        return result;
+    }
+
+    // Cập nhật trạng thái 'expired' cho các lô hàng đã quá hạn 
+    public static int capNhatTrangThaiExpired() {
+        String query = """
+                UPDATE HANGHOA
+                SET TrangThai = 'expired'
+                WHERE HanSuDung < CURDATE()
+                AND TrangThai <> 'expired'
+        """;
+
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            return stmt.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("❌ Lỗi khi cập nhật trạng thái hết hạn: " + e.getMessage());
+            return 0;
+        }
+    }
 }
 
