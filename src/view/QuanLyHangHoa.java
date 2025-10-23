@@ -2,15 +2,20 @@ package view;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
+
 import dao.HangHoaDAO;
 import dao.SanPhamDAO;
 import dto.HangHoaDTO;
 import dto.sanPhamDTO;
+import util.FormatUtil;
 
 public class QuanLyHangHoa {
     public void menuQuanLyHangHoa() {
@@ -29,7 +34,7 @@ public class QuanLyHangHoa {
             System.out.println("▒ [4] ➜ Kiểm tra hàng sắp hết hạn                                              ▒");
             System.out.println("▒ [5] ➜ Cập nhật trạng thái                                                    ▒");
             System.out.println("▒ [6] ➜ Thống kê hàng hóa                                                      ▒");
-            System.out.println("▒ [7] ➜ Xuất báo cáo nhập hàng                                                 ▒");
+            System.out.println("▒ [7] ➜ Xuất báo cáo hàng tồn kho                                              ▒");
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░");
             System.out.println("░ [0] ✗ Quay lại menu chính                                                    ░");
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░");
@@ -163,7 +168,6 @@ public class QuanLyHangHoa {
                             System.out.println("════════════════════════════════════════════════");
                             System.out.println("1. Thống kê hàng sắp hết hạn ");
                             System.out.println("2. Thống kê hàng hóa đã hết hạn");
-                            System.out.println("3. Thống kê hàng hóa theo nhà cung cấp");
                             System.out.println("0. Quay lại");
                             System.out.println("════════════════════════════════════════════════");
                             System.out.print("\n💡 Nhập lựa chọn của bạn: ");
@@ -186,6 +190,9 @@ public class QuanLyHangHoa {
                             scanner.nextLine();
                         }
                     }
+                    break;
+                case 7:
+                    xuatBaoCaoTonKho();
                     break;
                 case 0:
                     System.out.println("✅ Quay lại menu chính.");
@@ -918,5 +925,238 @@ public class QuanLyHangHoa {
         System.out.println("════════════════════════════════════════════════════════════════════════════════════════════════════");
         System.out.println("Tổng số lô: " + danhSach.size() + " | Tổng số lượng: " + tongSoLuong);
         System.out.println();
+    }
+
+    public void xuatBaoCaoTonKho() {
+        List<Map<String, Object>> danhSach = HangHoaDAO.layBaoCaoTonKho();
+        
+        if (danhSach.isEmpty()) {
+            System.out.println("\nKhông có hàng hóa tồn kho.\n");
+            return;
+        }
+
+        DateTimeFormatter displayFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm:ss");
+        String currentTime = LocalDateTime.now().format(timeFormatter);
+
+        System.out.println("\n════════════════════════════════════════════════════════════════════════════════════════════════════");
+        System.out.println("                                    BÁO CÁO TỒN KHO HÀNG HÓA");
+        System.out.println("════════════════════════════════════════════════════════════════════════════════════════════════════");
+        System.out.println("Ngày báo cáo: " + currentTime);
+        System.out.println("════════════════════════════════════════════════════════════════════════════════════════════════════");
+
+        
+        // THỐNG KÊ TỔNG QUAN 
+        int tongSoLuong = 0;
+        long tongGiaTri = 0;
+        Set<String> danhSachMaSP = new HashSet<>();
+        
+        for (Map<String, Object> item: danhSach) {
+            tongSoLuong += (int) item.get("SoLuongConLai");
+            tongGiaTri += (long) item.get("ThanhTien");
+            danhSachMaSP.add((String) item.get("MaSP"));
+        }
+        int soLuongSP  = danhSachMaSP.size();
+
+        // Lấy thông tin: số lô, số sản phẩm, giá trị của từng trạng thái
+        int soLoActive = 0, slActive = 0; long gtActive = 0;
+        int soLoInactive = 0, slInactive = 0; long gtInactive = 0;
+        int soLoExpired = 0, slExpired = 0; long gtExpired = 0;
+
+        for (Map<String, Object> item : danhSach) {
+            String trangThai = (String) item.get("TrangThai");
+            if (trangThai.equals("expired")) {
+                soLoExpired++;
+                slExpired += (int) item.get("SoLuongConLai");
+                gtExpired += (long) item.get("ThanhTien");
+            } else if (trangThai.equals("inactive")) {
+                soLoInactive++;
+                slInactive += (int) item.get("SoLuongConLai");
+                gtInactive += (long) item.get("ThanhTien");
+            } else if (trangThai.equals("active")) {
+                soLoActive++;
+                slActive += (int) item.get("SoLuongConLai");
+                gtActive += (long) item.get("ThanhTien");
+            }
+        }
+
+
+        System.out.println("\n┌────────────────────────────────────────────────────────────────────────────────────────────────┐");
+        System.out.println("│                                  THỐNG KÊ TỔNG QUAN                                            │");
+        System.out.println("├────────────────────────────────────────────────────────────────────────────────────────────────┤");
+
+        System.out.printf("│ • Tổng số lô hàng:                        %-50s │%n", danhSach.size() + " lô");
+        System.out.printf("│ • Tổng số lượng hàng hóa:                 %-50s │%n", String.format("%,d", tongSoLuong) + " sản phẩm");
+        System.out.printf("│ • Tổng số loại sản phẩm:                  %-50s │%n", soLuongSP + " loại");
+        System.out.printf("│ • Tổng giá trị tồn kho:                   %-50s │%n", FormatUtil.formatVND((int)tongGiaTri));
+        System.out.println("│                                                                                                │");
+        System.out.println("│ PHÂN LOẠI THEO TRẠNG THÁI:                                                                     │");
+        System.out.printf("│ • Đang kinh doanh:              %d lô (%,d SP) - %-30s │%n", soLoActive, slActive, FormatUtil.formatVND((int)gtActive));
+        System.out.printf("│ • Ngừng kinh doanh:             %d lô (%,d SP) - %-30s │%n", soLoInactive, slInactive, FormatUtil.formatVND((int)gtInactive));
+        System.out.printf("│ • Đã hết hạn:                   %d lô (%,d SP) - %-30s │%n", soLoExpired, slExpired, FormatUtil.formatVND((int)gtExpired));
+        System.out.println("└────────────────────────────────────────────────────────────────────────────────────────────────┘");
+
+
+        // HIỂN THỊ DANH SÁCH CHI TIẾT
+        System.out.println("\n┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────┐");
+        System.out.println("│                                DANH SÁCH HÀNG HÓA TỒN KHO                                                   │");
+        System.out.println("├─────────────────────────────────────────────────────────────────────────────────────────────────────────────┤");
+        System.out.printf("│ %-3s│ %-8s│ %-7s│ %-26s│ %-4s│ %-10s│ %-12s│ %-11s│ %-10s│%n",
+            "STT", "Mã hàng", "Mã SP", "Tên sản phẩm", "SL", "Đơn giá", "Thành tiền", "HSD", "Trạng thái");
+        System.out.println("├─────────────────────────────────────────────────────────────────────────────────────────────────────────────┤");
+        
+        int stt = 1;
+        long sumGiaTri = 0;
+
+        for (Map<String, Object> item: danhSach) {
+            String tenSP = (String) item.get("TenSP");
+            if (tenSP != null && tenSP.length() > 26) {
+                tenSP = tenSP.substring(0, 23) + "...";
+            }
+
+            LocalDate hsd = (LocalDate) item.get("HanSuDung");
+            String hsdStr = hsd != null ? hsd.format(displayFormatter) : "N/A";
+
+            String trangThai = (String) item.get("TrangThai");
+            String trangThaiStr = "";
+            if (trangThai.equals("active")) {
+                trangThaiStr = "Active";
+            } else if (trangThai.equals("inactive")) {
+                trangThaiStr = "Inactive";
+            } else if (trangThai.equals("expired")) {
+                trangThaiStr = "Expired";
+            }
+
+            int giaBan = (int) item.get("GiaBan");
+            long thanhTien = (long) item.get("ThanhTien");
+            sumGiaTri += thanhTien;
+
+            System.out.printf("│ %-3d│ %-8s│ %-7s│ %-26s│ %-4d│ %,10d│ %,12d│ %-11s│ %-10s│%n",
+                stt++,
+                item.get("MaHang"),
+                item.get("MaSP"),
+                tenSP,
+                item.get("SoLuongConLai"),
+                giaBan,
+                thanhTien,
+                hsdStr,
+                trangThaiStr
+            );
+        }
+        System.out.println("└─────────────────────────────────────────────────────────────────────────────────────────────────────────────┘");
+        System.out.printf("Tổng: %d lô hàng | Tổng giá trị: %s%n", danhSach.size(), FormatUtil.formatVND((int)sumGiaTri));
+        System.out.println("\n════════════════════════════════════════════════════════════════════════════════════════════════════");
+        System.out.println("Báo cáo được tạo tự động bởi Hệ thống Quản lý Cửa hàng Tiện lợi");
+        System.out.println("════════════════════════════════════════════════════════════════════════════════════════════════════");
+        System.out.println();
+
+        // Hiển thị cảnh báo
+        hienThiCanhBao(danhSach);
+    }
+
+    private void hienThiCanhBao(List<Map<String, Object>> danhSach) {
+        // Lọc hàng đã hết hạn
+        List<Map<String, Object>> hangHetHan = new ArrayList<>();
+        for (Map<String, Object> item : danhSach) {
+            int soNgayConLai = (int) item.get("SoNgayConLai");
+            String trangThai = (String) item.get("TrangThai");
+            if (soNgayConLai < 0 || trangThai.equals("expired")) {
+                hangHetHan.add(item);
+            }
+        }
+        
+        // Lọc hàng sắp hết hạn (0-30 ngày)
+        List<Map<String, Object>> hangSapHetHan = new ArrayList<>();
+        for (Map<String, Object> item : danhSach) {
+            int soNgayConLai = (int) item.get("SoNgayConLai");
+            String trangThai = (String) item.get("TrangThai");
+            if (soNgayConLai >= 0 && soNgayConLai <= 30 && !trangThai.equals("expired")) {
+                hangSapHetHan.add(item);
+            }
+        }
+        
+        // Nếu không có gì cảnh báo thì thôi
+        if (hangHetHan.isEmpty() && hangSapHetHan.isEmpty()) {
+            return;
+        }
+        
+        System.out.println("\n┌────────────────────────────────────────────────────────────────────────────────────────────────┐");
+        System.out.println("│                                        ⚠ CẢNH BÁO                                              │");
+        System.out.println("├────────────────────────────────────────────────────────────────────────────────────────────────┤");
+        
+        // === Phần A: Hàng đã hết hạn ===
+        if (!hangHetHan.isEmpty()) {
+            // Tính tổng giá trị hàng hết hạn
+            long giaTriHetHan = 0;
+            for (Map<String, Object> item : hangHetHan) {
+                giaTriHetHan += (long) item.get("ThanhTien");
+            }
+            
+            System.out.printf("│ HÀNG ĐÃ HẾT HẠN (%d lô - Giá trị: %s):%-48s│%n", 
+                hangHetHan.size(), 
+                util.FormatUtil.formatVND((int)giaTriHetHan),
+                "");
+            
+            // Hiển thị từng lô hàng hết hạn
+            for (Map<String, Object> item : hangHetHan) {
+                int soNgayQuaHan = Math.abs((int) item.get("SoNgayConLai"));
+                int soLuong = (int) item.get("SoLuongConLai");
+                int giaBan = (int) item.get("GiaBan");
+                
+                String thongTin = String.format("%s - %s (%d SP x %,d) - Quá hạn %d ngày",
+                    item.get("MaHang"),
+                    item.get("TenSP"),
+                    soLuong,
+                    giaBan,
+                    soNgayQuaHan
+                );
+                
+                // Cắt ngắn nếu quá dài
+                if (thongTin.length() > 90) {
+                    thongTin = thongTin.substring(0, 87) + "...";
+                }
+                
+                System.out.printf("│   • %-90s│%n", thongTin);
+            }
+            System.out.println("│                                                                                                │");
+        }
+        
+        // === Phần B: Hàng sắp hết hạn ===
+        if (!hangSapHetHan.isEmpty()) {
+            // Tính tổng giá trị hàng sắp hết hạn
+            long giaTriSapHetHan = 0;
+            for (Map<String, Object> item : hangSapHetHan) {
+                giaTriSapHetHan += (long) item.get("ThanhTien");
+            }
+            
+            System.out.printf("│ HÀNG SẮP HẾT HẠN < 30 NGÀY (%d lô - Giá trị: %s):%-38s│%n", 
+                hangSapHetHan.size(), 
+                util.FormatUtil.formatVND((int)giaTriSapHetHan),
+                "");
+            
+            // Hiển thị từng lô hàng sắp hết hạn
+            for (Map<String, Object> item : hangSapHetHan) {
+                int soNgayConLai = (int) item.get("SoNgayConLai");
+                int soLuong = (int) item.get("SoLuongConLai");
+                int giaBan = (int) item.get("GiaBan");
+                
+                String thongTin = String.format("%s - %s (%d SP x %,d) - Còn %d ngày",
+                    item.get("MaHang"),
+                    item.get("TenSP"),
+                    soLuong,
+                    giaBan,
+                    soNgayConLai
+                );
+                
+                // Cắt ngắn nếu quá dài
+                if (thongTin.length() > 90) {
+                    thongTin = thongTin.substring(0, 87) + "...";
+                }
+                
+                System.out.printf("│   • %-90s│%n", thongTin);
+            }
+        }
+        
+        System.out.println("└────────────────────────────────────────────────────────────────────────────────────────────────┘");
     }
 }
