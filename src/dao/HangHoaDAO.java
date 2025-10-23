@@ -376,5 +376,53 @@ public class HangHoaDAO {
         }
         return result;
     }
+
+    // Thống kê hàng hóa đã hết hạn
+    public static List<Map<String, Object>> thongKeHangDaHetHan() {
+        String query = """
+                SELECT 
+                    hh.MaHang,
+                    hh.MaSP,
+                    sp.TenSP,
+                    hh.SoLuongConLai,
+                    hh.NgaySanXuat,
+                    hh.HanSuDung,
+                    DATEDIFF(CURDATE(), hh.HanSuDung) AS SoNgayQuaHan,
+                    hh.TrangThai
+                FROM HANGHOA hh
+                JOIN SANPHAM sp ON hh.MaSP = sp.MaSP
+                WHERE hh.HanSuDung IS NOT NULL 
+                AND hh.HanSuDung < CURDATE()
+                AND hh.SoLuongConLai > 0
+                ORDER BY SoNgayQuaHan DESC
+        """;
+
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Map<String, Object> row = new HashMap<>();
+                row.put("MaHang", rs.getString("MaHang"));
+                row.put("MaSP", rs.getString("MaSP"));
+                row.put("TenSP", rs.getString("TenSP"));
+                row.put("SoLuongConLai", rs.getInt("SoLuongConLai"));
+                row.put("NgaySanXuat", rs.getDate("NgaySanXuat") != null ? 
+                    rs.getDate("NgaySanXuat").toLocalDate() : null);
+                row.put("HanSuDung", rs.getDate("HanSuDung") != null ? 
+                    rs.getDate("HanSuDung").toLocalDate() : null);
+                row.put("SoNgayQuaHan", rs.getInt("SoNgayQuaHan"));
+                row.put("TrangThai", rs.getString("TrangThai"));
+                result.add(row);
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ Lỗi khi lấy danh sách hàng đã hết hạn: " + e.getMessage());
+        }
+        return result;
+    }
+
+    
 }
 

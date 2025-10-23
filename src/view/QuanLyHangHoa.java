@@ -176,6 +176,8 @@ public class QuanLyHangHoa {
                                 break;
                             } else if (opt == 1) {
                                 thongKeHangSapHetHan();
+                            } else if (opt == 2) {
+                                thongKeHangDaHetHan();
                             } else {
                                 System.out.println("❌ Lựa chọn không hợp lệ!");
                             }
@@ -861,6 +863,55 @@ public class QuanLyHangHoa {
                 item.get("SoLuongConLai"),
                 hsdStr,
                 item.get("SoNgayConLai")
+            );
+        }
+        
+        System.out.println("════════════════════════════════════════════════════════════════════════════════════════════════════");
+        System.out.println("Tổng số lô: " + danhSach.size() + " | Tổng số lượng: " + tongSoLuong);
+        System.out.println();
+    }
+
+    public void thongKeHangDaHetHan() {
+        List<Map<String, Object>> danhSach = HangHoaDAO.thongKeHangDaHetHan();
+        
+        if (danhSach.isEmpty()) {
+            System.out.println("\nKhông có hàng nào đã hết hạn còn tồn kho.\n");
+            return;
+        }
+
+        int tongSoLuong = 0;
+        DateTimeFormatter displayFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        
+        System.out.println("\n════════════════════════════════════════════════════════════════════════════════════════════════════");
+        System.out.println("                                   THỐNG KÊ HÀNG HÓA ĐÃ HẾT HẠN");
+        System.out.println("════════════════════════════════════════════════════════════════════════════════════════════════════");
+        System.out.printf("%-12s %-12s %-30s %-12s %-15s %-15s %-15s%n",
+            "Mã hàng", "Mã SP", "Tên sản phẩm", "SL còn lại", "Ngày SX", "HSD", "Quá hạn");
+        System.out.println("────────────────────────────────────────────────────────────────────────────────────────────────────");
+        
+        for (Map<String, Object> item : danhSach) {
+            tongSoLuong += (int) item.get("SoLuongConLai");
+            String tenSP = (String) item.get("TenSP");
+            if (tenSP != null && tenSP.length() > 30) {
+                tenSP = tenSP.substring(0, 27) + "...";
+            }
+            
+            LocalDate ngaySX = (LocalDate) item.get("NgaySanXuat");
+            String ngaySXStr = ngaySX != null ? ngaySX.format(displayFormatter) : "N/A";
+            
+            LocalDate hsd = (LocalDate) item.get("HanSuDung");
+            String hsdStr = hsd != null ? hsd.format(displayFormatter) : "N/A";
+            
+            int soNgayQuaHan = (int) item.get("SoNgayQuaHan");
+            
+            System.out.printf("%-12s %-12s %-30s %-12d %-15s %-15s %-15s%n",
+                item.get("MaHang"),
+                item.get("MaSP"),
+                tenSP,
+                item.get("SoLuongConLai"),
+                ngaySXStr,
+                hsdStr,
+                soNgayQuaHan + " ngày"
             );
         }
         
