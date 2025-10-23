@@ -332,5 +332,49 @@ public class HangHoaDAO {
             return false;
         }
     }
+
+    // Lấy danh sách chi tiết hàng sắp hết hạn (số ngày còn lại <= 30)
+    public static List<Map<String, Object>> thongKeSapHetHan() {
+        String query = """
+                SELECT 
+                    hh.MaHang,
+                    hh.MaSP,
+                    sp.TenSP,
+                    hh.SoLuongConLai,
+                    hh.NgaySanXuat,
+                    hh.HanSuDung,
+                    DATEDIFF(hh.HanSuDung, CURDATE()) AS SoNgayConLai
+                FROM HANGHOA hh
+                JOIN SANPHAM sp ON hh.MaSP = sp.MaSP
+                WHERE hh.HanSuDung IS NOT NULL 
+                AND hh.TrangThai = 'active'
+                AND DATEDIFF(hh.HanSuDung, CURDATE()) BETWEEN 0 AND 30
+                ORDER BY SoNgayConLai ASC
+        """;
+
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Map<String, Object> row = new HashMap<>();
+                row.put("MaHang", rs.getString("MaHang"));
+                row.put("MaSP", rs.getString("MaSP"));
+                row.put("TenSP", rs.getString("TenSP"));
+                row.put("SoLuongConLai", rs.getInt("SoLuongConLai"));
+                row.put("NgaySanXuat", rs.getDate("NgaySanXuat") != null ? 
+                    rs.getDate("NgaySanXuat").toLocalDate() : null);
+                row.put("HanSuDung", rs.getDate("HanSuDung") != null ? 
+                    rs.getDate("HanSuDung").toLocalDate() : null);
+                row.put("SoNgayConLai", rs.getInt("SoNgayConLai"));
+                result.add(row);
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ Lỗi khi lấy danh sách hàng sắp hết hạn: " + e.getMessage());
+        }
+        return result;
+    }
 }
 

@@ -243,7 +243,7 @@ public class QuanLySanPham {
         }
     }
 
-        public void timKiemSanPhamTheoTen() {
+    public void timKiemSanPhamTheoTen() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Nhập tên sản phẩm cần tìm: ");
         String tenSP = scanner.nextLine().trim();

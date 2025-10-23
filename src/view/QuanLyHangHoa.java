@@ -155,6 +155,36 @@ public class QuanLyHangHoa {
                         }
                     }
                     break;
+                case 6:
+                    while (true) {
+                        try {
+                            System.out.println("\n════════════════════════════════════════════════");
+                            System.out.println("        📦 THỐNG KÊ HÀNG HÓA TRONG KHO     ");
+                            System.out.println("════════════════════════════════════════════════");
+                            System.out.println("1. Thống kê hàng sắp hết hạn ");
+                            System.out.println("2. Thống kê hàng hóa đã hết hạn");
+                            System.out.println("3. Thống kê hàng hóa theo nhà cung cấp");
+                            System.out.println("0. Quay lại");
+                            System.out.println("════════════════════════════════════════════════");
+                            System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+
+                            int opt = scanner.nextInt();
+                            scanner.nextLine();
+
+                            if (opt == 0) {
+                                System.out.println("✅ Quay lại menu quản lý hàng hóa.");
+                                break;
+                            } else if (opt == 1) {
+                                thongKeHangSapHetHan();
+                            } else {
+                                System.out.println("❌ Lựa chọn không hợp lệ!");
+                            }
+                        } catch (Exception e) {
+                            System.out.println("❌ Lỗi xảy ra: " + e.getMessage());
+                            scanner.nextLine();
+                        }
+                    }
+                    break;
                 case 0:
                     System.out.println("✅ Quay lại menu chính.");
                     return;
@@ -794,5 +824,48 @@ public class QuanLyHangHoa {
                 System.out.println("❌ Cập nhật trạng thái lô hàng thất bại!");
             }
         }
+    }
+
+    public void thongKeHangSapHetHan() {
+        List<Map<String, Object>> danhSach = HangHoaDAO.thongKeSapHetHan();
+        
+        if (danhSach.isEmpty()) {
+            System.out.println("\nKhông có hàng nào sắp hết hạn trong 30 ngày tới.\n");
+            return;
+        }
+
+        int tongSoLuong = 0;
+        DateTimeFormatter displayFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        
+        System.out.println("\n════════════════════════════════════════════════════════════════════════════════════════════════════");
+        System.out.println("                            THỐNG KÊ HÀNG SẮP HẾT HẠN (TRONG VÒNG 30 NGÀY)");
+        System.out.println("════════════════════════════════════════════════════════════════════════════════════════════════════");
+        System.out.printf("%-12s %-12s %-30s %-12s %-15s %-15s%n",
+            "Mã hàng", "Mã SP", "Tên sản phẩm", "SL còn lại", "Hạn sử dụng", "Số ngày còn");
+        System.out.println("────────────────────────────────────────────────────────────────────────────────────────────────────");
+        
+        for (Map<String, Object> item : danhSach) {
+            tongSoLuong += (int) item.get("SoLuongConLai");
+            String tenSP = (String) item.get("TenSP");
+            if (tenSP != null && tenSP.length() > 30) {
+                tenSP = tenSP.substring(0, 27) + "...";
+            }
+            
+            LocalDate hsd = (LocalDate) item.get("HanSuDung");
+            String hsdStr = hsd != null ? hsd.format(displayFormatter) : "N/A";
+            
+            System.out.printf("%-12s %-12s %-30s %-12d %-15s %-15d%n",
+                item.get("MaHang"),
+                item.get("MaSP"),
+                tenSP,
+                item.get("SoLuongConLai"),
+                hsdStr,
+                item.get("SoNgayConLai")
+            );
+        }
+        
+        System.out.println("════════════════════════════════════════════════════════════════════════════════════════════════════");
+        System.out.println("Tổng số lô: " + danhSach.size() + " | Tổng số lượng: " + tongSoLuong);
+        System.out.println();
     }
 }
