@@ -268,6 +268,26 @@ public class QuanLyHoaDon {
                         continue;
                     }
 
+                    // Chặn bán nếu lô hàng không được phép bán (inactive hoặc expired)
+                    DateTimeFormatter displayFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                    if ("inactive".equalsIgnoreCase(hangHoa.getTrangThai())) {
+                        System.out.println("❌ LÔ HÀNG KHÔNG ĐƯỢC PHÉP BÁN (inactive). Vui lòng chọn lô khác.");
+                        continue;
+                    }
+                    if ("expired".equalsIgnoreCase(hangHoa.getTrangThai()) ||
+                        (hangHoa.getHanSuDung() != null && hangHoa.getHanSuDung().isBefore(LocalDate.now()))) {
+                        System.out.println("╔════════════════════════════════════════════════════════╗");
+                        System.out.println("║    ❌ KHÔNG THỂ BÁN - LÔ HÀNG ĐÃ HẾT HẠN!            ║");
+                        System.out.println("╚════════════════════════════════════════════════════════╝");
+                        System.out.println("📦 Mã hàng: " + maHang);
+                        if (hangHoa.getHanSuDung() != null) {
+                            System.out.println("📅 HSD: " + hangHoa.getHanSuDung().format(displayFormatter));
+                        }
+                        System.out.println("👉 Vui lòng chọn lô khác hoặc xử lý lô này trong chức năng kiểm tra hàng.");
+                        continue;
+                    }
+
+
                     // Lấy thông tin sản phẩm từ HANGHOA
                     String maSP = hangHoa.getMaSP();
                     sanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
