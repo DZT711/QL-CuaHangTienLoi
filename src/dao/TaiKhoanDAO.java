@@ -14,7 +14,7 @@ public class TaiKhoanDAO {
     public static TaiKhoanDTO checkAccount(String username, String password) {
         TaiKhoanDTO taiKhoan = null;
 
-        // Bước 1: Tìm username trong database
+        // Tìm username trong database
         String query = "SELECT * FROM TAIKHOAN WHERE UserName = ?";
 
         try {
@@ -24,20 +24,20 @@ public class TaiKhoanDAO {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                // Bước 2: Lấy password từ database
+                // Lấy password từ database
                 String passwordFromDB = rs.getString("PassWord");
 
-                // Bước 3: Xác thực mật khẩu (plain text)
+                // Xác thực mật khẩu
                 boolean passwordValid = password.equals(passwordFromDB);
 
                 if (passwordValid) {
-                    // Bước A thành công - Mật khẩu đúng, xác thực thành công
+                    // Mật khẩu đúng, xác thực thành công
                     String role = rs.getString("VaiTro");
                     String fullName = rs.getString("HoTen");
                     String maNV = rs.getString("MaNV");
                     String status = rs.getString("TrangThai");
 
-                    // Bước B: Kiểm tra mật khẩu mặc định (Default Check)
+                    // Kiểm tra mật khẩu mặc định
                     boolean isDefault = isDefaultPassword(passwordFromDB, maNV);
 
                     // Không lưu mật khẩu thô vì lý do bảo mật
@@ -119,34 +119,14 @@ public class TaiKhoanDAO {
         return "NhanVien";
     }
 
-    /**
-     * Hash password sử dụng BCrypt
-     * 
-     * @param plainPassword Mật khẩu văn bản thô
-     * @return Mật khẩu đã được hash
-     */
     public static String hashPassword(String plainPassword) {
         return BCrypt.hashpw(plainPassword, BCrypt.gensalt());
     }
 
-    /**
-     * Kiểm tra mật khẩu có đúng không
-     * 
-     * @param plainPassword  Mật khẩu văn bản thô
-     * @param hashedPassword Mật khẩu đã hash
-     * @return true nếu mật khẩu đúng, false nếu sai
-     */
     public static boolean verifyPassword(String plainPassword, String hashedPassword) {
         return BCrypt.checkpw(plainPassword, hashedPassword);
     }
 
-    /**
-     * Bước B: Kiểm tra mật khẩu mặc định (Default Check)
-     * 
-     * @param hashedPasswordFromDB Mật khẩu đã hash từ database
-     * @param maNV                 Mã nhân viên (dùng làm mật khẩu mặc định)
-     * @return true nếu đang sử dụng mật khẩu mặc định, false nếu đã đổi
-     */
     public static boolean isDefaultPassword(String passwordFromDB, String maNV) {
         // Mật khẩu mặc định là MaNV (ví dụ: "NV001", "NV002")
         String defaultPassword = maNV;
@@ -155,15 +135,6 @@ public class TaiKhoanDAO {
         return defaultPassword.equals(passwordFromDB);
     }
 
-    /**
-     * Bước C: Bắt buộc đổi mật khẩu (Force Change Password)
-     * 
-     * @param username    Tên đăng nhập
-     * @param newPassword Mật khẩu mới
-     * @param maNV        Mã nhân viên (để kiểm tra không được trùng với mật khẩu
-     *                    mặc định)
-     * @return true nếu đổi mật khẩu thành công
-     */
     public static boolean forceChangePassword(String username, String newPassword, String maNV) {
         // Kiểm tra mật khẩu mới không được trùng với mật khẩu mặc định
         if (newPassword.equals(maNV)) {
@@ -198,12 +169,6 @@ public class TaiKhoanDAO {
         }
     }
 
-    /**
-     * Migrate password từ plain text sang BCrypt hash
-     * 
-     * @param username Tên đăng nhập
-     * @return true nếu migrate thành công
-     */
     public static boolean migratePasswordToBCrypt(String username) {
         String sql = "SELECT PassWord FROM TAIKHOAN WHERE UserName = ?";
         String updateSql = "UPDATE TAIKHOAN SET PassWord = ? WHERE UserName = ?";
@@ -232,7 +197,5 @@ public class TaiKhoanDAO {
         }
         return false;
     }
-
-    // =========
 
 }

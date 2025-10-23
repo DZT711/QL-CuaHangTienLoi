@@ -52,12 +52,12 @@ public class Main {
              * System.out.println("\n");
              */
 
-            // Bước A: Xác thực (Authentication) - Kiểm tra username và password
+            // Kiểm tra username và password
             TaiKhoanDTO taiKhoan = TaiKhoanDAO.checkAccount(username, password);
             if (taiKhoan != null) {
-                // Bước A thành công - Xác thực thành công
+                // Xác thực thành công
 
-                // Kiểm tra trạng thái nhân viên TRƯỚC khi thực hiện Bước B và C
+                // Kiểm tra trạng thái nhân viên TRƯỚC khi thực hiện
                 NhanVienDTO nvLogin = NhanVienDAO.timNhanVienTheoMa(taiKhoan.getMaNV());
                 if (nvLogin == null) {
                     System.out.println("❌ Không tìm thấy thông tin nhân viên cho tài khoản này.");
@@ -73,10 +73,9 @@ public class Main {
                 // Lưu thông tin tài khoản hiện tại
                 CURRENT_ACCOUNT = taiKhoan;
 
-                // Bước B: Kiểm tra mật khẩu mặc định (Default Check)
-                // Bước C: Phân luồng (Routing)
+                // Kiểm tra mật khẩu mặc định
                 if (taiKhoan.isDefaultPassword()) {
-                    // Trường hợp 1: isDefaultPassword == true - Bắt buộc đổi mật khẩu
+                    // isDefaultPassword == true - Bắt buộc đổi mật khẩu
                     if (forceChangePasswordLoop(taiKhoan.getUsername(), taiKhoan.getMaNV())) {
                         System.out.println("✅ Đổi mật khẩu thành công! Bạn có thể tiếp tục sử dụng hệ thống.");
                     } else {
@@ -84,7 +83,7 @@ public class Main {
                         continue;
                     }
                 } else {
-                    // Trường hợp 2: isDefaultPassword == false
+                    // isDefaultPassword == false
                     System.out.println("✅ Đăng nhập thành công!");
                     System.out.println("✓ Mật khẩu đã được đổi - Bảo mật tốt!");
                 }
@@ -92,7 +91,7 @@ public class Main {
                 // Tự động inactive sản phẩm hết hạn
                 SanPhamDAO.capnhatTrangThaiHetHan();
 
-                // Hiển thị Menu dựa trên vai tròanan
+                // Hiển thị Menu dựa trên vai trò
                 if ("Admin".equals(taiKhoan.getRole())) {
                     menuAdmin();
                 } else if ("NhanVien".equals(taiKhoan.getRole())) {
@@ -102,7 +101,7 @@ public class Main {
                 }
                 break;
             } else {
-                // Bước A thất bại - Xác thực không thành công
+                // Xác thực không thành công
                 // Thông báo lỗi đã được xử lý trong TaiKhoanDAO.checkAccount()
                 System.out.println("Đăng nhập thất bại, vui lòng thử lại!");
                 clearScreen();
@@ -277,13 +276,6 @@ public class Main {
         }
     }
 
-    /**
-     * Bước C: Vòng lặp bắt buộc đổi mật khẩu
-     * 
-     * @param username Tên đăng nhập
-     * @param maNV     Mã nhân viên (mật khẩu mặc định)
-     * @return true nếu đổi mật khẩu thành công
-     */
     public static boolean forceChangePasswordLoop(String username, String maNV) {
         Scanner scanner = new Scanner(System.in);
 
