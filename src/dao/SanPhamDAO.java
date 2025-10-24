@@ -136,9 +136,7 @@ public class SanPhamDAO {
     return newID;
 }
 
-    // Trả về true nếu thêm thành công, false nếu thất bại
     public static boolean themSanPham(SanPhamDTO sp) {
-        // Query đầy đủ bao gồm SoLuongTon
         String query = "INSERT INTO SANPHAM (MaSP, TenSP, Loai, DonViTinh, GiaBan) " +
                         "VALUES (?, ?, ?, ?, ?)";
 
@@ -160,10 +158,16 @@ public class SanPhamDAO {
         }
     }
 
-    public static void suaSanPham(SanPhamDTO sp) {
-        String query = "UPDATE SANPHAM SET TenSP = ?, Loai = ?, DonViTinh = ?, GiaBan = ?,  " +
-                " MoTa = ?, TrangThai = ? WHERE MaSP = ?";
+    public static boolean suaSanPham(SanPhamDTO sp) {
+        if (sp == null || sp.getMaSP() == null) {
+            return false;
+        }
 
+        String query = """
+            UPDATE SANPHAM SET TenSP = ?, Loai = ?, DonViTinh = ?, GiaBan = ?,
+            MoTa = ?, TrangThai = ? WHERE MaSP = ?;        
+        """;
+        
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
             
@@ -176,13 +180,11 @@ public class SanPhamDAO {
             stmt.setString(7, sp.getMaSP());
 
             int rowAffected = stmt.executeUpdate();
-            if (rowAffected > 0) {
-                System.out.println("Sửa sản phẩm thành công");
-            } else {
-                System.out.println("Sửa sản phẩm thất bại");
-            }
+            return rowAffected > 0;
+            
         } catch (SQLException e) {
             System.err.println("Lỗi khi sửa sản phẩm: " + e.getMessage());
+            return false;
         }
     }
 

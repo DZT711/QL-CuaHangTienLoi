@@ -1,7 +1,6 @@
 package dto;
 
 import java.util.Scanner;
-import dao.SanPhamDAO;
 import util.FormatUtil;
 
 public class SanPhamDTO {
@@ -18,7 +17,7 @@ public class SanPhamDTO {
     public SanPhamDTO(String maSP, String tenSP, int loaiSP, int donViTinh, int soLuongTon, int giaBan, String moTa, String trangThai) {
         this.maSP = maSP;
         this.tenSP = tenSP;
-        this.loaiSP = loaiSP;
+        this.loaiSP = loaiSP;   
         this.donViTinh = donViTinh;
         this.soLuongTon = soLuongTon;
         this.giaBan = giaBan;
@@ -94,11 +93,9 @@ public class SanPhamDTO {
         Scanner scanner = new Scanner(System.in);
         
         try {
-            this.maSP = SanPhamDAO.generateMaSP();
-            System.out.println("Mã sản phẩm tự động: " + this.maSP);
-
             System.out.print("Nhập tên sản phẩm (hoặc '0' để hủy): ");
             this.tenSP = scanner.nextLine().trim();
+            if ("0".equals(this.tenSP)) return false;
             if ("0".equals(this.tenSP) || this.tenSP.isEmpty()) {
                 System.out.println("❌ Tên sản phẩm không được để trống!");
                 return false;
@@ -155,50 +152,96 @@ public class SanPhamDTO {
         }
     }
 
+    public String getLoaiText() {
+        String[] loai = {
+            "",
+            "Đồ uống",
+            "Thực phẩm ăn liền",
+            "Bánh kẹo & Snack",
+            "Sữa & sản phẩm từ sữa",
+            "Thực phẩm khô & gia vị",
+            "Đồ gia dụng & vệ sinh cá nhân",
+            "Mỹ phẩm & chăm sóc cơ thể",
+            "Đồ dùng văn phòng & tiện ích",
+            "Thức ăn & phụ kiện thú cưng",
+            "Đồ y tế & chăm sóc sức khỏe"
+        };
+
+        return (loaiSP > 0 && loaiSP < loai.length) 
+            ? loai[loaiSP] 
+            : "Loại " + loaiSP;
+    }
+
+    public String getDonViText() {
+        String[] donVi = {
+            "", "Chai", "Gói", "Lon", "Hộp", "Thùng", "Bộ", "Vỉ", "Cuộn", "Túi", "Can", "Bao"
+        };
+
+        return (donViTinh > 0 && donViTinh < donVi.length) 
+            ? donVi[donViTinh] 
+            : "Đơn vị: " + donViTinh;
+    }
+
     public void inThongTinSanPham() {
-        System.out.printf("%-10s | %-20s | %-10d | %-10d | %-10d | %-15s | %-20s | %-10s%n",
-                maSP, tenSP, loaiSP, donViTinh, soLuongTon, FormatUtil.formatVND(giaBan), moTa, trangThai);
+        System.out.println("┌────────────────────────────────────────────────────────────────────────────────┐");
+        System.out.printf("│ Mã SP         : %-63s│\n", maSP);
+        System.out.printf("│ Tên sản phẩm  : %-63s│\n", tenSP);
+        System.out.printf("│ Loại          : %-63s│\n", getLoaiText());
+        System.out.printf("│ Đơn vị tính   : %-63s│\n", getDonViText());
+        System.out.printf("│ Số lượng tồn  : %-63d│\n", soLuongTon);
+        System.out.printf("│ Giá bán       : %-63s│\n", FormatUtil.formatVND(giaBan));
+        System.out.printf("│ Mô tả         : %-63s│\n", moTa != null ? moTa : "(Không có)");
+        System.out.printf("│ Trạng thái    : %-63s│\n", getTrangThai());
+        System.out.println("└────────────────────────────────────────────────────────────────────────────────┘");
     }
     
     public boolean sua() {
         Scanner scanner = new Scanner(System.in);
+        System.out.println("═══════════════════════════════════════════════");
+        System.out.println("       SỬA THÔNG TIN SẢN PHẨM: " + maSP);
+        System.out.println("═══════════════════════════════════════════════");
+        System.out.println("(Nhấn Enter để giữ nguyên, nhập '0' để hủy)");
+        System.out.println();
 
         System.out.println("Sửa tên sản phẩm: ");
         String newTenSP = scanner.nextLine().trim();
         if (newTenSP.equals("0")) return false;
         if (!newTenSP.isEmpty()) this.tenSP = newTenSP;
 
-        System.out.println("Sửa loại sản phẩm: ");
+        System.out.println("Sửa loại sản phẩm (1-10): ");
         String inputLoai = scanner.nextLine().trim();
         if (inputLoai.equals("0")) return false;
         if (!inputLoai.isEmpty()) {
             try {
                 int newLoaiSP = Integer.parseInt(inputLoai);
-                if (newLoaiSP > 0) this.loaiSP = newLoaiSP;
+                if (newLoaiSP >= 1 && newLoaiSP <=10) this.loaiSP = newLoaiSP;
+                else System.out.println("Loại phải từ 1-10, giữ nguyên loại sản phẩm");
             } catch (NumberFormatException e) {
                 System.out.println("Giá trị không hợp lệ, giữ nguyên loại sản phẩm");
             }
         }
 
-        System.out.println("Sửa đơn vị tính: ");
+        System.out.println("Sửa đơn vị tính (1-11): ");
         String inputDonVi = scanner.nextLine().trim();
         if (inputDonVi.equals("0")) return false;
         if (!inputDonVi.isEmpty()) {
             try {
                 int newDonVi = Integer.parseInt(inputDonVi);
-                if (newDonVi > 0) this.donViTinh = newDonVi;
+                if (newDonVi >=1 && newDonVi <=11) this.donViTinh = newDonVi;
+                else System.out.println("Đơn vị phải từ 1-11, giữ nguyên đơn vị tính");
             } catch (NumberFormatException e) {
                 System.out.println("Giá trị không hợp lệ, giữ nguyên đơn vị tính");
             }
         }
 
-        System.out.println("Sửa giá: ");
+        System.out.println("Sửa giá bán: ");
         String inputGia = scanner.nextLine().trim();
         if (inputGia.equals("0")) return false;
         if (!inputGia.isEmpty()) {
             try {
                 int newGia = Integer.parseInt(inputGia);
                 if (newGia > 0) this.giaBan = newGia;
+                else System.out.println("Giá phải lớn hơn 0, giữ nguyên giá");
             } catch (NumberFormatException e) {
                 System.out.println("Giá trị không hợp lệ, giữ nguyên giá");
             }
@@ -209,10 +252,15 @@ public class SanPhamDTO {
         if (newMoTa.equals("0")) return false;
         if (!newMoTa.isEmpty()) this.moTa = newMoTa;
 
-        System.out.println("Sửa trạng thái: ");
-        String newTrangThai = scanner.nextLine().trim();
+        System.out.println("Sửa trạng thái (active / inactive): ");
+        String newTrangThai = scanner.nextLine().trim().toLowerCase();
         if (newTrangThai.equals("0")) return false;
-        if (!newTrangThai.isEmpty()) this.trangThai = newTrangThai;
+
+        if ("active".equals(newTrangThai) || "inactive".equals(newTrangThai)) {
+            this.trangThai = newTrangThai;
+        } else if (!newTrangThai.isEmpty()) {
+            System.out.println("Trạng thái không hợp lệ, giữ nguyên trạng thái");
+        }
 
         return true;
     }

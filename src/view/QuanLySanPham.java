@@ -167,46 +167,49 @@ public class QuanLySanPham {
 
     public void suaSanPham() {
         Scanner scanner = new Scanner(System.in);
-        boolean continueWithAnotherProduct = true;
-        while (continueWithAnotherProduct) {
-            while (true) {
-                try {
-                    System.out.print("Nhập mã sản phẩm cần sửa: ");
-                    String maSP = scanner.nextLine().trim();
-                    if (maSP.equals("0")) {
-                        System.out.println("Thoát sửa sản phẩm.");
-                        break;
-                    }
-
-                    if (SanPhamDAO.timSanPhamTheoMa(maSP) == null) {
-                        System.out.println("Mã sản phẩm không tồn tại, vui lòng nhập lại.");
-                        continue;
-                    }
-
-                    SanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
-                    System.out.println("Thông tin sản phẩm trước khi sửa: ");
-                    sp.inThongTinSanPham();
-
-                    System.out.println("Nhập thông tin mới cho sản phẩm: ");
-                    if (!sp.sua()) {
-                        System.out.println("Đã hủy sửa sản phẩm, quay lại menu...");
-                        break;
-                    }
-
-                    SanPhamDAO.suaSanPham(sp);
-                    System.out.println("Sửa sản phẩm thành công.");
-                    break;
-                } catch (Exception e) {
-                    System.out.println("Lỗi nhập liệu: " + e.getMessage());
-                    scanner.nextLine();
-                }
+        while (true) {
+            System.out.print("Nhập mã sản phẩm cần sửa: ");
+            String maSP = scanner.nextLine().trim();
+            if (maSP.equals("0")) {
+                System.out.println("Thoát chức năng sửa sản phẩm.");
+                break;
             }
 
-            System.out.println("Bạn có muốn sửa thông tin sản phẩm khác không? (Y/N)");
-            String choice = scanner.nextLine().trim();
-            if (choice.equalsIgnoreCase("N")) {
-                continueWithAnotherProduct = false;
+            SanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
+
+            if (sp == null) {
+                System.out.println("❌ Không tìm thấy sản phẩm với mã: " + maSP);
+                System.out.print("Bạn có muốn thử lại không? (Y/N): ");
+                if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) break;
+                continue;
             }
+
+            System.out.println("\n Thông tin sản phẩm hiện tại: ");
+            sp.inThongTinSanPham();
+
+            if (!sp.sua()) {
+                System.out.println("Đã hủy sửa sản phẩm.");
+                continue;
+            }
+
+            System.out.println("\n Thông tin sau khi sửa:");
+            sp.inThongTinSanPham();
+
+            System.out.print("\n Xác nhận lưu thay đổi? (Y/N): ");
+            String confirm = scanner.nextLine().trim().toUpperCase();
+            if (!"Y".equals(confirm)) {
+                System.out.println("Đã hủy lưu thay đổi.");
+                continue;
+            }
+
+            if (SanPhamDAO.suaSanPham(sp)) {
+                System.out.println("✅ Cập nhật sản phẩm thành công!");
+            } else {
+                System.out.println("❌ Cập nhật sản phẩm thất bại!");
+            }
+
+            System.out.print("\n→ Tiếp tục sửa sản phẩm khác? (Y/N): ");
+            if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) break;
         }
     }
 
