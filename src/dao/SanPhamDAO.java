@@ -43,23 +43,26 @@ public class SanPhamDAO {
         return list;
     }
 
-    public static List<SanPhamDTO> timSanPhamTheoTen(String name) {
-        String query = "SELECT sp.MaSP, sp.TenSP, sp.Loai, sp.SoLuongTon, sp.DonViTinh, sp.GiaBan, " +
-                "sp.MoTa, sp.TrangThai " +
-                "FROM SANPHAM sp " +
-                "INNER JOIN LOAI l ON sp.Loai = l.MaLoai " +
-                "INNER JOIN DONVI d ON sp.DonViTinh = d.MaDonVi " +
-                "WHERE sp.TenSP LIKE ?";
-
+    public static List<SanPhamDTO> timSanPhamTheoTen(String ten) {
         List<SanPhamDTO> list = new ArrayList<>();
+
+        if (ten == null || ten.trim().isEmpty()) return list;
+
+        String query = """
+                SELECT MaSP, TenSP, Loai, DonViTinh, SoLuongTon, GiaBan, MoTa, TrangThai
+                FROM SANPHAM
+                WHERE TenSP COLLATE utf8mb4_unicode_ci LIKE ? 
+                ORDER BY TenSP;
+        """;
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            stmt.setString(1, "%" + name + "%");
-            ResultSet rs = stmt.executeQuery();
-
-            list.add(new SanPhamDTO(
+            stmt.setString(1, "%" + ten.trim() + "%");
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    list.add(new SanPhamDTO(
                         rs.getString("MaSP"),
                         rs.getString("TenSP"),
                         rs.getInt("Loai"),
@@ -67,46 +70,42 @@ public class SanPhamDAO {
                         rs.getInt("SoLuongTon"),
                         rs.getInt("GiaBan"),
                         rs.getString("MoTa"),
-                        rs.getString("TrangThai")));
+                        rs.getString("TrangThai")
+                    ));
+                }
+            }
         } catch (SQLException e) {
             System.err.println("Lỗi khi tìm sản phẩm theo tên: " + e.getMessage());
         }
         return list;
     }
 
-    // hàm removeAccent
-    public static String removeAccent(String s) {
-        if (s == null) return null;
-        String normalized = Normalizer.normalize(s, Normalizer.Form.NFD);
-        String noMarks = normalized.replaceAll("\\p{M}", "");
-        noMarks = noMarks.replace('đ', 'd').replace('Đ', 'D');
-        return noMarks;
-    }
+    public static SanPhamDTO timSanPhamTheoMa(String maSP) {
+        if (maSP == null || maSP.trim().isEmpty())  return null;
 
-    public static SanPhamDTO timSanPhamTheoMa(String ma) {
-        String query = "SELECT sp.MaSP, sp.TenSP, sp.Loai, sp.SoLuongTon, sp.DonViTinh, sp.GiaBan, " +
-                " sp.MoTa, sp.TrangThai " +
-                "FROM SANPHAM sp " +
-                "INNER JOIN LOAI l ON sp.Loai = l.MaLoai " +
-                "INNER JOIN DONVI d ON sp.DonViTinh = d.MaDonVi " +
-                "WHERE sp.MaSP = ?";
+        String query = """
+                SELECT sp.MaSP, sp.TenSP, sp.Loai, sp.SoLuongTon, sp.DonViTinh, sp.GiaBan, sp.MoTa, sp.TrangThai 
+                FROM SANPHAM sp 
+                WHERE sp.MaSP = ?        
+        """;
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            stmt.setString(1, ma);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return new SanPhamDTO(
-                    rs.getString("MaSP"),
-                    rs.getString("TenSP"),
-                    rs.getInt("Loai"),
-                    rs.getInt("DonViTinh"),
-                    rs.getInt("SoLuongTon"),
-                    rs.getInt("GiaBan"),
-                    rs.getString("MoTa"),
-                    rs.getString("TrangThai"));
+            stmt.setString(1, maSP);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new SanPhamDTO(
+                        rs.getString("MaSP"),
+                        rs.getString("TenSP"),
+                        rs.getInt("Loai"),
+                        rs.getInt("DonViTinh"),
+                        rs.getInt("SoLuongTon"),
+                        rs.getInt("GiaBan"),
+                        rs.getString("MoTa"),
+                        rs.getString("TrangThai")
+                    );
+                }
             }
         } catch (SQLException e) {
             System.err.println("Lỗi khi tìm sản phẩm theo mã: " + e.getMessage());
