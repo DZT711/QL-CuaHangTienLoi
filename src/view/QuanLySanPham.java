@@ -151,8 +151,48 @@ public class QuanLySanPham {
                     }
                     break;
                 case 6:
-                    SanPhamDAO.xuatDanhSachSanPham();
+                    System.out.println("\n");
+                    System.out.println(
+                            "    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+                    System.out.println(
+                            "    ┃                        XUẤT DANH SÁCH SẢN PHẨM                     ┃");
+                    System.out.println(
+                            "    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                    System.out.println(
+                            "    ┃ [1] ➜ Xuất tất cả sản phẩm                                         ┃");
+                    System.out.println(
+                            "    ┃ [2] ➜ Thống kê sản phẩm sắp hết trong kho                          ┃");
+                    System.out.println(
+                            "    ┃ [3] ➜ Thống kê top sản phẩm bán chạy nhất                          ┃");
+                    System.out.println(
+                            "    ┃ [0] ➜ Thoát                                                        ┃");
+                    System.out.println(
+                            "    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                    while (true) {
+                        System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+                        String opt = scanner.nextLine().trim();
+
+                        switch (opt) {
+                            case "0":
+                                System.out.println("Thoát xuất danh sách sản phẩm thành công.");
+                                break;
+                            case "1":
+                                xuatTatCaSanPham();
+                                break;
+                            case "2":
+                                xuatSanPhamTheoTrangThai("active");
+                                break;
+                            case "3":
+                                xuatSanPhamTheoTrangThai("inactive");
+                                break;
+                            default:
+                                System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
+                                continue;
+                        }
+                        break;
+                    }
                     break;
+                    
                 case 0:
                     System.out.println("Thoát chương trình thành công!");
                     return;
@@ -472,7 +512,7 @@ public class QuanLySanPham {
                 tongSoLuongBan += soLuongBan;
             }
             tablePrinter.printTable(headers, rows);
-            
+
             System.out.println("\n📊 TỔNG KẾT:");
             System.out.println("   • Tổng số lượng bán: " + String.format("%,d", tongSoLuongBan) + " sản phẩm");
             System.out.println("   • Tổng doanh thu: " + FormatUtil.formatVND(tongDoanhThu));
@@ -480,5 +520,85 @@ public class QuanLySanPham {
             System.out.println("Đã xảy ra lỗi: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    public void xuatTatCaSanPham() {
+        List<SanPhamDTO> danhSach = SanPhamDAO.getAllSanPham();
+    
+        if (danhSach.isEmpty()) {
+            System.out.println("\n❌ Không có sản phẩm nào trong hệ thống!");
+            return;
+        }
+
+        inDanhSachSanPham(danhSach, "TẤT CẢ SẢN PHẨM HIỆN CÓ");
+
+        /*
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("\n→ Xuất ra file CSV? (Y/N): ");
+        String export = scanner.nextLine().trim().toUpperCase();
+        
+        if ("Y".equals(export)) {
+            String fileName = "active".equals(trangThai) ? 
+                            "DanhSach_SanPham_Active" : 
+                            "DanhSach_SanPham_Inactive";
+            xuatRaFile(danhSach, fileName);
+        }
+         */
+    }
+
+    public void xuatSanPhamTheoTrangThai(String trangThai) {
+        List<SanPhamDTO> danhSach = SanPhamDAO.getSanPhamByTrangThai(trangThai);
+
+        if (danhSach.isEmpty()) {
+            System.out.println("\n❌ Không có sản phẩm nào với trạng thái: " + trangThai);
+            return;
+        }
+
+        String tieuDe = "active".equals(trangThai) ? 
+                    "SẢN PHẨM ĐANG KINH DOANH" : 
+                    "SẢN PHẨM NGỪNG KINH DOANH";
+
+        inDanhSachSanPham(danhSach, tieuDe);
+    }
+
+    public void inDanhSachSanPham(List<SanPhamDTO> danhSach, String title) {
+        System.out.println("\n╔════════════════════════════════════════════════════════════════════════════════╗");
+        System.out.println("║                          " + title + "                                        ║");
+        System.out.println("╚════════════════════════════════════════════════════════════════════════════════╝");
+        System.out.println();
+
+        List<String> headers = List.of("Mã SP", "Tên sản phẩm", "Loại", "Đơn vị", 
+                                    "SL Tồn", "Giá bán", "Giá trị tồn","Trạng thái");
+
+        List<List<String>> rows = new ArrayList<>();
+        long tongGiaTriTon = 0;
+        long tongSoLuongTon = 0;
+
+        for (SanPhamDTO sp: danhSach) {
+            List<String> row = new ArrayList<>();
+
+            long giaTriTon = (long) sp.getGiaBan() * sp.getSoLuongTon();
+            String ttIcon = "active".equals(sp.getTrangThai()) ? "✅ Active" : "❌ Inactive";
+
+            row.add(sp.getMaSP());
+            row.add(sp.getTenSP());
+            row.add(sp.getLoaiText());
+            row.add(sp.getDonViText());
+            row.add(String.format("%,d", sp.getSoLuongTon()));
+            row.add(FormatUtil.formatVND(sp.getGiaBan()));
+            row.add(FormatUtil.formatVND(giaTriTon));
+            row.add(ttIcon);
+            rows.add(row);
+
+            tongGiaTriTon += giaTriTon;
+            tongSoLuongTon += sp.getSoLuongTon();
+        }
+
+        tablePrinter.printTable(headers, rows);
+
+        System.out.println("\n📊 TỔNG KẾT:");
+        System.out.println("   • Tổng số sản phẩm: " + String.format("%,d", danhSach.size()));
+        System.out.println("   • Tổng số lượng tồn: " + String.format("%,d", tongSoLuongTon));
+        System.out.println("   • Tổng giá trị tồn kho: " + FormatUtil.formatVND(tongGiaTriTon));
     }
 }

@@ -14,35 +14,6 @@ import util.FormatUtil;
 import util.JDBCUtil;
 import java.text.Normalizer;
 public class SanPhamDAO {
-    public static List<SanPhamDTO> getAllSanPham() {
-        String query = "SELECT sp.MaSP, sp.TenSP, sp.Loai, sp.SoLuongTon, sp.DonViTinh, sp.GiaBan, " +
-                "sp.MoTa, sp.TrangThai " +
-                "FROM SANPHAM sp " +
-                "INNER JOIN LOAI l ON sp.Loai = l.MaLoai " +
-                "INNER JOIN DONVI d ON sp.DonViTinh = d.MaDonVi";
-
-        List<SanPhamDTO> list = new ArrayList<>();
-
-        try (Connection conn = JDBCUtil.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(query)) {
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                list.add(new SanPhamDTO(
-                    rs.getString("MaSP"),
-                    rs.getString("TenSP"),
-                    rs.getInt("Loai"),
-                    rs.getInt("DonViTinh"),
-                    rs.getInt("SoLuongTon"),
-                    rs.getInt("GiaBan"),
-                    rs.getString("MoTa"),
-                    rs.getString("TrangThai")));
-            }
-        } catch (SQLException e) {
-            System.err.println("Lỗi khi lấy tất cả sản phẩm: " + e.getMessage());
-        }
-        return list;
-    }
-
     public static List<SanPhamDTO> timSanPhamTheoTen(String ten) {
         List<SanPhamDTO> list = new ArrayList<>();
 
@@ -324,67 +295,6 @@ public class SanPhamDAO {
         }
     }
 
-    public static void thongKeTheoNSX() {
-        String query = "SELECT NgaySanXuat, " +
-                "COUNT(sp.MaSP) AS SoLuongSanPham, " +
-                "SUM(sp.SoLuongTon) AS TongSoLuongTon, " +
-                "SUM(sp.GiaBan * sp.SoLuongTon) AS TongGiaTriTon " +
-                "FROM SANPHAM sp " +
-                "GROUP BY NgaySanXuat " +
-                "ORDER BY NgaySanXuat DESC";
-
-        try (Connection conn = JDBCUtil.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(query)) {
-            ResultSet rs = stmt.executeQuery();
-
-            System.out.println(
-                    "\n╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
-            System.out.println(
-                    "║                                                   THỐNG KÊ SẢN PHẨM THEO NGÀY SẢN XUẤT                                                ║");
-            System.out.println(
-                    "╠══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣");
-            System.out.printf("║  %-35s │ %-19s │ %-19s │ %-19s │ %-19s║\n", "NGÀY SẢN XUẤT", "SỐ LƯỢNG SẢN PHẨM",
-                    "SỐ LƯỢNG TỒN KHO", "GIÁ TRỊ TỒN KHO", "GIÁ TRUNG BÌNH (Tồn)");
-            System.out.println(
-                    "╠══════════════════════════════════════╪═════════════════════╪═════════════════════╪═════════════════════╪═════════════════════╣");
-
-            int tongSoLuongSanPham = 0;
-            int tongSoLuongTon = 0;
-            long tongGiaTriTon = 0;
-            int soNgay = 0;
-
-            while (rs.next()) {
-                Date ngaySanXuat = rs.getDate("NgaySanXuat");
-                int soLuongSP = rs.getInt("SoLuongSanPham");
-                int soLuongTon = rs.getInt("TongSoLuongTon");
-                int giaTriTon = rs.getInt("TongGiaTriTon");
-
-                double giaTrungBinh = (soLuongTon == 0) ? 0 : (giaTriTon / soLuongTon);
-
-                soNgay++;
-                tongSoLuongSanPham += soLuongSP;
-                tongSoLuongTon += soLuongTon;
-                tongGiaTriTon += giaTriTon;
-
-                System.out.printf("║  %-35s │ %-19d │ %-19d │ %-19s │ %-19s ║\n", ngaySanXuat.toLocalDate(), soLuongSP,
-                        soLuongTon, FormatUtil.formatVND(giaTriTon), FormatUtil.formatVND(giaTrungBinh));
-            }
-
-            double tongGiaTrungBinh = (tongSoLuongTon == 0) ? 0 : (tongGiaTriTon / tongSoLuongTon);
-
-            System.out.println(
-                    "╠══════════════════════════════════════╪═════════════════════╪═════════════════════╪═════════════════════╪═════════════════════╣");
-            System.out.printf("║  %-35s │ %-19d │ %-19d │ %-19s │ %-19s ║\n", "TỔNG CỘNG", tongSoLuongSanPham,
-                    tongSoLuongTon, FormatUtil.formatVND(tongGiaTriTon), FormatUtil.formatVND(tongGiaTrungBinh));
-            System.out.printf("║  %-35s │ %-19d │ %-19s │ %-19s │ %-19s ║\n", "TỔNG SỐ NGÀY", soNgay, "-", "-", "-");
-            System.out.println(
-                    "╚══════════════════════════════════════╧═════════════════════╧═════════════════════╧═════════════════════╧═════════════════════╝");
-
-        } catch (SQLException e) {
-            System.err.println("Lỗi khi thống kê sản phẩm theo ngày sản xuất: " + e.getMessage());
-        }
-    }
-
     public static List<Map<String, Object>> thongKeSanPhamBanChayNhat(LocalDate fromDate, LocalDate toDate, int limit) {
         List<Map<String, Object>> result = new ArrayList<>();
 
@@ -493,158 +403,75 @@ public class SanPhamDAO {
         }
     }
 
-    // public static void xuatDanhSachSanPham() {
-    //     String query =
-    //     "SELECT sp.MaSP, sp.TenSP, l.TenLoai, sp.SoLuongTon, sp.GiaBan, sp.TrangThai " +
-    //     "FROM SANPHAM sp " +
-    //     "INNER JOIN LOAI l ON sp.Loai = l.MaLoai " +
-    //     "ORDER BY sp.MaSP ASC";
+    public static List<SanPhamDTO> getAllSanPham() {
+    List<SanPhamDTO> list = new ArrayList<>();
+    
+    String query = "SELECT MaSP, TenSP, Loai, DonViTinh, SoLuongTon, " +
+                "GiaBan, MoTa, TrangThai " +
+                "FROM SANPHAM " +
+                "ORDER BY MaSP ASC";
 
-    //     try (Connection conn = JDBCUtil.getConnection();
-    //         PreparedStatement stmt = conn.prepareStatement(query)) {
+    try (Connection conn = JDBCUtil.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query);
+        ResultSet rs = stmt.executeQuery()) {
 
-    //         ResultSet rs = stmt.executeQuery();
-    //         System.out.println("\n╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
-    //         System.out.println("║                                          DANH SÁCH SẢN PHẨM TRONG CỬA HÀNG                                               ║");
-    //         System.out.println("╠════════════════╤═══════════════════════╤═══════════════╤═══════════════╤═══════════════╤═════════════╤════════════════╤═════════════╣");
-    //         System.out.printf("║ %-12s │ %-21s │ %-13s │ %-13s │ %-13s │ %-11s ║\n",
-    //                     "MÃ SP", "TÊN SP", "LOẠI", "SỐ LƯỢNG", "GIÁ BÁN", "TRẠNG THÁI");
-    //         System.out.println("╠════════════════╪═══════════════════════╪═══════════════╪═══════════════╪═══════════════╪═══════════════╪════════════════╪═════════════╣");
-
-    //         int count = 0;
-    //         while (rs.next()) {
-    //             String maSP = rs.getString("MaSP");
-    //             String tenSP = rs.getString("TenSP");
-    //             String tenLoai = rs.getString("TenLoai");
-    //             int soLuongTon = rs.getInt("SoLuongTon");
-
-    //             int giaBan = rs.getInt("GiaBan");
-    //             String giaBanStr = FormatUtil.formatVND(giaBan);
-    //
-    //             String trangThai = rs.getString("TrangThai");
-    //
-    //             System.out.printf("║ %-12s │ %-21s │ %-13s │ %-13d │ %-13s │ %-11s ║\n",
-    //                         maSP, tenSP, tenLoai, soLuongTon,
-    //                         giaBanStr, trangThai);
-    //             count++;
-    //         }
-
-    //         System.out.println("╚════════════════╧═══════════════════════╧═══════════════╧═══════════════╧═══════════════╧═══════════════╧════════════════╧═════════════╝");
-    //         System.out.println("=> Tổng số sản phẩm: " + count);
-
-    //     } catch (SQLException e) {
-    //         System.err.println("Lỗi khi xuất danh sách sản phẩm: " + e.getMessage());
-    //     }
-    // }
-    public static void xuatDanhSachSanPham() {
-        String query = "SELECT sp.MaSP, sp.TenSP, loai.TenLoai AS Loai, sp.SoLuongTon, sp.GiaBan, sp.TrangThai " +
-                    "FROM SANPHAM sp " +
-                    "INNER JOIN LOAI ON sp.Loai = Loai.MaLoai " +
-                    "ORDER BY sp.MaSP ASC";
-
-        List<String> headers = List.of("MÃ SP", "TÊN SP", "LOẠI", "SỐ LƯỢNG", "GIÁ BÁN", "TRẠNG THÁI");
-        List<List<String>> rows = new ArrayList<>();
-
-        try (Connection conn = JDBCUtil.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(query);
-            ResultSet rs = stmt.executeQuery()) {
-
-            while (rs.next()) {
-                String maSP = rs.getString("MaSP");
-                String tenSP = rs.getString("TenSP");
-                String loai = rs.getString("Loai");
-                String soLuong = Integer.toString(rs.getInt("SoLuongTon"));
-                String giaBan = FormatUtil.formatVND(rs.getInt("GiaBan"));
-                String trangThai = rs.getString("TrangThai");
-
-                List<String> row = new ArrayList<>();
-                row.add(maSP);
-                row.add(tenSP);
-                row.add(loai);
-                row.add(soLuong);
-                row.add(giaBan);
-                row.add(trangThai);
-                rows.add(row);
-            }
-        } catch (SQLException e) {
-            System.err.println("Lỗi khi xuất danh sách sản phẩm: " + e.getMessage());
-            return;
+        while (rs.next()) {
+            list.add(new SanPhamDTO(
+                rs.getString("MaSP"),
+                rs.getString("TenSP"),
+                rs.getInt("Loai"),
+                rs.getInt("DonViTinh"),
+                rs.getInt("SoLuongTon"),
+                rs.getInt("GiaBan"),
+                rs.getString("MoTa"),
+                rs.getString("TrangThai")
+            ));
         }
 
-        // Nếu không có dữ liệu, vẫn in header
-        if (rows.isEmpty()) {
-            // in header đơn giản
-            System.out.println(String.join(" | ", headers));
-            return;
-        }
-
-        // --- Tính chiều rộng mỗi cột ---
-        int cols = headers.size();
-        int[] colWidths = new int[cols];
-        // Khởi từ header
-        for (int i = 0; i < cols; i++) {
-            colWidths[i] = headers.get(i).length();
-        }
-        // Duyệt từng dòng để cập nhật width
-        for (List<String> row : rows) {
-            for (int i = 0; i < cols; i++) {
-                String cell = row.get(i);
-                if (cell != null) {
-                    int len = cell.length();
-                    if (len > colWidths[i]) {
-                        colWidths[i] = len;
-                    }
-                }
-            }
-        }
-
-        // --- Xây định dạng printf động ---
-        // Ví dụ: "| %-Ws | %-Wx | %-Wy | ... |\n"
-        StringBuilder fmtBuilder = new StringBuilder();
-        fmtBuilder.append("|");
-        for (int i = 0; i < cols; i++) {
-            // đặt 1 khoảng trước & sau nội dung trong ô
-            fmtBuilder.append(" %-").append(colWidths[i]).append("s |");
-        }
-        String fmt = fmtBuilder.toString();
-
-        // --- In header ---
-        System.out.printf(fmt + "%n", headers.toArray());
-
-        // In dòng phân cách (đường ngang)
-        // Tính tổng độ rộng bảng: 
-        // - Với mỗi cột, có “space + nội dung + space + |” => colWidths[i] + 2 + 1
-        // - Cộng thêm ký tự “|” đầu tiên
-        int totalWidth = 1;
-        for (int w : colWidths) {
-            totalWidth += 1 + w + 1 + 1;  // " space", nội dung, " space", "|" 
-        }
-        // In dấu “-” theo tổng
-        for (int i = 0; i < totalWidth; i++) {
-            System.out.print("-");
-        }
-        System.out.println();
-
-        // --- In mỗi dòng dữ liệu ---
-        for (List<String> row : rows) {
-            System.out.printf(fmt + "%n", row.toArray());
-        }
-        // In dòng phân cách cuối
-        for (int i = 0; i < totalWidth; i++) {
-            System.out.print("-");
-        }
-        try (Connection conn = JDBCUtil.getConnection()) {
-            String countquery = "SELECT COUNT(*) FROM SanPham";
-            PreparedStatement stmt = conn.prepareStatement(countquery);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                int count = rs.getInt(1);
-                System.out.println("\n=> Tổng số sản phẩm: " + count);
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
+    } catch (SQLException e) {
+        System.err.println("❌ Lỗi khi lấy danh sách sản phẩm: " + e.getMessage());
+        e.printStackTrace();
     }
+
+    return list;
+}
+
+    public static List<SanPhamDTO> getSanPhamByTrangThai(String trangThai) {
+    List<SanPhamDTO> list = new ArrayList<>();
+    
+    String query = "SELECT MaSP, TenSP, Loai, DonViTinh, SoLuongTon, " +
+                "GiaBan, MoTa, TrangThai " +
+                "FROM SANPHAM " +
+                "WHERE TrangThai = ? " +
+                "ORDER BY MaSP ASC";
+
+    try (Connection conn = JDBCUtil.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query)) {
+
+        stmt.setString(1, trangThai);
+        
+        try (ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                list.add(new SanPhamDTO(
+                    rs.getString("MaSP"),
+                    rs.getString("TenSP"),
+                    rs.getInt("Loai"),
+                    rs.getInt("DonViTinh"),
+                    rs.getInt("SoLuongTon"),
+                    rs.getInt("GiaBan"),
+                    rs.getString("MoTa"),
+                    rs.getString("TrangThai")
+                ));
+            }
+        }
+
+    } catch (SQLException e) {
+        System.err.println("❌ Lỗi khi lấy sản phẩm theo trạng thái: " + e.getMessage());
+        e.printStackTrace();
+    }
+
+    return list;
+}
 
     public static void capnhatSoLuongTon(String maSP, int soLuong) {
         String query = "UPDATE SANPHAM SET SoLuongTon = ? WHERE MaSP = ?";
