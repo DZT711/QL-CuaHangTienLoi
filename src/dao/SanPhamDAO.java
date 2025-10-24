@@ -247,65 +247,81 @@ public class SanPhamDAO {
     }
 
     public static void thongKeTheoLoai() {
-        String query = "SELECT Loai.TenLoai, " +
-                "COUNT(sp.MaSP) AS SoLuongSanPham, " +
-                "SUM(SANPHAM.SoLuongTon) AS TongSoLuongTon, " +
-                "SUM(sp.GiaBan * sp.SoLuongTon) AS TongGiaTriTon " +
-                "FROM SANPHAM sp " +
-                "INNER JOIN LOAI ON sp.Loai = Loai.MaLoai " +
-                "GROUP BY Loai.TenLoai " +
-                "ORDER BY SoLuongSanPham DESC";
 
+        String query = """
+                    SELECT l.TenLoai, 
+                        COUNT(sp.MaSP) AS SoLuongSanPham, 
+                        SUM(sp.SoLuongTon) AS TongSoLuongTon, 
+                        SUM(sp.GiaBan * sp.SoLuongTon) AS TongGiaTriTon
+                    FROM SANPHAM sp
+                    INNER JOIN LOAI l ON sp.Loai = l.MaLoai
+                    GROUP BY l.TenLoai
+                    ORDER BY SoLuongSanPham DESC;        
+        """;
+        
         try (Connection conn = JDBCUtil.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(query)) {
-            ResultSet rs = stmt.executeQuery();
+            PreparedStatement stmt = conn.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery()) {
 
-            System.out.println(
-                    "\n╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
-            System.out.println(
-                    "║                                                   THỐNG KÊ SẢN PHẨM THEO LOẠI                                                ║");
-            System.out.println(
-                    "╠══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣");
-            System.out.printf("║  %-35s │ %-19s │ %-19s │ %-19s │ %-19s║\n", "LOẠI SẢN PHẨM", "SỐ LƯỢNG SẢN PHẨM",
-                    "SỐ LƯỢNG TỒN KHO", "GIÁ TRỊ TỒN KHO", "GIÁ TRUNG BÌNH (Tồn)");
-            System.out.println(
-                    "╠══════════════════════════════════════╪═════════════════════╪═════════════════════╪═════════════════════╪═════════════════════╣");
+            if (!rs.isBeforeFirst()) {
+                System.out.println("Không có dữ liệu để thống kê!");
+                return;
+            }
+
+            System.out.println("\n╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
+            System.out.println("║                                                   THỐNG KÊ SẢN PHẨM THEO LOẠI                                                ║");
+            System.out.println("╠══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣");
+            System.out.printf("║  %-35s │ %-19s │ %-19s │ %-25s │ %-19s ║\n", 
+                            "LOẠI SẢN PHẨM",  "SỐ LƯỢNG SẢN PHẨM", "SỐ LƯỢNG TỒN KHO",  "GIÁ TRỊ TỒN KHO",  "GIÁ TB (1 SP)");
+            System.out.println("╠══════════════════════════════════════╪═════════════════════╪═════════════════════╪═══════════════════════════╪═════════════════════╣");
 
             int soLoai = 0;
-            int soLuongSanPham = 0;
-            int soLuongTon = 0;
-            long giaTriTon = 0;
+            int tongSoLuongSP = 0;
+            int tongSoLuongTon = 0;
+            long tongGiaTriTon = 0;
 
             while (rs.next()) {
                 String tenLoai = rs.getString("TenLoai");
                 int soLuongSP = rs.getInt("SoLuongSanPham");
-                int TongTonKho = rs.getInt("TongSoLuongTon");
-                long TongGiaTriTon = rs.getLong("TongGiaTriTon");
+                int soLuongTonKho = rs.getInt("TongSoLuongTon");
+                long giaTriTon = rs.getLong("TongGiaTriTon");
 
-                double giaTrungBinh = (TongTonKho == 0) ? 0 : (TongGiaTriTon / TongTonKho);
+                double giaTrungBinh = (soLuongTonKho == 0) ? 0 : ((double) giaTriTon / soLuongTonKho);
 
                 soLoai++;
-                soLuongSanPham += soLuongSP;
-                soLuongTon += TongTonKho;
-                giaTriTon += TongGiaTriTon;
+                tongSoLuongSP += soLuongSP;
+                tongSoLuongTon += soLuongTonKho;
+                tongGiaTriTon += giaTriTon;
 
-                System.out.printf("║  %-35s │ %-19d │ %-19d │ %-19s │ %-19s ║\n", tenLoai, soLuongSP, TongTonKho,
-                        FormatUtil.formatVND(TongGiaTriTon), FormatUtil.formatVND(giaTrungBinh));
+                // ✅ Format số lượng có dấu phẩy
+                System.out.printf("║  %-35s │ %19s │ %19s │ %25s │ %19s ║\n", 
+                                tenLoai, 
+                                String.format("%,d", soLuongSP),           
+                                String.format("%,d", soLuongTonKho),       
+                                FormatUtil.formatVND(giaTriTon), 
+                                FormatUtil.formatVND(giaTrungBinh));
             }
 
-            double tongGiaTrungBinh = (soLuongTon == 0) ? 0 : (giaTriTon / soLuongTon);
+            double tongGiaTrungBinh = (tongSoLuongTon == 0) ? 0 : ((double) tongGiaTriTon / tongSoLuongTon);
 
-            System.out.println(
-                    "╠══════════════════════════════════════╪═════════════════════╪═════════════════════╪═════════════════════╪═════════════════════╣");
-
-            System.out.printf("║  %-35s │ %-19d │ %-19d │ %-19s │ %-19s ║\n", "TỔNG CỘNG", soLuongSanPham, soLuongTon,
-                    FormatUtil.formatVND(giaTriTon), FormatUtil.formatVND(tongGiaTrungBinh));
-            System.out.printf("║  %-35s │ %-19d │ %-19s │ %-19s │ %-19s ║\n", "TỔNG SỐ LOẠI", soLoai, "-", "-", "-");
-            System.out.println(
-                    "╚══════════════════════════════════════╧═════════════════════╧═════════════════════╧═════════════════════╧═════════════════════╝");
+            System.out.println("╠══════════════════════════════════════╪═════════════════════╪═════════════════════╪═══════════════════════════╪═════════════════════╣");
+            System.out.printf("║  %-35s │ %19s │ %19s │ %25s │ %19s ║\n", 
+                            "TỔNG CỘNG", 
+                            String.format("%,d", tongSoLuongSP),
+                            String.format("%,d", tongSoLuongTon),
+                            FormatUtil.formatVND(tongGiaTriTon), 
+                            FormatUtil.formatVND(tongGiaTrungBinh));
+            System.out.printf("║  %-35s │ %19s │ %19s │ %25s │ %19s ║\n", 
+                                "TỔNG SỐ LOẠI", 
+                                String.format("%,d", soLoai), 
+                                "-", 
+                                "-", 
+                                "-");
+            System.out.println("╚══════════════════════════════════════╧═════════════════════╧═════════════════════╧═══════════════════════════╧═════════════════════╝");
 
         } catch (SQLException e) {
-            System.err.println("Lỗi khi thống kê sản phẩm theo loại: " + e.getMessage());
+            System.err.println("❌ Lỗi khi thống kê sản phẩm theo loại: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 

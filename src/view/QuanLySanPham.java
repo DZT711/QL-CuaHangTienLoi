@@ -108,46 +108,45 @@ public class QuanLySanPham {
                     }
                     break;
                 case 5:
+                    System.out.println("\n");
+                    System.out.println(
+                            "    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+                    System.out.println(
+                            "    ┃                          THỐNG KÊ SẢN PHẨM                         ┃");
+                    System.out.println(
+                            "    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                    System.out.println(
+                            "    ┃ [1] ➜ Thống kê theo loại sản phẩm                                  ┃");
+                    System.out.println(
+                            "    ┃ [2] ➜ Thống kê sản phẩm sắp hết trong kho                          ┃");
+                    System.out.println(
+                            "    ┃ [3] ➜ Thống kê top sản phẩm bán chạy nhất                          ┃");
+                    System.out.println(
+                            "    ┃ [0] ➜ Thoát                                                        ┃");
+                    System.out.println(
+                            "    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
                     while (true) {
-                        try {
-                            System.out.println("\n");
-                            System.out.println(
-                                    "    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
-                            System.out.println(
-                                    "    ┃                          THỐNG KÊ SẢN PHẨM                         ┃");
-                            System.out.println(
-                                    "    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
-                            System.out.println(
-                                    "    ┃ [1] ➜ Thống kê theo loại sản phẩm                                  ┃");
-                            System.out.println(
-                                    "    ┃ [2] ➜ Thống kê sản phẩm sắp hết trong kho                          ┃");
-                            System.out.println(
-                                    "    ┃ [3] ➜ Thống kê top sản phẩm bán chạy nhất                          ┃");
-                            System.out.println(
-                                    "    ┃ [0] ➜ Thoát                                                        ┃");
-                            System.out.println(
-                                    "    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
-                            System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+                        System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+                        String opt = scanner.nextLine().trim();
 
-                            int opt = scanner.nextInt();
-                            scanner.nextLine();
-
-                            if (opt == 0) {
+                        switch (opt) {
+                            case "0":
                                 System.out.println("Thoát thống kê sản phẩm thành công.");
                                 break;
-                            } else if (opt == 1) {
+                            case "1":
                                 SanPhamDAO.thongKeTheoLoai();
-                            } else if (opt == 2) {
+                                break;
+                            case "2":
                                 SanPhamDAO.sanPhamSapHetTrongKho(10);
-                            } else if (opt == 3) {
+                                break;
+                            case "3":
                                 thongKeTopSanPhamBanChay();
-                            } else {
+                                break;
+                            default:
                                 System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
-                            }
-                        } catch (Exception e) {
-                            System.out.println("Lỗi xảy ra: " + e.getMessage());
-                            scanner.nextLine();
+                                continue;
                         }
+                        break;
                     }
                     break;
                 case 6:
