@@ -18,7 +18,7 @@ import dto.NhanVienDTO;
 import main.Main;
 import dao.KhachHangDAO;
 import dao.SanPhamDAO;
-import dto.sanPhamDTO;
+import dto.SanPhamDTO;
 import java.util.InputMismatchException;
 import java.time.format.DateTimeParseException;
 import util.FormatUtil;
@@ -290,7 +290,7 @@ public class QuanLyHoaDon {
 
                     // Lấy thông tin sản phẩm từ HANGHOA
                     String maSP = hangHoa.getMaSP();
-                    sanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
+                    SanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
                     if (sp == null) {
                         System.out.println("❌ Lỗi: Không tìm thấy thông tin sản phẩm!");
                         continue;

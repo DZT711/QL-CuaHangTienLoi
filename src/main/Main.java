@@ -1,6 +1,5 @@
 package main;
 
-import dao.SanPhamDAO;
 import dao.TaiKhoanDAO;
 import dao.NhanVienDAO;
 import dto.TaiKhoanDTO;
@@ -75,9 +74,6 @@ public class Main {
                 System.out.println(greetingInfo[0] + " Thời gian hiện tại của sever là " + greetingInfo[2]);
                 System.out.println("═══════════════════════════════════════════════════════════");
                 */
-
-                // Tự động inactive sản phẩm hết hạn
-                SanPhamDAO.capnhatTrangThaiHetHan();
 
                 if ("Admin".equals(taiKhoan.getRole())) menuAdmin();
                 else if ("NhanVien".equals(taiKhoan.getRole())) menuNhanVien(taiKhoan.getfullName());

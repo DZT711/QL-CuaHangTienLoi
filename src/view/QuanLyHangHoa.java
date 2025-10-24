@@ -14,7 +14,7 @@ import java.util.Set;
 import dao.HangHoaDAO;
 import dao.SanPhamDAO;
 import dto.HangHoaDTO;
-import dto.sanPhamDTO;
+import dto.SanPhamDTO;
 import util.FormatUtil;
 
 public class QuanLyHangHoa {
@@ -259,7 +259,7 @@ public class QuanLyHangHoa {
     }
 
     public void xemChiTietLoHangTheoSanPham(String maSP) {
-        sanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
+        SanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
         if (sp == null) {
             System.out.println("❌ Không tìm thấy sản phẩm với mã: " + maSP);
             return;
@@ -386,7 +386,7 @@ public class QuanLyHangHoa {
             }
             
             // Lấy thông tin sản phẩm
-            sanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(hangHoa.getMaSP());
+            SanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(hangHoa.getMaSP());
             if (sp == null) {
                 System.out.println("❌ Lỗi: Không tìm thấy thông tin sản phẩm!");
                 continue;
@@ -439,7 +439,7 @@ public class QuanLyHangHoa {
             }
             
             // Kiểm tra sản phẩm tồn tại
-            sanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
+            SanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
             if (sp == null) {
                 System.out.println("❌ Không tìm thấy sản phẩm với mã: " + maSP);
                 continue;
