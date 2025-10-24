@@ -159,9 +159,7 @@ public class SanPhamDAO {
     }
 
     public static boolean suaSanPham(SanPhamDTO sp) {
-        if (sp == null || sp.getMaSP() == null) {
-            return false;
-        }
+        if (sp == null || sp.getMaSP() == null) return false;
 
         String query = """
             UPDATE SANPHAM SET TenSP = ?, Loai = ?, DonViTinh = ?, GiaBan = ?,
@@ -188,19 +186,65 @@ public class SanPhamDAO {
         }
     }
 
-    public static boolean xoaSanPham(String ma) {
-        String query = "UPDATE SANPHAM SET TrangThai = 'inactive' WHERE MaSP = ?";
+    public static boolean ngungKinhDoanhSanPham(String maSP) {
+        if (maSP == null || maSP.trim().isEmpty()) return false;
+        
+        String checkStock = "SELECT SoLuongTon FROM SANPHAM WHERE MaSP = ?";
 
         try (Connection conn = JDBCUtil.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(query)) {
+            PreparedStatement checkStmt = conn.prepareStatement(checkStock)) {
+        
+            checkStmt.setString(1, maSP);
+            ResultSet rs = checkStmt.executeQuery();
+            
+            if (rs.next()) {
+                int soLuongTon = rs.getInt("SoLuongTon");
+                if (soLuongTon > 0) {
+                    System.err.println("❌ Không thể ngừng kinh doanh: Sản phẩm còn " + soLuongTon + " trong kho!");
+                    return false;
+                }
+            } else {
+                System.err.println("❌ Không tìm thấy sản phẩm!");
+                return false;
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ Lỗi khi kiểm tra tồn kho: " + e.getMessage());
+            return false;
+        }
 
-            stmt.setString(1, ma);
+        String updateStatus = "UPDATE SANPHAM SET TrangThai = 'inactive' WHERE MaSP = ?";
+
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(updateStatus)) {
+
+            stmt.setString(1, maSP);
             int rowAffected = stmt.executeUpdate();
             return rowAffected > 0;
+
         } catch (SQLException e) {
-            System.err.println("Lỗi khi đổi trạng thái sản phẩm theo mã: " + e.getMessage());
+            System.err.println("Lỗi khi đổi trạng thái sản phẩm: " + e.getMessage());
+            return false;
         }
-        return false;
+    }
+
+    public static boolean kichHoatSanPham(String maSP) {
+        if (maSP == null || maSP.trim().isEmpty()) {
+            return false;
+        }
+        
+        String query = "UPDATE SANPHAM SET TrangThai = 'active' WHERE MaSP = ?";
+        
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+            
+            stmt.setString(1, maSP);
+            int rowAffected = stmt.executeUpdate();
+            return rowAffected > 0;
+            
+        } catch (SQLException e) {
+            System.err.println("❌ Lỗi khi kích hoạt sản phẩm: " + e.getMessage());
+            return false;
+        }
     }
 
     public static void thongKeTheoLoai() {

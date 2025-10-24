@@ -67,8 +67,8 @@ public class QuanLySanPham {
                 case 2:
                     suaSanPham();
                     break;
-                case 3: 
-                    xoaSanPhamTheoMa();
+                case 3:
+                    doiTrangThaiSanPham();
                     break;
                 case 4:
                     while (true) {
@@ -213,27 +213,68 @@ public class QuanLySanPham {
         }
     }
 
-    public void xoaSanPhamTheoMa() {
+    public void doiTrangThaiSanPham() {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Nhập mã sản phẩm cần đổi trạng thái: ");
+        System.out.println("\n════════════════════════════════════════════");
+        System.out.println("       ĐỔI TRẠNG THÁI SẢN PHẨM");
+        System.out.println("════════════════════════════════════════════");
+
+        System.out.print("Nhập mã sản phẩm (hoặc '0' để thoát): ");
         String maSP = scanner.nextLine().trim();
+
+        if ("0".equals(maSP)) {
+            System.out.println("✓ Thoát chức năng đổi trạng thái.");
+            return;
+        }
 
         SanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
 
         if (sp == null) {
-            System.out.println("Mã sản phẩm không tồn tại");
+            System.out.println("❌ Không tìm thấy sản phẩm với mã: " + maSP);
             return;
         }
 
+        System.out.println("\n📋 Thông tin sản phẩm:");
+        sp.inThongTinSanPham();
+
+        // inactive -> active
         if ("inactive".equals(sp.getTrangThai())) {
-            System.out.println("Sản phẩm đã ngừng kinh doanh");
-            return;
-        }
-
-        if (SanPhamDAO.xoaSanPham(maSP)) {
-            System.out.println("Sản phẩm được đổi trạng thái thành công");
-        } else {
-            System.out.println("Đổi trạng thái sản phẩm thất bại");
+            System.out.println("\n⚠ Sản phẩm đang ở trạng thái ngừng kinh doanh.");
+            System.out.print("→ Bạn có muốn kích hoạt lại sản phẩm này? (Y/N): ");
+        
+            String confirm = scanner.nextLine().trim().toUpperCase();
+            if (!"Y".equals(confirm)) {
+                System.out.println("❌ Đã hủy thao tác.");
+                return;
+            }
+            if (SanPhamDAO.kichHoatSanPham(maSP)) {
+                System.out.println("✅ Kích hoạt sản phẩm thành công!");
+            } else {
+                System.out.println("❌ Kích hoạt sản phẩm thất bại!");
+            }
+        } else {  // active -> inactive
+            System.out.println("\n⚠ Bạn muốn ngừng kinh doanh sản phẩm này?");
+            
+            if (sp.getSoLuongTon() > 0) {
+                System.out.println("❌ Không thể ngừng kinh doanh!");
+                System.out.println("   Lý do: Sản phẩm còn " + sp.getSoLuongTon() + " trong kho.");
+                System.out.println("   → Vui lòng bán hết hàng trước khi ngừng kinh doanh.");
+                return;
+            }
+            
+            System.out.print("→ Xác nhận ngừng kinh doanh? (Y/N): ");
+            String confirm = scanner.nextLine().trim().toUpperCase();
+            
+            if (!"Y".equals(confirm)) {
+                System.out.println("❌ Đã hủy thao tác.");
+                return;
+            }
+            
+            if (SanPhamDAO.ngungKinhDoanhSanPham(maSP)) {
+                System.out.println("✅ Ngừng kinh doanh sản phẩm thành công!");
+            } else {
+                System.out.println("❌ Ngừng kinh doanh sản phẩm thất bại!");
+            }
         }
     }
 
