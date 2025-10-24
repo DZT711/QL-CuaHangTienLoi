@@ -293,7 +293,6 @@ public class SanPhamDAO {
                 tongSoLuongTon += soLuongTonKho;
                 tongGiaTriTon += giaTriTon;
 
-                // ✅ Format số lượng có dấu phẩy
                 System.out.printf("║  %-35s │ %19s │ %19s │ %25s │ %19s ║\n", 
                                 tenLoai, 
                                 String.format("%,d", soLuongSP),           
@@ -428,49 +427,65 @@ public class SanPhamDAO {
     }
 
     public static void sanPhamSapHetTrongKho(int soLuong) {
-        String query = "SELECT sp.MaSP, sp.TenSP, sp.SoLuongTon, sp.GiaBan,Loai.TenLoai " +
-                "FROM SANPHAM sp " +
-                "INNER JOIN LOAI ON sp.Loai = Loai.MaLoai " +
-                "WHERE sp.SoLuongTon <= ? AND sp.TrangThai = 'active'" +
-                " ORDER BY sp.SoLuongTon ASC";
+        if (soLuong < 0) {
+            System.out.println("❌ Ngưỡng tồn kho phải lớn hơn hoặc bằng 0!");
+            return;
+        }
+
+        String query = """
+                    SELECT sp.MaSP, sp.TenSP, sp.SoLuongTon, sp.GiaBan, Loai.TenLoai
+                    FROM SANPHAM sp
+                    INNER JOIN LOAI ON sp.Loai = Loai.MaLoai
+                    WHERE sp.SoLuongTon <= ? AND sp.TrangThai = 'active'
+                    ORDER BY sp.SoLuongTon ASC, sp.TenSP ASC        
+        """;
 
         try (Connection conn = JDBCUtil.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setInt(1, soLuong);
-            ResultSet rs = stmt.executeQuery();
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                System.out.println("\n╔════════════════════════════════════════════════════════════════════════════════════════════╗");
+                System.out.println("║              DANH SÁCH SẢN PHẨM SẮP HẾT TỒN KHO (≤ " + soLuong + " sản phẩm)                          ║");
+                System.out.println("╠════════════╤══════════════════════╤══════════════════╤══════════════════╤══════════════════╣");
+                System.out.printf("║ %-10s │ %-20s │ %-16s │ %-16s │ %-16s ║\n",
+                        "MÃ SP", "TÊN SẢN PHẨM", "LOẠI", "SỐ LƯỢNG TỒN", "GIÁ BÁN");
+                System.out.println("╠════════════╪══════════════════════╪══════════════════╪══════════════════╪══════════════════╣");
 
-            System.out.println(
-                    "\n╔════════════════════════════════════════════════════════════════════════════════════════════╗");
-            System.out.println(
-                    "║                                DANH SÁCH SẢN PHẨM SẮP HẾT TỒN KHO                          ║");
-            System.out.println(
-                    "╠════════════╤══════════════════════╤══════════════════╤══════════════════╤══════════════════╣");
-            System.out.printf("║ %-10s │ %-20s │ %-16s │ %-16s │ %-16s ║\n",
-                    "MÃ SP", "TÊN SP", "LOẠI", "SỐ LƯỢNG", "GIÁ BÁN");
-            System.out.println(
-                    "╠════════════╪══════════════════════╪══════════════════╪══════════════════╪══════════════════╣");
+                int count = 0;
+                long tongGiaTri = 0;
 
-            boolean found = false;
-            while (rs.next()) {
-                found = true;
-                String maSP = rs.getString("MaSP");
-                String tenSP = rs.getString("TenSP");
-                String tenLoai = rs.getString("TenLoai");
-                int soLuongTon = rs.getInt("SoLuongTon");
-                int giaBan = rs.getInt("GiaBan");
+                while (rs.next()) {
+                    String maSP = rs.getString("MaSP");
+                    String tenSP = rs.getString("TenSP");
+                    String loai = rs.getString("TenLoai");
+                    int soLuongTon = rs.getInt("SoLuongTon");
+                    int giaBan = rs.getInt("GiaBan");
 
-                System.out.printf("║ %-10s │ %-20s │ %-16s │ %-16d │ %-16s ║\n",
-                        maSP, tenSP, tenLoai, soLuongTon, FormatUtil.formatVND(giaBan));
+                    String tenSPRutGon = (tenSP.length() > 20) ? tenSP.substring(0, 17) + "..." : tenSP;
+                    String tenLoaiRutGon = (loai.length() > 16) ? loai.substring(0, 13) + "..." : loai;
+
+                    System.out.printf("║ %-10s │ %-20s │ %-16s │ %16s │ %16s ║\n",
+                        maSP, 
+                        tenSPRutGon, 
+                        tenLoaiRutGon, 
+                        String.format("%,d", soLuongTon),
+                        FormatUtil.formatVND(giaBan));
+                    
+                    count++;
+                    tongGiaTri += (long) soLuongTon * giaBan;
+                }
+
+                if (count == 0) {
+                    System.out.println("║         Không có sản phẩm nào có tồn kho ≤ " + soLuong + " sản phẩm                           ║");
+                } else {
+                    System.out.println("╠════════════╧══════════════════════╧══════════════════╧══════════════════╧══════════════════╣");
+                    System.out.printf("║ %-20s │ Tổng số SP: %-8d │ Tổng giá trị: %18s ║\n",
+                        "", count, FormatUtil.formatVND(tongGiaTri));
+                }
+                System.out.println("╚════════════╧══════════════════════╧══════════════════╧══════════════════╧══════════════════╝");
             }
-
-            if (!found) {
-                System.out.println(
-                        "║                       Không có sản phẩm nào sắp hết tồn kho theo ngưỡng này.               ║");
-            }
-
-            System.out.println(
-                    "╚════════════╧══════════════════════╧══════════════════╧══════════════════╧══════════════════╝");
         } catch (SQLException e) {
             System.err.println("Lỗi khi thống kê sản phẩm sắp hết trong kho: " + e.getMessage());
         }
