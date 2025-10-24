@@ -2,7 +2,7 @@ package view;
 
 import java.util.Scanner;
 import dao.SanPhamDAO;
-import dto.sanPhamDTO;
+import dto.SanPhamDTO;
 import util.FormatUtil;
 import util.tablePrinter;
 import java.time.LocalDate;
@@ -49,10 +49,20 @@ public class QuanLySanPham {
 
             switch (choice) {
                 case 1:
-                    sanPhamDTO sp = new sanPhamDTO();
-                    sp.nhapThongTinSanPham();
-                    SanPhamDAO.themSanPham(sp);
-                    System.out.println("Thêm sản phẩm thành công.");
+                    try {
+                        SanPhamDTO sp = new SanPhamDTO();
+                        
+                        if (!sp.nhapThongTinSanPham()) {
+                            System.out.println("⚠️ Đã hủy thêm sản phẩm.");
+                            break;
+                        }
+                        
+
+                        if (SanPhamDAO.themSanPham(sp)) System.out.println("✅ Thêm sản phẩm thành công!");
+                        else System.out.println("❌ Thêm sản phẩm thất bại! Vui lòng thử lại.");
+                    } catch (Exception e) {
+                        System.err.println("❌ Lỗi khi thêm sản phẩm: " + e.getMessage());
+                    }
                     break;
                 case 2:
                     suaSanPham();
@@ -173,7 +183,7 @@ public class QuanLySanPham {
                         continue;
                     }
 
-                    sanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
+                    SanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
                     System.out.println("Thông tin sản phẩm trước khi sửa: ");
                     sp.inThongTinSanPham();
 
@@ -205,7 +215,7 @@ public class QuanLySanPham {
         System.out.println("Nhập mã sản phẩm cần đổi trạng thái: ");
         String maSP = scanner.nextLine().trim();
 
-        sanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
+        SanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
 
         if (sp == null) {
             System.out.println("Mã sản phẩm không tồn tại");
@@ -229,7 +239,7 @@ public class QuanLySanPham {
         System.out.println("Nhập mã sản phẩm cần tìm: ");
         String maSP = scanner.nextLine().trim();
 
-        sanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
+        SanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
 
         if (sp == null) {
             System.out.println("Mã sản phẩm không tồn tại");
@@ -247,7 +257,7 @@ public class QuanLySanPham {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Nhập tên sản phẩm cần tìm: ");
         String tenSP = scanner.nextLine().trim();
-        List<sanPhamDTO> danhSachSP = SanPhamDAO.timSanPhamTheoTen(tenSP);
+        List<SanPhamDTO> danhSachSP = SanPhamDAO.timSanPhamTheoTen(tenSP);
         
         if (danhSachSP.isEmpty()) {
             System.out.println("Không tìm thấy sản phẩm");
@@ -259,7 +269,7 @@ public class QuanLySanPham {
             // Chuẩn bị rows
             List<List<String>> rows = new ArrayList<>();
             
-            for (sanPhamDTO sanPham : danhSachSP) {
+            for (SanPhamDTO sanPham : danhSachSP) {
                 List<String> row = new ArrayList<>();
                 row.add(sanPham.getMaSP());
                 row.add(sanPham.getTenSP());

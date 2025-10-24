@@ -1,6 +1,6 @@
 package dao;
 
-import dto.sanPhamDTO;
+import dto.SanPhamDTO;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,20 +14,20 @@ import util.FormatUtil;
 import util.JDBCUtil;
 import java.text.Normalizer;
 public class SanPhamDAO {
-    public static List<sanPhamDTO> getAllSanPham() {
+    public static List<SanPhamDTO> getAllSanPham() {
         String query = "SELECT sp.MaSP, sp.TenSP, sp.Loai, sp.SoLuongTon, sp.DonViTinh, sp.GiaBan, " +
                 "sp.MoTa, sp.TrangThai " +
                 "FROM SANPHAM sp " +
                 "INNER JOIN LOAI l ON sp.Loai = l.MaLoai " +
                 "INNER JOIN DONVI d ON sp.DonViTinh = d.MaDonVi";
 
-        List<sanPhamDTO> list = new ArrayList<>();
+        List<SanPhamDTO> list = new ArrayList<>();
 
         try (Connection conn = JDBCUtil.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(query)) {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                list.add(new sanPhamDTO(
+                list.add(new SanPhamDTO(
                     rs.getString("MaSP"),
                     rs.getString("TenSP"),
                     rs.getInt("Loai"),
@@ -43,7 +43,7 @@ public class SanPhamDAO {
         return list;
     }
 
-    public static List<sanPhamDTO> timSanPhamTheoTen(String name) {
+    public static List<SanPhamDTO> timSanPhamTheoTen(String name) {
         String query = "SELECT sp.MaSP, sp.TenSP, sp.Loai, sp.SoLuongTon, sp.DonViTinh, sp.GiaBan, " +
                 "sp.MoTa, sp.TrangThai " +
                 "FROM SANPHAM sp " +
@@ -51,7 +51,7 @@ public class SanPhamDAO {
                 "INNER JOIN DONVI d ON sp.DonViTinh = d.MaDonVi " +
                 "WHERE sp.TenSP LIKE ?";
 
-        List<sanPhamDTO> list = new ArrayList<>();
+        List<SanPhamDTO> list = new ArrayList<>();
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -59,7 +59,7 @@ public class SanPhamDAO {
             stmt.setString(1, "%" + name + "%");
             ResultSet rs = stmt.executeQuery();
 
-            list.add(new sanPhamDTO(
+            list.add(new SanPhamDTO(
                         rs.getString("MaSP"),
                         rs.getString("TenSP"),
                         rs.getInt("Loai"),
@@ -83,7 +83,7 @@ public class SanPhamDAO {
         return noMarks;
     }
 
-    public static sanPhamDTO timSanPhamTheoMa(String ma) {
+    public static SanPhamDTO timSanPhamTheoMa(String ma) {
         String query = "SELECT sp.MaSP, sp.TenSP, sp.Loai, sp.SoLuongTon, sp.DonViTinh, sp.GiaBan, " +
                 " sp.MoTa, sp.TrangThai " +
                 "FROM SANPHAM sp " +
@@ -98,7 +98,7 @@ public class SanPhamDAO {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                return new sanPhamDTO(
+                return new SanPhamDTO(
                     rs.getString("MaSP"),
                     rs.getString("TenSP"),
                     rs.getInt("Loai"),
@@ -136,8 +136,11 @@ public class SanPhamDAO {
     return newID;
 }
 
-    public static void themSanPham(sanPhamDTO sp) {
-        String query = "INSERT INTO SANPHAM (MaSP, TenSP, Loai, DonViTinh, GiaBan, MoTa, TrangThai) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    // Trả về true nếu thêm thành công, false nếu thất bại
+    public static boolean themSanPham(SanPhamDTO sp) {
+        // Query đầy đủ bao gồm SoLuongTon
+        String query = "INSERT INTO SANPHAM (MaSP, TenSP, Loai, DonViTinh, GiaBan) " +
+                        "VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -147,20 +150,17 @@ public class SanPhamDAO {
             stmt.setInt(3, sp.getLoaiSP());
             stmt.setInt(4, sp.getDonViTinh());
             stmt.setInt(5, sp.getGiaBan());
-            stmt.setString(6, sp.getMoTa());
-            stmt.setString(7, sp.getTrangThai());
+            
             int rowAffected = stmt.executeUpdate();
-            if (rowAffected > 0) {
-                System.out.println("Thêm sản phẩm thành công");
-            } else {
-                System.out.println("Thêm sản phẩm thất bại");
-            }
+            return rowAffected > 0;  
+            
         } catch (SQLException e) {
-            System.err.println("Lỗi khi thêm sản phẩm: " + e.getMessage());
+            System.err.println("❌ Lỗi khi thêm sản phẩm: " + e.getMessage());
+            return false;
         }
     }
 
-    public static void suaSanPham(sanPhamDTO sp) {
+    public static void suaSanPham(SanPhamDTO sp) {
         String query = "UPDATE SANPHAM SET TenSP = ?, Loai = ?, DonViTinh = ?, GiaBan = ?,  " +
                 " MoTa = ?, TrangThai = ? WHERE MaSP = ?";
 
@@ -199,25 +199,6 @@ public class SanPhamDAO {
             System.err.println("Lỗi khi đổi trạng thái sản phẩm theo mã: " + e.getMessage());
         }
         return false;
-    }
-
-    //sửa
-    public static void capnhatTrangThaiHetHan() {
-        String query = "UPDATE SANPHAM SET TrangThai = 'inactive' WHERE HanSuDung < CURDATE() AND TrangThai = 'active'";
-
-        try (Connection conn = JDBCUtil.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(query)) {
-
-            int rowAffected = stmt.executeUpdate();
-            if (rowAffected > 0) {
-                System.out.println("Đã cập nhật " + rowAffected + " sản phẩm trạng thái hết hạn");
-            } else {
-                System.out.println("Không có sản phẩm nào trạng thái hết hạn");
-            }
-
-        } catch (SQLException e) {
-            System.err.println("Lỗi khi cập nhật trạng thái hết hạn: " + e.getMessage());
-        }
     }
 
     public static void thongKeTheoLoai() {
