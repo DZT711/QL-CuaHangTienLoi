@@ -7,6 +7,7 @@ import util.FormatUtil;
 import util.tablePrinter;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -364,64 +365,117 @@ public class QuanLySanPham {
     }
 
     public void thongKeTopSanPhamBanChay() {
-        Scanner scanner = new Scanner (System.in);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+        Scanner scanner = new Scanner(System.in);
+        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+        DateTimeFormatter displayFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
         try {
-            System.out.print("\nNhập ngày bắt đầu (ddMMyyyy): ");
-            String from = scanner.nextLine().trim();
-
-            System.out.print("Nhập ngày kết thúc (ddMMyyyy): ");
-            String to = scanner.nextLine().trim();
-
-            LocalDate fromDate = LocalDate.parse(from, formatter);
-            LocalDate toDate = LocalDate.parse(to, formatter);
-
-            if (fromDate.isAfter(toDate)) {
-                System.out.println("Ngày bắt đầu phải trước ngày kết thúc.");
-                return;
-            }
-
-            System.out.print("Nhập số lượng sản phẩm top bán chạy: ");
-            int limit;
-            
-            try {
-                limit = Integer.parseInt(scanner.nextLine().trim());
-                if (limit <= 0) {
-                    System.out.println("Số lượng phải lớn hơn 0.");
+            LocalDate fromDate;
+            while (true) {
+                System.out.print("\nNhập ngày bắt đầu (ddMMyyyy): ");
+                String from = scanner.nextLine().trim();
+                
+                if ("0".equals(from)) {
+                    System.out.println("✓ Hủy thống kê sản phẩm bán chạy.");
                     return;
                 }
-            } catch (NumberFormatException e) {
-                System.out.println("Số lượng không hợp lệ.");
-                return;
+
+                try {
+                    fromDate = LocalDate.parse(from, inputFormatter);
+                    break;
+                } catch (DateTimeParseException e) {
+                    System.out.println("❌ Định dạng ngày không hợp lệ. Vui lòng nhập lại.");
+                }
+            }
+
+            LocalDate toDate;
+            while (true) {
+                System.out.print("Nhập ngày kết thúc (ddMMyyyy): ");
+                String to = scanner.nextLine().trim();
+
+                if ("0".equals(to)) {
+                    System.out.println("✓ Hủy thống kê sản phẩm bán chạy.");
+                    return;
+                }
+
+                try {
+                    toDate = LocalDate.parse(to, inputFormatter);
+                    
+                    if (fromDate.isAfter(toDate)) {
+                        System.out.println("❌ Ngày kết thúc phải sau ngày bắt đầu. Vui lòng nhập lại.");
+                        continue;
+                    }
+                    break;
+                } catch (DateTimeParseException e) {
+                    System.out.println("❌ Định dạng ngày không hợp lệ. Vui lòng nhập lại.");
+                }
+            }
+
+            int limit;
+            while (true) {
+                System.out.print("-> Nhấp số lượng sản phẩm top bán chạy: ");
+                String limitInput = scanner.nextLine().trim();
+
+                if ("0".equals(limitInput)) {
+                    System.out.println("✓ Hủy thống kê sản phẩm bán chạy.");
+                    return;
+                }
+
+                try {
+                    limit = Integer.parseInt(limitInput);
+                    if (limit > 0) break;
+                    else System.out.println("❌ Số lượng phải lớn hơn 0.");
+                } catch (NumberFormatException e) {
+                    System.out.println("❌ Vui lòng nhập số hợp lệ.");
+                }
             }
 
             List<Map<String, Object>> topProducts = SanPhamDAO.thongKeSanPhamBanChayNhat(fromDate, toDate, limit);
 
             if (topProducts.isEmpty()) {
-                System.out.println("Không có sản phẩm bán chạy trong khoảng thời gian này.");
+                System.out.println("❌ Không có sản phẩm nào được bán trong khoảng thời gian này.");
                 return;
             }
 
-            System.out.println("\nDanh sách top " + limit + " sản phẩm bán chạy từ " +
-                fromDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + " đến " +
-                toDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + ":");
+            System.out.println("\n╔════════════════════════════════════════════════════════════════════════════╗");
+            System.out.println("║           TOP " + limit + " SẢN PHẨM BÁN CHẠY NHẤT                                ║");
+            System.out.println("║   Từ " + fromDate.format(displayFormatter) + " đến " + toDate.format(displayFormatter) + "                                      ║");
+            System.out.println("╚════════════════════════════════════════════════════════════════════════════╝");
             
             List<String> headers = List.of("Top", "Mã SP", "Tên Sản Phẩm", "Số Lượng Bán", "Doanh Thu");
             List<List<String>> rows = new ArrayList<>();
+
             int rank = 1;
+            long tongDoanhThu = 0;
+            long tongSoLuongBan = 0;
 
             for (Map<String, Object> product : topProducts) {
                 List<String> row = new ArrayList<>();
-                row.add(String.valueOf(rank++));
-                row.add((String) product.get("maSP"));
-                row.add((String) product.get("tenSP"));
-                row.add(String.valueOf(product.get("soLuongBan")));
-                row.add(FormatUtil.formatVND((long) product.get("doanhThu")));
-                rows.add(row);
-            }
 
+                String maSP = (String) product.get("maSP");
+                String tenSP = (String) product.get("tenSP");
+                Integer soLuongBan = (Integer) product.get("tongSoLuongBan");
+                Long doanhThu = (Long) product.get("doanhThu");
+                
+                if (soLuongBan == null) soLuongBan = 0;
+                if (doanhThu == null) doanhThu = 0L;
+
+                row.add(String.valueOf(rank++));
+                row.add(maSP);
+                row.add(tenSP);
+                row.add(String.format("%,d", soLuongBan));
+                row.add(FormatUtil.formatVND(doanhThu));
+
+                rows.add(row);
+
+                tongDoanhThu += doanhThu;
+                tongSoLuongBan += soLuongBan;
+            }
             tablePrinter.printTable(headers, rows);
+            
+            System.out.println("\n📊 TỔNG KẾT:");
+            System.out.println("   • Tổng số lượng bán: " + String.format("%,d", tongSoLuongBan) + " sản phẩm");
+            System.out.println("   • Tổng doanh thu: " + FormatUtil.formatVND(tongDoanhThu));
         } catch (Exception e) {
             System.out.println("Đã xảy ra lỗi: " + e.getMessage());
             e.printStackTrace();

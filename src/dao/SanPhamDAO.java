@@ -387,41 +387,43 @@ public class SanPhamDAO {
 
     public static List<Map<String, Object>> thongKeSanPhamBanChayNhat(LocalDate fromDate, LocalDate toDate, int limit) {
         List<Map<String, Object>> result = new ArrayList<>();
-        
+
         String query = """
                 SELECT sp.MaSP, sp.TenSP, SUM (ct.SoLuong) AS TongSoLuongBan, SUM (ct.ThanhTien) AS DoanhThu
                 FROM CHITIETHOADON ct
-                JOIN SanPham sp ON sp.MaSP = ct.MaSP
+                JOIN HANGHOA hh ON ct.MaHang = hh.MaHang
+                JOIN SanPham sp ON sp.MaSP = hh.MaSP
                 JOIN HoaDon hd ON hd.MaHD = ct.MaHD
                 WHERE hd.NgayLapHD >= ? AND hd.NgayLapHD < ?
                 GROUP BY sp.MaSP, sp.TenSP
                 ORDER BY TongSoLuongBan DESC
-                LIMIT ?;
+                LIMIT ?;        
         """;
+        
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
 
             LocalDateTime fromDateTime = fromDate.atStartOfDay();
             LocalDateTime toDateTime = toDate.plusDays(1).atStartOfDay();
-            
+        
             stmt.setTimestamp(1, Timestamp.valueOf(fromDateTime));
             stmt.setTimestamp(2, Timestamp.valueOf(toDateTime));
             stmt.setInt(3, limit);
 
-            ResultSet rs = stmt.executeQuery(); 
-
-            while (rs.next()) {
-                Map<String, Object> row = new HashMap<>();
-                row.put("MaSP", rs.getString("MaSP"));
-                row.put("TenSP", rs.getString("TenSP"));
-                row.put("TongSoLuongBan", rs.getInt("TongSoLuongBan"));
-                row.put("DoanhThu", rs.getLong("DoanhThu"));
-                result.add(row);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("maSP", rs.getString("MaSP"));
+                    row.put("tenSP", rs.getString("TenSP"));
+                    row.put("tongSoLuongBan", rs.getInt("TongSoLuongBan"));
+                    row.put("doanhThu", rs.getLong("DoanhThu"));
+                    result.add(row);
+                }
             }
-
         } catch (SQLException e) {
             System.err.println("Lỗi khi thống kê sản phẩm bán chạy nhất: " + e.getMessage());
+            e.printStackTrace();
         }
         return result;
     }
