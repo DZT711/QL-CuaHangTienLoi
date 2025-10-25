@@ -9,7 +9,6 @@ import util.JDBCUtil;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -19,25 +18,40 @@ import java.time.format.DateTimeFormatter;
 
 public class KhachHangDAO {
     public static List<KhachHangDTO> getAllKhachHang() {
-        String query = "SELECT MaKH, Ho, Ten, GioiTinh, NgaySinh, DienThoai, DiaChi FROM KHACHHANG";
+        
+        String query = """
+            SELECT MaKH, Ho, Ten, GioiTinh, NgaySinh, DienThoai, DiaChi
+            FROM KHACHHANG
+            ORDER BY MaKH ASC        
+        """;
 
         List<KhachHangDTO> list = new ArrayList<>();
 
         try (Connection conn = JDBCUtil.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(query)) {
-            ResultSet rs = stmt.executeQuery();
-            while(rs.next()){
-                list.add(new KhachHangDTO(
-                    rs.getString("MaKH"), 
-                    rs.getString("Ho"), 
-                    rs.getString("Ten"), 
-                    rs.getString("GioiTinh"), 
-                    rs.getDate("NgaySinh").toLocalDate(), 
-                    rs.getString("DienThoai"), 
-                    rs.getString("DiaChi")));
+            PreparedStatement stmt = conn.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery()) {
+            
+            while (rs.next()) {
+                String maKH = rs.getString("MaKH");
+                String ho = rs.getString("Ho");
+                String ten = rs.getString("Ten");
+                String gioiTinh = rs.getString("GioiTinh");
+                String dienThoai = rs.getString("DienThoai");
+                
+                LocalDate ngaySinh = null;
+                java.sql.Date sqlDate = rs.getDate("NgaySinh");
+                if (sqlDate != null) {
+                    ngaySinh = sqlDate.toLocalDate();
+                }
+                
+                String diaChi = rs.getString("DiaChi");
+                
+                list.add(new KhachHangDTO(maKH, ho, ten, gioiTinh, ngaySinh, diaChi, dienThoai));
             }
+            
         } catch (SQLException e) {
-            System.err.println("Lỗi khi lấy tất cả khách hàng: " + e.getMessage());
+            System.err.println("❌ Lỗi khi lấy tất cả khách hàng: " + e.getMessage());
+            e.printStackTrace();
         }
         return list;
     }
