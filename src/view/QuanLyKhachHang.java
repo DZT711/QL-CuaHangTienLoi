@@ -36,54 +36,56 @@ public class QuanLyKhachHang {
                 if (scanner.hasNextInt()) {
                     choice = scanner.nextInt();
                     scanner.nextLine();
-                    if (choice >= 0 && choice <= 8) {
-                        break;
-                    }
-                    else if (choice == 0) {
-                        return;
-                    } else {
-                    System.out.println("Vui lòng nhập số trong khoảng 0–8.");
-                    System.out.print("\n💡 Nhập lựa chọn của bạn: ");
-                }  
+                    if (choice >= 0 && choice <= 6) break;
+                    System.out.print("Vui lòng nhập số trong khoảng 0–6: ");
                 } else {
-                    System.out.println("Vui lòng nhập số hợp lệ.");
-                    scanner.next(); // bỏ token không phải số
-                    System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+                    System.out.print("Nhập không hợp lệ. Vui lòng nhập lại: ");
+                    scanner.next();
                 }
             }
 
             switch (choice) {
                 case 1:
+                    System.out.println("\n");
+                    System.out.println("    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+                    System.out.println("    ┃                           THÊM KHÁCH HÀNG                          ┃");
+                    System.out.println("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                    System.out.println("    ┃ [1] ➜ Thêm 1 khách hàng                                            ┃");
+                    System.out.println("    ┃ [2] ➜ Thêm danh sách khách hàng                                    ┃");
+                    System.out.println("    ┃ [0] ➜ Thoát                                                        ┃");
+                    System.out.println("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                    System.out.print("\n💡 Nhập lựa chọn của bạn: ");
                     while (true) {
-                        try {
-                            System.out.println("\n");
-                            System.out.println("    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
-                            System.out.println("    ┃                           THÊM KHÁCH HÀNG                          ┃");
-                            System.out.println("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
-                            System.out.println("    ┃ [1] ➜ Thêm 1 khách hàng                                            ┃");
-                            System.out.println("    ┃ [2] ➜ Thêm danh sách khách hàng                                    ┃");
-                            System.out.println("    ┃ [0] ➜ Thoát                                                        ┃");
-                            System.out.println("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
-                            System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+                        String opt = scanner.nextLine().trim();
 
-                            int opt = scanner.nextInt();
-                            scanner.nextLine();
-
-                            if (opt == 0) {
+                        switch (opt) {
+                            case "0":
                                 System.out.println("Thoát thêm khách hàng thành công.");
                                 break;
-                            } else if (opt == 1) {
+                            case "1":
                                 them();
-                            } else if (opt == 2) {
+                                break;
+                            case "2":
+                                System.out.println("\n╔════════════════════════════════════════════════════╗");
+                                System.out.println("║           IMPORT KHÁCH HÀNG TỪ FILE               ║");
+                                System.out.println("╚════════════════════════════════════════════════════╝");
+                                /*
+                                    System.out.print("→ Nhập đường dẫn file (VD: D:\\data\\khachhang.txt): ");
+                                    String filePath = scanner.nextLine().trim();
+                                    
+                                    File file = new File(filePath);
+                                    if (!file.exists()) {
+                                        System.out.println("❌ File không tồn tại: " + filePath);
+                                        return;
+                                    }
+                                */
                                 KhachHangDAO.importDSKH("data/khachhang.txt");
                                 break;
-                            } else {
-                                System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
-                            }
-                        } catch (Exception e) {
-                            System.out.println("Lỗi xảy ra: " + e.getMessage());
-                            scanner.nextLine();
+                            default:
+                                System.out.print("Lựa chọn không hợp lệ. Vui lòng nhập lại: ");
+                                continue;
                         }
+                        break;
                     }
                     break;
                 case 2:
@@ -237,25 +239,66 @@ public class QuanLyKhachHang {
     }
 
     public void them() {
-        Scanner scanner = new Scanner(System.in);
-        while (true) {
-            try {
-                String maKH = KhachHangDAO.generateIDKhachHang();
-                
-                KhachHangDTO kh = new KhachHangDTO();
-                kh.setMaKH(maKH);
-                if (!kh.nhapThongTinKhachHang()) {
-                    System.out.println("Đã hủy thêm khách hàng, quay lại menu...");
-                    break;
-                }
-                KhachHangDAO.themKhachHang(kh);
-                System.out.println("Thêm khách hàng thành công.");
-                break;
-            } catch (Exception e) {
-                System.out.println("Lỗi nhập liệu: " + e.getMessage());
-                scanner.nextLine();
+        System.out.println("\n╔════════════════════════════════════════════════════╗");
+        System.out.println("║           THÊM KHÁCH HÀNG MỚI                     ║");
+        System.out.println("╚════════════════════════════════════════════════════╝");
+
+        try {
+            String maKH = KhachHangDAO.generateIDKhachHang();
+            System.out.println("📋 Mã khách hàng tự động: " + maKH + "\n");
+            
+            KhachHangDTO kh = new KhachHangDTO();
+            kh.setMaKH(maKH);
+            
+            if (!kh.nhapThongTinKhachHang()) {
+                System.out.println("\n⚠️  Đã hủy thêm khách hàng.");
+                return;
             }
+            
+            System.out.println("\n📝 THÔNG TIN KHÁCH HÀNG VỪA NHẬP:");
+            hienThiThongTinKhachHang(kh);
+            
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("\n→ Xác nhận thêm khách hàng? (Y/N): ");
+            String confirm = scanner.nextLine().trim().toUpperCase();
+            
+            if (!"Y".equals(confirm)) {
+                System.out.println("⚠️  Đã hủy thêm khách hàng.");
+                return;
+            }
+            
+            if (KhachHangDAO.themKhachHang(kh)) {
+                System.out.println("\n✅ Thêm khách hàng thành công!");
+                System.out.println("📋 Mã khách hàng: " + maKH);
+            } else {
+                System.out.println("\n❌ Thêm khách hàng thất bại!");
+            }
+        
+        } catch (Exception e) {
+            System.err.println("❌ Đã xảy ra lỗi: " + e.getMessage());
+            e.printStackTrace();
         }
+    }
+
+    private void hienThiThongTinKhachHang(KhachHangDTO kh) {
+        System.out.println("┌────────────────────────────────────────────────────┐");
+        System.out.printf("│ %-18s : %-28s │\n", "Mã KH", kh.getMaKH());
+        System.out.printf("│ %-18s : %-28s │\n", "Họ tên", kh.getHo() + " " + kh.getTen());
+        System.out.printf("│ %-18s : %-28s │\n", "Giới tính", kh.getGioiTinh());
+        
+        String ngaySinhStr = (kh.getNgaySinh() != null) ? 
+                            kh.getNgaySinh().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : 
+                            "(Chưa cập nhật)";
+        System.out.printf("│ %-18s : %-28s │\n", "Ngày sinh", ngaySinhStr);
+        
+
+        String diaChiStr = (kh.getDiaChi() != null && !kh.getDiaChi().isEmpty()) ? 
+                        kh.getDiaChi() : 
+                        "(Chưa cập nhật)";
+        System.out.printf("│ %-18s : %-28s │\n", "Địa chỉ", diaChiStr);
+        
+        System.out.printf("│ %-18s : %-28s │\n", "Điện thoại", kh.getDienThoai());
+        System.out.println("└────────────────────────────────────────────────────┘");
     }
 
     public void sua() {

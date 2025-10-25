@@ -7,8 +7,13 @@ import dto.KhachHangDTO;
 import util.FormatUtil;
 import util.JDBCUtil;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -37,35 +42,50 @@ public class KhachHangDAO {
         return list;
     }
 
-    public static void themKhachHang(KhachHangDTO kh) {
-        String query = "INSERT INTO KHACHHANG (MaKH, Ho, Ten, GioiTinh, NgaySinh, DienThoai, DiaChi) VALUES (?, ?, ?, ?, ?, ?, ?)";
-
-        try (Connection conn = JDBCUtil.getConnection()) {
-            PreparedStatement stmt = conn.prepareStatement(query);
-            stmt.setString(1, kh.getMaKH());
-            stmt.setString(2, kh.getHo());
-            stmt.setString(3, kh.getTen());
-            stmt.setString(4, kh.getGioiTinh());
-
-            if (kh.getNgaySinh() != null) {
-                stmt.setDate(5, java.sql.Date.valueOf(kh.getNgaySinh()));
-            } else {
-                stmt.setDate(5, null);
-            }
-
-            stmt.setString(6, kh.getDienThoai());
-            stmt.setString(7, kh.getDiaChi());
-
-            int rowAffected = stmt.executeUpdate();
-            if (rowAffected > 0) {
-                System.out.println("Thêm khách hàng thành công");
-            } else {
-                System.out.println("Thêm khách hàng thất bại");
-            }
-        } catch (SQLException e) {
-            System.err.println("Lỗi khi thêm khách hàng: " + e.getMessage());
-        }
+    public static boolean themKhachHang(KhachHangDTO kh) {
+    // Check trùng SĐT
+    KhachHangDTO existing = timKhachHangTheoDienThoai(kh.getDienThoai());
+    if (existing != null) {
+        System.out.println("❌ Số điện thoại đã tồn tại trong hệ thống!");
+        System.out.println("📋 Khách hàng: " + existing.getHo() + " " + existing.getTen() + 
+                           " (Mã: " + existing.getMaKH() + ")");
+        return false;
     }
+    
+    String query = "INSERT INTO KHACHHANG (MaKH, Ho, Ten, GioiTinh, NgaySinh, DienThoai, DiaChi) " +
+                   "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+    try (Connection conn = JDBCUtil.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query)) {
+
+        stmt.setString(1, kh.getMaKH());
+        stmt.setString(2, kh.getHo());
+        stmt.setString(3, kh.getTen());
+        stmt.setString(4, kh.getGioiTinh());
+        
+        if (kh.getNgaySinh() != null) {
+            stmt.setDate(5, java.sql.Date.valueOf(kh.getNgaySinh()));
+        } else {
+            stmt.setNull(5, java.sql.Types.DATE);
+        }
+        stmt.setString(6, kh.getDienThoai());
+        
+
+        if (kh.getDiaChi() != null && !kh.getDiaChi().isEmpty()) {
+            stmt.setString(7, kh.getDiaChi());
+        } else {
+            stmt.setNull(7, java.sql.Types.VARCHAR);
+        }
+
+        int rowsAffected = stmt.executeUpdate();
+        return rowsAffected > 0;
+        
+    } catch (SQLException e) {
+        System.err.println("❌ Lỗi khi thêm khách hàng: " + e.getMessage());
+        e.printStackTrace();
+        return false;
+    }
+}
 
     public static void suaKhachHang(KhachHangDTO kh, String maKH) {
         String query = "UPDATE KHACHHANG SET Ho = ?, Ten = ?, GioiTinh = ?, NgaySinh = ?, DienThoai = ?, DiaChi = ? WHERE MaKH = ?";
@@ -177,28 +197,32 @@ public class KhachHangDAO {
     public static boolean kiemTraMaKH(String maKH) {
         String query = "SELECT COUNT(*) FROM KHACHHANG WHERE MaKH = ?";
 
-        try (Connection conn = JDBCUtil.getConnection()) {
-            PreparedStatement stmt = conn.prepareStatement(query);
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+            
             stmt.setString(1, maKH);
-            ResultSet rs = stmt.executeQuery();
-            if(rs.next()){
-                return rs.getInt(1) > 0;
-            } else {
-                return false;
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) return rs.getInt(1) > 0;
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi kiểm tra mã khách hàng: " + e.getMessage());
+            System.err.println("❌ Lỗi khi kiểm tra mã khách hàng: " + e.getMessage());
         }
+        
         return false;
     }
 
     public static void importDSKH(String filePath) {
-        int added = 0, skipped = 0;
+        int lineNumber = 0;
+        int added = 0;
+        int skipped = 0;
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            int lineNumber = 0;
+        System.out.println("🔄 Đang đọc file: " + filePath);
+
+        try (BufferedReader reader = new BufferedReader(
+            new InputStreamReader(new FileInputStream(filePath), StandardCharsets.UTF_8))) {
+
             String line;
-
 
             while ((line = reader.readLine()) != null) {
                 lineNumber++;
@@ -206,42 +230,96 @@ public class KhachHangDAO {
                 if (line.isEmpty()) continue;
 
                 String[] data = line.split(",", -1);
+
                 if (data.length < 7) {
-                    System.out.println("Dòng " + lineNumber + " không hợp lệ: " + line);
+                    System.out.println("❌ Dòng " + lineNumber + ": Thiếu dữ liệu (cần 7 cột, có " + data.length + ")");
                     skipped++;
                     continue;
                 }
 
-                String maKH = data[0].trim();
-                String ho = data[1].trim();
-                String ten = data[2].trim();
-                String gioiTinh = data[3].trim();
+                try {
+                    String maKH = data[0].trim();
+                    String ho = data[1].trim();
+                    String ten = data[2].trim();
+                    String gioiTinh = data[3].trim();
+                    String ngaySinhStr = data[4].trim();
+                    String dienThoai = data[5].trim();
+                    String diaChi = data[6].trim();
 
-                LocalDate ngaySinh = null;
-                if (!data[4].trim().isEmpty()) {
-                    try {
-                        ngaySinh = LocalDate.parse(data[4].trim());
-                    } catch (Exception e) {
-                        System.out.println("Ngày sinh không hợp lệ: " + data[4]);
+                    if (maKH.isEmpty() || ho.isEmpty() || ten.isEmpty() || gioiTinh.isEmpty() || dienThoai.isEmpty()) {
+                        System.out.println("❌ Dòng " + lineNumber + ": Thiếu dữ liệu bắt buộc.");
+                        skipped++;
+                        continue;
                     }
-                }
 
-                String dienThoai = data[5].trim();
-                String diaChi = data[6].trim();
+                    String lower = gioiTinh.toLowerCase();
+                    if (lower.equals("nam")) {
+                        gioiTinh = "Nam";
+                    } else if (lower.equals("nữ") || lower.equals("nu") || lower.equals("nư")) {
+                        gioiTinh = "Nữ";
+                    } else {
+                        System.out.println("❌ Dòng " + lineNumber + ": Giới tính không hợp lệ: " + gioiTinh);
+                        skipped++;
+                        continue;
+                    }
 
-                KhachHangDTO kh = new KhachHangDTO(maKH, ho, ten, gioiTinh, ngaySinh, diaChi, dienThoai);
+                    LocalDate ngaySinh = null;
+                    if (!ngaySinhStr.isEmpty()) {
+                        try {
+                            ngaySinh = LocalDate.parse(ngaySinhStr);
+                        } catch (DateTimeException e) {
+                            try {
+                                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                                ngaySinh = LocalDate.parse(ngaySinhStr, formatter);
+                            }  catch (DateTimeException ex) {
+                                System.out.println("❌ Dòng " + lineNumber + ": Ngày sinh không hợp lệ: " + ngaySinhStr);
+                                ngaySinh = null;
+                            }
+                        }
+                    }
 
-                if (kiemTraMaKH(maKH) || timKhachHangTheoDienThoai(dienThoai) != null) {
-                    System.out.println("Khách hàng " + maKH + " hoặc điện thoại " + dienThoai + " đã tồn tại!");
+                    if (diaChi.isEmpty()) diaChi = null;
+
+                    if (kiemTraMaKH(maKH)) {
+                        System.out.println("⚠️  Dòng " + lineNumber + ": Mã KH đã tồn tại (" + maKH + ")");
+                        skipped++;
+                        continue;
+                    }
+
+                    KhachHangDTO existing = timKhachHangTheoDienThoai(dienThoai);
+                    if (existing != null) {
+                        System.out.println("⚠️  Dòng " + lineNumber + ": SĐT đã tồn tại (" + dienThoai + ")");
+                        skipped++;
+                        continue;
+                    }
+
+                    KhachHangDTO kh = new KhachHangDTO(maKH, ho, ten, gioiTinh, ngaySinh, diaChi, dienThoai);
+
+                    if (themKhachHang(kh)) {
+                        added++;
+                        System.out.println("✅ Dòng " + lineNumber + ": Thêm thành công - " + maKH + " (" + ho + " " + ten + ")");
+                    } else {
+                        System.out.println("❌ Dòng " + lineNumber + ": Lỗi khi thêm vào DB");
+                        skipped++;
+                    }
+                } catch (Exception e) {
+                    System.err.println("❌ Dòng " + lineNumber + ": Lỗi - " + e.getMessage());
                     skipped++;
-                    continue;
                 }
-                themKhachHang(kh);
-                added++;
             }
-            System.out.println("Đã thêm thành công " + added + " khách hàng từ file " + filePath);
+
+            System.out.println("\n╔═══════════════════════════════════════════════════╗");
+            System.out.println("║           KẾT QUẢ IMPORT KHÁCH HÀNG              ║");
+            System.out.println("╠═══════════════════════════════════════════════════╣");
+            System.out.printf("║  📁 File           : %-28s║\n", new File(filePath).getName());
+            System.out.printf("║  📊 Tổng dòng đọc  : %-28d║\n", lineNumber);
+            System.out.printf("║  ✅ Thêm thành công: %-28d║\n", added);
+            System.out.printf("║  ⚠️  Bỏ qua        : %-28d║\n", skipped);
+            System.out.println("╚═══════════════════════════════════════════════════╝");
+
         } catch (IOException e) {
-            System.err.println("Lỗi khi đọc file: " + e.getMessage());
+            System.err.println("❌ Lỗi khi đọc file: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
