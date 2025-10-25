@@ -384,12 +384,11 @@ public class KhachHangDAO {
     }
 
     public static void thongKeTheoGioiTinh() {
-        String query = "SELECT GioiTinh, COUNT(*) AS SoLuong FROM KHACHHANG GROUP BY GioiTinh";
+        String query = "SELECT GioiTinh, COUNT(*) AS SoLuong FROM KHACHHANG GROUP BY GioiTinh ORDER BY SoLuong DESC";
 
         try (Connection conn = JDBCUtil.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(query)) {
-
-            ResultSet rs = stmt.executeQuery();
+            PreparedStatement stmt = conn.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery()) {
 
             System.out.println("\n╔═════════════════════════════════════════╗");
             System.out.println("║    THỐNG KÊ KHÁCH HÀNG THEO GIỚI TÍNH   ║");
@@ -397,36 +396,52 @@ public class KhachHangDAO {
             System.out.printf("║ %-16s │ %-20s ║\n", "Giới Tính", "Số Lượng");
             System.out.println("╠══════════════════╪══════════════════════╣");
 
+            int tongSo = 0;
             while (rs.next()) {
-                String gioitinh = rs.getString("GioiTinh");
-                int soluong = rs.getInt("SoLuong");
+                String gioiTinh = rs.getString("GioiTinh");
+                int soLuong = rs.getInt("SoLuong");
+                tongSo += soLuong;
 
-                System.out.printf("║ %-16s │ %-20d ║\n", gioitinh, soluong);
+                System.out.printf("║ %-16s │ %-20d ║\n", gioiTinh, soLuong);
             }
+            
+            System.out.println("╠══════════════════╪══════════════════════╣");
+            System.out.printf("║ %-16s │ %-20d ║\n", "Tổng cộng", tongSo);
             System.out.println("╚══════════════════╧══════════════════════╝");
-
-                
+            
         } catch (SQLException e) {
-            System.err.println("Lỗi khi thống kê khách hàng theo giới tính: " + e.getMessage());
+            System.err.println("❌ Lỗi khi thống kê khách hàng theo giới tính: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
     public static void thongKeTheoDoTuoi() {
-        String query = 
-        "SELECT CASE " +
-        "WHEN TIMESTAMPDIFF(YEAR, NgaySinh, CURDATE()) < 18 THEN 'Dưới 18 tuổi' " +
-        "WHEN TIMESTAMPDIFF(YEAR, NgaySinh, CURDATE()) BETWEEN 18 AND 30 THEN '18-30 tuổi' " +
-        "WHEN TIMESTAMPDIFF(YEAR, NgaySinh, CURDATE()) BETWEEN 31 AND 45 THEN '31-45 tuổi' " +  
-        "WHEN TIMESTAMPDIFF(YEAR, NgaySinh, CURDATE()) BETWEEN 46 AND 60 THEN '46-60 tuổi' " +
-        "ELSE 'Trên 60 tuổi' " +
-        "END AS DoTuoi, COUNT(*) AS SoLuong " +
-        "FROM KHACHHANG " +
-        "GROUP BY DoTuoi";
+        String query = """
+            SELECT 
+                CASE 
+                    WHEN TIMESTAMPDIFF(YEAR, NgaySinh, CURDATE()) < 18 THEN 'Dưới 18 tuổi'
+                    WHEN TIMESTAMPDIFF(YEAR, NgaySinh, CURDATE()) BETWEEN 18 AND 30 THEN '18-30 tuổi'
+                    WHEN TIMESTAMPDIFF(YEAR, NgaySinh, CURDATE()) BETWEEN 31 AND 45 THEN '31-45 tuổi'
+                    WHEN TIMESTAMPDIFF(YEAR, NgaySinh, CURDATE()) BETWEEN 46 AND 60 THEN '46-60 tuổi'
+                    ELSE 'Trên 60 tuổi'
+                END AS DoTuoi,
+                COUNT(*) AS SoLuong        
+            FROM KHACHHANG
+            WHERE NgaySinh IS NOT NULL
+            GROUP BY DoTuoi
+            ORDER BY 
+                CASE 
+                    WHEN DoTuoi = 'Dưới 18 tuổi' THEN 1
+                    WHEN DoTuoi = '18-30 tuổi' THEN 2
+                    WHEN DoTuoi = '31-45 tuổi' THEN 3
+                    WHEN DoTuoi = '46-60 tuổi' THEN 4
+                    ELSE 5
+                END
+        """;
 
         try (Connection conn = JDBCUtil.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(query)) {
-
-            ResultSet rs = stmt.executeQuery();
+            PreparedStatement stmt = conn.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery()) {
             
             System.out.println("\n╔═════════════════════════════════════════╗");
             System.out.println("║    THỐNG KÊ KHÁCH HÀNG THEO ĐỘ TUỔI     ║");
@@ -434,88 +449,115 @@ public class KhachHangDAO {
             System.out.printf("║ %-16s │ %-20s ║\n", "Độ Tuổi", "Số Lượng");
             System.out.println("╠══════════════════╪══════════════════════╣");
 
-            int count = 0; 
+            int tongSo = 0;
             while (rs.next()) {
                 String doTuoi = rs.getString("DoTuoi");
-                int soluong = rs.getInt("SoLuong");
-                count += soluong;
+                int soLuong = rs.getInt("SoLuong");
+                tongSo += soLuong;
 
-                System.out.printf("║ %-16s │ %-20d ║\n", doTuoi, soluong);  
+                System.out.printf("║ %-16s │ %-20d ║\n", doTuoi, soLuong);
             }
+            
             System.out.println("╠══════════════════╪══════════════════════╣");
-            System.out.printf("║ %-16s │ %-20s ║\n", "Tổng cộng", count);
+            System.out.printf("║ %-16s │ %-20d ║\n", "Tổng cộng", tongSo);
             System.out.println("╚══════════════════╧══════════════════════╝");
-            System.out.println("Tổng số khách hàng: " + count);
+            
         } catch (SQLException e) {
-            System.err.println("Lỗi khi thống kê khách hàng theo độ tuổi: " + e.getMessage());
+            System.err.println("❌ Lỗi khi thống kê khách hàng theo độ tuổi: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
     public static void thongKeTheoSohd() {
-        String query = 
-        "SELECT KH.MaKH, KH.Ho, KH.Ten, COUNT(HD.MaHD) AS SoHoaDon " +
-        "FROM KHACHHANG KH " +
-        "LEFT JOIN HOADON HD ON KH.MaKH = HD.MaKH " +
-        "GROUP BY KH.MaKH, KH.Ho, KH.Ten " +
-        "ORDER BY SoHoaDon DESC";
+        String query = """
+            SELECT KH.MaKH, KH.Ho, KH.Ten, COUNT(HD.MaHD) AS SoHoaDon
+            FROM KHACHHANG KH
+            LEFT JOIN HOADON HD ON KH.MaKH = HD.MaKH
+            GROUP BY KH.MaKH, KH.Ho, KH.Ten
+            ORDER BY SoHoaDon DESC
+        """;
 
         try (Connection conn = JDBCUtil.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(query)) {
+            PreparedStatement stmt = conn.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery()) {
 
-        ResultSet rs = stmt.executeQuery();
+            System.out.println("\n╔═══════════════════════════════════════════════════════════╗");
+            System.out.println("║       THỐNG KÊ KHÁCH HÀNG THEO SỐ LƯỢNG ĐƠN HÀNG         ║");
+            System.out.println("╠════════════╤══════════════════╤═══════════════╤══════════╣");
+            System.out.printf("║ %-10s │ %-16s │ %-13s │ %-8s ║\n",
+                    "Mã KH", "Họ", "Tên", "Số đơn");
+            System.out.println("╠════════════╪══════════════════╪═══════════════╪══════════╣");
 
-        System.out.println("\n╔═══════════════════════════════════════════════════════════╗");
-        System.out.println("║            THỐNG KÊ KHÁCH HÀNG THEO SỐ LƯỢNG ĐƠN          ║");
-        System.out.println("╠════════════╤══════════════════════╤════════════╤══════════╣");
-        System.out.printf("║ %-10s │ %-20s │ %-10s │ %-8s ║\n",
-                "MÃ KH", "HỌ", "TÊN", "SỐ ĐƠN");
-        System.out.println("╠════════════╪══════════════════════╪════════════╪══════════╣");
+            int tongDon = 0;
+            int soKH = 0;
+            while (rs.next()) {
+                String maKH = rs.getString("MaKH");
+                String ho = rs.getString("Ho");
+                String ten = rs.getString("Ten");
+                int soHoaDon = rs.getInt("SoHoaDon");
+                
+                tongDon += soHoaDon;
+                soKH++;
 
-        while (rs.next()) {
-            String maKH = rs.getString("MaKH");
-            String ho = rs.getString("Ho");
-            String ten = rs.getString("Ten");
-            int soHoaDon = rs.getInt("SoHoaDon");
-
-            System.out.printf("║ %-10s │ %-20s │ %-10s │ %-8d ║\n", maKH, ho, ten, soHoaDon);
-        }
-            System.out.println("╚════════════╧══════════════════════╧════════════╧══════════╝");
+                System.out.printf("║ %-10s │ %-16s │ %-13s │ %-8d ║\n", 
+                        maKH, ho, ten, soHoaDon);
+            }
+            
+            System.out.println("╠════════════╧══════════════════╧═══════════════╪══════════╣");
+            System.out.printf("║ %-42s │ %-8d ║\n", "Tổng đơn hàng", tongDon);
+            System.out.println("╚════════════════════════════════════════════════╧══════════╝");
+            System.out.println("📊 Tổng số khách hàng: " + soKH);
+            
         } catch (SQLException e) {
-            System.err.println("Lỗi khi thống kê khách hàng theo số lượng hóa đơn: " + e.getMessage());
+            System.err.println("❌ Lỗi khi thống kê khách hàng theo số lượng hóa đơn: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
     public static void thongKeTheoTongChiTieu() {
-        String query = 
-        "SELECT KH.MaKH, KH.Ho, KH.Ten, COALESCE(SUM(HD.TongTien), 0) AS TongChiTieu " +
-        "FROM KHACHHANG KH " +
-        "LEFT JOIN HOADON HD ON KH.MaKH = HD.MaKH " +
-        "GROUP BY KH.MaKH, KH.Ho, KH.Ten " +
-        "ORDER BY TongChiTieu DESC";
+        String query = """
+            SELECT KH.MaKH, KH.Ho, KH.Ten, COALESCE(SUM(HD.TongTien), 0) AS TongChiTieu
+            FROM KHACHHANG KH        
+            LEFT JOIN HOADON HD ON KH.MaKH = HD.MaKH
+            GROUP BY KH.MaKH, KH.Ho, KH.Ten
+            ORDER BY TongChiTieu DESC
+        """;
 
         try (Connection conn = JDBCUtil.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(query)) {
+            PreparedStatement stmt = conn.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery()) {
 
-            ResultSet rs = stmt.executeQuery();
+            System.out.println("\n╔═══════════════════════════════════════════════════════════════════╗");
+            System.out.println("║          THỐNG KÊ KHÁCH HÀNG THEO TỔNG CHI TIÊU                  ║");
+            System.out.println("╠════════════╤══════════════════╤═══════════════╤══════════════════╣");
+            System.out.printf("║ %-10s │ %-16s │ %-13s │ %-16s ║\n",
+                    "Mã KH", "Họ", "Tên", "Tổng chi tiêu");
+            System.out.println("╠════════════╪══════════════════╪═══════════════╪══════════════════╣");
 
-            System.out.println("\n╔═══════════════════════════════════════════════════════════╗");
-            System.out.println("║            THỐNG KÊ KHÁCH HÀNG THEO TỔNG CHI TIÊU          ║");
-            System.out.println("╠════════════╤══════════════════════╤════════════╤══════════╣");
-            System.out.printf("║ %-10s │ %-20s │ %-10s │ %-8s ║\n",
-                "MÃ KH", "HỌ", "TÊN", "TỔNG CHI TIÊU");
-            System.out.println("╠════════════╪══════════════════════╪════════════╪══════════╣");
-            
+            long tongChiTieuTatCa = 0;
+            int soKH = 0;
             while (rs.next()) {
                 String maKH = rs.getString("MaKH");
                 String ho = rs.getString("Ho");
                 String ten = rs.getString("Ten");
                 long tongChiTieu = rs.getLong("TongChiTieu");
+                
+                tongChiTieuTatCa += tongChiTieu;
+                soKH++;
 
-                System.out.printf("║ %-10s │ %-20s │ %-10s │ %-8d ║\n", maKH, ho, ten, FormatUtil.formatVND(tongChiTieu));
+                System.out.printf("║ %-10s │ %-16s │ %-13s │ %-16s ║\n", 
+                        maKH, ho, ten, FormatUtil.formatVND(tongChiTieu));
             }
-            System.out.println("╚════════════╧══════════════════════╧════════════╧══════════╝");
+            
+            System.out.println("╠════════════╧══════════════════╧═══════════════╪══════════════════╣");
+            System.out.printf("║ %-42s │ %-16s ║\n", "Tổng cộng", 
+                    FormatUtil.formatVND(tongChiTieuTatCa));
+            System.out.println("╚════════════════════════════════════════════════╧══════════════════╝");
+            System.out.println("📊 Tổng số khách hàng: " + soKH);
+            
         } catch (SQLException e) {
-            System.err.println("Lỗi khi thống kê khách hàng theo tổng chi tiêu: " + e.getMessage());
+            System.err.println("❌ Lỗi khi thống kê khách hàng theo tổng chi tiêu: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
