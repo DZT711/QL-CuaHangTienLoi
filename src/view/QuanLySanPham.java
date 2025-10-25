@@ -87,8 +87,8 @@ public class QuanLySanPham {
                             "    ┃ [0] ➜ Thoát                                                        ┃");
                     System.out.println(
                             "    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                    System.out.print("\n💡 Nhập lựa chọn của bạn: ");
                     while (true) {
-                        System.out.print("\n💡 Nhập lựa chọn của bạn: ");
                         String opt = scanner.nextLine().trim();
 
                         switch (opt) {
@@ -102,7 +102,7 @@ public class QuanLySanPham {
                                 timKiemSanPhamTheoTen();
                                 break;
                             default:
-                                System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
+                                System.out.print("Lựa chọn không hợp lệ. Vui lòng nhập lại: ");
                                 continue;
                         }
                         break;
@@ -126,8 +126,8 @@ public class QuanLySanPham {
                             "    ┃ [0] ➜ Thoát                                                        ┃");
                     System.out.println(
                             "    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                    System.out.print("\n💡 Nhập lựa chọn của bạn: ");
                     while (true) {
-                        System.out.print("\n💡 Nhập lựa chọn của bạn: ");
                         String opt = scanner.nextLine().trim();
 
                         switch (opt) {
@@ -144,7 +144,7 @@ public class QuanLySanPham {
                                 thongKeTopSanPhamBanChay();
                                 break;
                             default:
-                                System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
+                                System.out.print("Lựa chọn không hợp lệ. Vui lòng nhập lại: ");
                                 continue;
                         }
                         break;
@@ -168,8 +168,8 @@ public class QuanLySanPham {
                             "    ┃ [0] ➜ Thoát                                                        ┃");
                     System.out.println(
                             "    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                    System.out.print("\n💡 Nhập lựa chọn của bạn: ");
                     while (true) {
-                        System.out.print("\n💡 Nhập lựa chọn của bạn: ");
                         String opt = scanner.nextLine().trim();
 
                         switch (opt) {
@@ -186,7 +186,7 @@ public class QuanLySanPham {
                                 xuatSanPhamTheoTrangThai("inactive");
                                 break;
                             default:
-                                System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
+                                System.out.print("Lựa chọn không hợp lệ. Vui lòng nhập lại: ");
                                 continue;
                         }
                         break;
@@ -194,7 +194,7 @@ public class QuanLySanPham {
                     break;
                     
                 case 0:
-                    System.out.println("Thoát chương trình thành công!");
+                    System.out.println("Thoát khỏi menu quản lý sản phẩm!");
                     return;
                 default:
                     System.out.println("Lựa chọn không hợp lệ.");
