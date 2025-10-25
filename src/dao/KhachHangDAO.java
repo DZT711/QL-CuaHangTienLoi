@@ -147,44 +147,76 @@ public class KhachHangDAO {
     }
 
     public static List<KhachHangDTO> timKhachHangTheoTen(String tenKH) {
-        String query = "SELECT MaKH, Ho, Ten, GioiTinh, NgaySinh, DienThoai, DiaChi FROM KHACHHANG WHERE LOWER(Ten) LIKE ?";
+        
+        String query = """
+            SELECT MaKH, Ho, Ten, GioiTinh, NgaySinh, DienThoai, DiaChi
+            FROM KHACHHANG
+            WHERE CONCAT(Ho, ' ', Ten) COLLATE utf8mb4_unicode_ci LIKE ?
+        """;
 
         List<KhachHangDTO> list = new ArrayList<>();
 
-        try (Connection conn = JDBCUtil.getConnection()) {
-            PreparedStatement stmt = conn.prepareStatement(query);
-            stmt.setString(1, "%" + tenKH + "%");
-            ResultSet rs = stmt.executeQuery();
-            while(rs.next()){
-                list.add(new KhachHangDTO(rs.getString("MaKH"), rs.getString("Ho"), rs.getString("Ten"), rs.getString("GioiTinh"), rs.getDate("NgaySinh").toLocalDate(), rs.getString("DienThoai"), rs.getString("DiaChi")));
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+        
+            stmt.setString(1, "%" + tenKH.trim() + "%");
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    String maKH = rs.getString("MaKH");
+                    String ho = rs.getString("Ho");
+                    String ten = rs.getString("Ten");
+                    String gioiTinh = rs.getString("GioiTinh");
+                    String dienThoai = rs.getString("DienThoai");
+                    
+                    LocalDate ngaySinh = null;
+                    java.sql.Date sqlDate = rs.getDate("NgaySinh");
+                    if (sqlDate != null) {
+                        ngaySinh = sqlDate.toLocalDate();
+                    }
+                    
+                    String diaChi = rs.getString("DiaChi");
+                    
+                    list.add(new KhachHangDTO(maKH, ho, ten, gioiTinh, ngaySinh, diaChi, dienThoai));
+                }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi tìm khách hàng theo tên: " + e.getMessage());
+            System.err.println("❌ Lỗi khi tìm khách hàng theo tên: " + e.getMessage());
+            e.printStackTrace();
         }
-
         return list;
     }
 
     public static KhachHangDTO timKhachHangTheoMa(String maKH) {
         String query = "SELECT MaKH, Ho, Ten, GioiTinh, NgaySinh, DienThoai, DiaChi FROM KHACHHANG WHERE MaKH = ?";
 
-        try (Connection conn = JDBCUtil.getConnection()) {
-            PreparedStatement stmt = conn.prepareStatement(query);
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+        
             stmt.setString(1, maKH);
-            ResultSet rs = stmt.executeQuery();
-            if(rs.next()){
-                return new KhachHangDTO(
-                    rs.getString("MaKH"), 
-                    rs.getString("Ho"), 
-                    rs.getString("Ten"), 
-                    rs.getString("GioiTinh"), 
-                    rs.getDate("NgaySinh").toLocalDate(), 
-                    rs.getString("DienThoai"), 
-                    rs.getString("DiaChi")
-                );
+        
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String ho = rs.getString("Ho");
+                    String ten = rs.getString("Ten");
+                    String gioiTinh = rs.getString("GioiTinh");
+                    String dienThoai = rs.getString("DienThoai");
+                    
+                    LocalDate ngaySinh = null;
+                    java.sql.Date sqlDate = rs.getDate("NgaySinh");
+                    if (sqlDate != null) {
+                        ngaySinh = sqlDate.toLocalDate();
+                    }
+                    
+                    String diaChi = rs.getString("DiaChi");
+                    
+                    return new KhachHangDTO(maKH, ho, ten, gioiTinh, ngaySinh, diaChi, dienThoai);
+                }
             }
+            
         } catch (SQLException e) {
-            System.err.println("Lỗi khi tìm khách hàng theo mã: " + e.getMessage());
+            System.err.println("❌ Lỗi khi tìm khách hàng theo mã: " + e.getMessage());
+            e.printStackTrace();
         }
         return null;
     }
@@ -192,23 +224,32 @@ public class KhachHangDAO {
     public static KhachHangDTO timKhachHangTheoDienThoai(String dienThoai){
         String query = "SELECT MaKH, Ho, Ten, GioiTinh, NgaySinh, DienThoai, DiaChi FROM KHACHHANG WHERE DienThoai = ?";
 
-        try (Connection conn = JDBCUtil.getConnection()) {
-            PreparedStatement stmt = conn.prepareStatement(query);
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+        
             stmt.setString(1, dienThoai);
-            ResultSet rs = stmt.executeQuery();
-            if(rs.next()){
-                return new KhachHangDTO(
-                    rs.getString("MaKH"), 
-                    rs.getString("Ho"), 
-                    rs.getString("Ten"), 
-                    rs.getString("GioiTinh"), 
-                    rs.getDate("NgaySinh").toLocalDate(), 
-                    rs.getString("DienThoai"), 
-                    rs.getString("DiaChi")
-                );
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String maKH = rs.getString("MaKH");
+                    String ho = rs.getString("Ho");
+                    String ten = rs.getString("Ten");
+                    String gioiTinh = rs.getString("GioiTinh");
+                    
+                    LocalDate ngaySinh = null;
+                    java.sql.Date sqlDate = rs.getDate("NgaySinh");
+                    if (sqlDate != null) {
+                        ngaySinh = sqlDate.toLocalDate();
+                    }
+                    
+                    String diaChi = rs.getString("DiaChi");
+                    
+                    return new KhachHangDTO(maKH, ho, ten, gioiTinh, ngaySinh, diaChi, dienThoai);
+                }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi tìm khách hàng theo điện thoại: " + e.getMessage());
+            System.err.println("❌ Lỗi khi tìm khách hàng theo điện thoại: " + e.getMessage());
+            e.printStackTrace();
         }
         return null;
     }
