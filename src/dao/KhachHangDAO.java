@@ -128,20 +128,21 @@ public class KhachHangDAO {
         }
     }
 
-    public static void xoaKhachHang(String maKH) {
-        String query = "DELETE FROM KHACHHANG WHERE MaKH = ?";
+    public static boolean xoaKhachHang(String maKH) {
+        String query = "UPDATE KHACHHANG SET TrangThai = 'inactive' WHERE MaKH = ?";
 
-        try (Connection conn = JDBCUtil.getConnection()) {
-            PreparedStatement stmt = conn.prepareStatement(query);
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+            
             stmt.setString(1, maKH);
-            int rowAffected = stmt.executeUpdate();
-            if (rowAffected > 0) {
-                System.out.println("Xóa khách hàng thành công");
-            } else {
-                System.out.println("Xóa khách hàng thất bại");
-            }
+            
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+            
         } catch (SQLException e) {
-            System.err.println("Lỗi khi xóa khách hàng: " + e.getMessage());        
+            System.err.println("❌ Lỗi khi xóa khách hàng: " + e.getMessage());
+            e.printStackTrace();
+            return false;
         }
     }
 

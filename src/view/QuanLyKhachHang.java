@@ -362,24 +362,60 @@ public class QuanLyKhachHang {
 
     public void xoa() {
         Scanner scanner = new Scanner(System.in);
+    
         while (true) {
-            try {
-                System.out.print("Nhập mã khách hàng cần xóa: ");
-                String maKH = scanner.nextLine().trim();
-
-                if(!KhachHangDAO.kiemTraMaKH(maKH)) {
-                    System.out.println("Mã khách hàng không tồn tại, vui lòng nhập lại.");
-                    continue;
-                }
-
-                KhachHangDAO.xoaKhachHang(maKH);
+            System.out.println("\n╔════════════════════════════════════════════════════╗");
+            System.out.println("║           XÓA KHÁCH HÀNG                          ║");
+            System.out.println("╚════════════════════════════════════════════════════╝");
+            
+            System.out.print("→ Nhập mã khách hàng cần xóa (hoặc '0' để thoát): ");
+            String maKH = scanner.nextLine().trim();
+            
+            if ("0".equals(maKH)) {
+                System.out.println("✓ Thoát xóa khách hàng.");
                 break;
-            } catch (Exception e) {
-                System.out.println("Lỗi nhập liệu: " + e.getMessage());
-                scanner.nextLine();
             }
+            
+            if (!KhachHangDAO.kiemTraMaKH(maKH)) {
+                System.out.println("❌ Mã khách hàng không tồn tại! Vui lòng nhập lại.");
+                continue;
+            }
+            
+            KhachHangDTO kh = KhachHangDAO.timKhachHangTheoMa(maKH);
+            if (kh == null) {
+                System.out.println("❌ Không thể tải thông tin khách hàng!");
+                continue;
+            }
+            
+            System.out.println("\n⚠️  THÔNG TIN KHÁCH HÀNG SẼ BỊ XÓA:");
+            hienThiThongTinKhachHang(kh);
+            
+            System.out.print("\n⚠️  Bạn có CHẮC CHẮN muốn xóa khách hàng này? (YES/NO): ");
+            String confirm1 = scanner.nextLine().trim().toUpperCase();
+            
+            if (!"YES".equals(confirm1)) {
+                System.out.println("✓ Đã hủy xóa khách hàng.");
+                continue;
+            }
+            
+            System.out.print("⚠️  Xác nhận lần 2 (nhập mã KH để xác nhận): ");
+            String confirm2 = scanner.nextLine().trim();
+            
+            if (!maKH.equals(confirm2)) {
+                System.out.println("❌ Mã xác nhận không khớp! Đã hủy xóa.");
+                continue;
+            }
+            
+            if (KhachHangDAO.xoaKhachHang(maKH)) {
+                System.out.println("\n✅ Xóa khách hàng thành công!");
+            } else {
+                System.out.println("\n❌ Xóa khách hàng thất bại!");
+            }
+            
+            System.out.print("\n→ Xóa khách hàng khác? (Y/N): ");
+            String choice = scanner.nextLine().trim().toUpperCase();
+            if (!"Y".equals(choice)) break;
         }
-        scanner.close();
     }
 
     public void xuat() {
