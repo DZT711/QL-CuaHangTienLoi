@@ -87,26 +87,44 @@ public class KhachHangDAO {
     }
 }
 
-    public static void suaKhachHang(KhachHangDTO kh, String maKH) {
-        String query = "UPDATE KHACHHANG SET Ho = ?, Ten = ?, GioiTinh = ?, NgaySinh = ?, DienThoai = ?, DiaChi = ? WHERE MaKH = ?";
+    public static boolean suaKhachHang(KhachHangDTO kh) {
+        
+        String query = """
+            UPDATE KHACHHANG 
+            SET Ho = ?, Ten = ?, GioiTinh = ?, NgaySinh = ?, DienThoai = ?, DiaChi = ? 
+            WHERE MaKH = ?        
+        """;
 
-        try (Connection conn  = JDBCUtil.getConnection()) {
-            PreparedStatement stmt = conn.prepareStatement(query);
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+            
             stmt.setString(1, kh.getHo());
             stmt.setString(2, kh.getTen());
             stmt.setString(3, kh.getGioiTinh());
-            stmt.setDate(4, java.sql.Date.valueOf(kh.getNgaySinh()));
-            stmt.setString(5, kh.getDienThoai());
-            stmt.setString(6, kh.getDiaChi());
-            stmt.setString(7, maKH);
-            int rowAffected = stmt.executeUpdate();
-            if (rowAffected > 0) {
-                System.out.println("Sửa khách hàng thành công");
+            
+            if (kh.getNgaySinh() != null) {
+                stmt.setDate(4, java.sql.Date.valueOf(kh.getNgaySinh()));
             } else {
-                System.out.println("Sửa khách hàng thất bại");
+                stmt.setNull(4, java.sql.Types.DATE);
             }
+            
+            stmt.setString(5, kh.getDienThoai());
+            
+            if (kh.getDiaChi() != null && !kh.getDiaChi().isEmpty()) {
+                stmt.setString(6, kh.getDiaChi());
+            } else {
+                stmt.setNull(6, java.sql.Types.VARCHAR);
+            }
+            
+            stmt.setString(7, kh.getMaKH());
+            
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+            
         } catch (SQLException e) {
-            System.err.println("Lỗi khi sửa khách hàng: " + e.getMessage());
+            System.err.println("❌ Lỗi khi sửa khách hàng: " + e.getMessage());
+            e.printStackTrace();
+            return false;
         }
     }
 

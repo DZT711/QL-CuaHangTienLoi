@@ -196,25 +196,67 @@ public class KhachHangDTO {
 
         System.out.println("Sửa họ: ");
         String newHo = scanner.nextLine().trim();
-        if (newHo.equals("0")) return false;
+        if ("0".equals(newHo)) return false;
         if (!newHo.isEmpty()) this.ho = newHo;
 
         System.out.println("Sửa tên: ");
         String newTen = scanner.nextLine().trim();
-        if (newTen.equals("0")) return false;
+        if ("0".equals(newTen)) return false;
         if (!newTen.isEmpty()) this.ten = newTen;
 
-        // Sửa ngày sinh ?
+        System.out.print("→ Sửa giới tính: ");
+        String newGioiTinh = scanner.nextLine().trim();
+        if ("0".equals(newGioiTinh)) return false;
+        if (!newGioiTinh.isEmpty()) {
+            String lower = newGioiTinh.toLowerCase();
+            if (lower.equals("nam")) {
+                this.gioiTinh = "Nam";
+            } else if (lower.equals("nữ") || lower.equals("nu") || lower.equals("nư")) {
+                this.gioiTinh = "Nữ";
+            } else {
+                System.out.println("❌ Giới tính không hợp lệ! Giữ nguyên: " + this.gioiTinh);
+            }
+        }
 
-        System.out.println("Sửa địa chỉ: ");
+        String ngaySinhHienTai = (this.ngaySinh != null) ? 
+                            this.ngaySinh.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : 
+                            "(Chưa có)";
+        System.out.print("→ Sửa ngày sinh [" + ngaySinhHienTai + "] (dd/MM/yyyy): ");
+        String newNgaySinh = scanner.nextLine().trim();
+        if ("0".equals(newNgaySinh)) return false;
+        if (!newNgaySinh.isEmpty()) {
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                LocalDate ngaySinh = LocalDate.parse(newNgaySinh, formatter);
+                
+                if (ngaySinh.isAfter(LocalDate.now())) {
+                    System.out.println("❌ Ngày sinh không hợp lệ! Giữ nguyên.");
+                } else {
+                    this.ngaySinh = ngaySinh;
+                }
+            } catch (DateTimeParseException e) {
+                System.out.println("❌ Sai định dạng! Giữ nguyên ngày sinh.");
+            }
+        }
+
+        String diaChiHienTai = (this.diaChi != null && !this.diaChi.isEmpty()) ? 
+                        this.diaChi : "(Chưa có)";
+        System.out.print("→ Sửa địa chỉ [" + diaChiHienTai + "]: ");
         String newDiaChi = scanner.nextLine().trim();
-        if (newDiaChi.equals("0")) return false;
+        if ("0".equals(newDiaChi)) return false;
         if (!newDiaChi.isEmpty()) this.diaChi = newDiaChi;
 
-        System.out.println("Sửa số điện thoại: ");
+        System.out.print("→ Sửa số điện thoại [" + this.dienThoai + "] (10 số): ");
         String newSdt = scanner.nextLine().trim();
-        if (newSdt.equals("0")) return false;
-        if(!newSdt.isEmpty()) this.dienThoai = newSdt;
+        if ("0".equals(newSdt)) return false;
+        if (!newSdt.isEmpty()) {
+            if (newSdt.matches("\\d{10}")) {
+                this.dienThoai = newSdt;
+            } else {
+                System.out.println("❌ Số điện thoại không hợp lệ! Giữ nguyên: " + this.dienThoai);
+            }
+        }
+
         return true;
     }
 
