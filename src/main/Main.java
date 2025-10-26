@@ -11,6 +11,7 @@ import view.QuanLyNhanVien;
 import view.QuanLyNhapHang;
 import view.QuanLySanPham;
 import view.QuanLyHoaDon;
+import view.QuanLyTaiKhoan;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -51,8 +52,8 @@ public class Main {
              * System.out.println("\n");
              */
 
-            // Bước A: Xác thực (Authentication) - Kiểm tra username và password
-            TaiKhoanDTO taiKhoan = TaiKhoanDAO.checkAccount(username, password);
+            // Xác thực - Kiểm tra username và password
+            TaiKhoanDTO taiKhoan = TaiKhoanDAO.kiemTraTaiKhoan(username, password);
             if (taiKhoan != null) {
                 // Kiểm tra trạng thái nhân viên
                 NhanVienDTO nvLogin = NhanVienDAO.timNhanVienTheoMa(taiKhoan.getMaNV());
@@ -68,10 +69,10 @@ public class Main {
                 }
 
                 CURRENT_ACCOUNT = taiKhoan;
-                // Bước B: Kiểm tra mật khẩu mặc định (Default Check)
-                // Bước C: Phân luồng (Routing)
+                // Kiểm tra mật khẩu mặc định
+                // Phân luồng
                 if (taiKhoan.isDefaultPassword()) {
-                    // Trường hợp 1: isDefaultPassword == true - Bắt buộc đổi mật khẩu
+                    // isDefaultPassword == true - Bắt buộc đổi mật khẩu
                     if (forceChangePasswordLoop(taiKhoan.getUsername(), taiKhoan.getMaNV())) {
                         System.out.println("✅ Đổi mật khẩu thành công! Bạn có thể tiếp tục sử dụng hệ thống.");
                     } else {
@@ -79,7 +80,7 @@ public class Main {
                         continue;
                     }
                 } else {
-                    // Trường hợp 2: isDefaultPassword == false
+                    // isDefaultPassword == false
                     System.out.println("✅ Đăng nhập thành công!");
                     System.out.println("✓ Mật khẩu đã được đổi - Bảo mật tốt!");
                 }
@@ -94,8 +95,8 @@ public class Main {
                 }
                 break;
             } else {
-                // Bước A thất bại - Xác thực không thành công
-                // Thông báo lỗi đã được xử lý trong TaiKhoanDAO.checkAccount()
+                // thất bại - Xác thực không thành công
+                // Thông báo lỗi đã được xử lý
                 System.out.println("Đăng nhập thất bại, vui lòng thử lại!");
                 clearScreen();
             }
@@ -132,6 +133,7 @@ public class Main {
             System.out.println("│                                                            │");
             System.out.println("├─ HỆ THỐNG ─────────────────────────────────────────────────┤");
             System.out.println("│                                                            │");
+            System.out.println("│  [8] ➜ Quản lý tài khoản                                 │");
             System.out.println("│  [0] ✗ Đăng xuất                                           │");
             System.out.println("│                                                            │");
             System.out.println("└────────────────────────────────────────────────────────────┘");
@@ -144,14 +146,14 @@ public class Main {
                 if (scanner.hasNextInt()) {
                     choice = scanner.nextInt();
                     scanner.nextLine();
-                    if (choice >= 0 && choice <= 6) {
+                    if (choice >= 0 && choice <= 8) {
                         break;
                     }
-                    System.out.println("Vui lòng nhập số trong khoảng 0–6.");
+                    System.out.println("Vui lòng nhập số trong khoảng 0–8.");
                     System.out.print("\nNhập lựa chọn của bạn: ");
                 } else {
                     System.out.println("Vui lòng nhập số hợp lệ.");
-                    scanner.next(); // bỏ token không phải số
+                    scanner.next();
                     System.out.print("\nNhập lựa chọn của bạn: ");
                 }
             }
@@ -184,6 +186,11 @@ public class Main {
                 case 7:
                     // xem báo cáo / thống kê
                     break;
+                case 8:
+                    QuanLyTaiKhoan qltk = new QuanLyTaiKhoan();
+                    qltk.menuQuanLyTaiKhoan();
+                    break;
+
                 case 0:
                     System.out.println("Đăng xuất thành công!");
 
@@ -209,7 +216,7 @@ public class Main {
             String paddedTitle = String.format("%" + padding + "s%s%" + padding + "s", "", title, "");
 
             System.out.println("\n    ─────────────────────────────────────────────────────────────");
-            System.out.println("    │" + paddedTitle.toUpperCase() + " ");
+            System.out.println("    │" + paddedTitle.toUpperCase() + "|");
             System.out.println("    ┌────────────────────────────────────────────────────────────┐");
             System.out.println("    │                                                            │");
             System.out.println("    ├─ CHỨC NĂNG CHÍNH ──────────────────────────────────────────┤");
@@ -221,6 +228,7 @@ public class Main {
             System.out.println("    │                                                            │");
             System.out.println("    ├─ HỆ THỐNG ─────────────────────────────────────────────────┤");
             System.out.println("    │                                                            │");
+            System.out.println("    │  [5] ➜ Quản lý tài khoản                                   │");
             System.out.println("    │  [0] ✗ Đăng xuất                                           │");
             System.out.println("    │                                                            │");
             System.out.println("    └────────────────────────────────────────────────────────────┘");
@@ -258,6 +266,11 @@ public class Main {
                     break;
                 case 4:
                     // xem hóa đơn đã lập
+                    break;
+                case 5:
+                    // quản lý tài khoản cá nhân
+                    QuanLyTaiKhoan qltk = new QuanLyTaiKhoan();
+                    qltk.menuQuanLyTaiKhoanNhanVien();
                     break;
                 case 0:
                     System.out.println("Đăng xuất thành công!");
@@ -298,7 +311,7 @@ public class Main {
             }
 
             // Thử đổi mật khẩu
-            if (dao.TaiKhoanDAO.forceChangePassword(username, newPassword, maNV)) {
+            if (dao.TaiKhoanDAO.batBuocDoiMatKhau(username, newPassword, maNV)) {
                 System.out.println("\n🎉 CHÚC MỪNG! Bạn đã đổi mật khẩu thành công!");
                 System.out.println("   Tài khoản của bạn giờ đây đã an toàn hơn.");
                 return true;

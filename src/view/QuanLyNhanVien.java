@@ -3,6 +3,7 @@ package view;
 import java.util.Scanner;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import util.FormatUtil;
 import java.time.format.DateTimeParseException;
 import java.util.InputMismatchException;
 import java.util.List;
@@ -220,7 +221,7 @@ public class QuanLyNhanVien {
         int contentWidth = 60;
         String hoTen = ho + " " + ten;
         String ngaySinhStr = ngaySinh != null ? ngaySinh.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "Không có";
-        String luongStr = String.format("%,d VNĐ", luong);
+        String luongStr = FormatUtil.formatVND(luong);
 
         System.out.println("\n╔════════════════════════════════════════════════════════════════════════════════════╗");
         System.out.println("║                                XÁC NHẬN THÔNG TIN                                  ║");
@@ -630,8 +631,8 @@ public class QuanLyNhanVien {
         // Định dạng giá trị (làm cho code printf gọn hơn)
         String valDangLam = String.format("%d (%.1f%%)", dangLamViec, tyLeDangLamViec);
         String valDaNghi = String.format("%d (%.1f%%)", daNghiViec, tyLeDaNghiViec);
-        String valTongLuong = String.format("%,d VNĐ", tongQuyLuong);
-        String valLuongTB = String.format("%,d VNĐ", luongTrungBinh);
+        String valTongLuong = FormatUtil.formatVND(tongQuyLuong);
+        String valLuongTB = FormatUtil.formatVND(luongTrungBinh);
 
         System.out.println("┌──────────────────────────────────────────────────────────────────────────────────┐");
         System.out.printf("│ %-50s %29d │%n", "📊 Tổng số nhân viên:", tongSoNV);
@@ -798,7 +799,7 @@ public class QuanLyNhanVien {
             row.add(nv.getGioiTinh());
             row.add(nv.getNgaySinh() != null ? nv.getNgaySinhFormat() : "N/A");
             row.add(nv.getEmail());
-            row.add(String.format("%,d VNĐ", nv.getLuong()));
+            row.add(FormatUtil.formatVND(nv.getLuong()));
             row.add(nv.getChucVu());
             row.add(nv.getTrangThai() != null ? nv.getTrangThai() : "N/A");
             rows.add(row);
@@ -824,7 +825,7 @@ public class QuanLyNhanVien {
         String ngaySinh = nv.getNgaySinh() != null ? nv.getNgaySinhFormat() : "Không có";
         String diaChi = nv.getDiaChi() != null ? nv.getDiaChi() : "Không có";
         String email = nv.getEmail();
-        String luong = String.format("%,d VNĐ", nv.getLuong());
+        String luong = FormatUtil.formatVND(nv.getLuong());
         String chucVu = nv.getChucVu();
         String trangThai = nv.getTrangThai() != null ? nv.getTrangThai() : "Không có";
 

@@ -1,6 +1,7 @@
 package dao;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -15,37 +16,50 @@ import dto.NhanVienDTO;
 public class NhanVienDAO {
 
     // Tìm nhân viên theo mã
-    public static NhanVienDTO timNhanVienTheoMa(String maNV) {
-        String query = "SELECT MaNV, Ho, Ten, GioiTinh, NgaySinh, DiaChi, Email, Luong, ChucVu, TrangThai " +
-                "FROM NHANVIEN " +
-                "WHERE MaNV = ?";
 
-        try (Connection conn = JDBCUtil.getConnection()) {
-            PreparedStatement stmt = conn.prepareStatement(query);
+    public static NhanVienDTO timNhanVienTheoMa(String maNV) {
+
+        if (maNV == null || maNV.trim().isEmpty()) {
+            System.err.println("❌ Mã nhân viên không được rỗng!");
+            return null;
+        }
+
+        String query = """
+                SELECT MaNV, Ho, Ten, GioiTinh, NgaySinh, DiaChi, Email,
+                       Luong, ChucVu, TrangThai
+                FROM NHANVIEN
+                WHERE MaNV = ?
+                """;
+
+        try (Connection conn = JDBCUtil.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, maNV);
-            ResultSet rs = stmt.executeQuery();
 
-            if (rs.next()) {
-                java.sql.Date d = rs.getDate("NgaySinh");
-                LocalDate ns = d != null ? d.toLocalDate() : null;
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Date d = rs.getDate("NgaySinh");
+                    LocalDate ns = (d != null) ? d.toLocalDate() : null;
 
-                NhanVienDTO nv = new NhanVienDTO(
-                        rs.getString("MaNV"),
-                        rs.getString("Ho"),
-                        rs.getString("Ten"),
-                        rs.getString("GioiTinh"),
-                        ns,
-                        rs.getString("DiaChi"),
-                        rs.getString("Email"),
-                        rs.getInt("Luong"),
-                        rs.getString("ChucVu"));
-                nv.setTrangThai(rs.getString("TrangThai"));
-                return nv;
+                    NhanVienDTO nv = new NhanVienDTO(
+                            rs.getString("MaNV"),
+                            rs.getString("Ho"),
+                            rs.getString("Ten"),
+                            rs.getString("GioiTinh"),
+                            ns,
+                            rs.getString("DiaChi"),
+                            rs.getString("Email"),
+                            rs.getInt("Luong"),
+                            rs.getString("ChucVu"));
+                    nv.setTrangThai(rs.getString("TrangThai"));
+                    return nv;
+                }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi tìm nhân viên theo mã: " + e.getMessage());
+            System.err.println("❌ Lỗi khi tìm nhân viên theo mã: " + e.getMessage());
+            e.printStackTrace();
         }
+
         return null;
     }
 
@@ -117,7 +131,7 @@ public class NhanVienDAO {
                 // Tạo tài khoản mặc định cho nhân viên vừa thêm
                 String hoTen = nv.getFullName();
                 String vaiTro = nv.getChucVu();
-                boolean created = TaiKhoanDAO.createDefaultAccountForEmployee(nv.getMaNV(), hoTen, vaiTro,
+                boolean created = TaiKhoanDAO.taoTaiKhoanMacDinhChoNhanVien(nv.getMaNV(), hoTen, vaiTro,
                         nv.getEmail());
                 if (!created) {
                     System.out.println("Lưu ý: Không thể tạo tài khoản mặc định cho nhân viên " + nv.getMaNV());
@@ -161,7 +175,7 @@ public class NhanVienDAO {
                 System.out.println("Sửa thông tin nhân viên thành công");
                 // Nếu chuyển sang inactive: khóa đăng nhập
                 if ("inactive".equalsIgnoreCase(trangThai)) {
-                    TaiKhoanDAO.lockAccountByEmployee(nv.getMaNV());
+                    TaiKhoanDAO.khoaTaiKhoanTheoNhanVien(nv.getMaNV());
                 }
                 // Audit log
                 String actor = (Main.CURRENT_ACCOUNT != null) ? Main.CURRENT_ACCOUNT.getUsername() : "unknown";
@@ -212,7 +226,7 @@ public class NhanVienDAO {
                 int rowAffected = psDelete.executeUpdate();
                 if (rowAffected > 0) {
                     // Khóa login nếu có tài khoản
-                    TaiKhoanDAO.lockAccountByEmployee(maNV);
+                    TaiKhoanDAO.khoaTaiKhoanTheoNhanVien(maNV);
                     // Audit log trạng thái
                     AuditLogger.logEmployeeStatusChange(actor, maNV, currentStatus, "inactive", reason);
                     return true;
