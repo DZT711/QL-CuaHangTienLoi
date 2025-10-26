@@ -8,6 +8,31 @@ import java.util.List;
 
 public class NhaCungCapDAO {
 
+    public static String generateMaNCC() {
+        String prefix = "NCC";
+        String newID = prefix + "001";
+        String query = "SELECT MaNCC FROM NHACUNGCAP " +
+                    "ORDER BY CAST(SUBSTRING(MaNCC, 4) AS UNSIGNED) DESC " +
+                    "LIMIT 1";
+
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery()) {
+
+            if (rs.next()) {
+                String lastID = rs.getString("MaNCC");
+                int number = Integer.parseInt(lastID.substring(3)); 
+                newID = prefix + String.format("%03d", number + 1);
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("❌ Lỗi khi tạo mã nhà cung cấp: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return newID;
+    }
+
     // Lấy danh sách tất cả nhà cung cấp
     public static List<NhaCungCapDTO> getAllNhaCungCap() {
         List<NhaCungCapDTO> list = new ArrayList<>();
@@ -143,22 +168,22 @@ public class NhaCungCapDAO {
         return false;
     }
     
-public static void xuatDanhSachNCC() {
-    List<NhaCungCapDTO> list = getAllNhaCungCap();
+    public static void xuatDanhSachNCC() {
+        List<NhaCungCapDTO> list = getAllNhaCungCap();
 
-    System.out.println("================================ DANH SÁCH NHÀ CUNG CẤP ================================");
-    System.out.printf("%-10s | %-25s | %-25s | %-12s | %-25s | %-10s\n",
-            "Mã NCC", "Tên nhà cung cấp", "Địa chỉ", "Điện thoại", "Email", "Trạng thái");
-    System.out.println("----------------------------------------------------------------------------------------");
+        System.out.println("================================ DANH SÁCH NHÀ CUNG CẤP ================================");
+        System.out.printf("%-10s | %-25s | %-25s | %-12s | %-25s | %-10s\n",
+                "Mã NCC", "Tên nhà cung cấp", "Địa chỉ", "Điện thoại", "Email", "Trạng thái");
+        System.out.println("----------------------------------------------------------------------------------------");
 
-    if (list.isEmpty()) {
-        System.out.println("⚠️  Không có nhà cung cấp nào trong hệ thống.");
-    } else {
-        for (NhaCungCapDTO ncc : list) {
-            ncc.inThongTinNCC();
+        if (list.isEmpty()) {
+            System.out.println("⚠️  Không có nhà cung cấp nào trong hệ thống.");
+        } else {
+            for (NhaCungCapDTO ncc : list) {
+                ncc.inThongTinNCC();
+            }
         }
-    }
 
-    System.out.println("========================================================================================");
-}
+        System.out.println("========================================================================================");
+    }
 }
