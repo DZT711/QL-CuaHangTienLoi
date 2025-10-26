@@ -206,12 +206,17 @@ public class NhapHangDAO {
     }
 
     public static boolean capNhatTongTien(Connection conn, String maPhieu, int tongTien) throws SQLException {
+        if (maPhieu == null || maPhieu.trim().isEmpty()) 
+            throw new IllegalArgumentException("Mã phiếu không được rỗng!");
+        if (tongTien < 0) 
+            throw new IllegalArgumentException("Tổng tiền không được âm!");
+
         String query = "UPDATE PHIEUNHAP SET TongTien = ? WHERE MaPhieu = ?";
         
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, tongTien);
             stmt.setString(2, maPhieu);
-            return stmt.executeUpdate() > 0;  
+            return stmt.executeUpdate() > 0;
         }
     }
 
