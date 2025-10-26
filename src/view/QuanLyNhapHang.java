@@ -788,41 +788,105 @@ public class QuanLyNhapHang {
     public void suaPhieuNhap() { 
         Scanner scanner = new Scanner(System.in);
         while (true) {
-            System.out.println("Nhập mã phiếu nhập cần sửa: ");
+            System.out.println("\n╔════════════════════════════════════════════════════╗");
+            System.out.println("║              SỬA THÔNG TIN PHIẾU NHẬP              ║");
+            System.out.println("╚════════════════════════════════════════════════════╝");
+
+            System.out.print("\n→ Nhập mã phiếu nhập cần sửa (hoặc '0' để hủy): ");
             String maPhieu = scanner.nextLine().trim();
-            if (maPhieu.equals("0")) {
-                System.out.println("Thoát sửa phiếu nhập.");
+            
+            if ("0".equals(maPhieu)) {
+                System.out.println("⚠️  Đã hủy sửa phiếu nhập.");
                 break;
             }
+            
+            if (maPhieu.isEmpty()) {
+                System.out.println("❌ Mã phiếu nhập không được để trống!");
+                continue;
+            }
             NhapHangDTO pn = NhapHangDAO.timPhieuNhapTheoMa(maPhieu);
-
             if (pn == null) {
-                System.out.println("Mã phiếu nhập không tồn tại, vui lòng nhập lại.");
+                System.out.println("❌ Không tìm thấy phiếu nhập với mã: " + maPhieu);
                 continue;
             }
 
-            System.out.println("════════ Thông tin phiếu nhập ════════");
-            System.out.println("Mã phiếu: " + pn.getMaPhieu());
-            System.out.println("Mã nhân viên: " + pn.getMaNV());
-            System.out.println("Mã nhà cung cấp: " + pn.getMaNCC());
-            System.out.println("Ngày nhập: " + pn.getNgayLapPhieu());
-            System.out.println("Tổng tiền: " + FormatUtil.formatVND(pn.getTongTien()));
-            System.out.println("═════════════════════════════════════════════════════");
-
-            System.out.println("Nhập thông tin mới cho phiếu nhập: ");
-            if (!pn.sua()) {
-                System.out.println("Đã hủy sửa phiếu nhập, quay lại menu...");
+            List<ChiTietPhieuNhapDTO> chiTietList = ChiTietPhieuNhapDAO.timChiTietPhieuNhap(maPhieu);
+            if (chiTietList != null && !chiTietList.isEmpty()) {
+                System.out.println("❌ KHÔNG THỂ SỬA: Phiếu nhập này đã có chi tiết hàng hóa!");
                 break;
             }
 
-            System.out.print("Xác nhận sửa phiếu nhập? (y/n): ");
-            String confirm = scanner.nextLine().trim();
-            if (!confirm.equalsIgnoreCase("y")) {
-                System.out.println("Đã hủy sửa phiếu nhập.");
+            System.out.println("\n╔════════════════════════════════════════════════════╗");
+            System.out.println("║          THÔNG TIN PHIẾU NHẬP HIỆN TẠI           ║");
+            System.out.println("╚════════════════════════════════════════════════════╝");
+            System.out.println("Mã phiếu        : " + pn.getMaPhieu());
+            System.out.println("Nhà cung cấp    : " + pn.getMaNCC());
+            System.out.println("Nhân viên       : " + pn.getMaNV());
+            System.out.println("Ngày lập        : " + pn.getNgayLapPhieu().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+            System.out.println("Tổng tiền       : " + FormatUtil.formatVND(pn.getTongTien()));
+
+            System.out.println("\n📝 NHẬP THÔNG TIN MỚI");
+
+            String newMaNCC = pn.getMaNCC();
+            while (true) {
+                System.out.print("→ Mã nhà cung cấp [" + pn.getMaNCC() + "]: ");
+                String input = scanner.nextLine().trim();
+
+                if (input.isEmpty()) break;
+                NhaCungCapDTO ncc = NhaCungCapDAO.timnccTheoMa(input);
+                if (ncc == null) {
+                    System.out.println("❌ Nhà cung cấp không tồn tại! Vui lòng nhập lại.");
+                    continue;
+                }
+                newMaNCC = input;
+                System.out.println("✅ Đã chọn: " + ncc.getTenNCC());
                 break;
             }
-            NhapHangDAO.suaPhieuNhap(pn, maPhieu);
-            System.out.println("Sửa phiếu nhập thành công.");
+
+            String newMaNV = pn.getMaNV();
+            while (true) {
+                System.out.print("→ Mã nhân viên [" + pn.getMaNV() + "]: ");
+                String input = scanner.nextLine().trim();
+
+                if (input.isEmpty()) break;
+                NhanVienDTO nv = NhanVienDAO.timNhanVienTheoMa(input);
+                if (nv == null) {
+                    System.out.println("❌ Nhân viên không tồn tại! Vui lòng nhập lại.");
+                    continue;
+                }
+                newMaNV = input;
+                System.out.println("✅ Đã chọn: " + nv.getHo() + " " + nv.getTen());
+                break;
+            }
+
+            if (newMaNCC.equals(pn.getMaNCC()) && newMaNV.equals(pn.getMaNV())) {
+                System.out.println("\n⚠️  Bạn không thay đổi thông tin nào.");
+                break;
+            }
+
+            System.out.println("\n╔════════════════════════════════════════════════════╗");
+            System.out.println("║              THÔNG TIN THAY ĐỔI                  ║");
+            System.out.println("╚════════════════════════════════════════════════════╝");
+            if (!newMaNCC.equals(pn.getMaNCC()))
+                System.out.println("Nhà cung cấp: " + pn.getMaNCC() + " → " + newMaNCC);
+            if (!newMaNV.equals(pn.getMaNV()))
+                System.out.println("Nhân viên   : " + pn.getMaNV() + " → " + newMaNV);
+
+            System.out.print("\n→ Xác nhận sửa phiếu nhập? (Y/N): ");
+            String confirm = scanner.nextLine().trim().toUpperCase();
+
+            if (!"Y".equals(confirm)) {
+                System.out.println("⚠️  Đã hủy sửa phiếu nhập.");
+                break;
+            }
+
+            boolean success = NhapHangDAO.suaPhieuNhap(maPhieu, newMaNCC, newMaNV);
+
+            if (success) {
+                System.out.println("✅ Sửa phiếu nhập thành công!");
+            } else {
+                System.out.println("❌ Sửa phiếu nhập thất bại!");
+            }
             break;
         }
     }

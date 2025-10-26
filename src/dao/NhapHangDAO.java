@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.sql.Timestamp;
 
+import dto.ChiTietPhieuNhapDTO;
 import dto.NhapHangDTO;
 import util.JDBCUtil;
 
@@ -223,24 +224,36 @@ public class NhapHangDAO {
         return danhSachPhieuNhap;
     }
 
-    public static void suaPhieuNhap(NhapHangDTO pn, String maPhieu) {
-        String query = "UPDATE PHIEUNHAP SET MaNCC = ?, MaNV = ? WHERE MaPhieu = ?";
+    public static boolean suaPhieuNhap(String maPhieu, String newMaNCC, String newMaNV) {
 
+        if (maPhieu == null || maPhieu.trim().isEmpty() || 
+            newMaNCC == null || newMaNCC.trim().isEmpty() ||
+            newMaNV == null || newMaNV.trim().isEmpty()) {
+            System.err.println("❌ Dữ liệu không hợp lệ khi cập nhật phiếu nhập!");
+            return false;
+        }
+
+        List<ChiTietPhieuNhapDTO> chiTietList = ChiTietPhieuNhapDAO.timChiTietPhieuNhap(maPhieu);
+        if (chiTietList != null && !chiTietList.isEmpty()) {
+            System.err.println("❌ Không thể sửa phiếu nhập vì đã có chi tiết hàng hóa!");
+            return false;
+        }
+
+        String query = "UPDATE PHIEUNHAP SET MaNCC = ?, MaNV = ? WHERE MaPhieu = ?";
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            stmt.setString(1, pn.getMaNCC());
-            stmt.setString(2, pn.getMaNV());
+            stmt.setString(1, newMaNCC);
+            stmt.setString(2, newMaNV);
             stmt.setString(3, maPhieu);
 
-            int rowAffected = stmt.executeUpdate();
-            if (rowAffected > 0) {
-                System.out.println("Sửa phiếu nhập thành công");
-            } else {
-                System.out.println("Sửa phiếu nhập thất bại");
-            }
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+
         } catch (SQLException e) {
-            System.err.println("Lỗi khi sửa phiếu nhập: " + e.getMessage());
+            System.err.println("❌ Lỗi khi sửa phiếu nhập: " + e.getMessage());
+            e.printStackTrace();
+            return false;
         }
     }
 

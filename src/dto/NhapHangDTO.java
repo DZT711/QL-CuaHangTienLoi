@@ -57,20 +57,4 @@ public class NhapHangDTO {
     public void setNgayLapPhieu(LocalDateTime ngayLapPhieu) {
         this.ngayLapPhieu = ngayLapPhieu;
     }   
-
-    public boolean sua() {
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.println("Sửa mã nhân viên");
-        String newMaNV = scanner.nextLine().trim();
-        if (newMaNV.equals("0")) return false;
-        if (!newMaNV.isEmpty()) this.maNV = newMaNV;
-
-        System.out.println("Sửa mã nhà cung cấp");
-        String newMaNCC = scanner.nextLine().trim();
-        if (newMaNCC.equals("0")) return false;
-        if (!newMaNCC.isEmpty()) this.maNCC = newMaNCC;
-
-        return true;
-    }
 }
