@@ -60,24 +60,38 @@ public class NhaCungCapDAO {
 
     // Tìm nhà cung cấp theo mã
     public static NhaCungCapDTO timnccTheoMa(String ma) {
-        String query = "SELECT * FROM NHACUNGCAP WHERE MaNCC = ?";
+        if (ma == null || ma.trim().isEmpty()) {
+            System.err.println("❌ Mã NCC không được rỗng!");
+            return null;
+        }
+
+        String query = """
+                SELECT MaNCC, TenNCC, DiaChi, DienThoai, Email, TrangThai
+                FROM NHACUNGCAP
+                WHERE MaNCC = ?
+        """;
+
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, ma);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return new NhaCungCapDTO(
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new NhaCungCapDTO(
                         rs.getString("MaNCC"),
                         rs.getString("TenNCC"),
                         rs.getString("DiaChi"),
                         rs.getString("DienThoai"),
                         rs.getString("Email"),
                         rs.getString("TrangThai")
-                );
+                    );
+                }
             }
+            
         } catch (SQLException e) {
-            System.err.println("Lỗi khi tìm NCC theo mã: " + e.getMessage());
+            System.err.println("❌ Lỗi khi tìm NCC theo mã: " + e.getMessage());
+            e.printStackTrace();
         }
         return null;
     }

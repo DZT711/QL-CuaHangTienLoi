@@ -63,8 +63,12 @@ public class NhapHangDAO {
         }
     }
 
-
     public static NhapHangDTO timPhieuNhapTheoMa(String maPhieu) {
+        if (maPhieu == null || maPhieu.trim().isEmpty()) {
+            System.err.println("❌ Mã phiếu không được rỗng!");
+            return null;
+        }
+
         String query = """
             SELECT MaPhieu, MaNCC, MaNV, TongTien, NgayLapPhieu
             FROM PHIEUNHAP
@@ -98,25 +102,36 @@ public class NhapHangDAO {
     public static List<NhapHangDTO> timPhieuNhapTheoMaNCC(String maNCC) {
         List<NhapHangDTO> danhSachPhieuNhap = new ArrayList<>();
 
-        String query = "SELECT MaPhieu, MaNCC, MaNV, TongTien, NgayLapPhieu FROM PHIEUNHAP WHERE MaNCC = ?";
+        if (maNCC == null || maNCC.trim().isEmpty()) {
+            System.err.println("❌ Mã NCC không được rỗng!");
+            return danhSachPhieuNhap;
+        }
+
+        String query = """
+            SELECT MaPhieu, MaNCC, MaNV, TongTien, NgayLapPhieu 
+            FROM PHIEUNHAP 
+            WHERE MaNCC = ?
+            ORDER BY NgayLapPhieu DESC
+        """;
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
             
             stmt.setString(1, maNCC);
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                danhSachPhieuNhap.add(new NhapHangDTO(
-                    rs.getString("MaPhieu"), 
-                    rs.getString("MaNCC"), 
-                    rs.getString("MaNV"), 
-                    rs.getInt("TongTien"), 
-                    rs.getTimestamp("NgayLapPhieu").toLocalDateTime()
-                ));
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    danhSachPhieuNhap.add(new NhapHangDTO(
+                        rs.getString("MaPhieu"), 
+                        rs.getString("MaNCC"), 
+                        rs.getString("MaNV"), 
+                        rs.getInt("TongTien"), 
+                        rs.getTimestamp("NgayLapPhieu").toLocalDateTime()
+                    ));
+                }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi tìm phiếu nhập theo mã NCC: " + e.getMessage());
+            System.err.println("❌ Lỗi khi tìm phiếu nhập theo mã NCC: " + e.getMessage());
+            e.printStackTrace();
         }
         return danhSachPhieuNhap;
     }
@@ -124,31 +139,54 @@ public class NhapHangDAO {
     public static List<NhapHangDTO> timPhieuNhapTheoMaNV(String maNV) {
         List<NhapHangDTO> danhSachPhieuNhap = new ArrayList<>();
 
-        String query = "SELECT MaPhieu, MaNCC, MaNV, TongTien, NgayLapPhieu FROM PHIEUNHAP WHERE MaNV = ?";
+        if (maNV == null || maNV.trim().isEmpty()) {
+            System.err.println("❌ Mã nhân viên không được rỗng!");
+            return danhSachPhieuNhap;
+        }
+
+        String query = """
+            SELECT MaPhieu, MaNCC, MaNV, TongTien, NgayLapPhieu
+            FROM PHIEUNHAP
+            WHERE MaNV = ?
+            ORDER BY NgayLapPhieu DESC
+        """;
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
             
             stmt.setString(1, maNV);
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                danhSachPhieuNhap.add(new NhapHangDTO(
-                    rs.getString("MaPhieu"), 
-                    rs.getString("MaNCC"), 
-                    rs.getString("MaNV"), 
-                    rs.getInt("TongTien"), 
-                    rs.getTimestamp("NgayLapPhieu").toLocalDateTime()
-                ));
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    danhSachPhieuNhap.add(new NhapHangDTO(
+                        rs.getString("MaPhieu"), 
+                        rs.getString("MaNCC"), 
+                        rs.getString("MaNV"), 
+                        rs.getInt("TongTien"), 
+                        rs.getTimestamp("NgayLapPhieu").toLocalDateTime()
+                    ));
+                }
             }
+            
         } catch (SQLException e) {
-            System.err.println("Lỗi khi tìm phiếu nhập theo mã NV: " + e.getMessage());
+            System.err.println("❌ Lỗi khi tìm phiếu nhập theo mã NV: " + e.getMessage());
+            e.printStackTrace();
         }
         return danhSachPhieuNhap;
     }
 
     public static List<NhapHangDTO> timPhieuNhapTheoNgay(LocalDate fromDate, LocalDate toDate) {
         List<NhapHangDTO> danhSachPhieuNhap = new ArrayList<>();
+
+        if (fromDate == null || toDate == null) {
+            System.err.println("❌ Ngày không được null!");
+            return danhSachPhieuNhap;
+        }
+        
+        if (fromDate.isAfter(toDate)) {
+            System.err.println("❌ Ngày bắt đầu phải trước hoặc bằng ngày kết thúc!");
+            return danhSachPhieuNhap;
+        }
 
         String query = """
             SELECT MaPhieu, MaNCC, MaNV, TongTien, NgayLapPhieu
@@ -166,20 +204,21 @@ public class NhapHangDAO {
             stmt.setTimestamp(1, Timestamp.valueOf(fromDateTime));
             stmt.setTimestamp(2, Timestamp.valueOf(toDateTime));
 
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                danhSachPhieuNhap.add(new NhapHangDTO(
-                    rs.getString("MaPhieu"), 
-                    rs.getString("MaNCC"), 
-                    rs.getString("MaNV"), 
-                    rs.getInt("TongTien"), 
-                    rs.getTimestamp("NgayLapPhieu").toLocalDateTime()
-                ));
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    danhSachPhieuNhap.add(new NhapHangDTO(
+                        rs.getString("MaPhieu"), 
+                        rs.getString("MaNCC"), 
+                        rs.getString("MaNV"), 
+                        rs.getInt("TongTien"), 
+                        rs.getTimestamp("NgayLapPhieu").toLocalDateTime()
+                    ));
+                }
             }
 
         } catch (SQLException e) {
-            System.err.println("Lỗi khi tìm phiếu nhập theo ngày: " + e.getMessage());
+            System.err.println("❌ Lỗi khi tìm phiếu nhập theo ngày: " + e.getMessage());
+            e.printStackTrace();
         }
         return danhSachPhieuNhap;
     }
