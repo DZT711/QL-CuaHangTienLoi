@@ -10,17 +10,23 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
 import dao.NhapHangDAO;
+import dao.SanPhamDAO;
 import dao.NhaCungCapDAO;
 import dao.NhanVienDAO;
 import dao.ChiTietPhieuNhapDAO;
+import dao.HangHoaDAO;
 import dto.ChiTietPhieuNhapDTO;
 import dto.NhaCungCapDTO;
 import dto.NhanVienDTO;
 import dto.NhapHangDTO;
+import dto.SanPhamDTO;
 import main.Main;
 import util.FormatUtil;
+import util.JDBCUtil;
+import view.QuanLyNhaCungCap;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 
 public class QuanLyNhapHang {
@@ -180,159 +186,221 @@ public class QuanLyNhapHang {
         Scanner scanner = new Scanner(System.in);
         
         while (true) {
+            System.out.println("\n╔════════════════════════════════════════════════════╗");
+            System.out.println("║              TẠO PHIẾU NHẬP HÀNG                  ║");
+            System.out.println("╚════════════════════════════════════════════════════╝");
+            
             Connection conn = null;
+            String maPhieu = null; 
+            
             try {
-                conn = util.JDBCUtil.getConnection();
-
-                String maPhieu = NhapHangDAO.generateMaPhieuNhap();
-                System.out.println("Mã phiếu nhập: " + maPhieu);
-                
-                System.out.println("Nhập mã nhà cung cấp: ");
+                System.out.print("→ Nhập mã nhà cung cấp (hoặc '0' để hủy): ");
                 String maNCC = scanner.nextLine().trim();
+                
+                if ("0".equals(maNCC)) {
+                    System.out.println("⚠️  Đã hủy tạo phiếu nhập.");
+                    break;
+                }
 
                 NhaCungCapDTO ncc = NhaCungCapDAO.timnccTheoMa(maNCC);
                 if (ncc == null) {
-                    System.out.println("Nhà cung cấp không tồn tại, bạn có muốn thêm nhà cung cấp mới không? (y/n)");
-                    String choice = scanner.nextLine().trim();
-                    if (choice.equalsIgnoreCase("y")) {
-                        // Tạo nhà cung cấp mới
-                        System.out.println("Nhập mã nhà cung cấp mới:");
-                        maNCC = scanner.nextLine().trim();
-                        while (maNCC.isEmpty()) {
-                            System.out.println("Mã nhà cung cấp không được để trống, vui lòng nhập lại.");
-                            System.out.println("Nhập mã nhà cung cấp mới:");
-                            maNCC = scanner.nextLine().trim();
-                        }
+                    System.out.println("❌ Nhà cung cấp không tồn tại!");
+                    System.out.print("→ Bạn có muốn thêm nhà cung cấp mới? (Y/N): ");
+                    String choice = scanner.nextLine().trim().toUpperCase();
 
-                        System.out.println("Nhập tên nhà cung cấp: ");
-                        String tenNCC = scanner.nextLine().trim();
-                        while (tenNCC.isEmpty()) {
-                            System.out.println("Tên nhà cung cấp không được để trống, vui lòng nhập lại.");
-                            System.out.println("Nhập tên nhà cung cấp: ");
-                            tenNCC = scanner.nextLine().trim();
-                        }
-
-                        System.out.println("Nhập địa chỉ nhà cung cấp: ");
-                        String diaChi = scanner.nextLine().trim();
-                        while (diaChi.isEmpty()) {
-                            System.out.println("Địa chỉ nhà cung cấp không được để trống, vui lòng nhập lại.");
-                            System.out.println("Nhập địa chỉ nhà cung cấp: ");
-                            diaChi = scanner.nextLine().trim();
-                        }
-
-                        System.out.println("Nhập điện thoại nhà cung cấp: ");
-                        String dienThoai = scanner.nextLine().trim();
-                        while (dienThoai.isEmpty()) {
-                            System.out.println("Điện thoại nhà cung cấp không được để trống, vui lòng nhập lại.");
-                            System.out.println("Nhập điện thoại nhà cung cấp: ");
-                            dienThoai = scanner.nextLine().trim();
-                        }
-
-                        System.out.println("Nhập email nhà cung cấp: ");
-                        String email = scanner.nextLine().trim();
-                        while (email.isEmpty()) {
-                            System.out.println("Email nhà cung cấp không được để trống, vui lòng nhập lại.");
-                            System.out.println("Nhập email nhà cung cấp: ");
-                            email = scanner.nextLine().trim();
-                        }
-
-                        ncc = new NhaCungCapDTO(maNCC, tenNCC, diaChi, dienThoai, email, "active");
-                        NhaCungCapDAO.themNCC(ncc);
-                        System.out.println("Thêm nhà cung cấp thành công");
-                    } else continue;
+                    if ("Y".equals(choice)) {
+                        QuanLyNhaCungCap qlncc = new QuanLyNhaCungCap();
+                        qlncc.themNhaCungCap();
+                        continue; 
+                    } else {
+                        continue;
+                    }
                 }
+
+                System.out.println("✅ Nhà cung cấp: " + ncc.getTenNCC());
 
                 String maNV = Main.CURRENT_ACCOUNT.getMaNV();
                 if (maNV == null || maNV.isEmpty()) {
-                    System.out.println("Không xác định được nhân viên đăng nhập");
+                    System.out.println("❌ Không xác định được nhân viên đăng nhập!");
                     continue;
                 }
 
-                int tongTien = 0;
-                int countSuccess = 0;
+                maPhieu = NhapHangDAO.generateMaPhieu();
+                System.out.println("→ Mã phiếu nhập: " + maPhieu);
 
                 NhapHangDTO pn = new NhapHangDTO(maPhieu, maNCC, maNV, 0, LocalDateTime.now());
                 boolean headerCreated = NhapHangDAO.themPhieuNhap(pn);
+                
                 if (!headerCreated) {
-                    System.out.println("Không thể tạo phiếu nhập. Vui lòng thử lại.");
+                    System.out.println("❌ Không thể tạo phiếu nhập. Vui lòng thử lại.");
                     continue;
                 }
 
-                System.out.println("\n📦 Nhập chi tiết hàng hóa (nhập mã hàng = '0' để kết thúc):");
-                while (true) {
-                    System.out.print("\nNhập mã hàng: ");
-                    String maHang = scanner.nextLine().trim();
-                    if (maHang.equals("0")) break;
+                conn = JDBCUtil.getConnection();
+                conn.setAutoCommit(false); 
 
-                    System.out.print("Nhập số lượng: ");
-                    String slStr = scanner.nextLine().trim();
+                int tongTien = 0;
+                int countSuccess = 0;
+                
+                System.out.println("\n📦 NHẬP CHI TIẾT HÀNG HÓA");
+                while (true) {
+                    System.out.print("→ Nhập mã sản phẩm (hoặc '0' để kết thúc): ");
+                    String maSP = scanner.nextLine().trim();
+                    
+                    if ("0".equals(maSP)) break;
+
+                    SanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
+                    if (sp == null) {
+                        System.out.println("❌ Không tìm thấy sản phẩm: " + maSP);
+                        continue;
+                    }
+                    
+                    System.out.println("✅ Sản phẩm: " + sp.getTenSP());
+
+                    boolean nccDaCungCap = SanPhamDAO.kiemTraNCCCungCapSP(maNCC, maSP);
+                    if (!nccDaCungCap) {
+                        System.out.println("\n⚠️  CẢNH BÁO:");
+                        System.out.println("   Nhà cung cấp '" + ncc.getTenNCC() + "' chưa từng cung cấp sản phẩm này!");
+                        System.out.print("→ Bạn có chắc muốn tiếp tục? (Y/N): ");
+                        String confirm = scanner.nextLine().trim().toUpperCase();
+                        
+                        if (!"Y".equals(confirm)) {
+                            System.out.println("⚠️  Đã bỏ qua sản phẩm này.\n");
+                            continue; 
+                        }
+                        
+                        System.out.println("✅ Đã xác nhận. Tiếp tục nhập thông tin...\n");
+                    }
+
+                    System.out.print("→ Số lượng: ");
                     int soLuong;
                     try {
-                        soLuong = Integer.parseInt(slStr);
+                        soLuong = Integer.parseInt(scanner.nextLine().trim());
                         if (soLuong <= 0) {
-                            System.out.println("Số lượng phải lớn hơn 0, vui lòng nhập lại.");
+                            System.out.println("❌ Số lượng phải lớn hơn 0!");
                             continue;
                         }
                     } catch (NumberFormatException e) {
-                        System.out.println("Số lượng không hợp lệ, vui lòng nhập lại.");
+                        System.out.println("❌ Số lượng không hợp lệ!");
                         continue;
                     }
 
-                    System.out.print("Nhập giá nhập: ");
-                    String giaNhapStr = scanner.nextLine().trim();
+                    System.out.print("→ Giá nhập: ");
                     int giaNhap;
                     try {
-                        giaNhap = Integer.parseInt(giaNhapStr);
+                        giaNhap = Integer.parseInt(scanner.nextLine().trim());
                         if (giaNhap <= 0) {
-                            System.out.println("Giá nhập phải lớn hơn 0, vui lòng nhập lại.");
+                            System.out.println("❌ Giá nhập phải lớn hơn 0!");
                             continue;
                         }
                     } catch (NumberFormatException e) {
-                        System.out.println("Giá nhập không hợp lệ, vui lòng nhập lại.");
+                        System.out.println("❌ Giá nhập không hợp lệ!");
                         continue;
                     }
 
+                    System.out.print("→ Ngày sản xuất (dd/MM/yyyy): ");
+                    LocalDate ngaySanXuat;
+                    try {
+                        ngaySanXuat = LocalDate.parse(scanner.nextLine().trim(), 
+                            DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+                    } catch (DateTimeParseException e) {
+                        System.out.println("❌ Ngày sản xuất không hợp lệ!");
+                        continue;
+                    }
+
+                    System.out.print("→ Hạn sử dụng (dd/MM/yyyy): ");
+                    LocalDate hanSuDung;
+                    try {
+                        hanSuDung = LocalDate.parse(scanner.nextLine().trim(), 
+                            DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+                    } catch (DateTimeParseException e) {
+                        System.out.println("❌ Hạn sử dụng không hợp lệ!");
+                        continue;
+                    }
+
+                    if (!hanSuDung.isAfter(ngaySanXuat)) {
+                        System.out.println("❌ Hạn sử dụng phải sau ngày sản xuất!");
+                        continue;
+                    }
+                    
                     int thanhTien = soLuong * giaNhap;
 
-                    ChiTietPhieuNhapDTO chiTiet = new ChiTietPhieuNhapDTO(maPhieu, maHang, null, null, soLuong, giaNhap, thanhTien);
-                    boolean added = ChiTietPhieuNhapDAO.themChiTietPhieuNhap(conn, chiTiet);
-
-                    if (added) {
+                    try {
+                        String maHang = HangHoaDAO.taoHangHoa(conn, maSP, soLuong, ngaySanXuat, hanSuDung);
+                        if (maHang == null) {
+                            throw new SQLException("Không thể tạo hàng hóa!");
+                        }
+                        
+                        ChiTietPhieuNhapDTO chiTiet = new ChiTietPhieuNhapDTO(
+                            maPhieu, maHang, sp.getTenSP(), null, soLuong, giaNhap, thanhTien
+                        );
+                        boolean added = ChiTietPhieuNhapDAO.themChiTietPhieuNhap(conn, chiTiet);
+                        if (!added) {
+                            throw new SQLException("Không thể thêm chi tiết!");
+                        }
+                        
+                        boolean updated = SanPhamDAO.congSoLuongTon(conn, maSP, soLuong);
+                        if (!updated) {
+                            throw new SQLException("Không thể cập nhật tồn kho!");
+                        }
+                        
                         tongTien += thanhTien;
                         countSuccess++;
+                        System.out.println("✅ Đã thêm: " + sp.getTenSP() + " x " + soLuong + 
+                                        " = " + FormatUtil.formatVND(thanhTien));
+                        
+                    } catch (SQLException e) {
+                        System.out.println("⚠️  Lỗi: " + e.getMessage());
+                        System.out.println("⚠️  Bỏ qua sản phẩm này.");
                     }
                 }
 
                 if (countSuccess == 0) {
-                    System.out.println("⚠️  Không có hàng hóa nào được thêm. Hủy phiếu nhập vừa tạo.");
+                    conn.rollback();
                     NhapHangDAO.xoaPhieuNhapTheoMa(maPhieu);
-                    continue;
+                    System.out.println("⚠️  Không có sản phẩm nào được nhập. Đã hủy phiếu nhập.");
+                } else {
+                    if (!NhapHangDAO.capNhatTongTien(conn, maPhieu, tongTien)) {
+                        throw new SQLException("Không thể cập nhật tổng tiền!");
+                    }
+                    
+                    conn.commit();
+
+                    System.out.println("\n╔════════════════════════════════════════════════════╗");
+                    System.out.println("║           TẠO PHIẾU NHẬP THÀNH CÔNG               ║");
+                    System.out.println("╚════════════════════════════════════════════════════╝");
+                    System.out.println("✅ Mã phiếu: " + maPhieu);
+                    System.out.println("✅ Nhà cung cấp: " + ncc.getTenNCC());
+                    System.out.println("✅ Số sản phẩm: " + countSuccess);
+                    System.out.println("📊 Tổng tiền: " + FormatUtil.formatVND(tongTien));
                 }
 
-                // Cập nhật tổng tiền cho header
-                if (!NhapHangDAO.capNhatTongTien(maPhieu, tongTien)) {
-                    System.out.println("Không thể cập nhật tổng tiền phiếu nhập.");
-                    // Không xóa header vì đã có chi tiết và tồn kho đã cập nhật; báo để user xử lý thủ công.
-                }
-
-                System.out.println("\nTạo phiếu nhập thành công!");
-                System.out.println("Mã phiếu: " + maPhieu);
-                System.out.println("Số lượng sản phẩm nhập: " + countSuccess);
-                System.out.println("Tổng tiền: " + FormatUtil.formatVND(tongTien));
-
-                System.out.print("\nBạn có muốn tạo phiếu nhập khác không? (y/n): ");
-                String cont = scanner.nextLine().trim();
-                if (!"y".equalsIgnoreCase(cont)) break;
-
+                System.out.print("\n→ Tạo phiếu nhập khác? (Y/N): ");
+                if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) break;
+                
             } catch (Exception e) {
-                System.out.println("❌ Lỗi: " + e.getMessage());
+                if (conn != null) {
+                    try {
+                        conn.rollback();
+                        System.out.println("❌ Đã rollback toàn bộ thao tác!");
+                        
+                        if (maPhieu != null) {
+                            NhapHangDAO.xoaPhieuNhapTheoMa(maPhieu);
+                        }
+                    } catch (SQLException ex) {
+                        System.err.println("❌ Lỗi rollback: " + ex.getMessage());
+                    }
+                }
+                System.err.println("❌ Lỗi: " + e.getMessage());
                 e.printStackTrace();
+                
             } finally {
                 if (conn != null) {
                     try {
+                        conn.setAutoCommit(true); 
                         conn.close();
-                    } catch (Exception e) {
-                        System.err.println("Lỗi đóng connection: " + e.getMessage());
+                    } catch (SQLException e) {
+                        System.err.println("❌ Lỗi đóng connection: " + e.getMessage());
                     }
                 }
             }

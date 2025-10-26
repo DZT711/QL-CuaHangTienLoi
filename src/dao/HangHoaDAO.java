@@ -14,6 +14,44 @@ import dto.HangHoaDTO;
 import util.JDBCUtil;
 
 public class HangHoaDAO {
+    private static String generateMaHang(Connection conn) throws SQLException {
+        String prefix = "MH"; 
+        String newID = prefix + "001";
+        String query = "SELECT MaHang FROM HANGHOA ORDER BY MaHang DESC LIMIT 1";
+        
+        try (PreparedStatement stmt = conn.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery()) {
+            
+            if (rs.next()) {
+                String lastID = rs.getString("MaHang");
+                int number = Integer.parseInt(lastID.substring(2));
+                newID = prefix + String.format("%03d", number + 1);
+            }
+        }
+        
+        return newID;
+    }
+
+    public static String taoHangHoa(Connection conn, String maSP, int soLuong, LocalDate ngaySanXuat, LocalDate hanSuDung) throws SQLException {
+        String maHang = generateMaHang(conn);
+        String query = "INSERT INTO HANGHOA (MaHang, MaSP, SoLuongConLai, NgaySanXuat, HanSuDung, TrangThai) "
+                    + "VALUES (?, ?, ?, ?, ?, 'active')";
+        
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, maHang);
+            stmt.setString(2, maSP);
+            stmt.setInt(3, soLuong);
+            stmt.setDate(4, Date.valueOf(ngaySanXuat));
+            stmt.setDate(5, Date.valueOf(hanSuDung));
+            
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected > 0) {
+                return maHang;
+            }
+        }
+        return null;
+    }
+
     public static HangHoaDTO timHangHoaTheoMa(String maHang) {
         String query = "SELECT * FROM HANGHOA WHERE MaHang = ?";
 
@@ -470,7 +508,5 @@ public class HangHoaDAO {
         }
         return result;
     }
-
-    
 }
 

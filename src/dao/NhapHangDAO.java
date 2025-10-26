@@ -16,30 +16,34 @@ import dto.NhapHangDTO;
 import util.JDBCUtil;
 
 public class NhapHangDAO {
-    public static String generateMaPhieuNhap() {
-    String prefix = "PN";
-    String newID = prefix + "001";
-    String query = "SELECT MaPhieu FROM PHIEUNHAP ORDER BY CAST(SUBSTRING(MaPhieu, 3) AS UNSIGNED) DESC LIMIT 1";
+    public static String generateMaPhieu() {
+        String prefix = "PN";
+        String newID = prefix + "001";
+        String query = "SELECT MaPhieu FROM PHIEUNHAP " +
+                    "ORDER BY CAST(SUBSTRING(MaPhieu, 3) AS UNSIGNED) DESC " +
+                    "LIMIT 1";
 
-    try (Connection conn = JDBCUtil.getConnection();
-        PreparedStatement stmt = conn.prepareStatement(query);
-        ResultSet rs = stmt.executeQuery()) {
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery()) {
 
-        if (rs.next()) {
-            String lastID = rs.getString("MaPhieu");
-            int number = Integer.parseInt(lastID.substring(2));
-            number++;
-            newID = prefix + String.format("%03d", number);
+            if (rs.next()) {
+                String lastID = rs.getString("MaPhieu");
+                int number = Integer.parseInt(lastID.substring(2));
+                newID = prefix + String.format("%03d", number + 1); 
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("❌ Lỗi khi tạo mã phiếu nhập: " + e.getMessage());
+            e.printStackTrace();  
         }
-    } catch (SQLException e) {
-        System.err.println("Lỗi khi tạo mã phiếu nhập: " + e.getMessage());
+
+        return newID;
     }
 
-    return newID;
-}
-
     public static boolean themPhieuNhap(NhapHangDTO pn) {
-        String query = "INSERT INTO PHIEUNHAP (MaPhieu, MaNCC, MaNV, TongTien) VALUES (?, ?, ?, ?);";
+        String query = "INSERT INTO PHIEUNHAP (MaPhieu, MaNCC, MaNV, TongTien, NgayLapPhieu) " +
+                    "VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -48,34 +52,45 @@ public class NhapHangDAO {
             stmt.setString(2, pn.getMaNCC());
             stmt.setString(3, pn.getMaNV());
             stmt.setInt(4, pn.getTongTien());
-
+            stmt.setTimestamp(5, Timestamp.valueOf(pn.getNgayLapPhieu()));
+            
             return stmt.executeUpdate() > 0;
+            
         } catch (SQLException e) {
-            System.err.println("Lỗi khi thêm phiếu nhập: " + e.getMessage());
+            System.err.println("❌ Lỗi khi tạo phiếu nhập: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
 
+
     public static NhapHangDTO timPhieuNhapTheoMa(String maPhieu) {
-        String query = "SELECT MaPhieu, MaNCC, MaNV, TongTien, NgayLapPhieu FROM PHIEUNHAP WHERE MaPhieu = ?";
+        String query = """
+            SELECT MaPhieu, MaNCC, MaNV, TongTien, NgayLapPhieu
+            FROM PHIEUNHAP
+            WHERE MaPhieu = ?        
+        """;
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, maPhieu);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return new NhapHangDTO(
-                    rs.getString("MaPhieu"), 
-                    rs.getString("MaNCC"), 
-                    rs.getString("MaNV"), 
-                    rs.getInt("TongTien"), 
-                    rs.getTimestamp("NgayLapPhieu").toLocalDateTime()
-                );
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new NhapHangDTO(
+                        rs.getString("MaPhieu"),
+                        rs.getString("MaNCC"),
+                        rs.getString("MaNV"),
+                        rs.getInt("TongTien"),
+                        rs.getTimestamp("NgayLapPhieu").toLocalDateTime()
+                    );
+                }
             }
+            
         } catch (SQLException e) {
-            System.err.println("Lỗi khi tìm phiếu nhập theo mã: " + e.getMessage());
+            System.err.println("❌ Lỗi khi tìm phiếu nhập: " + e.getMessage());
+            e.printStackTrace();
         }
         return null;
     }
@@ -190,16 +205,13 @@ public class NhapHangDAO {
         }
     }
 
-    public static boolean capNhatTongTien(String maPhieu, int tongTien) {
-        String sql = "UPDATE PHIEUNHAP SET TongTien = ? WHERE MaPhieu = ?";
-        try (Connection conn = JDBCUtil.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)) {
+    public static boolean capNhatTongTien(Connection conn, String maPhieu, int tongTien) throws SQLException {
+        String query = "UPDATE PHIEUNHAP SET TongTien = ? WHERE MaPhieu = ?";
+        
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, tongTien);
             stmt.setString(2, maPhieu);
-            return stmt.executeUpdate() == 1;
-        } catch (SQLException e) {
-            System.err.println("Lỗi khi cập nhật tổng tiền phiếu nhập: " + e.getMessage());
-            return false;
+            return stmt.executeUpdate() > 0;  
         }
     }
 
