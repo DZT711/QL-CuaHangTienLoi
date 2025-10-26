@@ -122,8 +122,10 @@ public class ChiTietPhieuNhapDAO {
                     rs.getInt("ThanhTien")
                 ));
             }
+            
         } catch (SQLException e) {
-            System.err.println("Lỗi khi lấy tất cả chi tiết phiếu nhập: " + e.getMessage());
+            System.err.println("❌ Lỗi khi lấy tất cả chi tiết phiếu nhập: " + e.getMessage());
+            e.printStackTrace();
         }
         return list;
     }

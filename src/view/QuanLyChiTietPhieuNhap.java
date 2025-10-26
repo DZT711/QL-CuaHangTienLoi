@@ -333,10 +333,13 @@ public class QuanLyChiTietPhieuNhap {
     }
 
     public static void xemDanhSachChiTietPhieuNhap() {
+        System.out.println("\n╔════════════════════════════════════════════════════╗");
+        System.out.println("║            DANH SÁCH CHI TIẾT PHIẾU NHẬP           ║");
+        System.out.println("╚════════════════════════════════════════════════════╝");
         List<ChiTietPhieuNhapDTO> chiTietList = ChiTietPhieuNhapDAO.getAllChiTietPhieuNhap();
 
         if (chiTietList.isEmpty()) {
-            System.out.println("Không có chi tiết phiếu nhập nào trong hệ thống.");
+            System.out.println("\n⚠️Không có chi tiết phiếu nhập nào trong hệ thống.");
             return;
         }
 
@@ -388,9 +391,9 @@ public class QuanLyChiTietPhieuNhap {
             tongTien += ct.getThanhTien();
         }
 
-        System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-        System.out.printf("%-69s | %12s | %12s%n", "", "TỔNG CỘNG:", FormatUtil.formatVND(tongTien));
-        System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        System.out.println("├─────┴────────────┴──────────┴──────────────────────────┴──────────┴─────────────┼─────────────┤");
+        System.out.printf("│ %-30s │ %11s │%n", "TỔNG CỘNG", FormatUtil.formatVND(tongTien));
+        System.out.println("└───────────────────────────────────────────────────────────────────────────────────┴─────────────┘");
     }
 
     public static void thongKeSanPhamNhap(Scanner scanner) {
