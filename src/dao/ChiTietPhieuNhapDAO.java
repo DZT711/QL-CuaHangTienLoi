@@ -63,7 +63,7 @@ public class ChiTietPhieuNhapDAO {
             FROM CHITIETPHIEUNHAP ctpn
             INNER JOIN HANGHOA hh ON ctpn.MaHang = hh.MaHang
             INNER JOIN SANPHAM sp ON hh.MaSP = sp.MaSP
-            INNER JOIN DONVI dv ON sp.MaDonVi = dv.MaDonVi
+            INNER JOIN DONVI dv ON sp.DonViTinh = dv.MaDonVi
             WHERE ctpn.MaPhieu = ?
             ORDER BY ctpn.MaHang ASC
         """;

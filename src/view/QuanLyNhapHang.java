@@ -787,11 +787,11 @@ public class QuanLyNhapHang {
 
     public void suaPhieuNhap() { 
         Scanner scanner = new Scanner(System.in);
+        System.out.println("\n╔════════════════════════════════════════════════════╗");
+        System.out.println("║              SỬA THÔNG TIN PHIẾU NHẬP              ║");
+        System.out.println("╚════════════════════════════════════════════════════╝");
+        
         while (true) {
-            System.out.println("\n╔════════════════════════════════════════════════════╗");
-            System.out.println("║              SỬA THÔNG TIN PHIẾU NHẬP              ║");
-            System.out.println("╚════════════════════════════════════════════════════╝");
-
             System.out.print("\n→ Nhập mã phiếu nhập cần sửa (hoặc '0' để hủy): ");
             String maPhieu = scanner.nextLine().trim();
             
