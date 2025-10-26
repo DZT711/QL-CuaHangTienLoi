@@ -282,16 +282,53 @@ public class QuanLyChiTietPhieuNhap {
     }
 
     public static void timTheoMaPhieu(Scanner scanner) {
-        System.out.print("\nNhập mã phiếu nhập: ");
+
+        System.out.println("\n╔════════════════════════════════════════════════════╗");
+        System.out.println("║          TÌM CHI TIẾT PHIẾU NHẬP                 ║");
+        System.out.println("╚════════════════════════════════════════════════════╝");
+
+        System.out.print("\n→ Nhập mã phiếu nhập (hoặc '0' để hủy): ");
         String maPhieu = scanner.nextLine().trim();
+
+        if ("0".equals(maPhieu)) {
+            System.out.println("⚠️  Đã hủy tìm kiếm.");
+            return;
+        }
+
+        if (maPhieu.isEmpty()) {
+            System.out.println("❌ Mã phiếu nhập không được để trống!");
+            return;
+        }
+
+        NhapHangDTO phieuNhap = NhapHangDAO.timPhieuNhapTheoMa(maPhieu);
+        if (phieuNhap == null) {
+            System.out.println("❌ Không tìm thấy phiếu nhập với mã: " + maPhieu);
+            return;
+        }
 
         List<ChiTietPhieuNhapDTO> chiTietList = ChiTietPhieuNhapDAO.timChiTietPhieuNhap(maPhieu);
 
         if (chiTietList.isEmpty()) {
-            System.out.println("Không tìm thấy chi tiết phiếu nhập với mã: " + maPhieu);
+            System.out.println("\n⚠️  Phiếu nhập này chưa có chi tiết nào.");
+            System.out.println("💡 Bạn có thể thêm chi tiết vào phiếu nhập bằng chức năng 'Thêm chi tiết'.");
         } else {
-            System.out.println("Kết quả tìm kiếm chi tiết phiếu nhập với mã: " + maPhieu);
+            System.out.println("\n╔════════════════════════════════════════════════════╗");
+            System.out.println("║              THÔNG TIN PHIẾU NHẬP                ║");
+            System.out.println("╚════════════════════════════════════════════════════╝");
+            System.out.println("Mã phiếu: " + phieuNhap.getMaPhieu());
+            System.out.println("Nhà cung cấp: " + phieuNhap.getMaNCC());
+            System.out.println("Nhân viên: " + phieuNhap.getMaNV());
+            System.out.println("Ngày lập: " + phieuNhap.getNgayLapPhieu().format(
+            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+            System.out.println("Tổng tiền: " + FormatUtil.formatVND(phieuNhap.getTongTien()));
+            
+            System.out.println("\n📦 CHI TIẾT PHIẾU NHẬP:");
             inBangChiTiet(chiTietList);
+
+            int tongSoLuong = chiTietList.stream().mapToInt(ChiTietPhieuNhapDTO::getSoLuong).sum();
+            System.out.println("\n📊 Tổng số mặt hàng: " + chiTietList.size());
+            System.out.println("📊 Tổng số lượng: " + String.format("%,d", tongSoLuong));
+            System.out.println("📊 Tổng tiền: " + FormatUtil.formatVND(phieuNhap.getTongTien()));
         }
     }
 
@@ -325,27 +362,35 @@ public class QuanLyChiTietPhieuNhap {
     }
 
     public static void inBangChiTiet(List<ChiTietPhieuNhapDTO> danhSach) {
-        System.out.println("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-        System.out.printf("%-5s | %-10s | %-10s | %-20s | %-8s | %-12s | %-12s%n",
-                "STT", "Mã Phiếu", "Mã Hàng", "Tên SP", "Số lượng", "Giá nhập", "Thành tiền");
-        System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        if (danhSach == null || danhSach.isEmpty()) {
+            System.out.println("⚠️  Không có dữ liệu để hiển thị.");
+            return;
+        }
+        
+        System.out.println("\n┌─────┬────────────┬──────────┬──────────────────────────┬──────────┬─────────────┬─────────────┐");
+        System.out.printf("│ %-3s │ %-10s │ %-8s │ %-24s │ %-8s │ %-11s │ %-11s │%n",
+                "STT", "Mã Phiếu", "Mã Hàng", "Tên sản phẩm", "Số lượng", "Giá nhập", "Thành tiền");
+        System.out.println("├─────┼────────────┼──────────┼──────────────────────────┼──────────┼─────────────┼─────────────┤");
 
         int stt = 1;
         long tongTien = 0;
 
         for (ChiTietPhieuNhapDTO ct : danhSach) {
-            System.out.printf("%-5d | %-10s | %-10s | %-20s | %-8d | %-12s | %-12s%n",
+            System.out.printf("│ %-3d │ %-10s │ %-8s │ %-24s │ %8s │ %11s │ %11s │%n",
                     stt++,
                     ct.getMaPhieu(),
                     ct.getMaHang(),
-                    ct.getTenSP(),
-                    ct.getSoLuong(),
+                    truncate(ct.getTenSP(), 24),
+                    String.format("%,d", ct.getSoLuong()),
                     FormatUtil.formatVND(ct.getGiaNhap()),
                     FormatUtil.formatVND(ct.getThanhTien()));
+            
             tongTien += ct.getThanhTien();
         }
 
-        System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        System.out.printf("%-69s | %12s | %12s%n", "", "TỔNG CỘNG:", FormatUtil.formatVND(tongTien));
+        System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     }
 
     public static void thongKeSanPhamNhap(Scanner scanner) {
@@ -436,5 +481,11 @@ public class QuanLyChiTietPhieuNhap {
                 System.out.println("⚠️  Định dạng ngày không hợp lệ! Vui lòng nhập theo dd/MM/yyyy");
             }
         }
+    }
+
+    private static String truncate(String str, int maxLength) {
+        if (str == null) return "";
+        if (str.length() <= maxLength) return str;
+        return str.substring(0, maxLength - 3) + "...";
     }
 }

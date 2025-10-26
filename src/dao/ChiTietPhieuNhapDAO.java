@@ -51,15 +51,21 @@ public class ChiTietPhieuNhapDAO {
     }
 
     public static List<ChiTietPhieuNhapDTO> timChiTietPhieuNhap(String maPhieu) {
+
+        if (maPhieu == null || maPhieu.trim().isEmpty()) {
+            System.err.println("❌ Mã phiếu không được rỗng!");
+            return new ArrayList<>();
+        }
+
         String query = """
-                SELECT ctpn.MaHang, sp.TenSP, dv.TenDonVi AS DonViTinh, 
-                    ctpn.SoLuong, ctpn.GiaNhap, ctpn.ThanhTien
-                FROM CHITIETPHIEUNHAP ctpn
-                INNER JOIN HANGHOA hh ON ctpn.MaHang = hh.MaHang
-                INNER JOIN SANPHAM sp ON hh.MaSP = sp.MaSP
-                INNER JOIN DONVI dv ON sp.MaDonVi = dv.MaDonVi
-                WHERE ctpn.MaPhieu = ?
-                ORDER BY ctpn.MaHang ASC;
+            SELECT ctpn.MaPhieu, ctpn.MaHang, sp.TenSP, dv.TenDonVi AS DonViTinh, 
+                ctpn.SoLuong, ctpn.GiaNhap, ctpn.ThanhTien
+            FROM CHITIETPHIEUNHAP ctpn
+            INNER JOIN HANGHOA hh ON ctpn.MaHang = hh.MaHang
+            INNER JOIN SANPHAM sp ON hh.MaSP = sp.MaSP
+            INNER JOIN DONVI dv ON sp.MaDonVi = dv.MaDonVi
+            WHERE ctpn.MaPhieu = ?
+            ORDER BY ctpn.MaHang ASC
         """;
 
         List<ChiTietPhieuNhapDTO> list = new ArrayList<>();
@@ -71,7 +77,7 @@ public class ChiTietPhieuNhapDAO {
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     list.add(new ChiTietPhieuNhapDTO(
-                        maPhieu,
+                        rs.getString("MaPhieu"),
                         rs.getString("MaHang"),
                         rs.getString("TenSP"),
                         rs.getString("DonViTinh"),
@@ -82,7 +88,8 @@ public class ChiTietPhieuNhapDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi tìm chi tiết phiếu nhập: " + e.getMessage());
+            System.err.println("❌ Lỗi khi tìm chi tiết phiếu nhập: " + e.getMessage());
+            e.printStackTrace();
         }
         return list;
     }
