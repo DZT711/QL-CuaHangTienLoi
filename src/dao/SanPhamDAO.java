@@ -548,4 +548,29 @@ public class SanPhamDAO {
             System.err.println("Lỗi khi trừ số lượng tồn: " + e.getMessage());
         }
     }
+
+    public static boolean kiemTraNCCCungCapSP(String maNCC, String maSP) {
+        String query = "SELECT COUNT(*) FROM CHITIETPHIEUNHAP ct " +
+                    "JOIN PHIEUNHAP pn ON ct.MaPhieu = pn.MaPhieu " +
+                    "JOIN HANGHOA hh ON ct.MaHang = hh.MaHang " +
+                    "WHERE pn.MaNCC = ? AND hh.MaSP = ?";
+        
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+            
+            stmt.setString(1, maNCC);
+            stmt.setString(2, maSP);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0; 
+                }
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("❌ Lỗi kiểm tra NCC-SP: " + e.getMessage());
+            e.printStackTrace(); 
+        }
+        return false; 
+    }
 }

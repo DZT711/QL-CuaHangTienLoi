@@ -238,15 +238,15 @@ public class QuanLyNhaCungCap {
         System.out.println("╚════════════════════════════════════════════════════════════════════╝");
         
         while (true) {
-            System.out.print("\n→ Xác nhận thêm nhà cung cấp? (y/n): ");
+            System.out.print("\n→ Xác nhận thêm nhà cung cấp? (Y/N): ");
             String confirm = scanner.nextLine().trim().toLowerCase();
             
             if (confirm.isEmpty()) {
-                System.out.println("  ⚠️  Vui lòng nhập y (có) hoặc n (không)!");
+                System.out.println("  ⚠️  Vui lòng nhập Y (có) hoặc N (không)!");
                 continue;
             }
             
-            if (confirm.equals("y") || confirm.equals("yes")) {
+            if (confirm.equals("Y")) {
                 if (NhaCungCapDAO.themNCC(ncc)) {
                     System.out.println("✅ Thêm nhà cung cấp thành công!");
                 } else {
@@ -255,12 +255,12 @@ public class QuanLyNhaCungCap {
                 break;
             }
             
-            if (confirm.equals("n") || confirm.equals("no")) {
+            if (confirm.equals("N")) {
                 System.out.println("⚠️  Đã hủy thêm nhà cung cấp!");
                 break;
             }
             
-            System.out.println("  ❌ Chỉ được nhập 'y' hoặc 'n'!");
+            System.out.println("  ❌ Chỉ được nhập 'Y' hoặc 'N'!");
         }
         System.out.print("\n→ Nhấn Enter để tiếp tục...");
         scanner.nextLine();
