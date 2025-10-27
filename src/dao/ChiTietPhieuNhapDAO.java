@@ -52,9 +52,10 @@ public class ChiTietPhieuNhapDAO {
 
     public static List<ChiTietPhieuNhapDTO> timChiTietPhieuNhap(String maPhieu) {
 
+        List<ChiTietPhieuNhapDTO> list = new ArrayList<>();
         if (maPhieu == null || maPhieu.trim().isEmpty()) {
             System.err.println("❌ Mã phiếu không được rỗng!");
-            return new ArrayList<>();
+            return list;
         }
 
         String query = """
@@ -68,23 +69,24 @@ public class ChiTietPhieuNhapDAO {
             ORDER BY ctpn.MaHang ASC
         """;
 
-        List<ChiTietPhieuNhapDTO> list = new ArrayList<>();
-
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
-
             stmt.setString(1, maPhieu);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    list.add(new ChiTietPhieuNhapDTO(
-                        rs.getString("MaPhieu"),
-                        rs.getString("MaHang"),
-                        rs.getString("TenSP"),
-                        rs.getString("DonViTinh"),
-                        rs.getInt("SoLuong"),
-                        rs.getInt("GiaNhap"),
-                        rs.getInt("ThanhTien")
-                    ));
+                    try {
+                        list.add(new ChiTietPhieuNhapDTO(
+                            rs.getString("MaPhieu"),
+                            rs.getString("MaHang"),
+                            rs.getString("TenSP"),
+                            rs.getString("DonViTinh"),
+                            rs.getInt("SoLuong"),
+                            rs.getInt("GiaNhap"),
+                            rs.getInt("ThanhTien")
+                        ));
+                    } catch (SQLException ex) {
+                        System.err.println("❌ Lỗi lấy dữ liệu dòng ResultSet: " + ex.getMessage());
+                    }
                 }
             }
         } catch (SQLException e) {

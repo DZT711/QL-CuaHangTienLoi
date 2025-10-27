@@ -1355,7 +1355,6 @@ public class QuanLyNhapHang {
                 System.out.println("✅ Thoát xuất phiếu nhập.");
                 break;
             }
-
             if (maPhieu.isEmpty()) {
                 System.out.println("⚠️  Mã phiếu nhập không được để trống!");
                 continue;
@@ -1375,21 +1374,20 @@ public class QuanLyNhapHang {
                 }
 
                 String fileName = "PhieuNhap_" + maPhieu + ".txt";
-
-                try (PrintWriter writer = new PrintWriter(new FileWriter(fileName))) {
+                try (PrintWriter writer = new PrintWriter(new FileWriter(fileName, false))) {
                     writer.println("══════════════════════════════════════════════════════════════");
-                    writer.println("                    PHIẾU NHẬP HÀNG                           ");
+                    writer.println("                   PHIẾU NHẬP HÀNG                          ");
                     writer.println("══════════════════════════════════════════════════════════════");
-                    writer.println("Mã phiếu: " + pn.getMaPhieu());
-                    writer.println("Ngày nhập: " + pn.getNgayLapPhieu());
-                    writer.println("Mã nhân viên: " + pn.getMaNV());
+                    writer.println("Mã phiếu       : " + pn.getMaPhieu());
+                    writer.println("Ngày nhập      : " + pn.getNgayLapPhieu());
+                    writer.println("Mã nhân viên   : " + pn.getMaNV());
 
                     NhaCungCapDTO ncc = NhaCungCapDAO.timnccTheoMa(pn.getMaNCC());
                     if (ncc != null) {
                         writer.println("\n--- Thông tin nhà cung cấp ---");
-                        writer.println("Tên NCC: " + ncc.getTenNCC());
-                        writer.println("Địa chỉ: " + ncc.getDiaChi());
-                        writer.println("Điện thoại: " + ncc.getDienThoai());
+                        writer.println("Tên NCC    : " + (ncc.getTenNCC() != null ? ncc.getTenNCC() : "Chưa có"));
+                        writer.println("Địa chỉ    : " + (ncc.getDiaChi() != null ? ncc.getDiaChi() : "Chưa có"));
+                        writer.println("Điện thoại : " + (ncc.getDienThoai() != null ? ncc.getDienThoai() : "Chưa có"));
                     }
 
                     writer.println("\n──────────────────────────────────────────────────────────────");
@@ -1399,14 +1397,13 @@ public class QuanLyNhapHang {
 
                     int stt = 1;
                     for (ChiTietPhieuNhapDTO ct : chiTiet) {
-                        writer.printf("%-10s | %-20s | %-10s | %-8d | %-12s | %-12s%n",
+                        writer.printf("%-6d | %-20s | %-10s | %-8d | %-12s | %-12s%n",
                                 stt++,
-                                ct.getTenSP(),
-                                ct.getDonViTinh(),
+                                ct.getTenSP() != null ? ct.getTenSP() : "",
+                                ct.getDonViTinh() != null ? ct.getDonViTinh() : "",
                                 ct.getSoLuong(),
                                 FormatUtil.formatVND(ct.getGiaNhap()),
-                                FormatUtil.formatVND(ct.getThanhTien())
-                        );
+                                FormatUtil.formatVND(ct.getThanhTien()));
                     }
                     writer.println("──────────────────────────────────────────────────────────────");
                     writer.println("Tổng tiền: " + FormatUtil.formatVND(pn.getTongTien()));
@@ -1424,7 +1421,8 @@ public class QuanLyNhapHang {
                 if (!choice.equals("y")) break;
 
             } catch (Exception e) {
-                System.out.println("❌ Lỗi: " + e.getMessage());
+                System.out.println("❌ Lỗi ngoài dự kiến: " + e.getMessage());
+                e.printStackTrace();
             }
         }
     }
