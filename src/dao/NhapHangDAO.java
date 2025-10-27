@@ -425,6 +425,17 @@ public class NhapHangDAO {
     }
 
     public static List<Map<String, Object>> thongKePhieuNhapTheoNV(LocalDate fromDate, LocalDate toDate) {
+        List<Map<String,Object>> result = new ArrayList<>();
+
+        if (fromDate == null || toDate == null) {
+            System.err.println("❌ Tham số ngày không được null!");
+            return result;
+        }
+        if (fromDate.isAfter(toDate)) {
+            System.err.println("❌ Ngày bắt đầu phải trước ngày kết thúc!");
+            return result;
+        }
+
         String query = """
                 SELECT nv.MaNV, nv.Ho, nv.Ten,
                 COUNT (DISTINCT pn.MaPhieu) AS soPhieu,
@@ -438,7 +449,6 @@ public class NhapHangDAO {
                 ORDER BY tongGiaTri DESC;
         """;
 
-        List<Map<String,Object>> result = new ArrayList<>();
         
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -449,19 +459,24 @@ public class NhapHangDAO {
             stmt.setTimestamp(1, Timestamp.valueOf(fromDateTime));
             stmt.setTimestamp(2, Timestamp.valueOf(toDateTime));
 
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                Map<String, Object> row = new HashMap<>();
-                row.put("MaNV", rs.getString("MaNV"));
-                row.put("Ho Ten", rs.getString("Ho") + " " + rs.getString("Ten"));
-                row.put("SoPhieu", rs.getInt("soPhieu"));
-                row.put("TongSanPham", rs.getInt("tongSoLuong"));
-                row.put("TongGiaTri", rs.getLong("tongGiaTri"));
-                result.add(row);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    try {
+                        Map<String, Object> row = new HashMap<>();
+                        row.put("MaNV", rs.getString("MaNV"));
+                        row.put("HoTen", rs.getString("Ho") + " " + rs.getString("Ten"));
+                        row.put("SoPhieu", rs.getInt("soPhieu"));
+                        row.put("TongSanPham", rs.getInt("tongSoLuong"));
+                        row.put("TongGiaTri", rs.getLong("tongGiaTri"));
+                        result.add(row);
+                    } catch (SQLException rowEx) {
+                        System.err.println("❌ Lỗi lấy dữ liệu dòng ResultSet: " + rowEx.getMessage());
+                    }
+                }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi thống kê phiếu nhập theo nhân viên: " + e.getMessage());
+            System.err.println("❌ Lỗi khi thống kê phiếu nhập theo nhân viên: " + e.getMessage());
+            e.printStackTrace();
         }
         return result;
     }
