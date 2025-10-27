@@ -285,10 +285,10 @@ public class NhapHangDAO {
     }
 
     public static Map<String, Object> thongKePhieuNhapTheoNgay(LocalDate fromDate, LocalDate toDate) {
-        String query = """  
+        String query = """
             SELECT 
                 COUNT(DISTINCT pn.MaPhieu) AS tongPhieuNhap,
-                SUM(pn.TongTien) AS tongGiaTRi,
+                SUM(pn.TongTien) AS tongGiaTri,
                 COUNT(DISTINCT pn.MaNCC) AS soNCC,
                 SUM(ct.SoLuong) AS tongSanPham
             FROM PHIEUNHAP pn
@@ -300,7 +300,7 @@ public class NhapHangDAO {
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
-                
+
             LocalDateTime fromDateTime = fromDate.atStartOfDay();
             LocalDateTime toDateTime = toDate.plusDays(1).atStartOfDay();
 
@@ -310,11 +310,16 @@ public class NhapHangDAO {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                long giaTriTB = (rs.getInt("tongPhieuNhap") > 0) ? (rs.getLong("tongGiaTri") / rs.getInt("tongPhieuNhap")) : 0;
-                result.put("tongPhieuNhap", rs.getInt("tongPhieuNhap"));
-                result.put("tongGiaTri", rs.getLong("tongGiaTri"));
-                result.put("tongSanPham", rs.getInt("tongSanPham"));
-                result.put("soNCC", rs.getInt("soNCC"));
+                int tongPhieuNhap = rs.getInt("tongPhieuNhap");
+                long tongGiaTri = rs.getLong("tongGiaTri");
+                int tongSanPham = rs.getInt("tongSanPham");
+                int soNCC = rs.getInt("soNCC");
+                long giaTriTB = (tongPhieuNhap > 0) ? (tongGiaTri / tongPhieuNhap) : 0;
+
+                result.put("tongPhieuNhap", tongPhieuNhap);
+                result.put("tongGiaTri", tongGiaTri);
+                result.put("tongSanPham", tongSanPham);
+                result.put("soNCC", soNCC);
                 result.put("giaTriTB", giaTriTB);
             }
         } catch (SQLException e) {
@@ -326,20 +331,19 @@ public class NhapHangDAO {
     public static List<Map<String, Object>> thongKeChiTietTheoNgay(LocalDate fromDate, LocalDate toDate) {
         String query = """
             SELECT 
-                pn.NgayLapPhieu,
+                DATE(pn.NgayLapPhieu) AS Ngay,
                 COUNT(pn.MaPhieu) AS soPhieu,
                 SUM(pn.TongTien) AS tongTien
             FROM PHIEUNHAP pn
             WHERE pn.NgayLapPhieu >= ? AND pn.NgayLapPhieu < ?
-            GROUP BY pn.NgayLapPhieu
-            ORDER BY pn.NgayLapPhieu ASC;
+            GROUP BY Ngay
+            ORDER BY Ngay ASC
         """;
 
-        List<Map<String,Object>> result = new ArrayList<>();
-
+        List<Map<String, Object>> result = new ArrayList<>();
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
-            
+
             LocalDateTime fromDateTime = fromDate.atStartOfDay();
             LocalDateTime toDateTime = toDate.plusDays(1).atStartOfDay();
 
@@ -347,10 +351,10 @@ public class NhapHangDAO {
             stmt.setTimestamp(2, Timestamp.valueOf(toDateTime));
 
             ResultSet rs = stmt.executeQuery();
-
+            
             while (rs.next()) {
                 Map<String, Object> row = new HashMap<>();
-                row.put("NgayLapPhieu", rs.getTimestamp("NgayLapPhieu").toLocalDateTime().toLocalDate());
+                row.put("Ngay", rs.getDate("Ngay").toLocalDate());
                 row.put("SoPhieu", rs.getInt("soPhieu"));
                 row.put("TongTien", rs.getLong("tongTien"));
                 result.add(row);
