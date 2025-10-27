@@ -366,6 +366,17 @@ public class NhapHangDAO {
     }
 
     public static List<Map<String,Object>> thongKePhieuNhapTheoNCC(LocalDate fromDate, LocalDate toDate) {
+        List<Map<String,Object>> result = new ArrayList<>();
+
+        if (fromDate == null || toDate == null) {
+            System.err.println("❌ Tham số ngày không được null!");
+            return result;
+        }
+        if (fromDate.isAfter(toDate)) {
+            System.err.println("❌ Ngày bắt đầu phải trước ngày kết thúc!");
+            return result;
+        }
+
         String query = """
             SELECT 
                 ncc.MaNCC, ncc.TenNCC,
@@ -380,30 +391,35 @@ public class NhapHangDAO {
             ORDER BY tongGiaTri DESC;
         """;
 
-        List<Map<String,Object>> result = new ArrayList<>();
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
-            
+
             LocalDateTime fromDateTime = fromDate.atStartOfDay();
             LocalDateTime toDateTime = toDate.plusDays(1).atStartOfDay();
 
             stmt.setTimestamp(1, Timestamp.valueOf(fromDateTime));
             stmt.setTimestamp(2, Timestamp.valueOf(toDateTime));
 
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                Map<String, Object> row = new HashMap<>();
-                row.put("MaNCC", rs.getString("MaNCC"));
-                row.put("TenNCC", rs.getString("TenNCC"));
-                row.put("SoPhieu", rs.getInt("soPhieu"));
-                row.put("TongSanPham", rs.getInt("tongSanPham"));
-                row.put("TongGiaTri", rs.getLong("tongGiaTri"));
-                result.add(row);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    try {
+                        Map<String, Object> row = new HashMap<>();
+                        row.put("MaNCC", rs.getString("MaNCC"));
+                        row.put("TenNCC", rs.getString("TenNCC"));
+                        row.put("SoPhieu", rs.getInt("soPhieu"));
+                        row.put("TongSanPham", rs.getInt("tongSanPham"));
+                        row.put("TongGiaTri", rs.getLong("tongGiaTri"));
+                        result.add(row);
+                    } catch (SQLException sqlrow) {
+                        System.err.println("❌ Lỗi lấy dòng ResultSet: " + sqlrow.getMessage());
+                        continue;
+                    }
+                }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi thống kê phiếu nhập theo nhà cung cấp: " + e.getMessage());
+            System.err.println("❌ Lỗi khi thống kê phiếu nhập theo nhà cung cấp: " + e.getMessage());
+            e.printStackTrace();
         }
         return result;
     }
