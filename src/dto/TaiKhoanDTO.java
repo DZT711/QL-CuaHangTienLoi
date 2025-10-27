@@ -8,6 +8,7 @@ public class TaiKhoanDTO {
     private String status;
     private String fullName;
     private boolean isDefaultPassword;
+    private String email;
 
     public TaiKhoanDTO() {
     }
@@ -87,5 +88,13 @@ public class TaiKhoanDTO {
 
     public void setDefaultPassword(boolean isDefaultPassword) {
         this.isDefaultPassword = isDefaultPassword;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }
