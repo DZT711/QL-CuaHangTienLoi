@@ -1174,66 +1174,99 @@ public class QuanLyNhapHang {
 
     public void thongKePhieuNhapTheoSanPham() {
         Scanner scanner = new Scanner(System.in);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+        DateTimeFormatter inputFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter displayFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
         while (true) {
             try {
-                System.out.println("Nhập ngày bắt đầu: ");
+                System.out.print("Nhập ngày bắt đầu (dd/MM/yyyy): ");
                 String from = scanner.nextLine().trim();
-
-                System.out.println("Nhập ngày kết thúc: ");
+                System.out.print("Nhập ngày kết thúc (dd/MM/yyyy): ");
                 String to = scanner.nextLine().trim();
 
-                LocalDate fromDate = LocalDate.parse(from, formatter);
-                LocalDate toDate = LocalDate.parse(to, formatter);
-
+                if (from.isEmpty() || to.isEmpty()) {
+                    System.out.println("⚠️ Ngày không được để trống!");
+                    continue;
+                }
+                LocalDate fromDate, toDate;
+                try {
+                    fromDate = LocalDate.parse(from, inputFmt);
+                    toDate = LocalDate.parse(to, inputFmt);
+                } catch (DateTimeParseException e) {
+                    System.out.println("⚠️ Định dạng ngày không hợp lệ (đúng: dd/MM/yyyy), vui lòng nhập lại.");
+                    continue;
+                }
                 if (fromDate.isAfter(toDate)) {
-                    System.out.println("⚠️  Ngày bắt đầu phải trước ngày kết thúc, vui lòng nhập lại.");
+                    System.out.println("⚠️ Ngày bắt đầu phải trước hoặc bằng ngày kết thúc, vui lòng nhập lại.");
                     continue;
                 }
 
-                List<Map<String, Object>> result = NhapHangDAO.thongKePhieuNhapTheoSanPham(fromDate, toDate);
-                
-                System.out.println("=== THỐNG KÊ PHIẾU NHẬP THEO SẢN PHẨM ===");
-                System.out.println("Từ ngày: " + fromDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-                System.out.println("Đến ngày: " + toDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+                List<Map<String, Object>> result;
+                try {
+                    result = NhapHangDAO.thongKePhieuNhapTheoSanPham(fromDate, toDate);
+                } catch (Exception ex) {
+                    System.out.println("❌ Lỗi khi truy vấn database: " + ex.getMessage());
+                    ex.printStackTrace();
+                    break;
+                }
+
+                System.out.println("\n=== THỐNG KÊ PHIẾU NHẬP THEO SẢN PHẨM ===");
+                System.out.println("Từ ngày: " + fromDate.format(displayFmt));
+                System.out.println("Đến ngày: " + toDate.format(displayFmt));
                 System.out.println("---------------------------------------------------------");
 
-                if (result == null || result.isEmpty()) {
-                    System.out.println("❌ Không có dữ liệu phiếu nhập trong khoảng thời gian này.");
-                    System.out.println("---------------------------------------------------------");
+                if (result == null) {
+                    System.out.println("❌ Không thể lấy dữ liệu từ DAO.");
                     System.out.print("\n✅ Bạn có muốn thống kê tiếp không? (y/n): ");
                     String choice = scanner.nextLine().trim().toLowerCase();
-                    if (!choice.equals("y")) {
-                        break;
-                    }
+                    if (!choice.equals("y")) break;
                     continue;
                 }
 
-                System.out.printf("| %-5s | %-15s | %-20s | %-10s | %-10s | %-10s |%n", 
-                "STT", "Mã SP", "Tên SP", "Số Phiếu", "Số SP", "Tổng Giá Trị");
-                System.out.println("+---------+----------------------+-----------+--------+-----------+---------------+");
-                
-                int stt = 1;
-                for (Map<String, Object> row : result) {
-                    System.out.printf("| %-5s | %-15s | %-20s | %-10d | %-10d | %-10s |%n",
-                        stt++,
-                        row.get("MaSP"),
-                        row.get("TenSP"),
-                        row.get("SoPhieu"),
-                        row.get("TongSanPham"),
-                        FormatUtil.formatVND((long)row.get("TongGiaTri"))
-                    );
+                if (result.isEmpty()) {
+                    System.out.println("❌ Không có dữ liệu phiếu nhập trong khoảng thời gian này.");
+                    System.out.print("\n✅ Bạn có muốn thống kê tiếp không? (y/n): ");
+                    String choice = scanner.nextLine().trim().toLowerCase();
+                    if (!choice.equals("y")) break;
+                    continue;
                 }
-                System.out.println("+---------+----------------------+-----------+--------+-----------+---------------+");
+
+                System.out.printf("| %-5s | %-15s | %-20s | %-10s | %-10s | %-13s |\n", 
+                    "STT", "Mã SP", "Tên SP", "Số Phiếu", "Số SP", "Tổng Giá Trị");
+                System.out.println("+------+-----------------+----------------------+-----------+-----------+---------------+");
+
+                int stt = 1, tongPhieu = 0, tongSanPham = 0;
+                long tongGiaTri = 0;
+
+                for (Map<String, Object> row : result) {
+                    Object maSP = row.get("MaSP"), tenSP = row.get("TenSP"), soPhieu = row.get("SoPhieu"),
+                        tongSP = row.get("TongSanPham"), tongGT = row.get("TongGiaTri");
+                    if (maSP == null || tenSP == null || soPhieu == null || tongSP == null || tongGT == null) continue;
+
+                    int soPhieuInt = (int)soPhieu;
+                    int tongSPInt = (int)tongSP;
+                    long tongGTLong = (long)tongGT;
+                    tongPhieu += soPhieuInt;
+                    tongSanPham += tongSPInt;
+                    tongGiaTri += tongGTLong;
+
+                    System.out.printf("| %-5d | %-15s | %-20s | %-10d | %-10d | %-13s |\n",
+                            stt++, maSP, tenSP, soPhieuInt, tongSPInt, FormatUtil.formatVND(tongGTLong));
+                }
+                System.out.println("+------+-----------------+----------------------+-----------+-----------+---------------+");
+                System.out.println("Tổng sản phẩm     : " + result.size());
+                System.out.println("Tổng phiếu nhập   : " + tongPhieu);
+                System.out.println("Tổng số nhập      : " + tongSanPham);
+                System.out.println("Tổng giá trị nhập : " + FormatUtil.formatVND(tongGiaTri));
+                System.out.println("---------------------------------------------------------");
 
                 System.out.print("\n✅ Bạn có muốn thống kê tiếp không? (y/n): ");
                 String choice = scanner.nextLine().trim().toLowerCase();
-                if (!choice.equals("y")) {
-                    break;
-                }
-            } catch (DateTimeParseException e) {
-                System.out.println("⚠️ Định dạng ngày không hợp lệ, vui lòng nhập lại (ddMMyyyy).");
+                if (!choice.equals("y")) break;
+            } catch (Exception e) {
+                System.out.println("❌ Lỗi ngoài dự kiến: " + e.getMessage());
+                e.printStackTrace();
+                break;
             }
         }
     }
@@ -1244,28 +1277,44 @@ public class QuanLyNhapHang {
 
         while (true) {
             try {
-                System.out.println("Nhập năm cần thống kê (yyyy): ");
-                year = Integer.parseInt(scanner.nextLine().trim());
+                System.out.print("Nhập năm cần thống kê (yyyy): ");
+                String strYear = scanner.nextLine().trim();
+                if (strYear.isEmpty()) {
+                    System.out.println("❌ Năm không được bỏ trống.");
+                    continue;
+                }
+                year = Integer.parseInt(strYear);
                 if (year < 2000 || year > LocalDate.now().getYear()) {
-                    System.out.println("⚠️  Năm không hợp lệ, vui lòng nhập lại.");
+                    System.out.println("⚠️  Năm không hợp lệ, vui lòng nhập trong khoảng 2000 đến " + LocalDate.now().getYear());
                     continue;
                 }
                 break;
             } catch (NumberFormatException e) {
-                System.out.println("⚠️  Năm không hợp lệ, vui lòng nhập lại.");
+                System.out.println("⚠️  Năm không hợp lệ, vui lòng nhập dạng số (VD: 2025)!");
             }
         }
 
-        List<Map<String, Object>> result = NhapHangDAO.thongKePhieuNhapTheoNam(year);
+        List<Map<String, Object>> result;
+        try {
+            result = NhapHangDAO.thongKePhieuNhapTheoNam(year);
+        } catch (Exception ex) {
+            System.out.println("❌ Lỗi truy vấn thống kê: " + ex.getMessage());
+            ex.printStackTrace();
+            return;
+        }
 
-        if (result == null || result.isEmpty()) {
+        if (result == null) {
+            System.out.println("❌ Không thể lấy dữ liệu từ DAO!");
+            return;
+        }
+        if (result.isEmpty()) {
             System.out.println("❌ Không có dữ liệu phiếu nhập trong năm " + year + ".");
             return;
         }
 
         System.out.println("\n=== THỐNG KÊ PHIẾU NHẬP THEO THÁNG NĂM " + year + " ===");
         System.out.println("+-----------+------------+------------------+------------------+");
-        System.out.printf("| %-9s | %-10s | %-16s | %-16s |%n",
+        System.out.printf("| %-9s | %-10s | %-16s | %-16s |\n",
                 "Tháng", "Số Phiếu", "Tổng Số Lượng", "Tổng Giá Trị");
         System.out.println("+-----------+------------+------------------+------------------+");
 
@@ -1274,21 +1323,23 @@ public class QuanLyNhapHang {
         long tongGiaTri = 0;
 
         for (Map<String, Object> row : result) {
-            int thang = (int) row.get("Thang");
-            int soPhieu = (int) row.get("SoPhieu");
-            long soLuong = (long) row.get("TongSanPham");  
-            long giaTri = (long) row.get("TongGiaTri");
+            Integer thang = (Integer) row.get("Thang");
+            Integer soPhieu = (Integer) row.get("SoPhieu");
+            Long soLuong = (Long) row.get("TongSanPham");
+            Long giaTri = (Long) row.get("TongGiaTri");
+
+            if (thang == null || soPhieu == null || soLuong == null || giaTri == null) continue;
 
             tongPhieu += soPhieu;
             tongSoLuong += soLuong;
             tongGiaTri += giaTri;
 
-            System.out.printf("| %-9d | %-10d | %-16d | %-16s |%n",
-                    thang, soPhieu, soLuong, FormatUtil.formatVND(giaTri));  
+            System.out.printf("| %-9d | %-10d | %-16d | %-16s |\n",
+                    thang, soPhieu, soLuong, FormatUtil.formatVND(giaTri));
         }
 
         System.out.println("+-----------+------------+------------------+------------------+");
-        System.out.printf("| %-9s | %-10d | %-16d | %-16s |%n",
+        System.out.printf("| %-9s | %-10d | %-16d | %-16s |\n",
                 "TỔNG CỘNG", tongPhieu, tongSoLuong, FormatUtil.formatVND(tongGiaTri));
         System.out.println("+-----------+------------+------------------+------------------+");
     }
@@ -1304,7 +1355,6 @@ public class QuanLyNhapHang {
                 System.out.println("✅ Thoát xuất phiếu nhập.");
                 break;
             }
-
             if (maPhieu.isEmpty()) {
                 System.out.println("⚠️  Mã phiếu nhập không được để trống!");
                 continue;
@@ -1324,21 +1374,20 @@ public class QuanLyNhapHang {
                 }
 
                 String fileName = "PhieuNhap_" + maPhieu + ".txt";
-
-                try (PrintWriter writer = new PrintWriter(new FileWriter(fileName))) {
+                try (PrintWriter writer = new PrintWriter(new FileWriter(fileName, false))) {
                     writer.println("══════════════════════════════════════════════════════════════");
-                    writer.println("                    PHIẾU NHẬP HÀNG                           ");
+                    writer.println("                   PHIẾU NHẬP HÀNG                          ");
                     writer.println("══════════════════════════════════════════════════════════════");
-                    writer.println("Mã phiếu: " + pn.getMaPhieu());
-                    writer.println("Ngày nhập: " + pn.getNgayLapPhieu());
-                    writer.println("Mã nhân viên: " + pn.getMaNV());
+                    writer.println("Mã phiếu       : " + pn.getMaPhieu());
+                    writer.println("Ngày nhập      : " + pn.getNgayLapPhieu());
+                    writer.println("Mã nhân viên   : " + pn.getMaNV());
 
                     NhaCungCapDTO ncc = NhaCungCapDAO.timnccTheoMa(pn.getMaNCC());
                     if (ncc != null) {
                         writer.println("\n--- Thông tin nhà cung cấp ---");
-                        writer.println("Tên NCC: " + ncc.getTenNCC());
-                        writer.println("Địa chỉ: " + ncc.getDiaChi());
-                        writer.println("Điện thoại: " + ncc.getDienThoai());
+                        writer.println("Tên NCC    : " + (ncc.getTenNCC() != null ? ncc.getTenNCC() : "Chưa có"));
+                        writer.println("Địa chỉ    : " + (ncc.getDiaChi() != null ? ncc.getDiaChi() : "Chưa có"));
+                        writer.println("Điện thoại : " + (ncc.getDienThoai() != null ? ncc.getDienThoai() : "Chưa có"));
                     }
 
                     writer.println("\n──────────────────────────────────────────────────────────────");
@@ -1348,14 +1397,13 @@ public class QuanLyNhapHang {
 
                     int stt = 1;
                     for (ChiTietPhieuNhapDTO ct : chiTiet) {
-                        writer.printf("%-10s | %-20s | %-10s | %-8d | %-12s | %-12s%n",
+                        writer.printf("%-6d | %-20s | %-10s | %-8d | %-12s | %-12s%n",
                                 stt++,
-                                ct.getTenSP(),
-                                ct.getDonViTinh(),
+                                ct.getTenSP() != null ? ct.getTenSP() : "",
+                                ct.getDonViTinh() != null ? ct.getDonViTinh() : "",
                                 ct.getSoLuong(),
                                 FormatUtil.formatVND(ct.getGiaNhap()),
-                                FormatUtil.formatVND(ct.getThanhTien())
-                        );
+                                FormatUtil.formatVND(ct.getThanhTien()));
                     }
                     writer.println("──────────────────────────────────────────────────────────────");
                     writer.println("Tổng tiền: " + FormatUtil.formatVND(pn.getTongTien()));
@@ -1373,7 +1421,8 @@ public class QuanLyNhapHang {
                 if (!choice.equals("y")) break;
 
             } catch (Exception e) {
-                System.out.println("❌ Lỗi: " + e.getMessage());
+                System.out.println("❌ Lỗi ngoài dự kiến: " + e.getMessage());
+                e.printStackTrace();
             }
         }
     }

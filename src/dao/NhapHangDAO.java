@@ -482,82 +482,102 @@ public class NhapHangDAO {
     }
 
     public static List<Map<String, Object>> thongKePhieuNhapTheoSanPham(LocalDate fromDate, LocalDate toDate) {
+        List<Map<String, Object>> result = new ArrayList<>();
+        if (fromDate == null || toDate == null) {
+            System.err.println("❌ Tham số ngày không được null!");
+            return result;
+        }
+        if (fromDate.isAfter(toDate)) {
+            System.err.println("❌ Ngày bắt đầu phải trước hoặc bằng ngày kết thúc!");
+            return result;
+        }
+
         String query = """
             SELECT sp.MaSP, sp.TenSP,
-            COUNT (DISTINCT ctpn.MaPhieu) AS soPhieu,
-            SUM (ctpn.SoLuong) AS tongSoLuong,
-            SUM (ctpn.ThanhTien) AS tongGiaTri
+                COUNT(DISTINCT ctpn.MaPhieu) AS soPhieu,
+                SUM(ctpn.SoLuong) AS tongSoLuong,
+                SUM(ctpn.ThanhTien) AS tongGiaTri
             FROM CHITIETPHIEUNHAP ctpn
             JOIN HANGHOA hh ON ctpn.MaHang = hh.MaHang
             JOIN SANPHAM sp ON hh.MaSP = sp.MaSP
             JOIN PHIEUNHAP pn ON ctpn.MaPhieu = pn.MaPhieu
             WHERE pn.NgayLapPhieu >= ? AND pn.NgayLapPhieu < ?
             GROUP BY sp.MaSP, sp.TenSP
-            ORDER BY tongGiaTri DESC;
+            ORDER BY tongGiaTri DESC
         """;
-
-        List<Map<String,Object>> result = new ArrayList<>();
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
+            LocalDateTime fromDT = fromDate.atStartOfDay();
+            LocalDateTime toDT = toDate.plusDays(1).atStartOfDay();
+            stmt.setTimestamp(1, Timestamp.valueOf(fromDT));
+            stmt.setTimestamp(2, Timestamp.valueOf(toDT));
 
-            LocalDateTime fromDateTime = fromDate.atStartOfDay();
-            LocalDateTime toDateTime = toDate.plusDays(1).atStartOfDay();
-
-            stmt.setTimestamp(1, Timestamp.valueOf(fromDateTime));
-            stmt.setTimestamp(2, Timestamp.valueOf(toDateTime));
-
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                Map<String, Object> row = new HashMap<>();
-                row.put("MaSP", rs.getString("MaSP"));
-                row.put("TenSP", rs.getString("TenSP"));
-                row.put("SoPhieu", rs.getInt("soPhieu"));
-                row.put("TongSanPham", rs.getInt("tongSoLuong"));
-                row.put("TongGiaTri", rs.getLong("tongGiaTri"));
-                result.add(row);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    try {
+                        Map<String, Object> row = new HashMap<>();
+                        row.put("MaSP", rs.getString("MaSP"));
+                        row.put("TenSP", rs.getString("TenSP"));
+                        row.put("SoPhieu", rs.getInt("soPhieu"));
+                        row.put("TongSanPham", rs.getInt("tongSoLuong"));
+                        row.put("TongGiaTri", rs.getLong("tongGiaTri"));
+                        result.add(row);
+                    } catch (SQLException rowEx) {
+                        System.err.println("❌ Lỗi lấy dòng ResultSet: " + rowEx.getMessage());
+                    }
+                }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi thống kê phiếu nhập theo sản phẩm: " + e.getMessage());
+            System.err.println("❌ Lỗi khi thống kê phiếu nhập theo sản phẩm: " + e.getMessage());
+            e.printStackTrace();
         }
         return result;
     }
 
-    public static List<Map<String, Object>> thongKePhieuNhapTheoNam (int year) {
+    public static List<Map<String, Object>> thongKePhieuNhapTheoNam(int year) {
+        List<Map<String, Object>> result = new ArrayList<>();
+        if (year < 2000 || year > LocalDate.now().getYear()) {
+            System.err.println("❌ Năm không hợp lệ cho thống kê!");
+            return result;
+        }
+
         String query = """
             SELECT 
                 MONTH(pn.NgayLapPhieu) AS Thang,
                 COUNT(DISTINCT pn.MaPhieu) AS SoPhieu,
                 SUM(ct.SoLuong) AS TongSanPham,
-                SUM(ct.ThanhTien) AS TongGiaTri  -- Thay pn.TongTien
-                FROM PHIEUNHAP pn
-                JOIN CHITIETPHIEUNHAP ct ON pn.MaPhieu = ct.MaPhieu
-                WHERE YEAR(pn.NgayLapPhieu) = ?ff
-                GROUP BY MONTH(pn.NgayLapPhieu)
-                ORDER BY Thang ASC;
+                SUM(ct.ThanhTien) AS TongGiaTri
+            FROM PHIEUNHAP pn
+            JOIN CHITIETPHIEUNHAP ct ON pn.MaPhieu = ct.MaPhieu
+            WHERE YEAR(pn.NgayLapPhieu) = ?
+            GROUP BY MONTH(pn.NgayLapPhieu)
+            ORDER BY Thang ASC
         """;
 
-        List<Map<String,Object>> result = new ArrayList<>();
-
         try (Connection conn = JDBCUtil.getConnection();
-        PreparedStatement stmt = conn.prepareStatement(query)) {
-
+            PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, year);
-
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                Map<String, Object> row = new HashMap<>();
-                row.put("Thang", rs.getInt("Thang"));
-                row.put("SoPhieu", rs.getInt("SoPhieu"));
-                row.put("TongSanPham", rs.getInt("TongSanPham"));
-                row.put("TongGiaTri", rs.getLong("TongGiaTri"));
-                result.add(row);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    try {
+                        Map<String, Object> row = new HashMap<>();
+                        row.put("Thang", rs.getInt("Thang"));
+                        row.put("SoPhieu", rs.getInt("SoPhieu"));
+                        row.put("TongSanPham", rs.getLong("TongSanPham"));
+                        row.put("TongGiaTri", rs.getLong("TongGiaTri"));
+                        result.add(row);
+                    } catch (SQLException ex) {
+                        System.err.println("❌ Lỗi lấy dữ liệu dòng ResultSet: " + ex.getMessage());
+                        continue;
+                    }
+                }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi thống kê phiếu nhập theo năm: " + e.getMessage());
+            System.err.println("❌ Lỗi khi thống kê phiếu nhập theo năm: " + e.getMessage());
+            e.printStackTrace();
         }
         return result;
     }
+
 }
