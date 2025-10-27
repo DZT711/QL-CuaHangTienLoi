@@ -1067,62 +1067,107 @@ public class QuanLyNhapHang {
 
     public void thongKePhieuNhapTheoNV() {
         Scanner scanner = new Scanner(System.in);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+        DateTimeFormatter inputFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter displayFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
         while (true) {
             try {
-                System.out.println("Nhập ngày bắt đầu: ");
+                System.out.print("Nhập ngày bắt đầu (dd/MM/yyyy): ");
                 String from = scanner.nextLine().trim();
-
-                System.out.println("Nhập ngày kết thúc: ");
+                System.out.print("Nhập ngày kết thúc (dd/MM/yyyy): ");
                 String to = scanner.nextLine().trim();
 
-                LocalDate fromDate = LocalDate.parse(from, formatter);
-                LocalDate toDate = LocalDate.parse(to, formatter);
-
-                if (fromDate.isAfter(toDate)) {
-                    System.out.println("Ngày bắt đầu phải trước ngày kết thúc, vui lòng nhập lại.");
+                if (from.isEmpty() || to.isEmpty()) {
+                    System.out.println("⚠️ Ngày không được để trống!");
                     continue;
                 }
 
-                List<Map<String, Object>> result = NhapHangDAO.thongKePhieuNhapTheoNV(fromDate, toDate);
+                LocalDate fromDate, toDate;
+                try {
+                    fromDate = LocalDate.parse(from, inputFmt);
+                    toDate = LocalDate.parse(to, inputFmt);
+                } catch (DateTimeParseException e) {
+                    System.out.println("⚠️ Định dạng ngày không hợp lệ (đúng: dd/MM/yyyy), vui lòng nhập lại.");
+                    continue;
+                }
+                if (fromDate.isAfter(toDate)) {
+                    System.out.println("⚠️ Ngày bắt đầu phải trước hoặc bằng ngày kết thúc, vui lòng nhập lại.");
+                    continue;
+                }
 
-                System.out.println("=== THỐNG KÊ PHIẾU NHẬP THEO NHÂN VIÊN ===");
-                System.out.println("Từ ngày: " + fromDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-                System.out.println("Đến ngày: " + toDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+                List<Map<String, Object>> result;
+                try {
+                    result = NhapHangDAO.thongKePhieuNhapTheoNV(fromDate, toDate);
+                } catch (Exception ex) {
+                    System.out.println("❌ Lỗi khi truy vấn database: " + ex.getMessage());
+                    ex.printStackTrace();
+                    break;
+                }
+
+                System.out.println("\n=== THỐNG KÊ PHIẾU NHẬP THEO NHÂN VIÊN ===");
+                System.out.println("Từ ngày: " + fromDate.format(displayFmt));
+                System.out.println("Đến ngày: " + toDate.format(displayFmt));
                 System.out.println("---------------------------------------------------------");
 
-                if (result == null || result.isEmpty()) {
+                if (result == null) {
+                    System.out.println("❌ Không thể lấy dữ liệu từ DAO.");
+                    System.out.print("\n✅ Bạn có muốn thống kê tiếp không? (y/n): ");
+                    String choice = scanner.nextLine().trim().toLowerCase();
+                    if (!choice.equals("y")) break;
+                    continue;
+                }
+                if (result.isEmpty()) {
                     System.out.println("❌ Không có dữ liệu phiếu nhập trong khoảng thời gian này.");
-                    System.out.println("---------------------------------------------------------");
                     System.out.print("\n✅ Bạn có muốn thống kê tiếp không? (y/n): ");
                     String choice = scanner.nextLine().trim().toLowerCase();
                     if (!choice.equals("y")) break;
                     continue;
                 }
 
-                System.out.printf("| %-5s | %-10s | %-20s | %-10s | %-10s | %-10s |%n", 
-                "STT", "Mã NV", "Họ Tên", "Số Phiếu", "Số SP", "Tổng Giá Trị");
-                System.out.println("+---------+------------------------+-----------+--------+-----------+---------------+");
+                System.out.printf("| %-5s | %-10s | %-22s | %-10s | %-10s | %-13s |\n", 
+                    "STT", "Mã NV", "Họ Tên", "Số Phiếu", "Số SP", "Tổng Giá Trị");
+                System.out.println("+------+------+------------------------+-----------+-----------+---------------+");
 
                 int stt = 1;
+                int tongNV = 0, tongPhieu = 0, tongSanPham = 0;
+                long tongGiaTri = 0;
+
                 for (Map<String, Object> row : result) {
-                    System.out.printf("| %-5s | %-10s | %-20s | %-10d | %-10d | %-10s |%n",
-                        stt++,
-                        row.get("MaNV"),
-                        row.get("Ho Ten"),
-                        row.get("SoPhieu"),
-                        row.get("TongSanPham"),
-                        FormatUtil.formatVND((long)row.get("TongGiaTri"))
-                    );
+                    Object maNV = row.get("MaNV");
+                    Object hoTen = row.get("HoTen");
+                    Object soPhieu = row.get("SoPhieu");
+                    Object tongSP = row.get("TongSanPham");
+                    Object tongGT = row.get("TongGiaTri");
+
+                    if (maNV == null || hoTen == null || soPhieu == null || tongSP == null || tongGT == null) continue;
+
+                    tongNV++;
+                    int soPhieuInt = (int)soPhieu;
+                    int tongSPInt = (int)tongSP;
+                    long tongGTLong = (long)tongGT;
+
+                    tongPhieu += soPhieuInt;
+                    tongSanPham += tongSPInt;
+                    tongGiaTri += tongGTLong;
+
+                    System.out.printf("| %-5d | %-10s | %-22s | %-10d | %-10d | %-13s |\n",
+                            stt++, maNV, hoTen, soPhieuInt, tongSPInt, FormatUtil.formatVND(tongGTLong));
                 }
-                System.out.println("+---------+------------------------+-----------+--------+-----------+---------------+");
+
+                System.out.println("+------+------+------------------------+-----------+-----------+---------------+");
+                System.out.println("Tổng số nhân viên: " + tongNV);
+                System.out.println("Tổng số phiếu nhập: " + tongPhieu);
+                System.out.println("Tổng số sản phẩm: " + tongSanPham);
+                System.out.println("Tổng giá trị nhập: " + FormatUtil.formatVND(tongGiaTri));
+                System.out.println("---------------------------------------------------------");
 
                 System.out.print("\n✅ Bạn có muốn thống kê tiếp không? (y/n): ");
                 String choice = scanner.nextLine().trim().toLowerCase();
-                if (!choice.equals("y")) break;
-            } catch (DateTimeParseException e) {
-                System.out.println("⚠️ Định dạng ngày không hợp lệ, vui lòng nhập lại (ddMMyyyy).");
+                if (!"y".equals(choice)) break;
+            } catch (Exception e) {
+                System.out.println("❌ Lỗi ngoài dự kiến: " + e.getMessage());
+                e.printStackTrace();
+                break;
             }
         }
     }
