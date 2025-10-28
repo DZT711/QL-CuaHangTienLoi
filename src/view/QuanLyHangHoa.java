@@ -321,41 +321,46 @@ public class QuanLyHangHoa {
         }
 
         System.out.println("\n════════════════════════════════════════════════════════════════════════════════");
-        System.out.println("                           📦 DANH SÁCH TẤT CẢ HÀNG HÓA                          ");
+        System.out.println("                      📦 DANH SÁCH TẤT CẢ HÀNG HÓA                          ");
         System.out.println("════════════════════════════════════════════════════════════════════════════════");
         System.out.printf("%-15s %-15s %-25s %-15s %-15s %-15s %-15s%n",
                 "Mã hàng", "Mã SP", "Tên SP", "SL còn lại", "Ngày SX", "Hạn SD", "Trạng thái");
         System.out.println("────────────────────────────────────────────────────────────────────────────────");
         
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         int tongSL = 0;
-        for (Map<String, Object> loHang : loHangList) {
-            String ngaySXStr = (loHang.get("NgaySanXuat") != null) ? ((LocalDate) loHang.get("NgaySanXuat")).format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "N/A";
-            String hanSDStr = (loHang.get("HanSuDung") != null) ? ((LocalDate) loHang.get("HanSuDung")).format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "N/A";
 
-            // Emoji cho trạng thái
-            String trangThaiIcon = "";
-            if ("active".equals(loHang.get("TrangThai"))) {
-                trangThaiIcon = "✅ Active";
-            } else if ("inactive".equals(loHang.get("TrangThai"))) {
-                trangThaiIcon = "⚠️ Inactive";
-            } else if ("expired".equals(loHang.get("TrangThai"))) {
-                trangThaiIcon = "❌ Expired";
-            }
+        for (Map<String, Object> loHang : loHangList) {
+            LocalDate ngaySX = (LocalDate) loHang.get("NgaySanXuat");
+            LocalDate hanSD = (LocalDate) loHang.get("HanSuDung");
+            String ngaySXStr = (ngaySX != null) ? ngaySX.format(fmt) : "N/A";
+            String hanSDStr = (hanSD != null) ? hanSD.format(fmt) : "N/A";
+
+            String trangThai = (String) loHang.get("TrangThai");
+            String trangThaiIcon = switch (trangThai != null ? trangThai : "") {
+                case "active" -> "✅ Active";
+                case "inactive" -> "⚠️ Inactive";
+                case "expired" -> "❌ Expired";
+                default -> "❓ Unknown";
+            };
 
             System.out.printf("%-15s %-15s %-25s %-15d %-15s %-15s %-15s%n",
                 loHang.get("MaHang"),
                 loHang.get("MaSP"),
-                loHang.get("TenSP"),  
+                loHang.get("TenSP"),
                 loHang.get("SoLuongConLai"),
                 ngaySXStr,
                 hanSDStr,
                 trangThaiIcon
             );
+            
             tongSL += (int) loHang.get("SoLuongConLai");
         }
+
         System.out.println("════════════════════════════════════════════════════════════════════════════════");
         System.out.println("📊 Tổng cộng: " + loHangList.size() + " lô hàng | Tổng số lượng: " + tongSL);
     }
+
 
     public void timHangHoaTheoMaHang() {
         Scanner scanner = new Scanner(System.in);
