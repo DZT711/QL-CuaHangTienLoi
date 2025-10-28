@@ -53,29 +53,39 @@ public class HangHoaDAO {
     }
 
     public static HangHoaDTO timHangHoaTheoMa(String maHang) {
+        if (maHang == null || maHang.trim().isEmpty()) {
+            System.err.println("❌ Mã hàng không được rỗng!");
+            return null;
+        }
+
         String query = "SELECT * FROM HANGHOA WHERE MaHang = ?";
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, maHang);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return new HangHoaDTO(
-                    rs.getString("MaHang"),
-                    rs.getString("MaSP"),
-                    rs.getInt("SoLuongConLai"),
-                    rs.getDate("NgaySanXuat").toLocalDate(),
-                    rs.getDate("HanSuDung").toLocalDate(),
-                    rs.getString("TrangThai")
-                );
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Date ngaySX = rs.getDate("NgaySanXuat");
+                    Date hanSD = rs.getDate("HanSuDung");
+                    
+                    return new HangHoaDTO(
+                        rs.getString("MaHang"),
+                        rs.getString("MaSP"),
+                        rs.getInt("SoLuongConLai"),
+                        ngaySX != null ? ngaySX.toLocalDate() : null,
+                        hanSD != null ? hanSD.toLocalDate() : null,
+                        rs.getString("TrangThai")
+                    );
+                }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi tìm hàng hóa: " + e.getMessage());
+            System.err.println("❌ Lỗi khi tìm hàng hóa: " + e.getMessage());
+            e.printStackTrace();
         }
         return null;
     }
+
 
     public static void truSoLuongConLai(String maHang, int soLuong) {
         String query = "UPDATE HANGHOA SET SoLuongConLai = SoLuongConLai - ? WHERE MaHang = ?";
