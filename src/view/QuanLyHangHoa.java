@@ -4,6 +4,7 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -420,6 +421,7 @@ public class QuanLyHangHoa {
 
     public void timHangHoaTheoMaSP() {
         Scanner scanner = new Scanner(System.in);
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         
         while (true) {
             System.out.print("\nNhập mã sản phẩm cần tìm (hoặc '0' để thoát): ");
@@ -435,14 +437,12 @@ public class QuanLyHangHoa {
                 continue;
             }
             
-            // Kiểm tra sản phẩm tồn tại
             SanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
             if (sp == null) {
                 System.out.println("❌ Không tìm thấy sản phẩm với mã: " + maSP);
                 continue;
             }
             
-            // Lấy danh sách lô hàng
             List<HangHoaDTO> loHangList = HangHoaDAO.timChiTietLoHangTheoSanPham(maSP);
             
             if (loHangList == null || loHangList.isEmpty()) {
@@ -450,16 +450,15 @@ public class QuanLyHangHoa {
                 continue;
             }
             
-            // Hiển thị thông tin
             System.out.println("\n════════════════════════════════════════════════════════════════════════════════");
-            System.out.println("                    🔍 KẾT QUẢ TÌM KIẾM THEO SẢN PHẨM                          ");
+            System.out.println("                 🔍 KẾT QUẢ TÌM KIẾM THEO SẢN PHẨM                          ");
             System.out.println("════════════════════════════════════════════════════════════════════════════════");
             System.out.println("Mã sản phẩm        : " + sp.getMaSP());
             System.out.println("Tên sản phẩm       : " + sp.getTenSP());
-            System.out.println("Giá bán            : " + util.FormatUtil.formatVND(sp.getGiaBan()));
+            System.out.println("Giá bán            : " + FormatUtil.formatVND(sp.getGiaBan()));
             System.out.println("Tồn kho tổng       : " + sp.getSoLuongTon());
             System.out.println("────────────────────────────────────────────────────────────────────────────────");
-            System.out.println("                           DANH SÁCH CÁC LÔ HÀNG                               ");
+            System.out.println("                        DANH SÁCH CÁC LÔ HÀNG                               ");
             System.out.println("────────────────────────────────────────────────────────────────────────────────");
             System.out.printf("%-15s %-15s %-15s %-15s %-18s%n",
                 "Mã hàng", "SL còn lại", "Ngày SX", "Hạn SD", "Trạng thái");
@@ -468,19 +467,17 @@ public class QuanLyHangHoa {
             int tongSL = 0;
             for (HangHoaDTO loHang : loHangList) {
                 String ngaySXStr = (loHang.getNgaySanXuat() != null) ? 
-                    loHang.getNgaySanXuat().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "N/A";
+                    loHang.getNgaySanXuat().format(fmt) : "N/A";
                 String hanSDStr = (loHang.getHanSuDung() != null) ? 
-                    loHang.getHanSuDung().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "N/A";
+                    loHang.getHanSuDung().format(fmt) : "N/A";
                 
-                // Emoji cho trạng thái
-                String trangThaiIcon = "";
-                if ("active".equals(loHang.getTrangThai())) {
-                    trangThaiIcon = "✅ Active";
-                } else if ("inactive".equals(loHang.getTrangThai())) {
-                    trangThaiIcon = "⚠️ Inactive";
-                } else if ("expired".equals(loHang.getTrangThai())) {
-                    trangThaiIcon = "❌ Expired";
-                }
+                String trangThai = loHang.getTrangThai();
+                String trangThaiIcon = switch (trangThai != null ? trangThai : "") {
+                    case "active" -> "✅ Active";
+                    case "inactive" -> "⚠️ Inactive";
+                    case "expired" -> "❌ Expired";
+                    default -> "❓ Unknown";
+                };
                 
                 System.out.printf("%-15s %-15d %-15s %-15s %-18s%n",
                     loHang.getMaHang(),
@@ -499,13 +496,14 @@ public class QuanLyHangHoa {
         }
     }
 
+
     public void timHangHoaTheoHanSuDung() {
         Scanner scanner = new Scanner(System.in);
-        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("ddMMyyyy");
-        DateTimeFormatter displayFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter inputFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter displayFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         
         while (true) {
-            System.out.print("\nNhập hạn sử dụng cần tìm (ddMMyyyy) hoặc '0' để thoát: ");
+            System.out.print("\nNhập hạn sử dụng cần tìm (dd/MM/yyyy) hoặc '0' để thoát: ");
             String input = scanner.nextLine().trim();
             
             if ("0".equals(input)) {
@@ -513,33 +511,30 @@ public class QuanLyHangHoa {
                 break;
             }
             
-            // Validation format
-            if (input.length() != 8) {
-                System.out.println("❌ Định dạng không hợp lệ! Vui lòng nhập đúng 8 ký tự (ddMMyyyy).");
+            if (input.isEmpty()) {
+                System.out.println("❌ Hạn sử dụng không được để trống!");
                 continue;
             }
             
             LocalDate hanSuDung;
             try {
-                hanSuDung = LocalDate.parse(input, inputFormatter);
-            } catch (Exception e) {
-                System.out.println("❌ Ngày không hợp lệ! Vui lòng nhập lại.");
+                hanSuDung = LocalDate.parse(input, inputFmt);
+            } catch (DateTimeParseException e) {
+                System.out.println("❌ Định dạng ngày không hợp lệ! Vui lòng nhập theo định dạng dd/MM/yyyy.");
                 continue;
             }
             
-            // Tìm kiếm
             List<Map<String, Object>> loHangList = HangHoaDAO.timHangHoaTheoHanSuDung(hanSuDung);
             
             if (loHangList == null || loHangList.isEmpty()) {
-                System.out.println("⚠️ Không tìm thấy lô hàng nào có hạn sử dụng: " + hanSuDung.format(displayFormatter));
+                System.out.println("⚠️ Không tìm thấy lô hàng nào có hạn sử dụng: " + hanSuDung.format(displayFmt));
                 continue;
             }
             
-            // Hiển thị kết quả
             System.out.println("\n════════════════════════════════════════════════════════════════════════════════════════");
-            System.out.println("                    🔍 KẾT QUẢ TÌM KIẾM THEO HẠN SỬ DỤNG                              ");
+            System.out.println("                 🔍 KẾT QUẢ TÌM KIẾM THEO HẠN SỬ DỤNG                              ");
             System.out.println("════════════════════════════════════════════════════════════════════════════════════════");
-            System.out.println("Hạn sử dụng: " + hanSuDung.format(displayFormatter));
+            System.out.println("Hạn sử dụng: " + hanSuDung.format(displayFmt));
             System.out.println("────────────────────────────────────────────────────────────────────────────────────────");
             System.out.printf("%-12s %-12s %-25s %-12s %-12s %-18s%n",
                 "Mã hàng", "Mã SP", "Tên SP", "SL còn lại", "Ngày SX", "Trạng thái");
@@ -547,18 +542,16 @@ public class QuanLyHangHoa {
             
             int tongSL = 0;
             for (Map<String, Object> loHang : loHangList) {
-                String ngaySXStr = (loHang.get("NgaySanXuat") != null) ? 
-                    ((LocalDate) loHang.get("NgaySanXuat")).format(displayFormatter) : "N/A";
+                LocalDate ngaySX = (LocalDate) loHang.get("NgaySanXuat");
+                String ngaySXStr = (ngaySX != null) ? ngaySX.format(displayFmt) : "N/A";
                 
-                // Emoji cho trạng thái
-                String trangThaiIcon = "";
-                if ("active".equals(loHang.get("TrangThai"))) {
-                    trangThaiIcon = "✅ Active";
-                } else if ("inactive".equals(loHang.get("TrangThai"))) {
-                    trangThaiIcon = "⚠️ Inactive";
-                } else if ("expired".equals(loHang.get("TrangThai"))) {
-                    trangThaiIcon = "❌ Expired";
-                }
+                String trangThai = (String) loHang.get("TrangThai");
+                String trangThaiIcon = switch (trangThai != null ? trangThai : "") {
+                    case "active" -> "✅ Active";
+                    case "inactive" -> "⚠️ Inactive";
+                    case "expired" -> "❌ Expired";
+                    default -> "❓ Unknown";
+                };
                 
                 System.out.printf("%-12s %-12s %-25s %-12d %-12s %-18s%n",
                     loHang.get("MaHang"),
@@ -577,6 +570,7 @@ public class QuanLyHangHoa {
             System.out.println();
         }
     }
+
 
     public void xemChiTietLoHang() {
         Scanner scanner = new Scanner(System.in);
