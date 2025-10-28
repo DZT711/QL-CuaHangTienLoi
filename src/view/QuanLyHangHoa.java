@@ -85,37 +85,36 @@ public class QuanLyHangHoa {
                     }
                     break;
                 case 2:
+                    System.out.println("\n════════════════════════════════════════════════");
+                    System.out.println("        📦 TÌM KIẾM HÀNG HÓA TRONG KHO     ");
+                    System.out.println("════════════════════════════════════════════════");
+                    System.out.println("1. Tìm kiếm hàng hóa theo mã hàng");
+                    System.out.println("2. Tìm kiếm hàng hóa theo mã sản phẩm");
+                    System.out.println("3. Tìm kiếm hàng hóa theo hạn sử dụng");
+                    System.out.println("0. Quay lại");
+                    System.out.println("════════════════════════════════════════════════");
+                    System.out.print("\n💡 Nhập lựa chọn của bạn: ");
                     while (true) {
-                        try {
-                            System.out.println("\n════════════════════════════════════════════════");
-                            System.out.println("        📦 TÌM KIẾM HÀNG HÓA TRONG KHO     ");
-                            System.out.println("════════════════════════════════════════════════");
-                            System.out.println("1. Tìm kiếm hàng hóa theo mã hàng");
-                            System.out.println("2. Tìm kiếm hàng hóa theo mã sản phẩm");
-                            System.out.println("3. Tìm kiếm hàng hóa theo hạn sử dụng");
-                            System.out.println("0. Quay lại");
-                            System.out.println("════════════════════════════════════════════════");
-                            System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+                        String opt = scanner.nextLine().trim();
 
-                            int opt = scanner.nextInt();
-                            scanner.nextLine();
-
-                            if (opt == 0) {
-                                System.out.println("✅ Quay lại menu quản lý hàng hóa.");
+                        switch (opt) {
+                            case "0":
+                                System.out.println("Thoát tìm kiếm hàng hóa thành công.");
                                 break;
-                            } else if (opt == 1) {
+                            case "1":
                                 timHangHoaTheoMaHang();
-                            } else if (opt == 2) {
+                                break;
+                            case "2":
                                 timHangHoaTheoMaSP();
-                            } else if (opt == 3) {
+                                break;
+                            case "3":
                                 timHangHoaTheoHanSuDung();
-                            } else {
-                                System.out.println("❌ Lựa chọn không hợp lệ!");
-                            }
-                        } catch (Exception e) {
-                            System.out.println("❌ Lỗi xảy ra: " + e.getMessage());
-                            scanner.nextLine();
+                                break;
+                            default:
+                                System.out.print("Lựa chọn không hợp lệ! Vui lòng nhập lại: ");
+                                continue;
                         }
+                        break;
                     }
                     break;
                 case 3:
@@ -364,6 +363,8 @@ public class QuanLyHangHoa {
 
     public void timHangHoaTheoMaHang() {
         Scanner scanner = new Scanner(System.in);
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
         while (true) {
             System.out.print("\nNhập mã hàng cần tìm (hoặc '0' để thoát): ");
             String maHang = scanner.nextLine().trim();
@@ -385,36 +386,32 @@ public class QuanLyHangHoa {
                 continue;
             }
             
-            // Lấy thông tin sản phẩm
             SanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(hangHoa.getMaSP());
             if (sp == null) {
                 System.out.println("❌ Lỗi: Không tìm thấy thông tin sản phẩm!");
                 continue;
             }
             
-            // Hiển thị thông tin
             System.out.println("\n════════════════════════════════════════════════════════");
-            System.out.println("              📦 THÔNG TIN LÔ HÀNG                      ");
+            System.out.println("           📦 THÔNG TIN LÔ HÀNG                      ");
             System.out.println("════════════════════════════════════════════════════════");
             System.out.println("Mã hàng            : " + hangHoa.getMaHang());
             System.out.println("Mã sản phẩm        : " + hangHoa.getMaSP());
             System.out.println("Tên sản phẩm       : " + sp.getTenSP());
-            System.out.println("Giá bán            : " + util.FormatUtil.formatVND(sp.getGiaBan()));
+            System.out.println("Giá bán            : " + FormatUtil.formatVND(sp.getGiaBan()));
             System.out.println("Số lượng còn lại   : " + hangHoa.getSoLuongConLai());
             System.out.println("Ngày sản xuất      : " + 
-                (hangHoa.getNgaySanXuat() != null ? hangHoa.getNgaySanXuat().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "N/A"));
+                (hangHoa.getNgaySanXuat() != null ? hangHoa.getNgaySanXuat().format(fmt) : "N/A"));
             System.out.println("Hạn sử dụng        : " + 
-                (hangHoa.getHanSuDung() != null ? hangHoa.getHanSuDung().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "N/A"));
+                (hangHoa.getHanSuDung() != null ? hangHoa.getHanSuDung().format(fmt) : "N/A"));
             
-            // Emoji cho trạng thái
-            String trangThaiIcon = "";
-            if ("active".equals(hangHoa.getTrangThai())) {
-                trangThaiIcon = "✅ Active";
-            } else if ("inactive".equals(hangHoa.getTrangThai())) {
-                trangThaiIcon = "⚠️ Inactive";
-            } else if ("expired".equals(hangHoa.getTrangThai())) {
-                trangThaiIcon = "❌ Expired";
-            }
+            String trangThai = hangHoa.getTrangThai();
+            String trangThaiIcon = switch (trangThai != null ? trangThai : "") {
+                case "active" -> "✅ Active";
+                case "inactive" -> "⚠️ Inactive";
+                case "expired" -> "❌ Expired";
+                default -> "❓ Unknown";
+            };
             
             System.out.println("Trạng thái         : " + trangThaiIcon);
             System.out.println("════════════════════════════════════════════════════════");
