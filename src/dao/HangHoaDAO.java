@@ -184,33 +184,43 @@ public class HangHoaDAO {
 
     // Xem tất cả hàng hóa
     public static List<Map<String, Object>> layDanhSachHangHoa() {
+        List<Map<String, Object>> result  = new ArrayList<>();
+
         String query = """
-                SELECT hh.MaHang, hh.MaSP, sp.TenSP, hh.SoLuongConLai,
-                    hh.NgaySanXuat, hh.HanSuDung, hh.TrangThai, sp.GiaBan
-                FROM HANGHOA hh
-                INNER JOIN SANPHAM sp ON hh.MaSP = sp.MaSP
-                ORDER BY hh.HanSuDung ASC        
+            SELECT hh.MaHang, hh.MaSP, sp.TenSP, hh.SoLuongConLai,
+                hh.NgaySanXuat, hh.HanSuDung, hh.TrangThai, sp.GiaBan
+            FROM HANGHOA hh
+            INNER JOIN SANPHAM sp ON hh.MaSP = sp.MaSP
+            ORDER BY hh.HanSuDung ASC
         """;
 
-        List<Map<String, Object>> result  = new ArrayList<>();
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query);
             ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                Map<String, Object> row = new java.util.HashMap<>();
-                row.put("MaHang", rs.getString("MaHang"));
-                row.put("MaSP", rs.getString("MaSP"));
-                row.put("TenSP", rs.getString("TenSP"));
-                row.put("SoLuongConLai", rs.getInt("SoLuongConLai"));
-                row.put("NgaySanXuat", rs.getDate("NgaySanXuat").toLocalDate());
-                row.put("HanSuDung", rs.getDate("HanSuDung").toLocalDate());
-                row.put("TrangThai", rs.getString("TrangThai"));
-                row.put("GiaBan", rs.getInt("GiaBan"));
-                result.add(row);
+                try {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("MaHang", rs.getString("MaHang"));
+                    row.put("MaSP", rs.getString("MaSP"));
+                    row.put("TenSP", rs.getString("TenSP"));
+                    row.put("SoLuongConLai", rs.getInt("SoLuongConLai"));
+                    
+                    Date ngaySX = rs.getDate("NgaySanXuat");
+                    Date hanSD = rs.getDate("HanSuDung");
+                    row.put("NgaySanXuat", ngaySX != null ? ngaySX.toLocalDate() : null);
+                    row.put("HanSuDung", hanSD != null ? hanSD.toLocalDate() : null);
+                    
+                    row.put("TrangThai", rs.getString("TrangThai"));
+                    row.put("GiaBan", rs.getInt("GiaBan"));
+                    result.add(row);
+                } catch (SQLException rowEx) {
+                    System.err.println("❌ Lỗi đọc dòng dữ liệu: " + rowEx.getMessage());
+                }
             }
         } catch (SQLException e) {
             System.err.println("❌ Lỗi khi lấy danh sách hàng hóa: " + e.getMessage());
+            e.printStackTrace();
         }
         return result;
     }
