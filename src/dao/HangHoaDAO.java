@@ -289,30 +289,34 @@ public class HangHoaDAO {
 
     // Xem chi tiết lô hàng theo mã hàng
     public static Map<String, Object> xemChiTietLoHang(String maHang) {
+        if (maHang == null || maHang.trim().isEmpty()) {
+            System.err.println("❌ Mã hàng không được rỗng!");
+            return null;
+        }
+
         String query = """
-                SELECT 
-                    hh.MaHang,
-                    hh.MaSP,
-                    sp.TenSP,
-                    sp.LoaiSP,
-                    sp.GiaBan,
-                    ncc.TenNCC,
-                    hh.NgaySanXuat,
-                    hh.HanSuDung,
-                    hh.SoLuongNhap,
-                    hh.SoLuongConLai,
-                    (hh.SoLuongNhap - hh.SoLuongConLai) AS SoLuongDaBan,
-                    hh.TrangThai,
-                    CASE
-                        WHEN hh.HanSuDung < CURDATE() THEN 'Đã hết hạn'
-                        WHEN hh.HanSuDung BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY) THEN 'Sắp hết hạn'
-                        ELSE 'Còn hạn'
-                    END AS TinhTrang,
-                    DATEDIFF(hh.HanSuDung, CURDATE()) AS SoNgayConLai
-                FROM HANGHOA hh
-                JOIN SANPHAM sp ON hh.MaSP = sp.MaSP
-                LEFT JOIN NHACUNGCAP ncc ON sp.MaNCC = ncc.MaNCC
-                WHERE hh.MaHang = ?
+            SELECT 
+                hh.MaHang, hh.MaSP, sp.TenSP, l.TenLoai AS LoaiSP, sp.GiaBan,
+                hh.NgaySanXuat, hh.HanSuDung, hh.SoLuongConLai, hh.TrangThai,
+                COALESCE((SELECT SUM(SoLuong) FROM CHITIETPHIEUNHAP WHERE MaHang = hh.MaHang), 0) AS SoLuongNhap,
+                COALESCE((SELECT SUM(SoLuong) FROM CHITIETHOADON WHERE MaHang = hh.MaHang), 0) AS SoLuongDaBan,
+                (SELECT ncc2.TenNCC 
+                FROM CHITIETPHIEUNHAP ctpn2
+                JOIN PHIEUNHAP pn2 ON ctpn2.MaPhieu = pn2.MaPhieu
+                JOIN NHACUNGCAP ncc2 ON pn2.MaNCC = ncc2.MaNCC
+                WHERE ctpn2.MaHang = hh.MaHang
+                LIMIT 1) AS TenNCC,
+                CASE
+                    WHEN hh.HanSuDung IS NULL THEN 'Không có HSD'
+                    WHEN hh.HanSuDung < CURDATE() THEN 'Đã hết hạn'
+                    WHEN hh.HanSuDung BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY) THEN 'Sắp hết hạn'
+                    ELSE 'Còn hạn'
+                END AS TinhTrang,
+                DATEDIFF(hh.HanSuDung, CURDATE()) AS SoNgayConLai
+            FROM HANGHOA hh
+            JOIN SANPHAM sp ON hh.MaSP = sp.MaSP
+            JOIN LOAI l ON sp.Loai = l.MaLoai
+            WHERE hh.MaHang = ?
         """;
 
         try (Connection conn = JDBCUtil.getConnection();
@@ -329,10 +333,12 @@ public class HangHoaDAO {
                     result.put("LoaiSP", rs.getString("LoaiSP"));
                     result.put("GiaBan", rs.getInt("GiaBan"));
                     result.put("TenNCC", rs.getString("TenNCC"));
-                    result.put("NgaySanXuat", rs.getDate("NgaySanXuat") != null ? 
-                        rs.getDate("NgaySanXuat").toLocalDate() : null);
-                    result.put("HanSuDung", rs.getDate("HanSuDung") != null ? 
-                        rs.getDate("HanSuDung").toLocalDate() : null);
+                    
+                    Date ngaySX = rs.getDate("NgaySanXuat");
+                    Date hanSD = rs.getDate("HanSuDung");
+                    result.put("NgaySanXuat", ngaySX != null ? ngaySX.toLocalDate() : null);
+                    result.put("HanSuDung", hanSD != null ? hanSD.toLocalDate() : null);
+                    
                     result.put("SoLuongNhap", rs.getInt("SoLuongNhap"));
                     result.put("SoLuongConLai", rs.getInt("SoLuongConLai"));
                     result.put("SoLuongDaBan", rs.getInt("SoLuongDaBan"));
@@ -344,9 +350,13 @@ public class HangHoaDAO {
             }
         } catch (SQLException e) {
             System.err.println("❌ Lỗi khi xem chi tiết lô hàng: " + e.getMessage());
+            e.printStackTrace();
         }
         return null;
     }
+
+
+
 
     // Lấy danh sách hàng sắp hết hạn và đã hết hạn (không cập nhật trạng thái)
     public static List<Map<String, Object>> layHangSapHetHan() {

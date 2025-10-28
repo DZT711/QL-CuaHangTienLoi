@@ -496,7 +496,6 @@ public class QuanLyHangHoa {
         }
     }
 
-
     public void timHangHoaTheoHanSuDung() {
         Scanner scanner = new Scanner(System.in);
         DateTimeFormatter inputFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -571,10 +570,9 @@ public class QuanLyHangHoa {
         }
     }
 
-
     public void xemChiTietLoHang() {
         Scanner scanner = new Scanner(System.in);
-        DateTimeFormatter displayFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
         while (true) {
             System.out.print("\nNhập mã hàng cần xem chi tiết hoặc '0' để thoát: ");
@@ -585,6 +583,11 @@ public class QuanLyHangHoa {
                 break;
             }
 
+            if (maHang.isEmpty()) {
+                System.out.println("❌ Mã hàng không được để trống!");
+                continue;
+            }
+
             // Lấy thông tin chi tiết
             Map<String, Object> chiTiet = HangHoaDAO.xemChiTietLoHang(maHang);
 
@@ -593,12 +596,10 @@ public class QuanLyHangHoa {
                 continue;
             }
 
-            // Hiển thị thông tin chi tiết
             System.out.println("\n╔════════════════════════════════════════════════════════════════════════════════════════╗");
-            System.out.println("║                          📦 CHI TIẾT LÔ HÀNG                                          ║");
+            System.out.println("║                                     📦 CHI TIẾT LÔ HÀNG                                ║");
             System.out.println("╚════════════════════════════════════════════════════════════════════════════════════════╝");
             
-            // Thông tin cơ bản
             System.out.println("\n┌─── THÔNG TIN CƠ BẢN ───────────────────────────────────────────────────────────────┐");
             System.out.printf("│ %-20s : %-60s │%n", "Mã hàng", chiTiet.get("MaHang"));
             System.out.printf("│ %-20s : %-60s │%n", "Mã sản phẩm", chiTiet.get("MaSP"));
@@ -607,51 +608,42 @@ public class QuanLyHangHoa {
             System.out.printf("│ %-20s : %-60s │%n", "Nhà cung cấp", 
                 chiTiet.get("TenNCC") != null ? chiTiet.get("TenNCC") : "N/A");
             System.out.printf("│ %-20s : %-60s │%n", "Giá bán", 
-                util.FormatUtil.formatVND((int) chiTiet.get("GiaBan")));
+                FormatUtil.formatVND((int) chiTiet.get("GiaBan")));
             System.out.println("└─────────────────────────────────────────────────────────────────────────────────────┘");
 
-            // Thông tin số lượng
             System.out.println("\n┌─── THÔNG TIN SỐ LƯỢNG ─────────────────────────────────────────────────────────────┐");
             System.out.printf("│ %-20s : %-60s │%n", "Số lượng nhập", chiTiet.get("SoLuongNhap"));
             System.out.printf("│ %-20s : %-60s │%n", "Số lượng còn lại", chiTiet.get("SoLuongConLai"));
             System.out.printf("│ %-20s : %-60s │%n", "Số lượng đã bán", chiTiet.get("SoLuongDaBan"));
             System.out.println("└─────────────────────────────────────────────────────────────────────────────────────┘");
 
-            // Thông tin ngày tháng
             System.out.println("\n┌─── THÔNG TIN HẠN SỬ DỤNG ─────────────────────────────────────────────────────────┐");
             LocalDate ngaySX = (LocalDate) chiTiet.get("NgaySanXuat");
             LocalDate hanSD = (LocalDate) chiTiet.get("HanSuDung");
             System.out.printf("│ %-20s : %-60s │%n", "Ngày sản xuất", 
-                ngaySX != null ? ngaySX.format(displayFormatter) : "N/A");
+                ngaySX != null ? ngaySX.format(fmt) : "N/A");
             System.out.printf("│ %-20s : %-60s │%n", "Hạn sử dụng", 
-                hanSD != null ? hanSD.format(displayFormatter) : "N/A");
+                hanSD != null ? hanSD.format(fmt) : "N/A");
             System.out.printf("│ %-20s : %-60s │%n", "Số ngày còn lại", chiTiet.get("SoNgayConLai"));
             System.out.println("└─────────────────────────────────────────────────────────────────────────────────────┘");
 
-            // Trạng thái
             System.out.println("\n┌─── TRẠNG THÁI ─────────────────────────────────────────────────────────────────────┐");
             
-            // Emoji cho trạng thái
-            String trangThaiIcon = "";
             String trangThai = (String) chiTiet.get("TrangThai");
-            if ("active".equals(trangThai)) {
-                trangThaiIcon = "✅ Active";
-            } else if ("inactive".equals(trangThai)) {
-                trangThaiIcon = "⚠️ Inactive";
-            } else if ("expired".equals(trangThai)) {
-                trangThaiIcon = "❌ Expired";
-            }
+            String trangThaiIcon = switch (trangThai != null ? trangThai : "") {
+                case "active" -> "✅ Active";
+                case "inactive" -> "⚠️ Inactive";
+                case "expired" -> "❌ Expired";
+                default -> "❓ Unknown";
+            };
             
-            // Emoji cho tình trạng HSD
-            String tinhTrangIcon = "";
             String tinhTrang = (String) chiTiet.get("TinhTrang");
-            if ("Còn hạn".equals(tinhTrang)) {
-                tinhTrangIcon = "✅ " + tinhTrang;
-            } else if ("Sắp hết hạn".equals(tinhTrang)) {
-                tinhTrangIcon = "⚠️ " + tinhTrang + " (trong 7 ngày)";
-            } else if ("Đã hết hạn".equals(tinhTrang)) {
-                tinhTrangIcon = "❌ " + tinhTrang;
-            }
+            String tinhTrangIcon = switch (tinhTrang != null ? tinhTrang : "") {
+                case "Còn hạn" -> "✅ " + tinhTrang;
+                case "Sắp hết hạn" -> "⚠️ " + tinhTrang + " (trong 7 ngày)";
+                case "Đã hết hạn" -> "❌ " + tinhTrang;
+                default -> "❓ Không rõ";
+            };
             
             System.out.printf("│ %-20s : %-60s │%n", "Trạng thái lô hàng", trangThaiIcon);
             System.out.printf("│ %-20s : %-60s │%n", "Tình trạng HSD", tinhTrangIcon);
@@ -660,6 +652,7 @@ public class QuanLyHangHoa {
             System.out.println("\n════════════════════════════════════════════════════════════════════════════════════════\n");
         }
     }
+
 
     public void kiemTraHangSapHetHan() {
         Scanner scanner = new Scanner(System.in);
