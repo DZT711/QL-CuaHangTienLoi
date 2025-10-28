@@ -56,35 +56,32 @@ public class QuanLyHangHoa {
 
             switch (choice) {
                 case 1:
+                    System.out.println("\n════════════════════════════════════════════════");
+                    System.out.println("        📦 XEM DANH SÁCH HÀNG HÓA TRONG KHO     ");
+                    System.out.println("════════════════════════════════════════════════");
+                    System.out.println("1. Hiển thị theo sản phẩm (nhóm các lô)");
+                    System.out.println("2. Hiển thị tất cả hàng hóa (chi tiết từng lô)");
+                    System.out.println("0. Quay lại");
+                    System.out.println("════════════════════════════════════════════════");
+                    System.out.print("\n💡 Nhập lựa chọn của bạn: ");
                     while (true) {
-                        try {
-                            System.out.println("\n════════════════════════════════════════════════");
-                            System.out.println("        📦 XEM DANH SÁCH HÀNG HÓA TRONG KHO     ");
-                            System.out.println("════════════════════════════════════════════════");
-                            System.out.println("1. Hiển thị theo sản phẩm (nhóm các lô)");
-                            System.out.println("2. Hiển thị tất cả hàng hóa (chi tiết từng lô)");
-                            System.out.println("0. Quay lại");
-                            System.out.println("════════════════════════════════════════════════");
-                            System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+                        String opt = scanner.nextLine().trim();
 
-                            int opt = scanner.nextInt();
-                            scanner.nextLine();
-
-                            if (opt == 0) {
-                                System.out.println("✅ Quay lại menu quản lý hàng hóa.");
+                        switch (opt) {
+                            case "0":
+                                System.out.println("Thoát xem danh sách hàng hóa thành công.");
                                 break;
-                            } else if (opt == 1) {
+                            case "1":
                                 xemDanhSachTheoSanPham();
-                            } else if (opt == 2) {
+                                break;
+                            case "2":
                                 xemTatCaHangHoa();
-                            } else {
-                                System.out.println("❌ Lựa chọn không hợp lệ!");
-
-                            }
-                        } catch (Exception e) {
-                            System.out.println("❌ Lỗi xảy ra: " + e.getMessage());
-                            scanner.nextLine();
+                                break;
+                            default:
+                                System.out.print("Lựa chọn không hợp lệ! Vui lòng nhập lại: ");
+                                continue;
                         }
+                        break;
                     }
                     break;
                 case 2:
@@ -208,13 +205,13 @@ public class QuanLyHangHoa {
         Scanner scanner = new Scanner(System.in);
         
         List<Map<String, Object>> danhSach = HangHoaDAO.xemDanhSachHangHoaTheoSanPham();
-        if (danhSach.isEmpty()) {
+        if (danhSach == null || danhSach.isEmpty()) {
             System.out.println("❌ Không có hàng hóa trong kho.");
             return;
         }
 
         System.out.println("\n════════════════════════════════════════════════════════════════════════════════════════");
-        System.out.println("                           📦 DANH SÁCH HÀNG HÓA THEO SẢN PHẨM                          ");
+        System.out.println("                      📦 DANH SÁCH HÀNG HÓA THEO SẢN PHẨM                          ");
         System.out.println("════════════════════════════════════════════════════════════════════════════════════════");
         System.out.printf("%-10s %-30s %-15s %-10s %-15s %-15s%n",
             "Mã SP", "Tên sản phẩm", "Giá bán", "Số lô", "Tổng SL", "HSD gần nhất");
@@ -223,32 +220,34 @@ public class QuanLyHangHoa {
         for (Map<String, Object> row : danhSach) {
             String maSP = (String) row.get("MaSP");
             String tenSP = (String) row.get("TenSP");
-            int giaBan = (int) row.get("GiaBan");
-            int soLo = (int) row.get("SoLo");
-            int tongSL = (int) row.get("TongSoLuong");
+            Integer giaBan = (Integer) row.get("GiaBan");
+            Integer soLo = (Integer) row.get("SoLo");
+            Integer tongSL = (Integer) row.get("TongSoLuong");
             Date hsd = (Date) row.get("HanSuDungGanNhat");
+            
             String hsdStr = (hsd != null) ? hsd.toLocalDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "N/A";
 
             System.out.printf("%-10s %-30s %-15s %-10d %-15d %-15s%n",
-                maSP,
-                (tenSP.length() > 30 ? tenSP.substring(0, 27) + "..." : tenSP),
-                util.FormatUtil.formatVND(giaBan),
-                soLo,
-                tongSL,
+                maSP != null ? maSP : "N/A",
+                tenSP != null ? (tenSP.length() > 30 ? tenSP.substring(0, 27) + "..." : tenSP) : "N/A",
+                giaBan != null ? FormatUtil.formatVND(giaBan) : "N/A",
+                soLo != null ? soLo : 0,
+                tongSL != null ? tongSL : 0,
                 hsdStr
             );
         }
 
         System.out.println("════════════════════════════════════════════════════════════════════════════════════════");
-        System.out.println("📊 Tổng cộng: " + danhSach.size() + " sản phẩm");
-        System.out.println();
+        System.out.println("📊 Tổng cộng: " + danhSach.size() + " sản phẩm\n");
 
         while (true) {
             System.out.print("❓ Bạn có muốn xem chi tiết lô hàng của sản phẩm nào không? (nhập mã SP hoặc '0' để thoát): ");
             String maSP = scanner.nextLine().trim();
             
-            if ("0".equals(maSP)) break;
-            
+            if ("0".equals(maSP)) {
+                System.out.println("✅ Thoát xem chi tiết lô hàng.");
+                break;
+            }
             if (maSP.isEmpty()) {
                 System.out.println("❌ Mã sản phẩm không được để trống!");
                 continue;
@@ -266,40 +265,37 @@ public class QuanLyHangHoa {
         }
 
         List<HangHoaDTO> loHangList = HangHoaDAO.timChiTietLoHangTheoSanPham(maSP);
-
         if (loHangList == null || loHangList.isEmpty()) {
             System.out.println("❌ Không tìm thấy lô hàng nào cho sản phẩm với mã: " + maSP);
             return;
         }
 
         System.out.println("\n════════════════════════════════════════════════════════════════════════════════");
-        System.out.println("                      📦 CHI TIẾT LÔ HÀNG CỦA SẢN PHẨM                        ");
+        System.out.println("                   📦 CHI TIẾT LÔ HÀNG CỦA SẢN PHẨM                        ");
         System.out.println("════════════════════════════════════════════════════════════════════════════════");
         System.out.println("Mã sản phẩm        : " + sp.getMaSP());
         System.out.println("Tên sản phẩm       : " + sp.getTenSP());
-        System.out.println("Giá bán            : " + util.FormatUtil.formatVND(sp.getGiaBan()));
+        System.out.println("Giá bán            : " + FormatUtil.formatVND(sp.getGiaBan()));
         System.out.println("Tồn kho tổng       : " + sp.getSoLuongTon());
         System.out.println("────────────────────────────────────────────────────────────────────────────────");
         System.out.printf("%-15s %-15s %-15s %-15s %-15s%n",
             "Mã hàng", "SL còn lại", "Ngày SX", "Hạn SD", "Trạng thái");
         System.out.println("────────────────────────────────────────────────────────────────────────────────");
 
-
         int count = 0;
         int tongSL = 0;
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
         for (HangHoaDTO loHang : loHangList) {
-            String ngaySXStr = (loHang.getNgaySanXuat() != null) ? loHang.getNgaySanXuat().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "N/A";
-            String hanSDStr = (loHang.getHanSuDung() != null) ? loHang.getHanSuDung().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "N/A";
+            String ngaySXStr = (loHang.getNgaySanXuat() != null) ? loHang.getNgaySanXuat().format(fmt) : "N/A";
+            String hanSDStr = (loHang.getHanSuDung() != null) ? loHang.getHanSuDung().format(fmt) : "N/A";
             
-            // Emoji cho trạng thái
-            String trangThaiIcon = "";
-            if ("active".equals(loHang.getTrangThai())) {
-                trangThaiIcon = "✅ Active";
-            } else if ("inactive".equals(loHang.getTrangThai())) {
-                trangThaiIcon = "⚠️ Inactive";
-            } else if ("expired".equals(loHang.getTrangThai())) {
-                trangThaiIcon = "❌ Expired";
-            }
+            String trangThaiIcon = switch (loHang.getTrangThai() != null ? loHang.getTrangThai() : "") {
+                case "active" -> "✅ Active";
+                case "inactive" -> "⚠️ Inactive";
+                case "expired" -> "❌ Expired";
+                default -> "❓ Unknown";
+            };
 
             System.out.printf("%-15s %-15d %-15s %-15s %-15s%n",
                 loHang.getMaHang(),
@@ -313,8 +309,7 @@ public class QuanLyHangHoa {
         }
 
         System.out.println("════════════════════════════════════════════════════════════════════════════════");
-        System.out.println("📊 Tổng cộng: " + count + " lô hàng | Tổng số lượng: " + tongSL);
-        System.out.println();
+        System.out.println("📊 Tổng cộng: " + count + " lô hàng | Tổng số lượng: " + tongSL + "\n");
     }
 
     public void xemTatCaHangHoa() {
