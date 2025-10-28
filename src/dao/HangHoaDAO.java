@@ -99,68 +99,85 @@ public class HangHoaDAO {
 
     // Xem danh sách hàng hóa nhóm theo sản phẩm
     public static List<Map<String, Object>> xemDanhSachHangHoaTheoSanPham() {
+        List<Map<String, Object>> result = new ArrayList<>();
         String query = """
-                SELECT sp.MaSP, sp.TenSP, sp.GiaBan, 
-                        COUNT(hh.MaHang) AS SoLo, 
-                        SUM(hh.SoLuongConLai) AS TongSoLuong, 
-                        MIN(hh.HanSuDung) AS HanSuDungGanNhat
-                FROM SANPHAM sp
-                LEFT JOIN HANGHOA hh ON sp.MaSP = hh.MaSP AND hh.TrangThai = 'active'
-                GROUP BY sp.MaSP, sp.TenSP, sp.GiaBan
-                ORDER BY sp.MaSP
-            """;
-
-        List<Map<String, Object>> result  = new ArrayList<>();
+            SELECT sp.MaSP, sp.TenSP, sp.GiaBan, 
+                COUNT(hh.MaHang) AS SoLo, 
+                SUM(hh.SoLuongConLai) AS TongSoLuong, 
+                MIN(hh.HanSuDung) AS HanSuDungGanNhat
+            FROM SANPHAM sp
+            LEFT JOIN HANGHOA hh ON sp.MaSP = hh.MaSP AND hh.TrangThai = 'active'
+            GROUP BY sp.MaSP, sp.TenSP, sp.GiaBan
+            ORDER BY sp.MaSP
+        """;
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query);
             ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                Map<String, Object> row = new java.util.HashMap<>();
-                row.put("MaSP", rs.getString("MaSP"));
-                row.put("TenSP", rs.getString("TenSP"));
-                row.put("GiaBan", rs.getInt("GiaBan"));
-                row.put("SoLo", rs.getInt("SoLo"));
-                row.put("TongSoLuong", rs.getInt("TongSoLuong"));
-                row.put("HanSuDungGanNhat", rs.getDate("HanSuDungGanNhat"));
-                result.add(row);
+                try {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("MaSP", rs.getString("MaSP"));
+                    row.put("TenSP", rs.getString("TenSP"));
+                    row.put("GiaBan", rs.getInt("GiaBan"));
+                    row.put("SoLo", rs.getInt("SoLo"));
+                    row.put("TongSoLuong", rs.getInt("TongSoLuong"));
+                    row.put("HanSuDungGanNhat", rs.getDate("HanSuDungGanNhat")); // Có thể null
+                    result.add(row);
+                } catch (SQLException rowEx) {
+                    System.err.println("❌ Lỗi lấy dữ liệu dòng: " + rowEx.getMessage());
+                }
             }
         } catch (SQLException e) {
             System.err.println("❌ Lỗi khi xem danh sách hàng hóa: " + e.getMessage());
+            e.printStackTrace();
         }
         return result;
     }
 
+
     // Xem chi tiết các lô hàng của một sản phẩm
     public static List<HangHoaDTO> timChiTietLoHangTheoSanPham(String maSP) {
-        String query = """
-                SELECT hh.MaHang, hh.SoLuongConLai, hh.NgaySanXuat, hh.HanSuDung, hh.TrangThai
-                FROM HANGHOA hh
-                WHERE hh.MaSP = ?
-                ORDER BY hh.HanSuDung ASC
-        """;
-
         List<HangHoaDTO> result = new ArrayList<>();
 
+        if (maSP == null || maSP.trim().isEmpty()) {
+            System.err.println("❌ Mã sản phẩm không được rỗng!");
+            return result;
+        }
+
+        String query = """
+            SELECT hh.MaHang, hh.SoLuongConLai, hh.NgaySanXuat, hh.HanSuDung, hh.TrangThai
+            FROM HANGHOA hh
+            WHERE hh.MaSP = ?
+            ORDER BY hh.HanSuDung ASC
+        """;
+
         try (Connection conn = JDBCUtil.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(query);) {
+            PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, maSP);
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                result.add(new HangHoaDTO(
-                    rs.getString("MaHang"),
-                    maSP,
-                    rs.getInt("SoLuongConLai"),
-                    rs.getDate("NgaySanXuat").toLocalDate(),
-                    rs.getDate("HanSuDung").toLocalDate(),
-                    rs.getString("TrangThai")
-                ));
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    try {
+                        Date ngaySX = rs.getDate("NgaySanXuat");
+                        Date hanSD = rs.getDate("HanSuDung");
+                        result.add(new HangHoaDTO(
+                            rs.getString("MaHang"),
+                            maSP,
+                            rs.getInt("SoLuongConLai"),
+                            ngaySX != null ? ngaySX.toLocalDate() : null,
+                            hanSD != null ? hanSD.toLocalDate() : null,
+                            rs.getString("TrangThai")
+                        ));
+                    } catch (SQLException rowEx) {
+                        System.err.println("❌ Lỗi lấy dữ liệu lô hàng: " + rowEx.getMessage());
+                    }
+                }
             }
         } catch (SQLException e) {
             System.err.println("❌ Lỗi khi xem chi tiết lô hàng: " + e.getMessage());
+            e.printStackTrace();
         }
         return result;
     }
