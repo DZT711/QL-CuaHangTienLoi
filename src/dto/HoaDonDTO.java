@@ -13,9 +13,10 @@ public class HoaDonDTO {
     private int tongTien;
     private LocalDateTime ngayLapHD;
     private String phuongThucTT;
+    private String trangThai;
     public HoaDonDTO() {}
-    
-    public HoaDonDTO(String maHD, String maKH, String maNV, int tienKhachDua, int tienThua, int tongTien, LocalDateTime ngayLapHD, String phuongThucTT) {
+
+    public HoaDonDTO(String maHD, String maKH, String maNV, int tienKhachDua, int tienThua, int tongTien, LocalDateTime ngayLapHD, String phuongThucTT, String trangThai) {
         this.maHD = maHD;
         this.maKH = maKH;
         this.maNV = maNV;
@@ -24,6 +25,7 @@ public class HoaDonDTO {
         this.tongTien = tongTien;
         this.ngayLapHD = ngayLapHD;
         this.phuongThucTT = phuongThucTT;
+        this.trangThai = trangThai;
     }
     
     public String getMaHD() {
@@ -88,5 +90,13 @@ public class HoaDonDTO {
     
     public void setTongTien(int tongTien) {
         this.tongTien = tongTien;
+    }
+
+    public String getTrangThai() {
+        return trangThai;
+    }
+
+    public void setTrangThai(String trangThai) {
+        this.trangThai = trangThai;
     }
 }

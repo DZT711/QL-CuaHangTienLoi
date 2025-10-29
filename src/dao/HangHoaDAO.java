@@ -86,7 +86,6 @@ public class HangHoaDAO {
         return null;
     }
 
-
     public static boolean truSoLuongConLai(String maHang, int soLuong) {
         if (maHang == null || maHang.trim().isEmpty() || soLuong <= 0) {
             System.err.println("❌ Thông tin không hợp lệ!");
@@ -109,6 +108,21 @@ public class HangHoaDAO {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public static boolean congSoLuongConLai(Connection conn, String maHang, int soLuong) throws SQLException {
+        if (maHang == null || maHang.trim().isEmpty() || soLuong <= 0) {
+            return false;
+        }
+
+        String query = "UPDATE HANGHOA SET SoLuongConLai = SoLuongConLai + ? WHERE MaHang = ?";
+        
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, soLuong);
+            stmt.setString(2, maHang);
+            int rowAffected = stmt.executeUpdate();
+            return rowAffected > 0;
+        }
     }
 
     // Xem danh sách hàng hóa nhóm theo sản phẩm
@@ -149,7 +163,6 @@ public class HangHoaDAO {
         }
         return result;
     }
-
 
     // Xem chi tiết các lô hàng của một sản phẩm
     public static List<HangHoaDTO> timChiTietLoHangTheoSanPham(String maSP) {
@@ -290,7 +303,6 @@ public class HangHoaDAO {
         return result;
     }
 
-
     // Xem chi tiết lô hàng theo mã hàng
     public static Map<String, Object> xemChiTietLoHang(String maHang) {
         if (maHang == null || maHang.trim().isEmpty()) {
@@ -359,9 +371,6 @@ public class HangHoaDAO {
         return null;
     }
 
-
-
-
     // Lấy danh sách hàng sắp hết hạn và đã hết hạn (không cập nhật trạng thái)
     public static List<Map<String, Object>> layHangSapHetHan() {
         List<Map<String, Object>> result = new ArrayList<>();
@@ -410,8 +419,6 @@ public class HangHoaDAO {
         return result;
     }
 
-
-
     // Cập nhật trạng thái 'expired' cho các lô hàng đã quá hạn 
     public static int capNhatTrangThaiExpired() {
         String query = """
@@ -430,9 +437,6 @@ public class HangHoaDAO {
             return 0;
         }
     }
-
-
-
 
     public static boolean capNhatTrangThai(String maHang, String trangThaiMoi) {
         if (maHang == null || maHang.trim().isEmpty()) {
@@ -461,8 +465,6 @@ public class HangHoaDAO {
             return false;
         }
     }
-
-
 
     // Lấy danh sách chi tiết hàng sắp hết hạn (số ngày còn lại <= 30)
     public static List<Map<String, Object>> thongKeSapHetHan() {
@@ -513,8 +515,6 @@ public class HangHoaDAO {
         }
         return result;
     }
-
-
 
     // Thống kê hàng hóa đã hết hạn
     public static List<Map<String, Object>> thongKeHangDaHetHan() {
@@ -621,6 +621,5 @@ public class HangHoaDAO {
         }
         return result;
     }
-
 }
 

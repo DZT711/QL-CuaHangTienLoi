@@ -1,6 +1,8 @@
 package dao;
 
 import java.sql.*;
+
+import dto.ChiTietHoaDonDTO;
 import dto.HoaDonDTO;
 import util.FormatUtil;
 import util.JDBCUtil;
@@ -64,23 +66,94 @@ public class HoaDonDAO {
         return false;
     }
 
-    public static void xoaHoaDon(String maHD) {
+    public static boolean huyHoaDon(String maHD) {
+        if (maHD == null || maHD.trim().isEmpty()) {
+            System.err.println("❌ Mã hóa đơn không được rỗng!");
+            return false;
+        }
 
-        String query = "DELETE FROM HOADON WHERE MaHD = ?";
+        Connection conn = null;
+        try {
+            conn = JDBCUtil.getConnection();
+            conn.setAutoCommit(false);
 
-        try (Connection conn = JDBCUtil.getConnection()) {
-            PreparedStatement stmt = conn.prepareStatement(query);
-
-            stmt.setString(1, maHD);
-            
-            int rowAffected = stmt.executeUpdate();
-            if (rowAffected > 0) {
-                System.out.println("Xóa hóa đơn thành công");
-            } else {
-                System.out.println("Xóa hóa đơn thất bại");
+            // kiểm tra hóa đơn đã đc hủy chưa 
+            String queryCheck = "SELECT TrangThai FROM HOADON WHERE MaHD = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(queryCheck)) {
+                stmt.setString(1, maHD);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (!rs.next()) {
+                        System.err.println("❌ Không tìm thấy hóa đơn!");
+                        conn.rollback();
+                        return false;
+                    }
+                    if ("cancelled".equals(rs.getString("TrangThai"))) {
+                        System.err.println("❌ Hóa đơn đã bị hủy trước đó!");
+                        conn.rollback();
+                        return false;
+                    }
+                }
             }
+
+            // lấy chi tiết hóa đơn
+            List<ChiTietHoaDonDTO> chiTietList = ChiTietHoaDonDAO.timChiTietHoaDon(maHD);
+
+            // hoàn lại tồn kho 
+            for (ChiTietHoaDonDTO ctHoaDon : chiTietList) {
+                String maHang = ctHoaDon.getMaHang();
+                int soLuong = ctHoaDon.getSoLuong();
+                
+                // cập nhật thuộc tính soLuongConLai của hàng hóa
+                if (!HangHoaDAO.congSoLuongConLai(conn, maHang, soLuong)) {
+                    System.err.println("❌ Lỗi khi cộng số lượng lô hàng!");
+                    conn.rollback();
+                    return false;
+                }
+                
+                // cập nhật tồn kho của sản phẩm
+                if (!SanPhamDAO.congSoLuongTon(conn, maHang, soLuong)) {
+                    System.err.println("❌ Lỗi khi cộng số lượng tồn!");
+                    conn.rollback();
+                    return false;
+                }
+            }
+            
+            // cập nhật trạng thái hóa đơn thành 'cancelled'
+            String queryHuyHD = "UPDATE HOADON SET TrangThai = 'cancelled' WHERE MaHD = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(queryHuyHD)) {
+                stmt.setString(1, maHD);
+                int rowAffected = stmt.executeUpdate();
+                
+                if (rowAffected > 0) {
+                    conn.commit();
+                    return true;
+                } else {
+                    conn.rollback();
+                    return false;
+                }
+            }
+            
         } catch (SQLException e) {
-            System.err.println("Lỗi khi xóa hóa đơn: " + e.getMessage());
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                    System.err.println("❌ Đã rollback do lỗi: " + e.getMessage());
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            System.err.println("❌ Lỗi khi hủy hóa đơn: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -112,7 +185,7 @@ public class HoaDonDAO {
             return null;
         }
 
-        String query = "SELECT MaKH, MaNV, TienKhachDua, TienThua, TongTien, PhuongThucTT, ThoiGianLapHD FROM HOADON WHERE MaHD = ?";
+        String query = "SELECT MaKH, MaNV, TienKhachDua, TienThua, TongTien, PhuongThucTT, ThoiGianLapHD, TrangThai FROM HOADON WHERE MaHD = ?";
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -128,7 +201,8 @@ public class HoaDonDAO {
                         rs.getInt("TienThua"),
                         rs.getInt("TongTien"),
                         rs.getTimestamp("ThoiGianLapHD").toLocalDateTime(),
-                        rs.getString("PhuongThucTT")
+                        rs.getString("PhuongThucTT"),
+                        rs.getString("TrangThai") 
                     );
                 }
             }

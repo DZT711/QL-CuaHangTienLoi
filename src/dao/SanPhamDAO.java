@@ -493,7 +493,12 @@ public class SanPhamDAO {
         }
     }
 
-    public static void congSoLuongTon(String maSP, int soLuong) {
+    public static boolean congSoLuongTon(String maSP, int soLuong) {
+        if (maSP == null || maSP.trim().isEmpty() || soLuong <= 0) {
+            System.err.println("❌ Thông tin không hợp lệ!");
+            return false;
+        }
+
         String query = "UPDATE SANPHAM SET SoLuongTon = SoLuongTon + ? WHERE MaSP = ?";
 
         try (Connection conn = JDBCUtil.getConnection();
@@ -503,23 +508,25 @@ public class SanPhamDAO {
             stmt.setString(2, maSP);
 
             int rowAffected = stmt.executeUpdate();
-            if (rowAffected > 0) {
-                System.out.println("Cộng số lượng tồn thành công");
-            } else {
-                System.out.println("Cộng số lượng tồn thất bại");
-            }
-        }
-        catch (SQLException e) {
-            System.err.println("Lỗi khi cộng số lượng tồn: " + e.getMessage());
+            return rowAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("❌ Lỗi khi cộng số lượng tồn: " + e.getMessage());
+            e.printStackTrace();
+            return false;
         }
     }
 
     public static boolean congSoLuongTon(Connection conn, String maHang, int soLuong) throws SQLException {
+        if (maHang == null || maHang.trim().isEmpty() || soLuong <= 0) {
+            return false;
+        }
+
         String query = """
             UPDATE SANPHAM 
             SET SoLuongTon = SoLuongTon + ? 
             WHERE MaSP = (SELECT MaSP FROM HANGHOA WHERE MaHang = ?)        
         """;
+        
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, soLuong);
             stmt.setString(2, maHang);
