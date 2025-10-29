@@ -528,25 +528,28 @@ public class SanPhamDAO {
         }
     }
 
-    public static void truSoLuongTon(String maSP, int soLuong) {
-        String query = "UPDATE SANPHAM SET SoLuongTon = SoLuongTon - ? WHERE MaSP = ?";
+    public static boolean truSoLuongTon(String maSP, int soLuong) {
+        if (maSP == null || maSP.trim().isEmpty() || soLuong <= 0) {
+            System.err.println("❌ Thông tin không hợp lệ!");
+            return false;
+        }
+
+        String query = "UPDATE SANPHAM SET SoLuongTon = SoLuongTon - ? WHERE MaSP = ? AND SoLuongTon >= ?";
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setInt(1, soLuong);
             stmt.setString(2, maSP);
+            stmt.setInt(3, soLuong); // Check đủ số lượng
 
             int rowAffected = stmt.executeUpdate();
-            if (rowAffected > 0) {
-                System.out.println("Trừ số lượng tồn thành công");
-            } else {
-                System.out.println("Trừ số lượng tồn thất bại");
-            }
+            return rowAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("❌ Lỗi khi trừ số lượng tồn: " + e.getMessage());
+            e.printStackTrace();
         }
-        catch (SQLException e) {
-            System.err.println("Lỗi khi trừ số lượng tồn: " + e.getMessage());
-        }
+        return false;
     }
 
     public static boolean kiemTraNCCCungCapSP(String maNCC, String maSP) {

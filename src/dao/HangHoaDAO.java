@@ -87,24 +87,28 @@ public class HangHoaDAO {
     }
 
 
-    public static void truSoLuongConLai(String maHang, int soLuong) {
-        String query = "UPDATE HANGHOA SET SoLuongConLai = SoLuongConLai - ? WHERE MaHang = ?";
+    public static boolean truSoLuongConLai(String maHang, int soLuong) {
+        if (maHang == null || maHang.trim().isEmpty() || soLuong <= 0) {
+            System.err.println("❌ Thông tin không hợp lệ!");
+            return false;
+        }
+
+        String query = "UPDATE HANGHOA SET SoLuongConLai = SoLuongConLai - ? WHERE MaHang = ? AND SoLuongConLai >= ?";
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setInt(1, soLuong);
             stmt.setString(2, maHang);
+            stmt.setInt(3, soLuong); // Check đủ số lượng
 
             int rowAffected = stmt.executeUpdate();
-            if (rowAffected > 0) {
-                System.out.println("Cập nhật số lượng hàng hóa thành công");
-            } else {
-                System.out.println("Cập nhật số lượng hàng hóa thất bại");
-            }
+            return rowAffected > 0;
         } catch (SQLException e) {
-            System.err.println("Lỗi khi cập nhật số lượng hàng hóa: " + e.getMessage());
+            System.err.println("❌ Lỗi khi cập nhật số lượng hàng hóa: " + e.getMessage());
+            e.printStackTrace();
         }
+        return false;
     }
 
     // Xem danh sách hàng hóa nhóm theo sản phẩm
