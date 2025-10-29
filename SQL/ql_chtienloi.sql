@@ -331,6 +331,7 @@ CREATE TABLE HOADON (
   TienThua INT(11) DEFAULT 0,
   TongTien INT(11) DEFAULT 0,
   PhuongThucTT ENUM('Tiền mặt', 'Chuyển khoản') DEFAULT 'Tiền mặt',
+  TrangThai ENUM ('active', 'cancelled') DEFAULT 'active',
   CONSTRAINT fk_hd_kh FOREIGN KEY (MaKH) REFERENCES KHACHHANG (MaKH),
   CONSTRAINT fk_hd_nv FOREIGN KEY (MaNV) REFERENCES NHANVIEN (MaNV)
 );

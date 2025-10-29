@@ -68,7 +68,7 @@ public class QuanLyHoaDon {
                     themHoaDon();
                     break;
                 case 2:
-                    xoaHoaDon();
+                    huyHoaDon();
                     break;
                 case 3:
                     while (true) {
@@ -621,25 +621,94 @@ public class QuanLyHoaDon {
         System.out.println("                     Cảm ơn quý khách! Hẹn gặp lại!                                ");
         System.out.println("════════════════════════════════════════════════════════════════════════════════════\n");
     }
-    
-    public void xoaHoaDon() { 
+
+    public void huyHoaDon() { 
         Scanner scanner = new Scanner(System.in);
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        
         while (true) {
             try {
-                System.out.println("Nhập mã hóa đơn cần xóa: ");
+                System.out.print("\n🗑️ Nhập mã hóa đơn cần hủy (hoặc '0' để thoát): ");
                 String maHD = scanner.nextLine().trim();
                 
-                if (HoaDonDAO.timHoaDon(maHD) == null) {
-                    System.out.println("Mã hóa đơn không tồn tại, vui lòng nhập lại.");
+                if ("0".equals(maHD)) {
+                    System.out.println("✅ Thoát chức năng hủy hóa đơn.");
+                    break;
+                }
+                
+                if (maHD.isEmpty()) {
+                    System.out.println("❌ Mã hóa đơn không được để trống!");
                     continue;
                 }
-
-                HoaDonDAO.xoaHoaDon(maHD);
-                break;
-            }
-            catch (Exception e) {
-                System.out.println("Lỗi: " + e.getMessage());
-                scanner.nextLine();
+                
+                // kiểm tra hóa đơn tồn tại
+                HoaDonDTO hoaDon = HoaDonDAO.timHoaDon(maHD);
+                if (hoaDon == null) {
+                    System.out.println("❌ Mã hóa đơn không tồn tại! Vui lòng nhập lại.\n");
+                    continue;
+                }
+                
+                // kiểm tra hóa đơn đã hủy chưa
+                if ("cancelled".equalsIgnoreCase(hoaDon.getTrangThai())) {
+                    System.out.println("⚠️ Hóa đơn này đã bị hủy trước đó!\n");
+                    continue;
+                }
+                
+                // hiển thị thông tin hóa đơn
+                System.out.println("\n╔════════════════════════════════════════════════════════════════╗");
+                System.out.println("║                📋 THÔNG TIN HÓA ĐƠN CẦN HỦY                    ║");
+                System.out.println("╚════════════════════════════════════════════════════════════════╝");
+                System.out.println("Mã hóa đơn         : " + hoaDon.getMaHD());
+                System.out.println("Ngày lập           : " + hoaDon.getNgayLapHD().format(fmt));
+                System.out.println("Khách hàng         : " + hoaDon.getMaKH());
+                System.out.println("Nhân viên          : " + hoaDon.getMaNV());
+                System.out.println("Tổng tiền          : " + FormatUtil.formatVND(hoaDon.getTongTien()));
+                System.out.println("Phương thức TT     : " + hoaDon.getPhuongThucTT());
+                System.out.println("Trạng thái         : ✅ " + hoaDon.getTrangThai());
+                System.out.println("────────────────────────────────────────────────────────────────");
+                
+                // chi tiết sản phẩm
+                List<ChiTietHoaDonDTO> chiTietList = ChiTietHoaDonDAO.timChiTietHoaDon(maHD);
+                if (chiTietList != null && !chiTietList.isEmpty()) {
+                    System.out.println("\n📦 Chi tiết sản phẩm:");
+                    for (ChiTietHoaDonDTO ct : chiTietList) {
+                        System.out.printf("  • %s - SL: %d - Đơn giá: %s%n",
+                            ct.getTenSP(),
+                            ct.getSoLuong(),
+                            FormatUtil.formatVND(ct.getDonGia())
+                        );
+                    }
+                }
+                
+                System.out.println("\n⚠️ CẢNH BÁO: Hủy hóa đơn sẽ:");
+                System.out.println("   1. Đánh dấu hóa đơn là 'cancelled' (không xóa khỏi DB)");
+                System.out.println("   2. Hoàn lại số lượng hàng hóa vào kho");
+                System.out.println("   3. Hóa đơn vẫn được lưu để audit/kiểm tra");
+                System.out.print("\n❓ Bạn có chắc chắn muốn hủy? (Y/N): ");
+                String confirm = scanner.nextLine().trim();
+                
+                if (!"Y".equalsIgnoreCase(confirm)) {
+                    System.out.println("ℹ️ Đã hủy thao tác hủy hóa đơn.\n");
+                    continue;
+                }
+                
+                if (HoaDonDAO.huyHoaDon(maHD)) {
+                    System.out.println("\n✅ Hủy hóa đơn thành công!");
+                    System.out.println("ℹ️ Đã hoàn lại số lượng hàng hóa vào kho.");
+                    System.out.println("ℹ️ Hóa đơn vẫn được lưu trong hệ thống (trạng thái: cancelled).\n");
+                } else {
+                    System.out.println("❌ Hủy hóa đơn thất bại!\n");
+                }
+                
+                System.out.print("💡 Bạn có muốn hủy hóa đơn khác? (y/n): ");
+                String choice = scanner.nextLine().trim();
+                if (!"y".equalsIgnoreCase(choice)) {
+                    System.out.println("✅ Hoàn tất chức năng hủy hóa đơn.");
+                    break;
+                }
+            } catch (Exception e) {
+                System.out.println("❌ Lỗi không xác định: " + e.getMessage());
+                e.printStackTrace();
             }
         }
     }
