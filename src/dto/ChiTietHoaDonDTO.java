@@ -67,12 +67,16 @@ public class ChiTietHoaDonDTO {
         this.thanhTien = thanhTien;
     }
 
-    // Làm lại giao diện cho giống thực tế, đẹp hơn
     public void inChiTietHoaDon() {
-        System.out.println("Mã hàng hóa: " + maHang);
-        System.out.println("Tên sản phẩm: " + tenSP);
-        System.out.println("Số lượng: " + soLuong);
-        System.out.println("Đơn giá: " + donGia);
-        System.out.println("Thành tiền: " + thanhTien);
+        String tenSPDisplay = (tenSP != null && tenSP.length() > 25) ? 
+            tenSP.substring(0, 22) + "..." : (tenSP != null ? tenSP : "");
+        
+        System.out.printf("%-12s %-28s %8d %,15d %,15d%n",
+            maHang != null ? maHang : "",
+            tenSPDisplay,
+            soLuong,
+            donGia,
+            thanhTien
+        );
     }
 }

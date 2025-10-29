@@ -41,11 +41,12 @@ public class HoaDonDAO {
         return list;
     }
 
-    public static void themHoaDon(HoaDonDTO hd) {
-        String query = "INSERT INTO HOADON (MaHD, MaKH, MaNV, TongTien, PhuongThucTT, TienKhachDua, TienThua) VALUES (?, ?, ?, ?, ?, ?, ?);";
+    public static boolean themHoaDon(HoaDonDTO hd) {
+        String query = "INSERT INTO HOADON (MaHD, MaKH, MaNV, TongTien, PhuongThucTT, TienKhachDua, TienThua) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        try (Connection conn = JDBCUtil.getConnection()) {
-            PreparedStatement stmt = conn.prepareStatement(query);
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+            
             stmt.setString(1, hd.getMaHD());
             stmt.setString(2, hd.getMaKH());
             stmt.setString(3, hd.getMaNV());
@@ -55,14 +56,12 @@ public class HoaDonDAO {
             stmt.setInt(7, hd.getTienThua());
 
             int rowAffected = stmt.executeUpdate(); 
-            if (rowAffected > 0) {
-                System.out.println("Thêm hóa đơn thành công");
-            } else {
-                System.out.println("Thêm hóa đơn thất bại");
-            }
+            return rowAffected > 0;
         } catch (SQLException e) {
-            System.err.println("Lỗi khi thêm hóa đơn: " + e.getMessage());
+            System.err.println("❌ Lỗi khi thêm hóa đơn: " + e.getMessage());
+            e.printStackTrace();
         }
+        return false;
     }
 
     public static void xoaHoaDon(String maHD) {
@@ -92,43 +91,50 @@ public class HoaDonDAO {
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query);
-            ResultSet rs = stmt.executeQuery();) {
+            ResultSet rs = stmt.executeQuery()) {
 
             if (rs.next()) {
                 String lastID = rs.getString("MaHD");
-                int number = Integer.parseInt(lastID.substring(2));
+                int number = Integer.parseInt(lastID.substring(prefix.length()));
                 number++;
                 newID = prefix + String.format("%03d", number);
             }
-        } catch (SQLException e) {
-            System.err.println("Lỗi khi tạo mã hóa đơn: " + e.getMessage());
+        } catch (SQLException | NumberFormatException e) {
+            System.err.println("❌ Lỗi khi tạo mã hóa đơn: " + e.getMessage());
+            e.printStackTrace();
         }
         return newID;
     }
 
     public static HoaDonDTO timHoaDon(String maHD) {
-        String query = "SELECT MaKH, MaNV, TienKhachDua, TienThua, TongTien, PhuongThucTT, NgayLapHD FROM HOADON WHERE MaHD = ?";
+        if (maHD == null || maHD.trim().isEmpty()) {
+            System.err.println("❌ Mã hóa đơn không được rỗng!");
+            return null;
+        }
+
+        String query = "SELECT MaKH, MaNV, TienKhachDua, TienThua, TongTien, PhuongThucTT, ThoiGianLapHD FROM HOADON WHERE MaHD = ?";
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
             
             stmt.setString(1, maHD);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return new HoaDonDTO(
-                    maHD,
-                    rs.getString("MaKH"),
-                    rs.getString("MaNV"),
-                    rs.getInt("TienKhachDua"),
-                    rs.getInt("TienThua"),
-                    rs.getInt("TongTien"),
-                    rs.getTimestamp("NgayLapHD").toLocalDateTime(),
-                    rs.getString("PhuongThucTT")
-                );
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new HoaDonDTO(
+                        maHD,
+                        rs.getString("MaKH"),
+                        rs.getString("MaNV"),
+                        rs.getInt("TienKhachDua"),
+                        rs.getInt("TienThua"),
+                        rs.getInt("TongTien"),
+                        rs.getTimestamp("ThoiGianLapHD").toLocalDateTime(),
+                        rs.getString("PhuongThucTT")
+                    );
+                }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi tìm hóa đơn: " + e.getMessage());
+            System.err.println("❌ Lỗi khi tìm hóa đơn: " + e.getMessage());
+            e.printStackTrace();
         }
         return null;
     }

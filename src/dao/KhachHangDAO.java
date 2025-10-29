@@ -235,7 +235,12 @@ public class KhachHangDAO {
         return null;
     }
 
-    public static KhachHangDTO timKhachHangTheoDienThoai(String dienThoai){
+    public static KhachHangDTO timKhachHangTheoDienThoai(String dienThoai) {
+        if (dienThoai == null || dienThoai.trim().isEmpty()) {
+            System.err.println("❌ Điện thoại không được rỗng!");
+            return null;
+        }
+
         String query = "SELECT MaKH, Ho, Ten, GioiTinh, NgaySinh, DienThoai, DiaChi FROM KHACHHANG WHERE DienThoai = ?";
 
         try (Connection conn = JDBCUtil.getConnection();
@@ -251,7 +256,7 @@ public class KhachHangDAO {
                     String gioiTinh = rs.getString("GioiTinh");
                     
                     LocalDate ngaySinh = null;
-                    java.sql.Date sqlDate = rs.getDate("NgaySinh");
+                    Date sqlDate = rs.getDate("NgaySinh");
                     if (sqlDate != null) {
                         ngaySinh = sqlDate.toLocalDate();
                     }
@@ -582,17 +587,17 @@ public class KhachHangDAO {
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query);
-            ResultSet rs = stmt.executeQuery();) {
+            ResultSet rs = stmt.executeQuery()) {
 
             if (rs.next()) {
                 String lastID = rs.getString("MaKH");
-                int number = Integer.parseInt(lastID.substring(2));
+                int number = Integer.parseInt(lastID.substring(prefix.length()));
                 number++;
                 newID = prefix + String.format("%03d", number);
             }
-
-        } catch (SQLException e) {
-            System.err.println("Lỗi khi tạo mã khách hàng: " + e.getMessage());
+        } catch (SQLException | NumberFormatException e) {
+            System.err.println("❌ Lỗi khi tạo mã khách hàng: " + e.getMessage());
+            e.printStackTrace();
         }
         return newID;
     }
