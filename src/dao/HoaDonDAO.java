@@ -213,12 +213,29 @@ public class HoaDonDAO {
         return null;
     }
 
-    public static void timHoaDonTheoMaKH(String maKH) {
-        String query = 
-            "SELECT hd.MaHD, hd.ThoiGianLapHD, nv.Ho, nv.Ten, hd.TongTien, hd.PhuongThucTT " + 
-            "FROM HOADON hd " +
-            "INNER JOIN NHANVIEN nv ON hd.MaNV = nv.MaNV " +
-            "WHERE hd.MaKH = ?";
+    public static List<Map<String, Object>> timHoaDonTheoMaKH(String maKH, boolean baoGomHuy) {
+        if (maKH == null || maKH.trim().isEmpty()) {
+            System.err.println("❌ Mã khách hàng không được rỗng!");
+            return new ArrayList<>();
+        }
+
+        String query = baoGomHuy ?
+            """
+            SELECT hd.MaHD, hd.ThoiGianLapHD, nv.Ho, nv.Ten, hd.TongTien, hd.PhuongThucTT, hd.TrangThai
+            FROM HOADON hd 
+            INNER JOIN NHANVIEN nv ON hd.MaNV = nv.MaNV 
+            WHERE hd.MaKH = ?
+            ORDER BY hd.ThoiGianLapHD DESC
+            """ :
+            """
+            SELECT hd.MaHD, hd.ThoiGianLapHD, nv.Ho, nv.Ten, hd.TongTien, hd.PhuongThucTT, hd.TrangThai
+            FROM HOADON hd 
+            INNER JOIN NHANVIEN nv ON hd.MaNV = nv.MaNV 
+            WHERE hd.MaKH = ? AND hd.TrangThai = 'active'
+            ORDER BY hd.ThoiGianLapHD DESC
+            """;
+
+        List<Map<String, Object>> list = new ArrayList<>();
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -226,24 +243,25 @@ public class HoaDonDAO {
             stmt.setString(1, maKH);
             
             try (ResultSet rs = stmt.executeQuery()) {
-                int count = 0;
                 while (rs.next()) {
-                    System.out.println("--------------------------------");
-                    System.out.println("Mã hóa đơn         : " + rs.getString("MaHD"));
-                    System.out.println("Ngày lập           : " + rs.getTimestamp("NgayLapHD").toLocalDateTime()
-                        .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
-                    System.out.println("Nhân viên          : " + rs.getString("Ho") + " " + rs.getString("Ten"));
-                    System.out.println("Tổng tiền          : " + FormatUtil.formatVND(rs.getInt("TongTien")));
-                    System.out.println("Phương thức TT     : " + rs.getString("PhuongThucTT"));
-                    count++;
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("MaHD", rs.getString("MaHD"));
+                    row.put("ThoiGianLapHD", rs.getTimestamp("ThoiGianLapHD").toLocalDateTime());
+                    row.put("HoNV", rs.getString("Ho"));
+                    row.put("TenNV", rs.getString("Ten"));
+                    row.put("TongTien", rs.getInt("TongTien"));
+                    row.put("PhuongThucTT", rs.getString("PhuongThucTT"));
+                    row.put("TrangThai", rs.getString("TrangThai"));
+                    list.add(row);
                 }
-                System.out.println("--------------------------------");
-                System.out.println("📊 Tổng cộng: " + count + " hóa đơn");
             }
         } catch (SQLException e) {
             System.err.println("❌ Lỗi khi tìm hóa đơn theo mã khách hàng: " + e.getMessage());
+            e.printStackTrace();
         }
+        return list;
     }
+
 
     public static void timHoaDonTheoMaNV(String maNV) {
         String query = 
