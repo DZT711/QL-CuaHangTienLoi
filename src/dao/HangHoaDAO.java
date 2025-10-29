@@ -564,53 +564,59 @@ public class HangHoaDAO {
         return result;
     }
 
-
     // Lấy báo cáo tồn kho đầy đủ (sắp xếp theo HSD tăng dần)
     public static List<Map<String, Object>> layBaoCaoTonKho() {
-        String query = """
-                SELECT 
-                    hh.MaHang,
-                    hh.MaSP,
-                    sp.TenSP,
-                    hh.SoLuongConLai,
-                    sp.GiaBan,
-                    (hh.SoLuongConLai * sp.GiaBan) AS ThanhTien,
-                    hh.NgaySanXuat,
-                    hh.HanSuDung,
-                    hh.TrangThai,
-                    DATEDIFF(hh.HanSuDung, CURDATE()) AS SoNgayConLai
-                FROM HANGHOA hh
-                JOIN SANPHAM sp ON hh.MaSP = sp.MaSP
-                WHERE hh.SoLuongConLai > 0
-                ORDER BY hh.HanSuDung ASC, hh.MaHang ASC
-        """;
-
         List<Map<String, Object>> result = new ArrayList<>();
+        String query = """
+            SELECT 
+                hh.MaHang,
+                hh.MaSP,
+                sp.TenSP,
+                hh.SoLuongConLai,
+                sp.GiaBan,
+                (hh.SoLuongConLai * sp.GiaBan) AS ThanhTien,
+                hh.NgaySanXuat,
+                hh.HanSuDung,
+                hh.TrangThai,
+                DATEDIFF(hh.HanSuDung, CURDATE()) AS SoNgayConLai
+            FROM HANGHOA hh
+            JOIN SANPHAM sp ON hh.MaSP = sp.MaSP
+            WHERE hh.SoLuongConLai > 0
+            ORDER BY hh.HanSuDung ASC, hh.MaHang ASC
+        """;
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query);
             ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                Map<String, Object> row = new HashMap<>();
-                row.put("MaHang", rs.getString("MaHang"));
-                row.put("MaSP", rs.getString("MaSP"));
-                row.put("TenSP", rs.getString("TenSP"));
-                row.put("SoLuongConLai", rs.getInt("SoLuongConLai"));
-                row.put("GiaBan", rs.getInt("GiaBan"));
-                row.put("ThanhTien", rs.getLong("ThanhTien"));
-                row.put("NgaySanXuat", rs.getDate("NgaySanXuat") != null ? 
-                    rs.getDate("NgaySanXuat").toLocalDate() : null);
-                row.put("HanSuDung", rs.getDate("HanSuDung") != null ? 
-                    rs.getDate("HanSuDung").toLocalDate() : null);
-                row.put("TrangThai", rs.getString("TrangThai"));
-                row.put("SoNgayConLai", rs.getInt("SoNgayConLai"));
-                result.add(row);
+                try {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("MaHang", rs.getString("MaHang"));
+                    row.put("MaSP", rs.getString("MaSP"));
+                    row.put("TenSP", rs.getString("TenSP"));
+                    row.put("SoLuongConLai", rs.getInt("SoLuongConLai"));
+                    row.put("GiaBan", rs.getInt("GiaBan"));
+                    row.put("ThanhTien", rs.getLong("ThanhTien"));
+                    
+                    Date ngaySX = rs.getDate("NgaySanXuat");
+                    Date hanSD = rs.getDate("HanSuDung");
+                    row.put("NgaySanXuat", ngaySX != null ? ngaySX.toLocalDate() : null);
+                    row.put("HanSuDung", hanSD != null ? hanSD.toLocalDate() : null);
+                    
+                    row.put("TrangThai", rs.getString("TrangThai"));
+                    row.put("SoNgayConLai", rs.getInt("SoNgayConLai"));
+                    result.add(row);
+                } catch (SQLException rowEx) {
+                    System.err.println("❌ Lỗi đọc dòng dữ liệu: " + rowEx.getMessage());
+                }
             }
         } catch (SQLException e) {
             System.err.println("❌ Lỗi khi lấy báo cáo tồn kho: " + e.getMessage());
+            e.printStackTrace();
         }
         return result;
     }
+
 }
 

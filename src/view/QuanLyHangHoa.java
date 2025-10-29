@@ -823,7 +823,6 @@ public class QuanLyHangHoa {
         }
     }
 
-
     public void thongKeHangSapHetHan() {
         List<Map<String, Object>> danhSach = HangHoaDAO.thongKeSapHetHan();
         
@@ -872,8 +871,6 @@ public class QuanLyHangHoa {
         System.out.println("📊 Tổng số lô: " + danhSach.size() + " | Tổng số lượng: " + tongSoLuong);
         System.out.println();
     }
-
-
 
     public void thongKeHangDaHetHan() {
         List<Map<String, Object>> danhSach = HangHoaDAO.thongKeHangDaHetHan();
@@ -944,76 +941,76 @@ public class QuanLyHangHoa {
         }
     }
 
-
     public void xuatBaoCaoTonKho() {
         List<Map<String, Object>> danhSach = HangHoaDAO.layBaoCaoTonKho();
         
-        if (danhSach.isEmpty()) {
-            System.out.println("\nKhông có hàng hóa tồn kho.\n");
+        if (danhSach == null || danhSach.isEmpty()) {
+            System.out.println("\n✅ Không có hàng hóa tồn kho.\n");
             return;
         }
 
-        DateTimeFormatter displayFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm:ss");
-        String currentTime = LocalDateTime.now().format(timeFormatter);
+        DateTimeFormatter displayFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm:ss");
+        String currentTime = LocalDateTime.now().format(timeFmt);
 
         System.out.println("\n════════════════════════════════════════════════════════════════════════════════════════════════════");
-        System.out.println("                                    BÁO CÁO TỒN KHO HÀNG HÓA");
+        System.out.println("                                 📊 BÁO CÁO TỒN KHO HÀNG HÓA");
         System.out.println("════════════════════════════════════════════════════════════════════════════════════════════════════");
         System.out.println("Ngày báo cáo: " + currentTime);
         System.out.println("════════════════════════════════════════════════════════════════════════════════════════════════════");
 
-        
-        // THỐNG KÊ TỔNG QUAN 
+        // THỐNG KÊ TỔNG QUAN
         int tongSoLuong = 0;
         long tongGiaTri = 0;
         Set<String> danhSachMaSP = new HashSet<>();
         
-        for (Map<String, Object> item: danhSach) {
-            tongSoLuong += (int) item.get("SoLuongConLai");
-            tongGiaTri += (long) item.get("ThanhTien");
-            danhSachMaSP.add((String) item.get("MaSP"));
-        }
-        int soLuongSP  = danhSachMaSP.size();
-
-        // Lấy thông tin: số lô, số sản phẩm, giá trị của từng trạng thái
         int soLoActive = 0, slActive = 0; long gtActive = 0;
         int soLoInactive = 0, slInactive = 0; long gtInactive = 0;
         int soLoExpired = 0, slExpired = 0; long gtExpired = 0;
 
         for (Map<String, Object> item : danhSach) {
+            Integer slConLai = (Integer) item.get("SoLuongConLai");
+            Long thanhTien = (Long) item.get("ThanhTien");
+            String maSP = (String) item.get("MaSP");
             String trangThai = (String) item.get("TrangThai");
-            if (trangThai.equals("expired")) {
+            
+            if (slConLai != null) tongSoLuong += slConLai;
+            if (thanhTien != null) tongGiaTri += thanhTien;
+            if (maSP != null) danhSachMaSP.add(maSP);
+            
+            if ("expired".equals(trangThai)) {
                 soLoExpired++;
-                slExpired += (int) item.get("SoLuongConLai");
-                gtExpired += (long) item.get("ThanhTien");
-            } else if (trangThai.equals("inactive")) {
+                slExpired += (slConLai != null ? slConLai : 0);
+                gtExpired += (thanhTien != null ? thanhTien : 0);
+            } else if ("inactive".equals(trangThai)) {
                 soLoInactive++;
-                slInactive += (int) item.get("SoLuongConLai");
-                gtInactive += (long) item.get("ThanhTien");
-            } else if (trangThai.equals("active")) {
+                slInactive += (slConLai != null ? slConLai : 0);
+                gtInactive += (thanhTien != null ? thanhTien : 0);
+            } else if ("active".equals(trangThai)) {
                 soLoActive++;
-                slActive += (int) item.get("SoLuongConLai");
-                gtActive += (long) item.get("ThanhTien");
+                slActive += (slConLai != null ? slConLai : 0);
+                gtActive += (thanhTien != null ? thanhTien : 0);
             }
         }
 
+        int soLuongSP = danhSachMaSP.size();
 
         System.out.println("\n┌────────────────────────────────────────────────────────────────────────────────────────────────┐");
         System.out.println("│                                  THỐNG KÊ TỔNG QUAN                                            │");
         System.out.println("├────────────────────────────────────────────────────────────────────────────────────────────────┤");
-
         System.out.printf("│ • Tổng số lô hàng:                        %-50s │%n", danhSach.size() + " lô");
         System.out.printf("│ • Tổng số lượng hàng hóa:                 %-50s │%n", String.format("%,d", tongSoLuong) + " sản phẩm");
         System.out.printf("│ • Tổng số loại sản phẩm:                  %-50s │%n", soLuongSP + " loại");
-        System.out.printf("│ • Tổng giá trị tồn kho:                   %-50s │%n", FormatUtil.formatVND((int)tongGiaTri));
+        System.out.printf("│ • Tổng giá trị tồn kho:                   %-50s │%n", FormatUtil.formatVND((int) tongGiaTri));
         System.out.println("│                                                                                                │");
         System.out.println("│ PHÂN LOẠI THEO TRẠNG THÁI:                                                                     │");
-        System.out.printf("│ • Đang kinh doanh:              %d lô (%,d SP) - %-30s │%n", soLoActive, slActive, FormatUtil.formatVND((int)gtActive));
-        System.out.printf("│ • Ngừng kinh doanh:             %d lô (%,d SP) - %-30s │%n", soLoInactive, slInactive, FormatUtil.formatVND((int)gtInactive));
-        System.out.printf("│ • Đã hết hạn:                   %d lô (%,d SP) - %-30s │%n", soLoExpired, slExpired, FormatUtil.formatVND((int)gtExpired));
+        System.out.printf("│ • Đang kinh doanh:              %d lô (%,d SP) - %-30s │%n", 
+            soLoActive, slActive, FormatUtil.formatVND((int) gtActive));
+        System.out.printf("│ • Ngừng kinh doanh:             %d lô (%,d SP) - %-30s │%n", 
+            soLoInactive, slInactive, FormatUtil.formatVND((int) gtInactive));
+        System.out.printf("│ • Đã hết hạn:                   %d lô (%,d SP) - %-30s │%n", 
+            soLoExpired, slExpired, FormatUtil.formatVND((int) gtExpired));
         System.out.println("└────────────────────────────────────────────────────────────────────────────────────────────────┘");
-
 
         // HIỂN THỊ DANH SÁCH CHI TIẾT
         System.out.println("\n┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────┐");
@@ -1026,45 +1023,47 @@ public class QuanLyHangHoa {
         int stt = 1;
         long sumGiaTri = 0;
 
-        for (Map<String, Object> item: danhSach) {
+        for (Map<String, Object> item : danhSach) {
             String tenSP = (String) item.get("TenSP");
-            if (tenSP != null && tenSP.length() > 26) {
+            tenSP = (tenSP != null ? tenSP : "");
+            if (tenSP.length() > 26) {
                 tenSP = tenSP.substring(0, 23) + "...";
             }
 
             LocalDate hsd = (LocalDate) item.get("HanSuDung");
-            String hsdStr = hsd != null ? hsd.format(displayFormatter) : "N/A";
+            String hsdStr = (hsd != null) ? hsd.format(displayFmt) : "N/A";
 
             String trangThai = (String) item.get("TrangThai");
-            String trangThaiStr = "";
-            if (trangThai.equals("active")) {
-                trangThaiStr = "Active";
-            } else if (trangThai.equals("inactive")) {
-                trangThaiStr = "Inactive";
-            } else if (trangThai.equals("expired")) {
-                trangThaiStr = "Expired";
-            }
+            String trangThaiStr = switch (trangThai != null ? trangThai : "") {
+                case "active" -> "Active";
+                case "inactive" -> "Inactive";
+                case "expired" -> "Expired";
+                default -> "Unknown";
+            };
 
-            int giaBan = (int) item.get("GiaBan");
-            long thanhTien = (long) item.get("ThanhTien");
-            sumGiaTri += thanhTien;
+            Integer giaBan = (Integer) item.get("GiaBan");
+            Long thanhTien = (Long) item.get("ThanhTien");
+            Integer slConLai = (Integer) item.get("SoLuongConLai");
+            
+            sumGiaTri += (thanhTien != null ? thanhTien : 0);
 
             System.out.printf("│ %-3d│ %-8s│ %-7s│ %-26s│ %-4d│ %,10d│ %,12d│ %-11s│ %-10s│%n",
                 stt++,
                 item.get("MaHang"),
                 item.get("MaSP"),
                 tenSP,
-                item.get("SoLuongConLai"),
-                giaBan,
-                thanhTien,
+                slConLai != null ? slConLai : 0,
+                giaBan != null ? giaBan : 0,
+                thanhTien != null ? thanhTien : 0,
                 hsdStr,
                 trangThaiStr
             );
         }
+        
         System.out.println("└─────────────────────────────────────────────────────────────────────────────────────────────────────────────┘");
-        System.out.printf("Tổng: %d lô hàng | Tổng giá trị: %s%n", danhSach.size(), FormatUtil.formatVND((int)sumGiaTri));
+        System.out.printf("📊 Tổng: %d lô hàng | Tổng giá trị: %s%n", danhSach.size(), FormatUtil.formatVND((int) sumGiaTri));
         System.out.println("\n════════════════════════════════════════════════════════════════════════════════════════════════════");
-        System.out.println("Báo cáo được tạo tự động bởi Hệ thống Quản lý Cửa hàng Tiện lợi");
+        System.out.println("✅ Báo cáo được tạo tự động bởi Hệ thống Quản lý Cửa hàng Tiện lợi");
         System.out.println("════════════════════════════════════════════════════════════════════════════════════════════════════");
         System.out.println();
     }
