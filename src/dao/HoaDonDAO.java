@@ -386,29 +386,61 @@ public class HoaDonDAO {
         return list;
     }
 
-    public static Map<String, Object> thongKeHDTheoThoiGian(LocalDate fromDate, LocalDate toDate) {
+    public static Map<String, Object> thongKeHDTheoThoiGian(LocalDate fromDate, LocalDate toDate, boolean baoGomHuy) {
+        if (fromDate == null || toDate == null) {
+            System.err.println("❌ Ngày tháng không được rỗng!");
+            return new HashMap<>();
+        }
+
+        if (fromDate.isAfter(toDate)) {
+            System.err.println("❌ Ngày bắt đầu không được sau ngày kết thúc!");
+            return new HashMap<>();
+        }
+
         Map<String, Object> result = new HashMap<>();
 
-        String query = """
-                SELECT 
-                    COUNT(DISTINCT hd.MaHD) AS SoHoaDon,
-                    COUNT(DISTINCT hd.MaKH) AS SoKhachHang,
-                    SUM(ct.SoLuong) AS TongSanPham,
-                    SUM(hd.TongTien) AS TongDoanhThu,
-                    (SUM(hd.TongTien) / COUNT(DISTINCT hd.MaHD)) AS DoanhThuTrungBinh
-                FROM HOADON hd
-                JOIN CHITIETHOADON ct ON hd.MaHD = ct.MaHD
-                WHERE hd.NgayLapHD BETWEEN ? AND ?;
+        String query = baoGomHuy ?
+        """
+        SELECT 
+            COUNT(DISTINCT hd.MaHD) AS SoHoaDon,
+            COUNT(DISTINCT hd.MaKH) AS SoKhachHang,
+            COALESCE(SUM(ct.SoLuong), 0) AS TongSanPham,
+            COALESCE(SUM(hd.TongTien), 0) AS TongDoanhThu,
+            CASE 
+                WHEN COUNT(DISTINCT hd.MaHD) > 0 
+                THEN CAST(SUM(hd.TongTien) AS DECIMAL) / COUNT(DISTINCT hd.MaHD)
+                ELSE 0 
+            END AS DoanhThuTrungBinh,
+            COUNT(CASE WHEN hd.TrangThai = 'cancelled' THEN 1 END) AS SoHoaDonHuy
+        FROM HOADON hd
+        LEFT JOIN CHITIETHOADON ct ON hd.MaHD = ct.MaHD
+        WHERE hd.ThoiGianLapHD >= ? AND hd.ThoiGianLapHD < ?
+        """ :
+        """
+        SELECT 
+            COUNT(DISTINCT hd.MaHD) AS SoHoaDon,
+            COUNT(DISTINCT hd.MaKH) AS SoKhachHang,
+            COALESCE(SUM(ct.SoLuong), 0) AS TongSanPham,
+            COALESCE(SUM(hd.TongTien), 0) AS TongDoanhThu,
+            CASE 
+                WHEN COUNT(DISTINCT hd.MaHD) > 0 
+                THEN CAST(SUM(hd.TongTien) AS DECIMAL) / COUNT(DISTINCT hd.MaHD)
+                ELSE 0 
+            END AS DoanhThuTrungBinh
+        FROM HOADON hd
+        LEFT JOIN CHITIETHOADON ct ON hd.MaHD = ct.MaHD
+        WHERE hd.ThoiGianLapHD >= ? AND hd.ThoiGianLapHD < ?
+            AND hd.TrangThai = 'active'
         """;
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
                 
             LocalDateTime fromDateTime = fromDate.atStartOfDay();
-            LocalDateTime toDateTime = toDate.plusDays(1).atStartOfDay();
+            LocalDateTime toExclusive = toDate.plusDays(1).atStartOfDay();
 
             stmt.setTimestamp(1, Timestamp.valueOf(fromDateTime));
-            stmt.setTimestamp(2, Timestamp.valueOf(toDateTime));
+            stmt.setTimestamp(2, Timestamp.valueOf(toExclusive));
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -416,120 +448,222 @@ public class HoaDonDAO {
                     result.put("SoKhachHang", rs.getInt("SoKhachHang"));
                     result.put("TongSanPham", rs.getInt("TongSanPham"));
                     result.put("TongDoanhThu", rs.getLong("TongDoanhThu"));
-                    result.put("DoanhThuTrungBinh", rs.getDouble("DoanhThuTrungBinh"));
+                    result.put("DoanhThuTrungBinh", rs.getLong("DoanhThuTrungBinh"));
+                    
+                    if (baoGomHuy) {
+                        result.put("SoHoaDonHuy", rs.getInt("SoHoaDonHuy"));
+                    }
                 }
             }
         } catch (SQLException e) {
             System.err.println("❌ Lỗi khi thống kê hóa đơn theo thời gian: " + e.getMessage());
+            e.printStackTrace();
         }
         return result;
     }
 
-    public static List<Map<String, Object>> thongKeHDTheoNhanVien(LocalDate fromDate, LocalDate toDate) {
+    public static List<Map<String, Object>> thongKeHDTheoNhanVien(LocalDate fromDate, LocalDate toDate, boolean baoGomHuy) {
+        if (fromDate == null || toDate == null) {
+            System.err.println("❌ Ngày không được null!");
+            return new ArrayList<>();
+        }
+        
+        if (fromDate.isAfter(toDate)) {
+            System.err.println("❌ Ngày bắt đầu phải trước hoặc bằng ngày kết thúc!");
+            return new ArrayList<>();
+        }
+
         List<Map<String, Object>> result = new ArrayList<>();
 
-        String query = """
-                SELECT 
-                    nv.MaNV,
-                    nv.Ho,
-                    nv.Ten,
-                    COUNT(DISTINCT hd.MaHD) AS SoHoaDon,
-                    SUM(ct.SoLuong) AS TongSanPham,
-                    SUM(hd.TongTien) AS TongDoanhThu
-                FROM HOADON hd
-                JOIN NHANVIEN nv ON hd.MaNV = nv.MaNV
-                JOIN CHITIETHOADON ct ON hd.MaHD = ct.MaHD
-                WHERE hd.NgayLapHD BETWEEN ? AND ?
-                GROUP BY nv.MaNV, nv.Ho, nv.Ten
-                ORDER BY TongDoanhThu DESC;
-        """;
+        String query = baoGomHuy ?
+            """
+            SELECT 
+                nv.MaNV,
+                nv.Ho,
+                nv.Ten,
+                COUNT(DISTINCT hd.MaHD) AS SoHoaDon,
+                COALESCE(SUM(ct.SoLuong), 0) AS TongSanPham,
+                COALESCE(SUM(hd.TongTien), 0) AS TongDoanhThu,
+                COUNT(CASE WHEN hd.TrangThai = 'cancelled' THEN 1 END) AS SoHoaDonHuy
+            FROM NHANVIEN nv
+            LEFT JOIN HOADON hd ON nv.MaNV = hd.MaNV 
+                AND hd.ThoiGianLapHD >= ? AND hd.ThoiGianLapHD < ?
+            LEFT JOIN CHITIETHOADON ct ON hd.MaHD = ct.MaHD
+            GROUP BY nv.MaNV, nv.Ho, nv.Ten
+            HAVING COUNT(DISTINCT hd.MaHD) > 0
+            ORDER BY TongDoanhThu DESC
+            """ :
+            """
+            SELECT 
+                nv.MaNV,
+                nv.Ho,
+                nv.Ten,
+                COUNT(DISTINCT hd.MaHD) AS SoHoaDon,
+                COALESCE(SUM(ct.SoLuong), 0) AS TongSanPham,
+                COALESCE(SUM(hd.TongTien), 0) AS TongDoanhThu
+            FROM NHANVIEN nv
+            LEFT JOIN HOADON hd ON nv.MaNV = hd.MaNV 
+                AND hd.ThoiGianLapHD >= ? AND hd.ThoiGianLapHD < ?
+                AND hd.TrangThai = 'active'
+            LEFT JOIN CHITIETHOADON ct ON hd.MaHD = ct.MaHD
+            GROUP BY nv.MaNV, nv.Ho, nv.Ten
+            HAVING COUNT(DISTINCT hd.MaHD) > 0
+            ORDER BY TongDoanhThu DESC
+            """;
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
 
             LocalDateTime fromDateTime = fromDate.atStartOfDay();
-            LocalDateTime toDateTime = toDate.plusDays(1).atStartOfDay();
+            LocalDateTime toExclusive = toDate.plusDays(1).atStartOfDay();
 
             stmt.setTimestamp(1, Timestamp.valueOf(fromDateTime));
-            stmt.setTimestamp(2, Timestamp.valueOf(toDateTime));
+            stmt.setTimestamp(2, Timestamp.valueOf(toExclusive));
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     Map<String, Object> row = new HashMap<>();
                     row.put("MaNV", rs.getString("MaNV"));
-                    row.put("Ho Ten", rs.getString("Ho") + " " + rs.getString("Ten"));
+                    row.put("Ho", rs.getString("Ho"));
+                    row.put("Ten", rs.getString("Ten"));
+                    row.put("HoTen", rs.getString("Ho") + " " + rs.getString("Ten")); 
                     row.put("SoHoaDon", rs.getInt("SoHoaDon"));
                     row.put("TongSanPham", rs.getInt("TongSanPham"));
                     row.put("TongDoanhThu", rs.getLong("TongDoanhThu"));
+                    
+                    if (baoGomHuy) {
+                        row.put("SoHoaDonHuy", rs.getInt("SoHoaDonHuy"));
+                    }
                     result.add(row);
                 }
             }
         } catch (SQLException e) {
             System.err.println("❌ Lỗi khi thống kê hóa đơn theo nhân viên: " + e.getMessage());
+            e.printStackTrace();
         }
         return result;
     }
 
-    public static List<Map<String, Object>> thongKeHDTheoKhachHang(LocalDate fromDate, LocalDate toDate) {
+
+    public static List<Map<String, Object>> thongKeHDTheoKhachHang(LocalDate fromDate, LocalDate toDate, boolean baoGomHuy) {
+        if (fromDate == null || toDate == null) {
+            System.err.println("❌ Ngày không được null!");
+            return new ArrayList<>();
+        }
+        
+        if (fromDate.isAfter(toDate)) {
+            System.err.println("❌ Ngày bắt đầu phải trước hoặc bằng ngày kết thúc!");
+            return new ArrayList<>();
+        }
+
         List<Map<String, Object>> result = new ArrayList<>();
 
-        String query = """
-                SELECT 
-                    kh.MaKH,
-                    kh.Ho,
-                    kh.Ten,
-                    COUNT(DISTINCT hd.MaHD) AS SoHoaDon,
-                    SUM(ct.SoLuong) AS TongSanPham,
-                    SUM(hd.TongTien) AS TongChiTieu
-                FROM HOADON hd
-                JOIN KHACHHANG kh ON hd.MaKH = kh.MaKH
-                JOIN CHITIETHOADON ct ON hd.MaHD = ct.MaHD
-                WHERE hd.NgayLapHD BETWEEN ? AND ?
-                GROUP BY kh.MaKH, kh.Ho, kh.Ten
-                ORDER BY TongChiTieu DESC;
-        """;
+        String query = baoGomHuy ?
+            """
+            SELECT 
+                kh.MaKH,
+                kh.Ho,
+                kh.Ten,
+                COUNT(DISTINCT hd.MaHD) AS SoHoaDon,
+                COALESCE(SUM(ct.SoLuong), 0) AS TongSanPham,
+                COALESCE(SUM(hd.TongTien), 0) AS TongChiTieu,
+                COUNT(CASE WHEN hd.TrangThai = 'cancelled' THEN 1 END) AS SoHoaDonHuy
+            FROM KHACHHANG kh
+            LEFT JOIN HOADON hd ON kh.MaKH = hd.MaKH 
+                AND hd.ThoiGianLapHD >= ? AND hd.ThoiGianLapHD < ?
+            LEFT JOIN CHITIETHOADON ct ON hd.MaHD = ct.MaHD
+            GROUP BY kh.MaKH, kh.Ho, kh.Ten
+            HAVING COUNT(DISTINCT hd.MaHD) > 0
+            ORDER BY TongChiTieu DESC
+            """ :
+            """
+            SELECT 
+                kh.MaKH,
+                kh.Ho,
+                kh.Ten,
+                COUNT(DISTINCT hd.MaHD) AS SoHoaDon,
+                COALESCE(SUM(ct.SoLuong), 0) AS TongSanPham,
+                COALESCE(SUM(hd.TongTien), 0) AS TongChiTieu
+            FROM KHACHHANG kh
+            LEFT JOIN HOADON hd ON kh.MaKH = hd.MaKH 
+                AND hd.ThoiGianLapHD >= ? AND hd.ThoiGianLapHD < ?
+                AND hd.TrangThai = 'active'
+            LEFT JOIN CHITIETHOADON ct ON hd.MaHD = ct.MaHD
+            GROUP BY kh.MaKH, kh.Ho, kh.Ten
+            HAVING COUNT(DISTINCT hd.MaHD) > 0
+            ORDER BY TongChiTieu DESC
+            """;
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
         
             LocalDateTime fromDateTime = fromDate.atStartOfDay();
-            LocalDateTime toDateTime = toDate.plusDays(1).atStartOfDay();
+            LocalDateTime toExclusive = toDate.plusDays(1).atStartOfDay();
 
             stmt.setTimestamp(1, Timestamp.valueOf(fromDateTime));
-            stmt.setTimestamp(2, Timestamp.valueOf(toDateTime));
+            stmt.setTimestamp(2, Timestamp.valueOf(toExclusive));
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     Map<String, Object> row = new HashMap<>();
                     row.put("MaKH", rs.getString("MaKH"));
-                    row.put("Ho Ten", rs.getString("Ho") + " " + rs.getString("Ten"));
+                    row.put("Ho", rs.getString("Ho"));
+                    row.put("Ten", rs.getString("Ten"));
+                    row.put("HoTen", rs.getString("Ho") + " " + rs.getString("Ten")); 
                     row.put("SoHoaDon", rs.getInt("SoHoaDon"));
                     row.put("TongSanPham", rs.getInt("TongSanPham"));
                     row.put("TongChiTieu", rs.getLong("TongChiTieu"));
+                    
+                    if (baoGomHuy) {
+                        row.put("SoHoaDonHuy", rs.getInt("SoHoaDonHuy"));
+                    }
+                    
                     result.add(row);
                 }
             }
         } catch (SQLException e) {
             System.err.println("❌ Lỗi khi thống kê hóa đơn theo khách hàng: " + e.getMessage());
+            e.printStackTrace();
         }
         return result;
     }
 
-    public static List<Map<String, Object>> thongKeHDTheoNam(int year) {
+
+    public static List<Map<String, Object>> thongKeHDTheoNam(int year, boolean baoGomHuy) {
+        if (year < 2000 || year > LocalDate.now().getYear() + 1) {
+            System.err.println("❌ Năm không hợp lệ!");
+            return new ArrayList<>();
+        }
+
         List<Map<String, Object>> result = new ArrayList<>();
 
-        String query = """
+        String query = baoGomHuy ?
+            """
             SELECT 
-                MONTH(NgayLapHD) AS Thang,
-                COUNT(DISTINCT MaHD) AS SoHoaDon,
-                SUM(ct.SoLuong) AS TongSanPham,
-                SUM(hd.TongTien) AS TongDoanhThu
+                MONTH(ThoiGianLapHD) AS Thang,
+                COUNT(DISTINCT hd.MaHD) AS SoHoaDon,
+                COALESCE(SUM(ct.SoLuong), 0) AS TongSanPham,
+                COALESCE(SUM(hd.TongTien), 0) AS TongDoanhThu,
+                COUNT(CASE WHEN hd.TrangThai = 'cancelled' THEN 1 END) AS SoHoaDonHuy
             FROM HOADON hd
-            JOIN CHITIETHOADON ct ON hd.MaHD = ct.MaHD
-            WHERE YEAR(NgayLapHD) = ?
-            GROUP BY MONTH(NgayLapHD)
-            ORDER BY Thang ASC;
-        """;
+            LEFT JOIN CHITIETHOADON ct ON hd.MaHD = ct.MaHD
+            WHERE YEAR(ThoiGianLapHD) = ?
+            GROUP BY MONTH(ThoiGianLapHD)
+            ORDER BY Thang ASC
+            """ :
+            """
+            SELECT 
+                MONTH(ThoiGianLapHD) AS Thang,
+                COUNT(DISTINCT hd.MaHD) AS SoHoaDon,
+                COALESCE(SUM(ct.SoLuong), 0) AS TongSanPham,
+                COALESCE(SUM(hd.TongTien), 0) AS TongDoanhThu
+            FROM HOADON hd
+            LEFT JOIN CHITIETHOADON ct ON hd.MaHD = ct.MaHD
+            WHERE YEAR(ThoiGianLapHD) = ?
+            AND hd.TrangThai = 'active'
+            GROUP BY MONTH(ThoiGianLapHD)
+            ORDER BY Thang ASC
+            """;
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -543,39 +677,71 @@ public class HoaDonDAO {
                     row.put("SoHoaDon", rs.getInt("SoHoaDon"));
                     row.put("TongSanPham", rs.getInt("TongSanPham"));
                     row.put("TongDoanhThu", rs.getLong("TongDoanhThu"));
+                    
+                    if (baoGomHuy) {
+                        row.put("SoHoaDonHuy", rs.getInt("SoHoaDonHuy"));
+                    }
+                    
                     result.add(row);
                 }
             }
         } catch (SQLException e) {
             System.err.println("❌ Lỗi khi thống kê hóa đơn theo năm: " + e.getMessage());
+            e.printStackTrace();
         }
         return result;
     }
 
-    public static List<Map<String, Object>> thongKeHDTheoPhuongThucTT(LocalDate fromDate, LocalDate toDate) {
+
+    public static List<Map<String, Object>> thongKeHDTheoPhuongThucTT(LocalDate fromDate, LocalDate toDate, boolean baoGomHuy) {
+        if (fromDate == null || toDate == null) {
+            System.err.println("❌ Ngày không được null!");
+            return new ArrayList<>();
+        }
+        
+        if (fromDate.isAfter(toDate)) {
+            System.err.println("❌ Ngày bắt đầu phải trước hoặc bằng ngày kết thúc!");
+            return new ArrayList<>();
+        }
+
         List<Map<String, Object>> result = new ArrayList<>();
 
-        String query = """
+        String query = baoGomHuy ?
+            """
             SELECT 
                 hd.PhuongThucTT,
                 COUNT(DISTINCT hd.MaHD) AS SoHoaDon,
-                SUM(ct.SoLuong) AS TongSanPham,
-                SUM(hd.TongTien) AS TongDoanhThu
+                COALESCE(SUM(ct.SoLuong), 0) AS TongSanPham,
+                COALESCE(SUM(hd.TongTien), 0) AS TongDoanhThu,
+                COUNT(CASE WHEN hd.TrangThai = 'cancelled' THEN 1 END) AS SoHoaDonHuy
             FROM HOADON hd
-            JOIN CHITIETHOADON ct ON hd.MaHD = ct.MaHD
-            WHERE NgayLapHD BETWEEN ? AND ?
-            GROUP BY PhuongThucTT
-            ORDER BY TongDoanhThu DESC;
-        """;
+            LEFT JOIN CHITIETHOADON ct ON hd.MaHD = ct.MaHD
+            WHERE hd.ThoiGianLapHD >= ? AND hd.ThoiGianLapHD < ?
+            GROUP BY hd.PhuongThucTT
+            ORDER BY TongDoanhThu DESC
+            """ :
+            """
+            SELECT 
+                hd.PhuongThucTT,
+                COUNT(DISTINCT hd.MaHD) AS SoHoaDon,
+                COALESCE(SUM(ct.SoLuong), 0) AS TongSanPham,
+                COALESCE(SUM(hd.TongTien), 0) AS TongDoanhThu
+            FROM HOADON hd
+            LEFT JOIN CHITIETHOADON ct ON hd.MaHD = ct.MaHD
+            WHERE hd.ThoiGianLapHD >= ? AND hd.ThoiGianLapHD < ?
+            AND hd.TrangThai = 'active'
+            GROUP BY hd.PhuongThucTT
+            ORDER BY TongDoanhThu DESC
+            """;
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
             
             LocalDateTime fromDateTime = fromDate.atStartOfDay();
-            LocalDateTime toDateTime = toDate.plusDays(1).atStartOfDay();
+            LocalDateTime toExclusive = toDate.plusDays(1).atStartOfDay();
 
             stmt.setTimestamp(1, Timestamp.valueOf(fromDateTime));
-            stmt.setTimestamp(2, Timestamp.valueOf(toDateTime));
+            stmt.setTimestamp(2, Timestamp.valueOf(toExclusive));
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
@@ -584,11 +750,17 @@ public class HoaDonDAO {
                     row.put("SoHoaDon", rs.getInt("SoHoaDon"));
                     row.put("TongSanPham", rs.getInt("TongSanPham"));
                     row.put("TongDoanhThu", rs.getLong("TongDoanhThu"));
+                    
+                    if (baoGomHuy) {
+                        row.put("SoHoaDonHuy", rs.getInt("SoHoaDonHuy"));
+                    }
+                    
                     result.add(row);
                 }
             }
         } catch (SQLException e) {
             System.err.println("❌ Lỗi khi thống kê hóa đơn theo phương thức thanh toán: " + e.getMessage());
+            e.printStackTrace();
         }
         return result;
     }
