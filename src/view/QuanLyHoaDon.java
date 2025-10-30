@@ -121,49 +121,55 @@ public class QuanLyHoaDon {
                     xemDanhSachHoaDon();
                     break;
                 case 5:
+                    System.out.println("\n");
+                    System.out.println(
+                            "    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+                    System.out.println(
+                            "    ┃                         THỐNG KÊ HÓA ĐƠN                           ┃");
+                    System.out.println(
+                            "    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                    System.out.println(
+                            "    ┃ [1] ➜ Thống kê doanh thu theo khoảng thời gian                     ┃");
+                    System.out.println(
+                            "    ┃ [2] ➜ Thống kê hóa đơn theo nhân viên                              ┃");
+                    System.out.println(
+                            "    ┃ [3] ➜ Thống kê hóa đơn theo khách hàng                             ┃");
+                    System.out.println(
+                            "    ┃ [4] ➜ Thống kê hóa đơn theo năm                                    ┃");
+                    System.out.println(
+                            "    ┃ [5] ➜ Thống kê hóa đơn theo phương thức thanh toán                 ┃");
+                    System.out.println(
+                            "    ┃ [0] ➜ Thoát                                                        ┃");
+                    System.out.println(
+                            "    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                    System.out.print("\n💡 Nhập lựa chọn của bạn: ");
                     while (true) {
-                        try {
-                            System.out.println("\n");
-                            System.out.println("Thống kê hóa đơn");
-                            System.out.println("1. Thống kê doanh thu theo khoảng thời gian");
-                            System.out.println("2. Thống kê hóa đơn theo nhân viên");
-                            System.out.println("3. Thống kê hóa đơn theo khách hàng");
-                            System.out.println("4. Thống kê hóa dơn theo năm");
-                            System.out.println("5. Thống kê theo phương thức thanh toán");
-                            System.out.println("0. Thoát");
-                            System.out.print("\n💡 Nhập lựa chọn của bạn: ");
-
-                            int opt = scanner.nextInt();
-                            scanner.nextLine();
-
-                            if (opt == 0) {
+                        String opt = scanner.nextLine().trim();
+                        
+                        switch (opt) {
+                            case "0":
                                 System.out.println("Thoát thống kê hóa đơn thành công.");
                                 break;
-                            }
-                            switch (opt) {
-                                case 1:
-                                    thongKeHDTheoNgay();
-                                    break;
-                                case 2:
-                                    thongKeHoaDonTheoNV();
-                                    break;
-                                case 3:
-                                    thongKeHoaDonTheoKH();
-                                    break;
-                                case 4:
-                                    thongKeHoaDonTheoNam();
-                                    break;
-                                case 5:
-                                    thongKeHoaDonTheoPTTT();
-                                    break;
-                                default:
-                                    System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
-                                    break;
-                            }
-                        } catch (Exception e) {
-                            System.out.println("Lỗi xảy ra: " + e.getMessage());
-                            scanner.nextLine();
+                            case "1":
+                                thongKeHDTheoNgay();
+                                break;
+                            case "2":
+                                thongKeHoaDonTheoNV();
+                                break;
+                            case "3":
+                                thongKeHoaDonTheoKH();
+                                break;
+                            case "4":
+                                thongKeHoaDonTheoNam();
+                                break;
+                            case "5":
+                                thongKeHoaDonTheoPTTT();
+                                break;
+                            default:
+                                System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
+                                break;
                         }
+                        break;
                     }
                     break;
                 case 6:
@@ -940,7 +946,7 @@ public class QuanLyHoaDon {
     
     public void timHoaDonTheoNgay() {
         Scanner scanner = new Scanner(System.in);
-        DateTimeFormatter inputFmt = DateTimeFormatter.ofPattern("ddMMyyyy");
+        DateTimeFormatter inputFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         DateTimeFormatter displayFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
@@ -949,11 +955,11 @@ public class QuanLyHoaDon {
 
             while (true) {
                 try {
-                    System.out.print("\n📅 Nhập ngày bắt đầu (ddMMyyyy) hoặc '0' để thoát: ");
+                    System.out.print("\n📅 Nhập ngày bắt đầu (dd/MM/yyyy) hoặc '0' để thoát: ");
                     String from = scanner.nextLine().trim();
                     
                     if ("0".equals(from)) {
-                        System.out.println("✅ Thoát chức năng tìm hóa đơn theo ngày.");
+                        System.out.println("✅ Thoát chức năng thống kê.");
                         return;
                     }
                     
@@ -961,17 +967,17 @@ public class QuanLyHoaDon {
                         System.out.println("❌ Ngày không được để trống!");
                         continue;
                     }
-    
+
                     fromDate = LocalDate.parse(from, inputFmt);
                     break;
                 } catch (DateTimeParseException e) {
-                    System.out.println("❌ Định dạng ngày không hợp lệ, vui lòng nhập lại (ddMMyyyy).");
+                    System.out.println("❌ Định dạng ngày không hợp lệ! Vui lòng nhập theo định dạng dd/MM/yyyy (ví dụ: 01/10/2025).");
                 }
             }
             
             while (true) {
                 try {
-                    System.out.print("📅 Nhập ngày kết thúc (ddMMyyyy): ");
+                    System.out.print("📅 Nhập ngày kết thúc (dd/MM/yyyy): ");
                     String to = scanner.nextLine().trim();
                     
                     if (to.isEmpty()) {
@@ -985,9 +991,10 @@ public class QuanLyHoaDon {
                         System.out.println("❌ Ngày bắt đầu phải trước hoặc bằng ngày kết thúc!");
                         continue;
                     }
+                    
                     break;
                 } catch (DateTimeParseException e) {
-                    System.out.println("❌ Định dạng ngày không hợp lệ, vui lòng nhập lại (ddMMyyyy).");
+                    System.out.println("❌ Định dạng ngày không hợp lệ! Vui lòng nhập theo định dạng dd/MM/yyyy (ví dụ: 31/10/2025).");
                 }
             }
             
@@ -1067,7 +1074,6 @@ public class QuanLyHoaDon {
         }
     }
 
-    // Làm lại giao diện cho giống thực tế, đẹp hơn
     public void xemDanhSachHoaDon() {
         Scanner scanner = new Scanner(System.in);
         DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
@@ -1149,251 +1155,576 @@ public class QuanLyHoaDon {
         }
     }
 
-    // Làm lại giao diện cho giống thực tế, đẹp hơn
     public void thongKeHDTheoNgay() {
         Scanner scanner = new Scanner(System.in);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+        DateTimeFormatter inputFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter displayFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
         while (true) {
-            try {
-                System.out.println("Nhập ngày bắt đầu: ");
-                String from = scanner.nextLine().trim();
+            LocalDate fromDate = null, toDate = null;
 
-                System.out.println("Nhập ngày kết thúc: ");
-                String to = scanner.nextLine().trim();
+            while (true) {
+                try {
+                    System.out.print("\n📅 Nhập ngày bắt đầu (dd/MM/yyyy) hoặc '0' để thoát: ");
+                    String from = scanner.nextLine().trim();
+                    
+                    if ("0".equals(from)) {
+                        System.out.println("✅ Thoát chức năng thống kê.");
+                        return;
+                    }
+                    
+                    if (from.isEmpty()) {
+                        System.out.println("❌ Ngày không được để trống!");
+                        continue;
+                    }
 
-                LocalDate fromDate = LocalDate.parse(from, formatter);
-                LocalDate toDate = LocalDate.parse(to, formatter);
-
-                if (fromDate.isAfter(toDate)) {
-                    System.out.println("Ngày bắt đầu phải trước ngày kết thúc, vui lòng nhập lại.");
-                    continue;
+                    fromDate = LocalDate.parse(from, inputFmt);
+                    break;
+                } catch (DateTimeParseException e) {
+                    System.out.println("❌ Định dạng ngày không hợp lệ! Vui lòng nhập theo định dạng dd/MM/yyyy (ví dụ: 01/10/2025).");
                 }
-                Map<String, Object> result = HoaDonDAO.thongKeHDTheoThoiGian(fromDate, toDate);
+            }
 
-                System.out.println("\n========= BÁO CÁO THỐNG KÊ HÓA ĐƠN =========");
-                System.out.println("Từ ngày: " + from + "  đến ngày: " + to);
+            while (true) {
+                try {
+                    System.out.print("📅 Nhập ngày kết thúc (dd/MM/yyyy): ");
+                    String to = scanner.nextLine().trim();
+                    
+                    if (to.isEmpty()) {
+                        System.out.println("❌ Ngày không được để trống!");
+                        continue;
+                    }
 
-                if (result.isEmpty() || result.get("SoHoaDon") == null) {
-                    System.out.println("Không tìm thấy hóa đơn trong khoảng thời gian này");
-                } else {
-                    System.out.println("Số hóa đơn: " + result.get("SoHoaDon"));
-                    System.out.println("Số khách hàng: " + result.get("SoKhachHang"));
-                    System.out.println("Tổng sản phẩm: " + result.get("TongSanPham"));
-                    System.out.println("Tổng doanh thu: " + FormatUtil.formatVND((long)result.get("TongDoanhThu")));
-                    System.out.println("Doanh thu trung bình: " + FormatUtil.formatVND((double)result.get("DoanhThuTrungBinh")));
-                    System.out.println("Tìm thấy " + result.get("SoHoaDon") + " hóa đơn trong khoảng thời gian này");
+                    toDate = LocalDate.parse(to, inputFmt);
+                    
+                    if (fromDate.isAfter(toDate)) {
+                        System.out.println("❌ Ngày bắt đầu phải trước hoặc bằng ngày kết thúc!");
+                        continue;
+                    }
+                    
+                    break;
+                } catch (DateTimeParseException e) {
+                    System.out.println("❌ Định dạng ngày không hợp lệ! Vui lòng nhập theo định dạng dd/MM/yyyy (ví dụ: 31/10/2025).");
                 }
-                System.out.println("========================================================");
+            }
+
+            System.out.print("💡 Tính cả hóa đơn đã hủy vào thống kê? (Y/N): ");
+            String showCancelled = scanner.nextLine().trim();
+            boolean baoGomHuy = "Y".equalsIgnoreCase(showCancelled);
+
+            Map<String,Object> result = HoaDonDAO.thongKeHDTheoThoiGian(fromDate, toDate, baoGomHuy);
+
+            System.out.println("\n╔════════════════════════════════════════════════════════════════╗");
+            System.out.println("║                  📊 BÁO CÁO THỐNG KÊ HÓA ĐƠN                   ║");
+            System.out.println("╚════════════════════════════════════════════════════════════════╝");
+            System.out.println("Từ ngày: " + fromDate.format(displayFmt) + " đến ngày: " + toDate.format(displayFmt));
+            System.out.println("────────────────────────────────────────────────────────────────");
+
+            if (result.isEmpty() || (int)result.get("SoHoaDon") == 0) {
+                System.out.println("⚠️ Không tìm thấy hóa đơn trong khoảng thời gian này.\n");
+            } else {
+                int soHD = (int) result.get("SoHoaDon");
+                int soKH = (int) result.get("SoKhachHang");
+                int tongSP = (int) result.get("TongSanPham");
+                long tongDoanhThu = (long) result.get("TongDoanhThu");
+                long doanhThuTB = (long) result.get("DoanhThuTrungBinh");
+                
+                System.out.println("\n📈 THỐNG KÊ TỔNG QUAN:");
+                System.out.println("• Số hóa đơn" + (baoGomHuy ? " (bao gồm hủy)" : " (chỉ hợp lệ)") + ": " + soHD);
+                
+                if (baoGomHuy && result.containsKey("SoHoaDonHuy")) {
+                    int soHDHuy = (int) result.get("SoHoaDonHuy");
+                    System.out.println("  - Hóa đơn hợp lệ    : " + (soHD - soHDHuy));
+                    System.out.println("  - Hóa đơn đã hủy    : " + soHDHuy);
+                }
+                
+                System.out.println("• Số khách hàng       : " + soKH);
+                System.out.println("• Tổng sản phẩm bán   : " + tongSP);
+                System.out.println("────────────────────────────────────────────────────────────────");
+                System.out.println("\n💰 THỐNG KÊ DOANH THU:");
+                System.out.println("• Tổng doanh thu      : " + FormatUtil.formatVND(tongDoanhThu));
+                System.out.println("• Doanh thu TB/hóa đơn: " + FormatUtil.formatVND(doanhThuTB));
+                System.out.println("════════════════════════════════════════════════════════════════");
+            }
+
+            System.out.print("💡 Bạn có muốn xem thống kê khoảng thời gian khác? (y/n): ");
+            String choice = scanner.nextLine().trim();
+            if (!"y".equalsIgnoreCase(choice)) {
+                System.out.println("✅ Hoàn tất chức năng thống kê hóa đơn.");
                 break;
-            } catch (DateTimeParseException e) {
-                System.out.println("Định dạng ngày không hợp lệ, vui lòng nhập lại.");
-                scanner.nextLine();
             }
         }
     }
 
-    // Làm lại giao diện cho giống thực tế, đẹp hơn
     public void thongKeHoaDonTheoNam() {
         Scanner scanner = new Scanner(System.in);
-        int year = 0;
-
+        
         while (true) {
-            try {
-                System.out.print("Nhập năm muốn thống kê: ");
-                year = Integer.parseInt(scanner.nextLine().trim());
-                if (year < 2000 || year > LocalDate.now().getYear()) {
-                    System.out.println("Năm không hợp lệ, vui lòng nhập lại.");
-                    continue;
+            int year = 0;
+
+            while (true) {
+                try {
+                    System.out.print("\n📅 Nhập năm muốn thống kê (hoặc '0' để thoát): ");
+                    String input = scanner.nextLine().trim();
+                    
+                    if ("0".equals(input)) {
+                        System.out.println("✅ Thoát chức năng thống kê.");
+                        return;
+                    }
+                    
+                    year = Integer.parseInt(input);
+                    
+                    int currentYear = LocalDate.now().getYear();
+                    if (year < 2000 || year > currentYear) {
+                        System.out.println("❌ Năm phải từ 2000 đến " + currentYear + "!");
+                        continue;
+                    }
+                    break; 
+                } catch (NumberFormatException e) {
+                    System.out.println("❌ Vui lòng nhập một số nguyên hợp lệ!");
                 }
-                break; 
-            } catch (NumberFormatException e) {
-                System.out.println("Lỗi: Vui lòng nhập một số nguyên hợp lệ cho năm.");
             }
-        }
 
-        List<Map<String, Object>> result = HoaDonDAO.thongKeHDTheoNam(year);
+            System.out.print("💡 Tính cả hóa đơn đã hủy vào thống kê? (Y/N): ");
+            String showCancelled = scanner.nextLine().trim();
+            boolean baoGomHuy = "Y".equalsIgnoreCase(showCancelled);
 
-        System.out.println("\n========= BÁO CÁO THỐNG KÊ HÓA ĐƠN THEO NĂM =========");
-        if (result.isEmpty()) {
-            System.out.println("Không tìm thấy hóa đơn trong năm này");
-            return;
-        } 
+            List<Map<String, Object>> result = HoaDonDAO.thongKeHDTheoNam(year, baoGomHuy);
 
-        int tongSoHoaDon = 0;
-        int tongSanPham = 0;
-        long tongDoanhThu = 0;
+            System.out.println("\n╔════════════════════════════════════════════════════════════════════════════════════════╗");
+            System.out.println("║                         📊 BÁO CÁO THỐNG KÊ HÓA ĐƠN NĂM " + year + "                   ║");
+            System.out.println("╚════════════════════════════════════════════════════════════════════════════════════════╝");
 
-        System.out.println("-------------------------------------------------------------------");
-        System.out.println("| Tháng | Số hóa đơn | Tổng sản phẩm | Tổng doanh thu |");
-        System.out.println("-------------------------------------------------------------------");
-        for (Map<String, Object> row : result) {
-            System.out.println("| " + row.get("Thang") + 
-                                " | " + row.get("SoHoaDon") + 
-                                " | " + row.get("TongSanPham") + 
-                                " | " + FormatUtil.formatVND((long)row.get("TongDoanhThu")) + " |"
-            );
-            tongSoHoaDon += (int)row.get("SoHoaDon");
-            tongSanPham += (int)row.get("TongSanPham");
-            tongDoanhThu += (long)row.get("TongDoanhThu");
-        }
-        System.out.println("-------------------------------------------------------------------");
-        System.out.println("Tìm thấy " + result.size() + " hóa đơn trong năm này");
-        System.out.println("Tổng số hóa đơn: " + tongSoHoaDon);
-        System.out.println("Tổng sản phẩm bán được: " + tongSanPham);
-        System.out.println("Tổng doanh thu: " + FormatUtil.formatVND(tongDoanhThu));
-        System.out.println("========================================================");
-    }
-    
-    // Làm lại giao diện cho giống thực tế, đẹp hơn
-    public void thongKeHoaDonTheoNV() {
-        Scanner scanner = new Scanner(System.in);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
-
-        while (true) {
-            try {
-                System.out.println("Nhập ngày bắt đầu: ");
-                String from = scanner.nextLine().trim();
-
-                System.out.println("Nhập ngày kết thúc: ");
-                String to = scanner.nextLine().trim();
-
-                LocalDate fromDate = LocalDate.parse(from, formatter);
-                LocalDate toDate = LocalDate.parse(to, formatter);
-
-                List<Map<String, Object>> result = HoaDonDAO.thongKeHDTheoNhanVien(fromDate, toDate);
-
-                System.out.println("\n========= BÁO CÁO THỐNG KÊ HÓA ĐƠN THEO NHÂN VIÊN =========");
-                System.out.println("Từ ngày: " + from + " đến ngày: " + to);
-                if (result.isEmpty()) {
-                    System.out.println("Không tìm thấy hóa đơn trong khoảng thời gian này");
-                    break;
+            if (result.isEmpty()) {
+                System.out.println("⚠️ Không tìm thấy hóa đơn nào trong năm " + year + ".\n");
+            } else {
+                if (baoGomHuy) {
+                    System.out.printf("%-8s %-12s %-10s %-15s %-20s%n",
+                        "Tháng", "Số HD", "HD hủy", "Tổng SP", "Doanh thu");
                 } else {
-                    System.out.println("Danh sách nhân viên: ");
-                    System.out.println("Mã nhân viên | Họ và tên | Số hóa đơn | Tổng sản phẩm | Tổng doanh thu");
-                    System.out.println("----------------------------------------------------------");
-                    long tongDoanhThu = 0;
-                    for (Map<String, Object> row : result) {
-                        System.out.println(row.get("MaNV") + " | " + row.get("Ho Ten") + " | " + row.get("SoHoaDon") + " | " + row.get("TongSanPham") + " | " + FormatUtil.formatVND((long)row.get("TongDoanhThu")));
-                        tongDoanhThu += (long)row.get("TongDoanhThu");
-                    }
-                    System.out.println("Tìm thấy " + result.size() + " nhân viên trong khoảng thời gian này");
-                    System.out.println("Tổng doanh thu: " + FormatUtil.formatVND(tongDoanhThu));
-                    System.out.println("========================================================");
+                    System.out.printf("%-8s %-12s %-15s %-20s%n",
+                        "Tháng", "Số HD", "Tổng SP", "Doanh thu");
                 }
-            } catch (DateTimeParseException e) {
-                System.out.println("Định dạng ngày không hợp lệ, vui lòng nhập lại.");
-                scanner.nextLine();
-            }
-        }
-    }
-
-    // Làm lại giao diện cho giống thực tế, đẹp hơn
-    public void thongKeHoaDonTheoKH() {
-        Scanner scanner = new Scanner(System.in);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
-
-        while (true) {
-            try {
-                System.out.println("Nhập ngày bắt đầu: ");
-                String from = scanner.nextLine().trim();
-
-                System.out.println("Nhập ngày kết thúc: ");
-                String to = scanner.nextLine().trim();
-
-                LocalDate fromDate = LocalDate.parse(from, formatter);
-                LocalDate toDate = LocalDate.parse(to, formatter);
-
-                List<Map<String, Object>> result = HoaDonDAO.thongKeHDTheoKhachHang(fromDate, toDate);
-
-                System.out.println("\n========= BÁO CÁO THỐNG KÊ HÓA ĐƠN THEO KHÁCH HÀNG =========");
-                System.out.println("Từ ngày: " + from + " đến ngày: " + to);
-                if (result.isEmpty()) {
-                    System.out.println("Không tìm thấy hóa đơn trong khoảng thời gian này");
-                    break;
-                }
-                else {
-                    System.out.println("Danh sách khách hàng: ");
-                    System.out.println("Mã khách hàng | Họ và tên | Số hóa đơn | Tổng sản phẩm | Tổng chi tiêu");
-                    System.out.println("----------------------------------------------------------");
-                    long tongChiTieu = 0;
-                    for (Map<String, Object> row : result) {
-                        System.out.println(
-                            row.get("MaKH") + " | " + 
-                            row.get("Ho Ten") + " | " + 
-                            row.get("SoHoaDon") + " | " + 
-                            row.get("TongSanPham") + " | " + 
-                            FormatUtil.formatVND((long)row.get("TongChiTieu"))
-                        );
-                        tongChiTieu += (long)row.get("TongChiTieu");
-                    }
-                    System.out.println("Tìm thấy " + result.size() + " khách hàng trong khoảng thời gian này");
-                    System.out.println("Tổng chi tiêu của khách hàng: " + FormatUtil.formatVND(tongChiTieu));
-                    System.out.println("========================================================");
-                }
-            } catch (DateTimeParseException e) {
-                System.out.println("Định dạng ngày không hợp lệ, vui lòng nhập lại.");
-                scanner.nextLine();
-            }
-        }
-    }
-
-    public void thongKeHoaDonTheoPTTT() {
-        Scanner scanner = new Scanner(System.in);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
-
-        while (true) {
-            try {
-                System.out.println("Nhập ngày bắt đầu: ");
-                String from = scanner.nextLine().trim();
-                
-                System.out.println("Nhập ngày kết thúc: ");
-                String to = scanner.nextLine().trim();
-
-                LocalDate fromDate = LocalDate.parse(from, formatter);
-                LocalDate toDate = LocalDate.parse(to, formatter);
-
-                List<Map<String, Object>> result = HoaDonDAO.thongKeHDTheoPhuongThucTT(fromDate, toDate);
-
-                System.out.println("\n========= BÁO CÁO THỐNG KÊ HÓA ĐƠN THEO PHƯƠNG THỨC THANH TOÁN =========");
-                System.out.println("Từ ngày: " + from + " đến ngày: " + to);
-
-                if (result.isEmpty()) {
-                    System.out.println("Không tìm thấy hóa đơn trong khoảng thời gian này");
-                    break;
-                }
-                
-                System.out.println("Danh sách phương thức thanh toán: ");
-                System.out.println("Phương thức thanh toán | Số hóa đơn | Tổng sản phẩm | Tổng doanh thu");
-                System.out.println("----------------------------------------------------------");
+                System.out.println("────────────────────────────────────────────────────────────────────────────────────────");
 
                 int tongSoHoaDon = 0;
                 int tongSanPham = 0;
                 long tongDoanhThu = 0;
 
                 for (Map<String, Object> row : result) {
-                    System.out.println(
-                        row.get("PTTT") + " | " + 
-                        row.get("SoHoaDon") + " | " + 
-                        row.get("TongSanPham") + " | " + 
-                        FormatUtil.formatVND((long)row.get("TongDoanhThu"))
-                    );
-
-                    tongSoHoaDon += (int)row.get("SoHoaDon");
-                    tongSanPham += (int)row.get("TongSanPham");
-                    tongDoanhThu += (long)row.get("TongDoanhThu");
+                    Integer thang = (Integer) row.get("Thang");
+                    Integer soHD = (Integer) row.get("SoHoaDon");
+                    Integer tongSP = (Integer) row.get("TongSanPham");
+                    Long doanhThu = (Long) row.get("TongDoanhThu");
+                    
+                    if (baoGomHuy) {
+                        Integer soHDHuy = (Integer) row.get("SoHoaDonHuy");
+                        System.out.printf("%-8s %-12d %-10d %-15d %-20s%n",
+                            "Tháng " + thang,
+                            soHD,
+                            soHDHuy,
+                            tongSP,
+                            FormatUtil.formatVND(doanhThu != null ? doanhThu : 0)
+                        );
+                    } else {
+                        System.out.printf("%-8s %-12d %-15d %-20s%n",
+                            "Tháng " + thang,
+                            soHD,
+                            tongSP,
+                            FormatUtil.formatVND(doanhThu != null ? doanhThu : 0)
+                        );
+                    }
+                    
+                    tongSoHoaDon += (soHD != null ? soHD : 0);
+                    tongSanPham += (tongSP != null ? tongSP : 0);
+                    tongDoanhThu += (doanhThu != null ? doanhThu : 0);
+                    
                 }
 
-                System.out.println("========================================================");
-                System.out.println("Tìm thấy " + result.size() + " phương thức thanh toán trong khoảng thời gian này");
-                System.out.println("Tổng số hóa đơn: " + tongSoHoaDon);
-                System.out.println("Tổng sản phẩm bán được: " + tongSanPham);
-                System.out.println("Tổng doanh thu: " + FormatUtil.formatVND(tongDoanhThu));
-                System.out.println("========================================================");
+                System.out.println("════════════════════════════════════════════════════════════════════════════════════════");
+                System.out.printf("📊 TỔNG KẾT NĂM %d:%n", year);
+                System.out.println("• Số tháng có doanh thu : " + result.size() + "/12 tháng");
+                System.out.println("• Tổng số hóa đơn       : " + tongSoHoaDon);
+                System.out.println("• Tổng sản phẩm bán     : " + tongSanPham);
+                System.out.println("• Tổng doanh thu        : " + FormatUtil.formatVND(tongDoanhThu));
+                System.out.println();
+            }
+            
+            System.out.print("💡 Bạn có muốn xem thống kê năm khác? (y/n): ");
+            String choice = scanner.nextLine().trim();
+            if (!"y".equalsIgnoreCase(choice)) {
+                System.out.println("✅ Hoàn tất chức năng thống kê theo năm.");
+                break;
+            }
+        }
+    }
+
+    public void thongKeHoaDonTheoNV() {
+        Scanner scanner = new Scanner(System.in);
+        DateTimeFormatter inputFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter displayFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        while (true) {
+            LocalDate fromDate = null, toDate = null;
+
+            while (true) {
+                try {
+                    System.out.print("\n📅 Nhập ngày bắt đầu (dd/MM/yyyy) hoặc '0' để thoát: ");
+                    String from = scanner.nextLine().trim();
+                    
+                    if ("0".equals(from)) {
+                        System.out.println("✅ Thoát chức năng thống kê.");
+                        return;
+                    }
+                    
+                    if (from.isEmpty()) {
+                        System.out.println("❌ Ngày không được để trống!");
+                        continue;
+                    }
+
+                    fromDate = LocalDate.parse(from, inputFmt);
+                    break;
+                } catch (DateTimeParseException e) {
+                    System.out.println("❌ Định dạng ngày không hợp lệ! Vui lòng nhập theo định dạng dd/MM/yyyy (ví dụ: 01/10/2025).");
+                }
+            }
+
+            while (true) {
+                try {
+                    System.out.print("📅 Nhập ngày kết thúc (dd/MM/yyyy): ");
+                    String to = scanner.nextLine().trim();
+                    
+                    if (to.isEmpty()) {
+                        System.out.println("❌ Ngày không được để trống!");
+                        continue;
+                    }
+
+                    toDate = LocalDate.parse(to, inputFmt);
+                    
+                    if (fromDate.isAfter(toDate)) {
+                        System.out.println("❌ Ngày bắt đầu phải trước hoặc bằng ngày kết thúc!");
+                        continue;
+                    }
+                    
+                    break;
+                } catch (DateTimeParseException e) {
+                    System.out.println("❌ Định dạng ngày không hợp lệ! Vui lòng nhập theo định dạng dd/MM/yyyy (ví dụ: 31/10/2025).");
+                }
+            }
+            
+            System.out.print("💡 Tính cả hóa đơn đã hủy vào thống kê? (Y/N): ");
+            String showCancelled = scanner.nextLine().trim();
+            boolean baoGomHuy = "Y".equalsIgnoreCase(showCancelled);
+
+            List<Map<String, Object>> result = HoaDonDAO.thongKeHDTheoNhanVien(fromDate, toDate, baoGomHuy);
+
+            System.out.println("\n╔════════════════════════════════════════════════════════════════════════════════════════╗");
+            System.out.println("║                         📊 BÁO CÁO THỐNG KÊ HÓA ĐƠN THEO NHÂN VIÊN                     ║");
+            System.out.println("╚════════════════════════════════════════════════════════════════════════════════════════╝");
+            System.out.println("Từ ngày: " + fromDate.format(displayFmt) + " đến ngày: " + toDate.format(displayFmt));
+            System.out.println("────────────────────────────────────────────────────────────────────────────────────────");
+
+            if (result.isEmpty()) {
+                System.out.println("⚠️ Không có nhân viên nào lập hóa đơn trong khoảng thời gian này.\n");
+            } else {
+                if (baoGomHuy) {
+                    System.out.printf("%-12s %-25s %-12s %-10s %-15s %-15s%n",
+                        "Mã NV", "Họ tên", "Số HD", "HD hủy", "Tổng SP", "Doanh thu");
+                } else {
+                    System.out.printf("%-12s %-25s %-12s %-15s %-15s%n",
+                        "Mã NV", "Họ tên", "Số HD", "Tổng SP", "Doanh thu");
+                }
+                System.out.println("────────────────────────────────────────────────────────────────────────────────────────");
+
+                long tongDoanhThu = 0;
+                int tongHoaDon = 0;
+                int tongSanPham = 0;
                 
-            } catch (DateTimeParseException e) {
-                System.out.println("Định dạng ngày không hợp lệ, vui lòng nhập lại.");
-                scanner.nextLine();
+                for (Map<String, Object> row : result) {
+                    String maNV = (String) row.get("MaNV");
+                    String hoTen = (String) row.get("HoTen");
+                    Integer soHD = (Integer) row.get("SoHoaDon");
+                    Integer tongSP = (Integer) row.get("TongSanPham");
+                    Long doanhThu = (Long) row.get("TongDoanhThu");
+                    
+                    if (hoTen != null && hoTen.length() > 25) {
+                        hoTen = hoTen.substring(0, 22) + "...";
+                    }
+                    
+                    if (baoGomHuy) {
+                        Integer soHDHuy = (Integer) row.get("SoHoaDonHuy");
+                        System.out.printf("%-12s %-25s %-12d %-10d %-15d %-15s%n",
+                            maNV, hoTen, soHD, soHDHuy, tongSP,
+                            FormatUtil.formatVND(doanhThu != null ? doanhThu : 0)
+                        );
+                    } else {
+                        System.out.printf("%-12s %-25s %-12d %-15d %-15s%n",
+                            maNV, hoTen, soHD, tongSP,
+                            FormatUtil.formatVND(doanhThu != null ? doanhThu : 0)
+                        );
+                    }
+                    
+                    tongDoanhThu += (doanhThu != null ? doanhThu : 0);
+                    tongHoaDon += (soHD != null ? soHD : 0);
+                    tongSanPham += (tongSP != null ? tongSP : 0);
+                }
+
+                System.out.println("════════════════════════════════════════════════════════════════════════════════════════");
+                System.out.printf("📊 TỔNG KẾT: %d nhân viên | %d hóa đơn | %d sản phẩm | Doanh thu: %s%n", 
+                    result.size(), tongHoaDon, tongSanPham, FormatUtil.formatVND(tongDoanhThu));
+                System.out.println();
+            }
+            
+            System.out.print("💡 Bạn có muốn xem thống kê khoảng thời gian khác? (y/n): ");
+            String choice = scanner.nextLine().trim();
+            if (!"y".equalsIgnoreCase(choice)) {
+                System.out.println("✅ Hoàn tất chức năng thống kê theo nhân viên.");
+                break;
+            }
+        }
+    }
+
+    public void thongKeHoaDonTheoKH() {
+        Scanner scanner = new Scanner(System.in);
+        DateTimeFormatter inputFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy"); 
+        DateTimeFormatter displayFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        while (true) {
+            LocalDate fromDate = null, toDate = null;
+            
+            while (true) {
+                try {
+                    System.out.print("\n📅 Nhập ngày bắt đầu (dd/MM/yyyy) hoặc '0' để thoát: ");
+                    String from = scanner.nextLine().trim();
+                    
+                    if ("0".equals(from)) {
+                        System.out.println("✅ Thoát chức năng thống kê.");
+                        return;
+                    }
+                    
+                    if (from.isEmpty()) {
+                        System.out.println("❌ Ngày không được để trống!");
+                        continue;
+                    }
+
+                    fromDate = LocalDate.parse(from, inputFmt);
+                    break;
+                } catch (DateTimeParseException e) {
+                    System.out.println("❌ Định dạng ngày không hợp lệ! Vui lòng nhập theo định dạng dd/MM/yyyy (ví dụ: 01/10/2025).");
+                }
+            }
+            
+            while (true) {
+                try {
+                    System.out.print("📅 Nhập ngày kết thúc (dd/MM/yyyy): ");
+                    String to = scanner.nextLine().trim();
+                    
+                    if (to.isEmpty()) {
+                        System.out.println("❌ Ngày không được để trống!");
+                        continue;
+                    }
+
+                    toDate = LocalDate.parse(to, inputFmt);
+                    
+                    if (fromDate.isAfter(toDate)) {
+                        System.out.println("❌ Ngày bắt đầu phải trước hoặc bằng ngày kết thúc!");
+                        continue;
+                    }
+                    
+                    break;
+                } catch (DateTimeParseException e) {
+                    System.out.println("❌ Định dạng ngày không hợp lệ! Vui lòng nhập theo định dạng dd/MM/yyyy.");
+                }
+            }
+            
+            System.out.print("💡 Tính cả hóa đơn đã hủy vào thống kê? (Y/N): ");
+            String showCancelled = scanner.nextLine().trim();
+            boolean baoGomHuy = "Y".equalsIgnoreCase(showCancelled);
+            
+            List<Map<String, Object>> result = HoaDonDAO.thongKeHDTheoKhachHang(fromDate, toDate, baoGomHuy);
+
+            System.out.println("\n╔════════════════════════════════════════════════════════════════════════════════════════╗");
+            System.out.println("║                         BÁO CÁO THỐNG KÊ HÓA ĐƠN THEO KHÁCH HÀNG                       ║");
+            System.out.println("╚════════════════════════════════════════════════════════════════════════════════════════╝");
+            System.out.println("Từ ngày: " + fromDate.format(displayFmt) + " đến ngày: " + toDate.format(displayFmt));
+            System.out.println("────────────────────────────────────────────────────────────────────────────────────────");
+
+            if (result.isEmpty()) {
+                System.out.println("⚠️ Không có khách hàng nào mua hàng trong khoảng thời gian này.\n");
+            } else {
+                if (baoGomHuy) {
+                    System.out.printf("%-12s %-25s %-12s %-10s %-15s %-15s%n",
+                        "Mã KH", "Họ tên", "Số HD", "HD hủy", "Tổng SP", "Tổng chi tiêu");
+                } else {
+                    System.out.printf("%-12s %-25s %-12s %-15s %-15s%n",
+                        "Mã KH", "Họ tên", "Số HD", "Tổng SP", "Tổng chi tiêu");
+                }
+                System.out.println("────────────────────────────────────────────────────────────────────────────────────────");
+
+                long tongChiTieu = 0;
+                int tongHoaDon = 0;
+                int tongSanPham = 0;
+                
+                for (Map<String, Object> row : result) {
+                    String maKH = (String) row.get("MaKH");
+                    String hoTen = (String) row.get("HoTen");
+                    Integer soHD = (Integer) row.get("SoHoaDon");
+                    Integer tongSP = (Integer) row.get("TongSanPham");
+                    Long chiTieu = (Long) row.get("TongChiTieu");
+                    
+                    if (hoTen != null && hoTen.length() > 25) {
+                        hoTen = hoTen.substring(0, 22) + "...";
+                    }
+                    
+                    if (baoGomHuy) {
+                        Integer soHDHuy = (Integer) row.get("SoHoaDonHuy");
+                        System.out.printf("%-12s %-25s %-12d %-10d %-15d %-15s%n",
+                            maKH, hoTen, soHD, soHDHuy, tongSP,
+                            FormatUtil.formatVND(chiTieu != null ? chiTieu : 0)
+                        );
+                    } else {
+                        System.out.printf("%-12s %-25s %-12d %-15d %-15s%n",
+                            maKH, hoTen, soHD, tongSP,
+                            FormatUtil.formatVND(chiTieu != null ? chiTieu : 0)
+                        );
+                    }
+                    
+                    tongChiTieu += (chiTieu != null ? chiTieu : 0);
+                    tongHoaDon += (soHD != null ? soHD : 0);
+                    tongSanPham += (tongSP != null ? tongSP : 0);
+                }
+
+                System.out.println("════════════════════════════════════════════════════════════════════════════════════════");
+                System.out.printf("📊 TỔNG KẾT: %d khách hàng | %d hóa đơn | %d sản phẩm | Tổng chi tiêu: %s%n", 
+                    result.size(), tongHoaDon, tongSanPham, FormatUtil.formatVND(tongChiTieu));
+                System.out.println();
+            }
+            
+            System.out.print("💡 Bạn có muốn xem thống kê khoảng thời gian khác? (y/n): ");
+            String choice = scanner.nextLine().trim();
+            if (!"y".equalsIgnoreCase(choice)) {
+                System.out.println("✅ Hoàn tất chức năng thống kê theo khách hàng.");
+                break;
+            }
+        }
+    }
+
+    public void thongKeHoaDonTheoPTTT() {
+        Scanner scanner = new Scanner(System.in);
+        DateTimeFormatter inputFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy"); 
+        DateTimeFormatter displayFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        while (true) {
+            LocalDate fromDate = null, toDate = null;
+            while (true) {
+                try {
+                    System.out.print("\n📅 Nhập ngày bắt đầu (dd/MM/yyyy) hoặc '0' để thoát: ");
+                    String from = scanner.nextLine().trim();
+                    
+                    if ("0".equals(from)) {
+                        System.out.println("✅ Thoát chức năng thống kê.");
+                        return;
+                    }
+                    
+                    if (from.isEmpty()) {
+                        System.out.println("❌ Ngày không được để trống!");
+                        continue;
+                    }
+
+                    fromDate = LocalDate.parse(from, inputFmt);
+                    break;
+                } catch (DateTimeParseException e) {
+                    System.out.println("❌ Định dạng ngày không hợp lệ! Vui lòng nhập theo định dạng dd/MM/yyyy (ví dụ: 01/10/2025).");
+                }
+            }
+            
+            while (true) {
+                try {
+                    System.out.print("📅 Nhập ngày kết thúc (dd/MM/yyyy): ");
+                    String to = scanner.nextLine().trim();
+                    
+                    if (to.isEmpty()) {
+                        System.out.println("❌ Ngày không được để trống!");
+                        continue;
+                    }
+
+                    toDate = LocalDate.parse(to, inputFmt);
+                    
+                    if (fromDate.isAfter(toDate)) {
+                        System.out.println("❌ Ngày bắt đầu phải trước hoặc bằng ngày kết thúc!");
+                        continue;
+                    }
+                    
+                    break;
+                } catch (DateTimeParseException e) {
+                    System.out.println("❌ Định dạng ngày không hợp lệ! Vui lòng nhập theo định dạng dd/MM/yyyy (ví dụ: 31/10/2025).");
+                }
+            }
+
+            System.out.print("💡 Tính cả hóa đơn đã hủy vào thống kê? (Y/N): ");
+            String showCancelled = scanner.nextLine().trim();
+            boolean baoGomHuy = "Y".equalsIgnoreCase(showCancelled);
+
+
+            List<Map<String, Object>> result = HoaDonDAO.thongKeHDTheoPhuongThucTT(fromDate, toDate, baoGomHuy);
+            
+            System.out.println("\n╔════════════════════════════════════════════════════════════════════════════════════════╗");
+            System.out.println("║                💳 BÁO CÁO THỐNG KÊ HÓA ĐƠN THEO PHƯƠNG THỨC THANH TOÁN                 ║");
+            System.out.println("╚════════════════════════════════════════════════════════════════════════════════════════╝");
+            System.out.println("Từ ngày: " + fromDate.format(displayFmt) + " đến ngày: " + toDate.format(displayFmt));
+            System.out.println("────────────────────────────────────────────────────────────────────────────────────────");
+
+            if (result.isEmpty()) {
+                System.out.println("⚠️ Không tìm thấy hóa đơn nào trong khoảng thời gian này.\n");
+            } else {
+                if (baoGomHuy) {
+                    System.out.printf("%-20s %-12s %-10s %-15s %-20s%n",
+                        "Phương thức", "Số HD", "HD hủy", "Tổng SP", "Doanh thu");
+                } else {
+                    System.out.printf("%-20s %-12s %-15s %-20s%n",
+                        "Phương thức", "Số HD", "Tổng SP", "Doanh thu");
+                }
+                System.out.println("────────────────────────────────────────────────────────────────────────────────────────");
+
+                int tongSoHoaDon = 0;
+                int tongSanPham = 0;
+                long tongDoanhThu = 0;
+
+                for (Map<String, Object> row : result) {
+                    String pttt = (String) row.get("PTTT");
+                    Integer soHD = (Integer) row.get("SoHoaDon");
+                    Integer tongSP = (Integer) row.get("TongSanPham");
+                    Long doanhThu = (Long) row.get("TongDoanhThu");
+                    
+                    if (baoGomHuy) {
+                        Integer soHDHuy = (Integer) row.get("SoHoaDonHuy");
+                        System.out.printf("%-20s %-12d %-10d %-15d %-20s%n",
+                            pttt,
+                            soHD,
+                            soHDHuy,
+                            tongSP,
+                            FormatUtil.formatVND(doanhThu != null ? doanhThu : 0)
+                        );
+                    } else {
+                        System.out.printf("%-20s %-12d %-15d %-20s%n",
+                            pttt,
+                            soHD,
+                            tongSP,
+                            FormatUtil.formatVND(doanhThu != null ? doanhThu : 0)
+                        );
+                    }
+                }
+
+                System.out.println("════════════════════════════════════════════════════════════════════════════════════════");
+                System.out.printf("📊 TỔNG KẾT: %d phương thức | %d hóa đơn | %d sản phẩm | Doanh thu: %s%n", 
+                    result.size(), tongSoHoaDon, tongSanPham, FormatUtil.formatVND(tongDoanhThu));
+                System.out.println();
+            }
+            System.out.print("💡 Bạn có muốn xem thống kê khoảng thời gian khác? (y/n): ");
+            String choice = scanner.nextLine().trim();
+            if (!"y".equalsIgnoreCase(choice)) {
+                System.out.println("✅ Hoàn tất chức năng thống kê theo phương thức thanh toán.");
+                break;
             }
         }
     }
