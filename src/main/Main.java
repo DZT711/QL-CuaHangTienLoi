@@ -32,11 +32,13 @@ public class Main {
             System.out.println("║                                                          ║");
             System.out.println("╚══════════════════════════════════════════════════════════╝");
             System.out.println("║               VUI LÒNG ĐĂNG NHẬP HỆ THỐNG                ║");
-            System.out.println("║                                                          ║");
+            System.out.println("                                                          ");
             System.out.print("║  Tên đăng nhập: ");
+            System.out.println("                                                          ");
             String username = scanner.nextLine();
             System.out.print("║  Mật khẩu     : ");
             String password = scanner.nextLine();
+            System.out.println("                                                          ");
             System.out.println("═══════════════════════════════════════════════════════════");
 
             /* System.out.print("\nVui lòng chờ 1 lát , hệ thống đang xác thực");
