@@ -67,7 +67,7 @@ public class QuanLyKhachHang {
                                 break;
                             case "2":
                                 System.out.println("\n╔════════════════════════════════════════════════════╗");
-                                System.out.println("║           IMPORT KHÁCH HÀNG TỪ FILE               ║");
+                                System.out.println("║           IMPORT KHÁCH HÀNG TỪ FILE                ║");
                                 System.out.println("╚════════════════════════════════════════════════════╝");
                                 /*
                                     System.out.print("→ Nhập đường dẫn file (VD: D:\\data\\khachhang.txt): ");
@@ -181,7 +181,7 @@ public class QuanLyKhachHang {
 
     public void them() {
         System.out.println("\n╔════════════════════════════════════════════════════╗");
-        System.out.println("║           THÊM KHÁCH HÀNG MỚI                     ║");
+        System.out.println("║           THÊM KHÁCH HÀNG MỚI                      ║");
         System.out.println("╚════════════════════════════════════════════════════╝");
 
         try {
@@ -226,7 +226,7 @@ public class QuanLyKhachHang {
         
         while (true) {
             System.out.println("\n╔════════════════════════════════════════════════════╗");
-            System.out.println("║           SỬA THÔNG TIN KHÁCH HÀNG                ║");
+            System.out.println("║           SỬA THÔNG TIN KHÁCH HÀNG                 ║");
             System.out.println("╚════════════════════════════════════════════════════╝");
 
             System.out.print("→ Nhập mã khách hàng cần sửa (hoặc '0' để thoát): ");
@@ -306,7 +306,7 @@ public class QuanLyKhachHang {
     
         while (true) {
             System.out.println("\n╔════════════════════════════════════════════════════╗");
-            System.out.println("║           XÓA KHÁCH HÀNG                          ║");
+            System.out.println("║           XÓA KHÁCH HÀNG                           ║");
             System.out.println("╚════════════════════════════════════════════════════╝");
             
             System.out.print("→ Nhập mã khách hàng cần xóa (hoặc '0' để thoát): ");
@@ -362,7 +362,7 @@ public class QuanLyKhachHang {
     public void timKiemTheoMa() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("\n╔════════════════════════════════════════════════════╗");
-        System.out.println("║           TÌM KHÁCH HÀNG THEO MÃ                  ║");
+        System.out.println("║           TÌM KHÁCH HÀNG THEO MÃ                   ║");
         System.out.println("╚════════════════════════════════════════════════════╝");
 
         while (true) {
@@ -400,7 +400,7 @@ public class QuanLyKhachHang {
         while (true) {
 
             System.out.println("\n╔════════════════════════════════════════════════════╗");
-            System.out.println("║           TÌM KHÁCH HÀNG THEO TÊN                 ║");
+            System.out.println("║           TÌM KHÁCH HÀNG THEO TÊN                  ║");
             System.out.println("╚════════════════════════════════════════════════════╝");
     
             System.out.print("→ Nhập tên khách hàng cần tìm (hoặc '0' để thoát): ");
@@ -458,7 +458,7 @@ public class QuanLyKhachHang {
     
         while (true) {
             System.out.println("\n╔════════════════════════════════════════════════════╗");
-            System.out.println("║        TÌM KHÁCH HÀNG THEO SỐ ĐIỆN THOẠI         ║");
+            System.out.println("║        TÌM KHÁCH HÀNG THEO SỐ ĐIỆN THOẠI           ║");
             System.out.println("╚════════════════════════════════════════════════════╝");
             
             System.out.print("→ Nhập số điện thoại (hoặc '0' để thoát): ");
@@ -494,7 +494,7 @@ public class QuanLyKhachHang {
 
     public void xuat() {
         System.out.println("\n╔════════════════════════════════════════════════════╗");
-        System.out.println("║          DANH SÁCH KHÁCH HÀNG                     ║");
+        System.out.println("║                 DANH SÁCH KHÁCH HÀNG               ║");
         System.out.println("╚════════════════════════════════════════════════════╝\n");
 
         List<KhachHangDTO> list = KhachHangDAO.getAllKhachHang();

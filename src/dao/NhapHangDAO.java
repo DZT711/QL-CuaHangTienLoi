@@ -438,9 +438,9 @@ public class NhapHangDAO {
 
         String query = """
                 SELECT nv.MaNV, nv.Ho, nv.Ten,
-                COUNT (DISTINCT pn.MaPhieu) AS soPhieu,
-                SUM (ctpn.SoLuong) AS tongSoLuong, 
-                SUM (ctpn.ThanhTien) AS tongGiaTri
+                COUNT(DISTINCT pn.MaPhieu) AS soPhieu,
+                SUM(ctpn.SoLuong) AS tongSoLuong, 
+                SUM(ctpn.ThanhTien) AS tongGiaTri
                 FROM PHIEUNHAP pn
                 JOIN NHANVIEN nv ON pn.MaNV = nv.MaNV
                 JOIN CHITIETPHIEUNHAP ctpn ON pn.MaPhieu = ctpn.MaPhieu

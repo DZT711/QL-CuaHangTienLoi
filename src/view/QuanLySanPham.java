@@ -57,7 +57,10 @@ public class QuanLySanPham {
                             System.out.println("⚠️ Đã hủy thêm sản phẩm.");
                             break;
                         }
-                        
+
+                        String MaSP = SanPhamDAO.generateMaSP();
+                        sp.setMaSP(MaSP);
+                        sp.setTrangThai("active");
 
                         if (SanPhamDAO.themSanPham(sp)) System.out.println("✅ Thêm sản phẩm thành công!");
                         else System.out.println("❌ Thêm sản phẩm thất bại! Vui lòng thử lại.");
@@ -341,7 +344,7 @@ public class QuanLySanPham {
     public void timKiemSanPhamTheoTen() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("\n╔════════════════════════════════════════════════════════════════╗");
-        System.out.println("║             TÌM KIẾM SẢN PHẨM THEO TÊN                        ║");
+        System.out.println("║             TÌM KIẾM SẢN PHẨM THEO TÊN                         ║");
         System.out.println("╚════════════════════════════════════════════════════════════════╝");
         System.out.println();
 
@@ -478,8 +481,10 @@ public class QuanLySanPham {
             }
 
             System.out.println("\n╔════════════════════════════════════════════════════════════════════════════╗");
-            System.out.println("║           TOP " + limit + " SẢN PHẨM BÁN CHẠY NHẤT                                ║");
-            System.out.println("║   Từ " + fromDate.format(displayFormatter) + " đến " + toDate.format(displayFormatter) + "                                      ║");
+            System.out.println(
+                    "║                        TOP " + limit + " SẢN PHẨM BÁN CHẠY NHẤT                       ║");
+            System.out.println("║                        Từ " + fromDate.format(displayFormatter) + " đến "
+                    + toDate.format(displayFormatter) + "                        ║");
             System.out.println("╚════════════════════════════════════════════════════════════════════════════╝");
             
             List<String> headers = List.of("Top", "Mã SP", "Tên Sản Phẩm", "Số Lượng Bán", "Doanh Thu");
