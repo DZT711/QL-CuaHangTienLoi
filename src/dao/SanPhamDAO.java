@@ -299,12 +299,12 @@ public class SanPhamDAO {
         List<Map<String, Object>> result = new ArrayList<>();
 
         String query = """
-                SELECT sp.MaSP, sp.TenSP, SUM (ct.SoLuong) AS TongSoLuongBan, SUM (ct.ThanhTien) AS DoanhThu
+                SELECT sp.MaSP, sp.TenSP, SUM(ct.SoLuong) AS TongSoLuongBan, SUM(ct.ThanhTien) AS DoanhThu
                 FROM CHITIETHOADON ct
                 JOIN HANGHOA hh ON ct.MaHang = hh.MaHang
                 JOIN SanPham sp ON sp.MaSP = hh.MaSP
                 JOIN HoaDon hd ON hd.MaHD = ct.MaHD
-                WHERE hd.NgayLapHD >= ? AND hd.NgayLapHD < ?
+                WHERE hd.ThoiGianLapHD >= ? AND hd.ThoiGianLapHD < ?
                 GROUP BY sp.MaSP, sp.TenSP
                 ORDER BY TongSoLuongBan DESC
                 LIMIT ?;        
@@ -516,20 +516,20 @@ public class SanPhamDAO {
         }
     }
 
-    public static boolean congSoLuongTon(Connection conn, String maHang, int soLuong) throws SQLException {
-        if (maHang == null || maHang.trim().isEmpty() || soLuong <= 0) {
+    public static boolean congSoLuongTon(Connection conn, String maSP, int soLuong) throws SQLException {
+        if (maSP == null || maSP.trim().isEmpty() || soLuong <= 0) {
             return false;
         }
 
         String query = """
             UPDATE SANPHAM 
             SET SoLuongTon = SoLuongTon + ? 
-            WHERE MaSP = (SELECT MaSP FROM HANGHOA WHERE MaHang = ?)        
+            WHERE MaSP = ?        
         """;
         
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, soLuong);
-            stmt.setString(2, maHang);
+            stmt.setString(2, maSP);
             int rowAffected = stmt.executeUpdate();
             return rowAffected > 0;
         }

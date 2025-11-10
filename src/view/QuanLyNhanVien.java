@@ -143,7 +143,7 @@ public class QuanLyNhanVien {
         while (true) {
             System.out.print("📝 Nhập giới tính (Nam/Nu): ");
             gioiTinh = sc.nextLine().trim();
-            if (!gioiTinh.equals("Nam") && !gioiTinh.equals("Nu")) {
+            if (!gioiTinh.equalsIgnoreCase("Nam") && !gioiTinh.equalsIgnoreCase("Nu")) {
                 System.out.println("❌ Giới tính chỉ được nhập 'Nam' hoặc 'Nu'!");
                 continue;
             }

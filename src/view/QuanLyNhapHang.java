@@ -195,7 +195,7 @@ public class QuanLyNhapHang {
         
         while (true) {
             System.out.println("\n╔════════════════════════════════════════════════════╗");
-            System.out.println("║              TẠO PHIẾU NHẬP HÀNG                  ║");
+            System.out.println("║              TẠO PHIẾU NHẬP HÀNG                   ║");
             System.out.println("╚════════════════════════════════════════════════════╝");
             
             Connection conn = null;
@@ -375,7 +375,7 @@ public class QuanLyNhapHang {
                     conn.commit();
 
                     System.out.println("\n╔════════════════════════════════════════════════════╗");
-                    System.out.println("║           TẠO PHIẾU NHẬP THÀNH CÔNG               ║");
+                    System.out.println("║           TẠO PHIẾU NHẬP THÀNH CÔNG                ║");
                     System.out.println("╚════════════════════════════════════════════════════╝");
                     System.out.println("✅ Mã phiếu: " + maPhieu);
                     System.out.println("✅ Nhà cung cấp: " + ncc.getTenNCC());
@@ -539,7 +539,7 @@ public class QuanLyNhapHang {
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("\n╔════════════════════════════════════════════════════╗");
-        System.out.println("║       TÌM PHIẾU NHẬP THEO NHÂN VIÊN              ║");
+        System.out.println("║       TÌM PHIẾU NHẬP THEO NHÂN VIÊN                ║");
         System.out.println("╚════════════════════════════════════════════════════╝");
 
         System.out.print("\n→ Nhập mã nhân viên (hoặc '0' để hủy): ");
@@ -568,7 +568,7 @@ public class QuanLyNhapHang {
         }
 
         System.out.println("\n╔════════════════════════════════════════════════════╗");
-        System.out.println("║            THÔNG TIN NHÂN VIÊN                   ║");
+        System.out.println("║            THÔNG TIN NHÂN VIÊN                     ║");
         System.out.println("╚════════════════════════════════════════════════════╝");
         System.out.println("Mã NV         : " + nv.getMaNV());
         System.out.println("Họ tên        : " + nv.getHo() + " " + nv.getTen());
@@ -578,7 +578,7 @@ public class QuanLyNhapHang {
         long tongGiaTri = pnList.stream().mapToLong(NhapHangDTO::getTongTien).sum();
 
         System.out.println("\n╔════════════════════════════════════════════════════╗");
-        System.out.println("║          DANH SÁCH PHIẾU NHẬP                    ║");
+        System.out.println("║          DANH SÁCH PHIẾU NHẬP                      ║");
         System.out.println("╚════════════════════════════════════════════════════╝");
         System.out.println("Số lượng phiếu : " + pnList.size());
         System.out.println("Tổng giá trị   : " + FormatUtil.formatVND(tongGiaTri));
@@ -689,7 +689,7 @@ public class QuanLyNhapHang {
             List<NhapHangDTO> pnList = NhapHangDAO.timPhieuNhapTheoNgay(fromDate, toDate);
 
             System.out.println("\n╔════════════════════════════════════════════════════╗");
-            System.out.println("║              KẾT QUẢ TÌM KIẾM                    ║");
+            System.out.println("║              KẾT QUẢ TÌM KIẾM                      ║");
             System.out.println("╚════════════════════════════════════════════════════╝");
             System.out.println("Khoảng thời gian: " + fromDate.format(displayFormatter) + " → " + toDate.format(displayFormatter));
 
@@ -777,12 +777,12 @@ public class QuanLyNhapHang {
                 }
 
                 System.out.println("├─────┴──────────────────────────┴──────────┴──────────┴─────────────┼─────────────┤");
-                System.out.printf("│ %-63s │ %11s │%n", "TỔNG CỘNG", FormatUtil.formatVND(pn.getTongTien()));
+                System.out.printf("│ %-65s │ %11s │%n", "TỔNG CỘNG", FormatUtil.formatVND(pn.getTongTien()));
                 System.out.println("└─────────────────────────────────────────────────────────────────────┴─────────────┘");
             }
-            System.out.println("\n╔══════════════════════════════════════════════════════════════╗");
-            System.out.printf("║ %-30s ║%n", "TỔNG TIỀN PHIẾU NHẬP: " + FormatUtil.formatVND(pn.getTongTien()));
-            System.out.println("╚══════════════════════════════════════════════════════════════╝");
+            // System.out.println("\n╔══════════════════════════════════════════════════════════════");
+            System.out.printf(" %-30s %n", "TỔNG TIỀN PHIẾU NHẬP: " + FormatUtil.formatVND(pn.getTongTien()));
+            // System.out.println("╚══════════════════════════════════════════════════════════════");
         } catch (Exception e) {
             System.err.println("❌ Lỗi khi in phiếu nhập: " + e.getMessage());
             e.printStackTrace();
@@ -821,7 +821,7 @@ public class QuanLyNhapHang {
             }
 
             System.out.println("\n╔════════════════════════════════════════════════════╗");
-            System.out.println("║          THÔNG TIN PHIẾU NHẬP HIỆN TẠI           ║");
+            System.out.println("║          THÔNG TIN PHIẾU NHẬP HIỆN TẠI             ║");
             System.out.println("╚════════════════════════════════════════════════════╝");
             System.out.println("Mã phiếu        : " + pn.getMaPhieu());
             System.out.println("Nhà cung cấp    : " + pn.getMaNCC());
@@ -869,7 +869,7 @@ public class QuanLyNhapHang {
             }
 
             System.out.println("\n╔════════════════════════════════════════════════════╗");
-            System.out.println("║              THÔNG TIN THAY ĐỔI                  ║");
+            System.out.println("║              THÔNG TIN THAY ĐỔI                    ║");
             System.out.println("╚════════════════════════════════════════════════════╝");
             if (!newMaNCC.equals(pn.getMaNCC()))
                 System.out.println("Nhà cung cấp: " + pn.getMaNCC() + " → " + newMaNCC);

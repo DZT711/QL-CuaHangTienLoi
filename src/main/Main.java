@@ -31,12 +31,15 @@ public class Main {
             System.out.println("║                                                          ║");
             System.out.println("║                                                          ║");
             System.out.println("╚══════════════════════════════════════════════════════════╝");
+            System.out.println("                                                          ");
             System.out.println("║               VUI LÒNG ĐĂNG NHẬP HỆ THỐNG                ║");
-            System.out.println("║                                                          ║");
+            System.out.println("                                                          ");
             System.out.print("║  Tên đăng nhập: ");
             String username = scanner.nextLine();
+            System.out.println("                                                          ");
             System.out.print("║  Mật khẩu     : ");
             String password = scanner.nextLine();
+            System.out.println("                                                          ");
             System.out.println("═══════════════════════════════════════════════════════════");
 
             /*
@@ -133,7 +136,7 @@ public class Main {
             System.out.println("│                                                            │");
             System.out.println("├─ HỆ THỐNG ─────────────────────────────────────────────────┤");
             System.out.println("│                                                            │");
-            System.out.println("│  [8] ➜ Quản lý tài khoản                                 │");
+            System.out.println("│  [8] ➜ Quản lý tài khoản                                   │");
             System.out.println("│  [0] ✗ Đăng xuất                                           │");
             System.out.println("│                                                            │");
             System.out.println("└────────────────────────────────────────────────────────────┘");
