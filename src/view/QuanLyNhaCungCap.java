@@ -12,7 +12,7 @@ public class QuanLyNhaCungCap {
     public void menuQuanLyNhaCungCap() {
         Scanner scanner = new Scanner(System.in);
 
-       while (true) {
+        while (true) {
             System.out.println("\n████████████████████████████████████████████████████████████████████████████████");
             System.out.println("██                                                                            ██");
             System.out.println("██                         HỆ THỐNG QUẢN LÝ NHÀ CUNG CẤP                      ██");
@@ -97,110 +97,184 @@ public class QuanLyNhaCungCap {
         }
     
     public void themNhaCungCap() {
-        Scanner sc = new Scanner(System.in);
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("\n╔════════════════════════════════════════════════════╗");
+        System.out.println("║           THÊM NHÀ CUNG CẤP MỚI                   ║");
+        System.out.println("╚════════════════════════════════════════════════════╝");
 
-        System.out.println("\n Nhập thông tin nhà cung cấp mới:");
-        // kiểm tra trống hay trùng lặp mã ncc 
-        String ma;
+        String maNCC = NhaCungCapDAO.generateMaNCC();
+        
+        String tenNCC;
         while (true) {
-            System.out.print("Mã NCC: ");
-            ma = sc.nextLine().trim();
-
-            if (ma.isEmpty()) {
-                System.out.println("  Mã NCC không được để trống!");
-                continue;
-            }
-
-            if (NhaCungCapDAO.timnccTheoMa(ma) != null) {
-                System.out.println("  Mã NCC đã tồn tại. Vui lòng nhập mã khác!");
-                continue;
-            }
-
-            break; 
-        }
-
-        String ten;
-        while (true) {
-            System.out.print("Tên NCC: ");
-            ten = sc.nextLine().trim();
+            System.out.print("→ Tên NCC: ");
+            tenNCC = scanner.nextLine().trim();
             
-            if (ten.isEmpty()) {
-                System.out.println("Tên NCC không được để trống!");
+            if (isExist(scanner, tenNCC)) return;
+
+            if (tenNCC.isEmpty()) {
+                System.out.println("  ❌ Tên NCC không được để trống!");
+                continue;
+            }
+            if (tenNCC.length() > 255) {
+                System.out.println("  ❌ Tên NCC không được quá 255 ký tự!");
+                continue;
+            }
+            if (tenNCC.matches(".*[<>\"'%;()&+].*")) {
+                System.out.println("  ❌ Tên NCC không được chứa ký tự đặc biệt!");
                 continue;
             }
             break;
         }
+        
 
-        String diaChi; 
+        String diaChi;
         while (true) {
-            System.out.print("Địa chỉ NCC: ");
-            diaChi = sc.nextLine().trim();
+            System.out.print("→ Địa chỉ: ");
+            diaChi = scanner.nextLine().trim();
 
+            if (isExist(scanner, diaChi)) return;
+            
             if (diaChi.isEmpty()) {
-                System.out.println("Địa chỉ NCC không được để trống!");
+                System.out.println("  ❌ Địa chỉ không được để trống!");
+                continue;
+            }
+            if (diaChi.length() > 255) {
+                System.out.println("  ❌ Địa chỉ không được quá 255 ký tự!");
                 continue;
             }
             break;
         }
-        // nhập và kiểm tra tính hợp lệ của số điện thoại
-        String dienThoai ;
+
+        String dienThoai;
         while (true) {
-            System.out.print("Điện thoại (9–11 số): ");
-            dienThoai = sc.nextLine().trim();
-            if (dienThoai.matches("\\d{9,11}")) break;
-            System.out.println("  Số điện thoại không hợp lệ. Vui lòng nhập lại!");
+            System.out.print("→ Điện thoại (10 số, bắt đầu bằng 0): ");
+            dienThoai = scanner.nextLine().trim();
+
+            if (isExist(scanner, dienThoai)) return;
+            
+            if (dienThoai.isEmpty()) {
+                System.out.println("  ❌ Điện thoại không được để trống!");
+                continue;
+            }
+            
+            if (!dienThoai.matches("^0\\d{9}$")) {
+                System.out.println("  ❌ Điện thoại phải là 10 chữ số và bắt đầu bằng số 0!");
+                System.out.println("     (VD: 0901234567)");
+                continue;
+            }
+            
+            
+            // Viết trong DAO thêm hàm tìm nhà cung cấp bằng số điện thoại để kiểm tra trùng
+            // if (NhaCungCapDAO.getInstance().checkDienThoaiExist(dienThoai)) {
+            //     System.out.println("  ❌ Số điện thoại đã tồn tại trong hệ thống!");
+            //     continue;
+            // }
+            
+            break;
         }
-        // Nhập và kiểm tra tính hợp lệ của email 
+
         String email;
         while (true) {
-            System.out.print("Email: ");
-            email = sc.nextLine().trim();
-            if (email.matches("^[\\w-.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) break;
-            System.out.println("  Email không hợp lệ. Vui lòng nhập lại!");
+            System.out.print("→ Email: ");
+            email = scanner.nextLine().trim();
+            
+            if (isExist(scanner, email)) return;
+
+            if (email.isEmpty()) {
+                System.out.println("  ❌ Email không được để trống!");
+                continue;
+            }
+            
+            if (email.length() > 40) {
+                System.out.println("  ❌ Email không được quá 40 ký tự!");
+                continue;
+            }
+            
+            if (!email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
+                System.out.println("  ❌ Email không đúng định dạng!");
+                System.out.println("     (VD: example@domain.com)");
+                continue;
+            }
+            
+            // Viết trong DAO thêm hàm tìm nhà cung cấp bằng email để kiểm tra trùng
+            // if (NhaCungCapDAO.getInstance().checkEmailExist(email)) {
+            //     System.out.println("  ❌ Email đã tồn tại trong hệ thống!");
+            //     continue;
+            // }
+            
+            break;
         }
 
         String trangThai;
         while (true) {
-            System.out.print("Trạng thái NCC (active / inactive): ");
-            trangThai = sc.nextLine().trim();
-            if (!trangThai.equals("active") && !trangThai.equals("inactive")) {
-                System.out.println("  Chỉ được nhập active hoặc inactive!");
+            System.out.print("→ Trạng thái (active/inactive) [Enter = active]: ");
+            String input = scanner.nextLine().trim();
+
+            if (isExist(scanner, input)) return;
+
+            if (input.isEmpty()) {
+                trangThai = "active";
+                break;
+            }
+            
+            trangThai = input.toLowerCase();
+            
+            if (trangThai.equals("active") || trangThai.equals("inactive")) break;
+            
+            System.out.println("  ❌ Chỉ được nhập 'active' hoặc 'inactive'!");
+        }
+
+        NhaCungCapDTO ncc = new NhaCungCapDTO(maNCC, tenNCC, diaChi, dienThoai, email, trangThai);
+
+        System.out.println("\n╔════════════════════════════════════════════════════════════════════╗");
+        System.out.println("║              XÁC NHẬN THÔNG TIN NHÀ CUNG CẤP                     ║");
+        System.out.println("╠════════════════════════════════════════════════════════════════════╣");
+        System.out.printf("║ Mã NCC      : %-50s ║%n", maNCC);
+        System.out.printf("║ Tên NCC     : %-50s ║%n", tenNCC);
+        System.out.printf("║ Địa chỉ     : %-50s ║%n", diaChi);
+        System.out.printf("║ Điện thoại  : %-50s ║%n", dienThoai);
+        System.out.printf("║ Email       : %-50s ║%n", email);
+        System.out.printf("║ Trạng thái  : %-50s ║%n", trangThai);
+        System.out.println("╚════════════════════════════════════════════════════════════════════╝");
+        
+        while (true) {
+            System.out.print("\n→ Xác nhận thêm nhà cung cấp? (Y/N): ");
+            String confirm = scanner.nextLine().trim().toLowerCase();
+            
+            if (confirm.isEmpty()) {
+                System.out.println("  ⚠️  Vui lòng nhập Y (có) hoặc N (không)!");
                 continue;
             }
-            break;
-        }
-
-        NhaCungCapDTO ncc = new NhaCungCapDTO(ma, ten, diaChi, dienThoai, email, trangThai);
-
-        // Xác nhận thông tin
-        System.out.println("╔════════════════════════════════════════════════════════════════════════════════════╗");
-        System.out.println("║                             XÁC NHẬN THÔNG TIN NHÀ CUNG CẤP                        ║");
-        System.out.println("╚════════════════════════════════════════════════════════════════════════════════════╝");
-        System.out.println("Mã NCC: " + ma);
-        System.out.println("Tên NCC: " + ten);
-        System.out.println("Địa chỉ: " + diaChi);
-        System.out.println("Điện thoại: " + dienThoai);
-        System.out.println("Email: " + email);
-        System.out.println("Trạng thái: " + trangThai);
-
-        System.out.print("\n Bạn có muốn thêm nhà cung cấp này? (y/n): ");
-        String confirm = sc.nextLine().trim().toLowerCase();
-
-        if (confirm.equals("y") || confirm.equals("yes")) {
-            if (NhaCungCapDAO.themNCC(ncc)) {
-                System.out.println(" Thêm nhà cung cấp thành công!");
-            } else {
-                System.out.println(" Thêm nhà cung cấp thất bại!");
+            
+            if (confirm.equals("Y")) {
+                if (NhaCungCapDAO.themNCC(ncc)) {
+                    System.out.println("✅ Thêm nhà cung cấp thành công!");
+                } else {
+                    System.out.println("❌ Thêm nhà cung cấp thất bại! Vui lòng thử lại.");
+                }
+                break;
             }
-        } else {
-            System.out.println(" Đã hủy thêm nhà cung cấp!");
+            
+            if (confirm.equals("N")) {
+                System.out.println("⚠️  Đã hủy thêm nhà cung cấp!");
+                break;
+            }
+            
+            System.out.println("  ❌ Chỉ được nhập 'Y' hoặc 'N'!");
         }
-
-        System.out.print("\n Nhấn Enter để tiếp tục...");
-        sc.nextLine();
+        System.out.print("\n→ Nhấn Enter để tiếp tục...");
+        scanner.nextLine();
     }
 
-        public void suaNhaCungCap() {
+    private boolean isExist(Scanner scanner, String input) {
+        if (input.equals("0")) {
+            System.out.println("⚠️  Đã hủy thao tác!");
+            return true;
+        }
+        return false;
+    }
+
+    public void suaNhaCungCap() {
             Scanner scanner = new Scanner(System.in);
             boolean continueWithAnotherProduct = true;
             while (continueWithAnotherProduct) {

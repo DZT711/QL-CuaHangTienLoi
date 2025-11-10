@@ -1,14 +1,14 @@
 package dto;
 
 public class ChiTietPhieuNhapDTO {
-    private String maPhieu, maSP, tenSP, donViTinh;
+    private String maPhieu, maHang, tenSP, donViTinh;
     private int soLuong, giaNhap, thanhTien;
 
     public ChiTietPhieuNhapDTO() {}
     
-    public ChiTietPhieuNhapDTO(String maPhieu, String maSP, String tenSP, String donViTinh, int soLuong, int giaNhap, int thanhTien ) {
+    public ChiTietPhieuNhapDTO(String maPhieu, String maHang, String tenSP, String donViTinh, int soLuong, int giaNhap, int thanhTien ) {
         this.maPhieu = maPhieu;
-        this.maSP = maSP;
+        this.maHang = maHang;
         this.tenSP = tenSP;
         this.donViTinh = donViTinh;
         this.soLuong = soLuong;
@@ -24,12 +24,12 @@ public class ChiTietPhieuNhapDTO {
         this.maPhieu = maPhieu;
     }
 
-    public String getMaSP() {
-        return maSP;
+    public String getMaHang() {
+        return maHang;
     }
-    
-    public void setMaSP(String maSP) {
-        this.maSP = maSP;
+
+    public void setMaHang(String maHang) {
+        this.maHang = maHang;
     }
 
     public String getTenSP() {
