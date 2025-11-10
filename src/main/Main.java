@@ -1,6 +1,7 @@
 package main;
 
 import dao.SanPhamDAO;
+import dto.sanPhamDTO;
 import dao.TaiKhoanDAO;
 import dao.NhanVienDAO;
 import dto.TaiKhoanDTO;
@@ -31,11 +32,12 @@ public class Main {
             System.out.println("║                                                          ║");
             System.out.println("║                                                          ║");
             System.out.println("╚══════════════════════════════════════════════════════════╝");
+            System.out.println("                                                          ");
             System.out.println("║               VUI LÒNG ĐĂNG NHẬP HỆ THỐNG                ║");
             System.out.println("                                                          ");
             System.out.print("║  Tên đăng nhập: ");
-            System.out.println("                                                          ");
             String username = scanner.nextLine();
+            System.out.println("                                                          ");
             System.out.print("║  Mật khẩu     : ");
             String password = scanner.nextLine();
             System.out.println("                                                          ");
