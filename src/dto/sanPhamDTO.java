@@ -2,7 +2,7 @@ package dto;
 
 import java.util.Scanner;
 import util.FormatUtil;
-import util.InputValidator;
+import util.ValidatorUtil;
 
 public class SanPhamDTO {
     private String maSP;
@@ -100,7 +100,7 @@ public class SanPhamDTO {
             System.out.print("Nhập tên sản phẩm (hoặc '0' để hủy): ");
             this.tenSP = scanner.nextLine().trim();
             if ("0".equals(this.tenSP)) return false;
-            if (!InputValidator.isValidString(this.tenSP)) {
+            if (!ValidatorUtil.isValidString(this.tenSP)) {
                 System.out.println("❌ Tên sản phẩm không hợp lệ!");
                 return false;
             }
@@ -219,7 +219,7 @@ public class SanPhamDTO {
         String newTenSP = scanner.nextLine().trim();
         if (newTenSP.equals("0"))
             return false;
-        if (!InputValidator.isValidString(newTenSP)) 
+        if (!ValidatorUtil.isValidString(newTenSP)) 
             System.out.println("❌ Tên sản phẩm không hợp lệ! Giữ nguyên tên sản phẩm.");
         else this.tenSP = newTenSP;
 
@@ -276,7 +276,7 @@ public class SanPhamDTO {
         String newMoTa = scanner.nextLine().trim();
         if (newMoTa.equals("0"))
             return false;
-        if (!InputValidator.isValidString(newMoTa)) {
+        if (!ValidatorUtil.isValidString(newMoTa)) {
             System.out.println("❌ Mô tả không hợp lệ! Giữ nguyên mô tả.");
         } else this.moTa = newMoTa;
         
