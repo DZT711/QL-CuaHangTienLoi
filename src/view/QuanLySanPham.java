@@ -4,6 +4,7 @@ import java.util.Scanner;
 import dao.SanPhamDAO;
 import dto.SanPhamDTO;
 import util.FormatUtil;
+import util.ValidatorUtil;
 import util.tablePrinter;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -164,9 +165,9 @@ public class QuanLySanPham {
                     System.out.println(
                             "    ┃ [1] ➜ Xuất tất cả sản phẩm                                         ┃");
                     System.out.println(
-                            "    ┃ [2] ➜ Thống kê sản phẩm sắp hết trong kho                          ┃");
+                            "    ┃ [2] ➜ Xuất danh sách sản phẩm còn hoạt động                        ┃");
                     System.out.println(
-                            "    ┃ [3] ➜ Thống kê top sản phẩm bán chạy nhất                          ┃");
+                            "    ┃ [3] ➜ Xuất danh sách sản phẩm ngừng hoạt động                      ┃");
                     System.out.println(
                             "    ┃ [0] ➜ Thoát                                                        ┃");
                     System.out.println(
@@ -409,31 +410,28 @@ public class QuanLySanPham {
 
     public void thongKeTopSanPhamBanChay() {
         Scanner scanner = new Scanner(System.in);
-        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("ddMMyyyy");
-        DateTimeFormatter displayFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
         try {
             LocalDate fromDate;
             while (true) {
-                System.out.print("\nNhập ngày bắt đầu (ddMMyyyy): ");
+                System.out.print("\nNhập ngày bắt đầu (dd/MM/yyyy): ");
                 String from = scanner.nextLine().trim();
                 
                 if ("0".equals(from)) {
                     System.out.println("✓ Hủy thống kê sản phẩm bán chạy.");
                     return;
                 }
+                
+                if (!ValidatorUtil.isValidateDate(from)) continue;
 
-                try {
-                    fromDate = LocalDate.parse(from, inputFormatter);
-                    break;
-                } catch (DateTimeParseException e) {
-                    System.out.println("❌ Định dạng ngày không hợp lệ. Vui lòng nhập lại.");
-                }
+                fromDate = LocalDate.parse(from, dateFormatter);
+                break;
             }
 
             LocalDate toDate;
             while (true) {
-                System.out.print("Nhập ngày kết thúc (ddMMyyyy): ");
+                System.out.print("Nhập ngày kết thúc (dd/MM/yyyy): ");
                 String to = scanner.nextLine().trim();
 
                 if ("0".equals(to)) {
@@ -441,17 +439,13 @@ public class QuanLySanPham {
                     return;
                 }
 
-                try {
-                    toDate = LocalDate.parse(to, inputFormatter);
-                    
-                    if (fromDate.isAfter(toDate)) {
-                        System.out.println("❌ Ngày kết thúc phải sau ngày bắt đầu. Vui lòng nhập lại.");
-                        continue;
-                    }
-                    break;
-                } catch (DateTimeParseException e) {
-                    System.out.println("❌ Định dạng ngày không hợp lệ. Vui lòng nhập lại.");
-                }
+                if (!ValidatorUtil.isValidateDate(to)) continue;
+
+                toDate = LocalDate.parse(to, dateFormatter);
+
+                if (!ValidatorUtil.isValidDateRange  (fromDate, toDate)) continue;
+                
+                break;
             }
 
             int limit;
@@ -483,8 +477,8 @@ public class QuanLySanPham {
             System.out.println("\n╔════════════════════════════════════════════════════════════════════════════╗");
             System.out.println(
                     "║                        TOP " + limit + " SẢN PHẨM BÁN CHẠY NHẤT                       ║");
-            System.out.println("║                        Từ " + fromDate.format(displayFormatter) + " đến "
-                    + toDate.format(displayFormatter) + "                        ║");
+            System.out.println("║                        Từ " + fromDate.format(dateFormatter) + " đến "
+                    + toDate.format(dateFormatter) + "                        ║");
             System.out.println("╚════════════════════════════════════════════════════════════════════════════╝");
             
             List<String> headers = List.of("Top", "Mã SP", "Tên Sản Phẩm", "Số Lượng Bán", "Doanh Thu");
