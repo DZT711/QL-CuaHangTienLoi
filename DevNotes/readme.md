@@ -36,7 +36,7 @@ Xây dựng hệ thống quản lý bán hàng cho cửa hàng tiện lợi, h�
 - **Lỗi thống kê sản phẩm** .  ⏳
 - **Lỗi xóa khách hàng**  xóa được nhưng sau đó xuất hiện lỗi :
 
-- **Thêm ràng buộc khi nhập ngày**: VD khi nhập `29022025` thì ngày không hợp lệ còn nhập `29022024` thì là ngày hợp lệ
+- **Thêm ràng buộc khi nhập ngày**: VD khi nhập `29022025` thì ngày không hợp lệ còn nhập `29022024` thì là ngày hợp lệ (đã fix ở sản phẩm)
 - **Thêm thoát trong khi thêm NV**:
 - **Sửa SĐT hạn chế nhập bậy như `0000000000`**
 - **Tên & Họ không chứa số & không chứa kí tự**

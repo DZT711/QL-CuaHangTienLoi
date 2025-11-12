@@ -4,6 +4,7 @@ import java.util.Scanner;
 import dao.SanPhamDAO;
 import dto.SanPhamDTO;
 import util.FormatUtil;
+import util.ValidatorUtil;
 import util.tablePrinter;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -50,23 +51,7 @@ public class QuanLySanPham {
 
             switch (choice) {
                 case 1:
-                    try {
-                        SanPhamDTO sp = new SanPhamDTO();
-                        
-                        if (!sp.nhapThongTinSanPham()) {
-                            System.out.println("⚠️ Đã hủy thêm sản phẩm.");
-                            break;
-                        }
-
-                        String MaSP = SanPhamDAO.generateMaSP();
-                        sp.setMaSP(MaSP);
-                        sp.setTrangThai("active");
-
-                        if (SanPhamDAO.themSanPham(sp)) System.out.println("✅ Thêm sản phẩm thành công!");
-                        else System.out.println("❌ Thêm sản phẩm thất bại! Vui lòng thử lại.");
-                    } catch (Exception e) {
-                        System.err.println("❌ Lỗi khi thêm sản phẩm: " + e.getMessage());
-                    }
+                    themSanPham();
                     break;
                 case 2:
                     suaSanPham();
@@ -164,9 +149,9 @@ public class QuanLySanPham {
                     System.out.println(
                             "    ┃ [1] ➜ Xuất tất cả sản phẩm                                         ┃");
                     System.out.println(
-                            "    ┃ [2] ➜ Thống kê sản phẩm sắp hết trong kho                          ┃");
+                            "    ┃ [2] ➜ Xuất danh sách sản phẩm còn hoạt động                        ┃");
                     System.out.println(
-                            "    ┃ [3] ➜ Thống kê top sản phẩm bán chạy nhất                          ┃");
+                            "    ┃ [3] ➜ Xuất danh sách sản phẩm ngừng hoạt động                      ┃");
                     System.out.println(
                             "    ┃ [0] ➜ Thoát                                                        ┃");
                     System.out.println(
@@ -206,6 +191,42 @@ public class QuanLySanPham {
         }
     }
 
+    public void themSanPham() {
+        System.out.println("\n╔════════════════════════════════════════════════════╗");
+        System.out.println("║                 THÊM SẢN PHẨM MỚI                  ║");
+        System.out.println("╚════════════════════════════════════════════════════╝");
+
+        try {
+            String MaSP = SanPhamDAO.generateMaSP();
+            System.out.println("📋 Mã sản phẩm tự động: " + MaSP + "\n");
+
+            SanPhamDTO sp = new SanPhamDTO();
+            sp.setMaSP(MaSP);
+
+            if (!sp.nhapThongTinSanPham()) {
+                System.out.println("⚠️ Đã hủy thêm sản phẩm.");
+                return;
+            }
+
+            System.out.println("\n📝 THÔNG TIN SẢN PHẨM VỪA NHẬP:");
+            sp.inThongTinSanPham();
+
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("\n→ Xác nhận thêm sản phẩm này? (Y/N): ");
+            String confirm = scanner.nextLine().trim();   
+            if (!"Y".equalsIgnoreCase(confirm)) {
+                System.out.println("❌ Đã hủy thêm sản phẩm.");
+                return;
+            }
+
+            if (SanPhamDAO.themSanPham(sp)) System.out.println("✅ Thêm sản phẩm thành công!");
+            else System.out.println("❌ Thêm sản phẩm thất bại!");
+        } catch (Exception e) {
+            System.err.println("❌ Lỗi khi thêm sản phẩm: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     public void suaSanPham() {
         Scanner scanner = new Scanner(System.in);
         while (true) {
@@ -230,7 +251,7 @@ public class QuanLySanPham {
 
             if (!sp.sua()) {
                 System.out.println("Đã hủy sửa sản phẩm.");
-                continue;
+                break;
             }
 
             System.out.println("\n Thông tin sau khi sửa:");
@@ -238,9 +259,9 @@ public class QuanLySanPham {
 
             System.out.print("\n Xác nhận lưu thay đổi? (Y/N): ");
             String confirm = scanner.nextLine().trim().toUpperCase();
-            if (!"Y".equals(confirm)) {
+            if (!"Y".equalsIgnoreCase(confirm)) {
                 System.out.println("Đã hủy lưu thay đổi.");
-                continue;
+                break;
             }
 
             if (SanPhamDAO.suaSanPham(sp)) {
@@ -257,7 +278,7 @@ public class QuanLySanPham {
     public void doiTrangThaiSanPham() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("\n════════════════════════════════════════════");
-        System.out.println("       ĐỔI TRẠNG THÁI SẢN PHẨM");
+        System.out.println("          ĐỔI TRẠNG THÁI SẢN PHẨM");
         System.out.println("════════════════════════════════════════════");
 
         System.out.print("Nhập mã sản phẩm (hoặc '0' để thoát): ");
@@ -283,8 +304,8 @@ public class QuanLySanPham {
             System.out.println("\n⚠ Sản phẩm đang ở trạng thái ngừng kinh doanh.");
             System.out.print("→ Bạn có muốn kích hoạt lại sản phẩm này? (Y/N): ");
         
-            String confirm = scanner.nextLine().trim().toUpperCase();
-            if (!"Y".equals(confirm)) {
+            String confirm = scanner.nextLine().trim();
+            if (!"Y".equalsIgnoreCase(confirm)) {
                 System.out.println("❌ Đã hủy thao tác.");
                 return;
             }
@@ -304,9 +325,9 @@ public class QuanLySanPham {
             }
             
             System.out.print("→ Xác nhận ngừng kinh doanh? (Y/N): ");
-            String confirm = scanner.nextLine().trim().toUpperCase();
+            String confirm = scanner.nextLine().trim();
             
-            if (!"Y".equals(confirm)) {
+            if (!"Y".equalsIgnoreCase(confirm)) {
                 System.out.println("❌ Đã hủy thao tác.");
                 return;
             }
@@ -344,7 +365,7 @@ public class QuanLySanPham {
     public void timKiemSanPhamTheoTen() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("\n╔════════════════════════════════════════════════════════════════╗");
-        System.out.println("║             TÌM KIẾM SẢN PHẨM THEO TÊN                         ║");
+        System.out.println("║                    TÌM KIẾM SẢN PHẨM THEO TÊN                  ║");
         System.out.println("╚════════════════════════════════════════════════════════════════╝");
         System.out.println();
 
@@ -409,31 +430,28 @@ public class QuanLySanPham {
 
     public void thongKeTopSanPhamBanChay() {
         Scanner scanner = new Scanner(System.in);
-        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("ddMMyyyy");
-        DateTimeFormatter displayFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
         try {
             LocalDate fromDate;
             while (true) {
-                System.out.print("\nNhập ngày bắt đầu (ddMMyyyy): ");
+                System.out.print("\nNhập ngày bắt đầu (dd/MM/yyyy): ");
                 String from = scanner.nextLine().trim();
                 
                 if ("0".equals(from)) {
                     System.out.println("✓ Hủy thống kê sản phẩm bán chạy.");
                     return;
                 }
+                
+                if (!ValidatorUtil.isValidateDate(from)) continue;
 
-                try {
-                    fromDate = LocalDate.parse(from, inputFormatter);
-                    break;
-                } catch (DateTimeParseException e) {
-                    System.out.println("❌ Định dạng ngày không hợp lệ. Vui lòng nhập lại.");
-                }
+                fromDate = LocalDate.parse(from, dateFormatter);
+                break;
             }
 
             LocalDate toDate;
             while (true) {
-                System.out.print("Nhập ngày kết thúc (ddMMyyyy): ");
+                System.out.print("Nhập ngày kết thúc (dd/MM/yyyy): ");
                 String to = scanner.nextLine().trim();
 
                 if ("0".equals(to)) {
@@ -441,17 +459,13 @@ public class QuanLySanPham {
                     return;
                 }
 
-                try {
-                    toDate = LocalDate.parse(to, inputFormatter);
-                    
-                    if (fromDate.isAfter(toDate)) {
-                        System.out.println("❌ Ngày kết thúc phải sau ngày bắt đầu. Vui lòng nhập lại.");
-                        continue;
-                    }
-                    break;
-                } catch (DateTimeParseException e) {
-                    System.out.println("❌ Định dạng ngày không hợp lệ. Vui lòng nhập lại.");
-                }
+                if (!ValidatorUtil.isValidateDate(to)) continue;
+
+                toDate = LocalDate.parse(to, dateFormatter);
+
+                if (!ValidatorUtil.isValidDateRange  (fromDate, toDate)) continue;
+                
+                break;
             }
 
             int limit;
@@ -483,8 +497,8 @@ public class QuanLySanPham {
             System.out.println("\n╔════════════════════════════════════════════════════════════════════════════╗");
             System.out.println(
                     "║                        TOP " + limit + " SẢN PHẨM BÁN CHẠY NHẤT                       ║");
-            System.out.println("║                        Từ " + fromDate.format(displayFormatter) + " đến "
-                    + toDate.format(displayFormatter) + "                        ║");
+            System.out.println("║                        Từ " + fromDate.format(dateFormatter) + " đến "
+                    + toDate.format(dateFormatter) + "                        ║");
             System.out.println("╚════════════════════════════════════════════════════════════════════════════╝");
             
             List<String> headers = List.of("Top", "Mã SP", "Tên Sản Phẩm", "Số Lượng Bán", "Doanh Thu");

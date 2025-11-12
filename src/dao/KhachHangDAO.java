@@ -6,6 +6,8 @@ import java.util.List;
 import dto.KhachHangDTO;
 import util.FormatUtil;
 import util.JDBCUtil;
+import util.ValidatorUtil;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,6 +16,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.time.DateTimeException;
 import java.time.LocalDate;
+import java.time.Period;
 import java.time.format.DateTimeFormatter;
 
 public class KhachHangDAO {
@@ -302,9 +305,16 @@ public class KhachHangDAO {
             new InputStreamReader(new FileInputStream(filePath), StandardCharsets.UTF_8))) {
 
             String line;
+            boolean isFirstLine = true;
 
             while ((line = reader.readLine()) != null) {
                 lineNumber++;
+
+                if (isFirstLine && line.startsWith("\uFEFF")) {
+                    line = line.substring(1);
+                }
+                isFirstLine = false;
+                
                 line = line.trim();
                 if (line.isEmpty()) continue;
 
@@ -330,6 +340,24 @@ public class KhachHangDAO {
                         skipped++;
                         continue;
                     }
+                    
+                    if (kiemTraMaKH(maKH)) {
+                        System.out.println("⚠️  Dòng " + lineNumber + ": Mã KH đã tồn tại (" + maKH + ")");
+                        skipped++;
+                        continue;
+                    }
+
+                    if (!ValidatorUtil.isValidString(ho)) {
+                        System.out.println("❌ Dòng " + lineNumber + ": Họ khách hàng không hợp lệ: " + ho);
+                        skipped++;
+                        continue;
+                    }
+
+                    if (!ValidatorUtil.isValidString(ten)) {
+                        System.out.println("❌ Dòng " + lineNumber + ": Tên khách hàng không hợp lệ: " + ten);
+                        skipped++;
+                        continue;
+                    }
 
                     String lower = gioiTinh.toLowerCase();
                     if (lower.equals("nam")) {
@@ -344,35 +372,52 @@ public class KhachHangDAO {
 
                     LocalDate ngaySinh = null;
                     if (!ngaySinhStr.isEmpty()) {
-                        try {
-                            ngaySinh = LocalDate.parse(ngaySinhStr);
-                        } catch (DateTimeException e) {
-                            try {
-                                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-                                ngaySinh = LocalDate.parse(ngaySinhStr, formatter);
-                            }  catch (DateTimeException ex) {
-                                System.out.println("❌ Dòng " + lineNumber + ": Ngày sinh không hợp lệ: " + ngaySinhStr);
-                                ngaySinh = null;
-                            }
+                        if (!ValidatorUtil.isValidateDate(ngaySinhStr)) {
+                            System.out.println("❌ Dòng " + lineNumber + ": Ngày sinh không hợp lệ: " + ngaySinhStr);
+                            skipped++;
+                            continue;
+                        }
+
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                        ngaySinh = LocalDate.parse(ngaySinhStr, formatter);
+
+                        if (ngaySinh.isAfter(LocalDate.now())) {
+                            System.out.println("❌ Dòng " + lineNumber + ": Ngày sinh không được lớn hơn ngày hiện tại: " + ngaySinhStr);
+                            skipped++;
+                            continue;
+                        }
+
+                        int tuoi = Period.between(ngaySinh, LocalDate.now()).getYears();
+                        if (tuoi < 0 || tuoi > 100) {
+                            System.out.println("❌ Dòng " + lineNumber + ": Tuổi khách hàng không hợp lệ: " + tuoi);
+                            skipped++;
+                            continue;
                         }
                     }
 
-                    if (diaChi.isEmpty()) diaChi = null;
-
-                    if (kiemTraMaKH(maKH)) {
-                        System.out.println("⚠️  Dòng " + lineNumber + ": Mã KH đã tồn tại (" + maKH + ")");
+                    if (dienThoai.isEmpty() || !ValidatorUtil.isValidPhoneNumber(dienThoai.replaceAll("\\s", ""))) {
+                        System.out.println("❌ Dòng " + lineNumber + ": Số điện thoại không hợp lệ: " + dienThoai);
                         skipped++;
                         continue;
                     }
-
-                    KhachHangDTO existing = timKhachHangTheoDienThoai(dienThoai);
+                    KhachHangDTO existing = timKhachHangTheoDienThoai(dienThoai.replaceAll("\\s", ""));
                     if (existing != null) {
                         System.out.println("⚠️  Dòng " + lineNumber + ": SĐT đã tồn tại (" + dienThoai + ")");
                         skipped++;
                         continue;
                     }
+                    
+                    if (!diaChi.isEmpty()) {
+                        if (!ValidatorUtil.isValidAddress(diaChi)) {
+                            System.out.println("❌ Dòng " + lineNumber + ": Địa chỉ không hợp lệ: " + diaChi);
+                            skipped++;
+                            continue;
+                        }
+                    } else {
+                        diaChi = null;
+                    }
 
-                    KhachHangDTO kh = new KhachHangDTO(maKH, ho, ten, gioiTinh, ngaySinh, diaChi, dienThoai);
+                    KhachHangDTO kh = new KhachHangDTO(maKH, ho, ten, gioiTinh, ngaySinh, diaChi, dienThoai.replaceAll("\\s", ""));
 
                     if (themKhachHang(kh)) {
                         added++;
@@ -388,7 +433,7 @@ public class KhachHangDAO {
             }
 
             System.out.println("\n╔═══════════════════════════════════════════════════╗");
-            System.out.println("║           KẾT QUẢ IMPORT KHÁCH HÀNG              ║");
+            System.out.println("║            KẾT QUẢ IMPORT KHÁCH HÀNG              ║");
             System.out.println("╠═══════════════════════════════════════════════════╣");
             System.out.printf("║  📁 File           : %-28s║\n", new File(filePath).getName());
             System.out.printf("║  📊 Tổng dòng đọc  : %-28d║\n", lineNumber);

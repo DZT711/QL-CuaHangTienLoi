@@ -2,6 +2,7 @@ package dto;
 
 import java.util.Scanner;
 import util.FormatUtil;
+import util.ValidatorUtil;
 
 public class SanPhamDTO {
     private String maSP;
@@ -98,12 +99,12 @@ public class SanPhamDTO {
         try {
             System.out.print("Nhập tên sản phẩm (hoặc '0' để hủy): ");
             this.tenSP = scanner.nextLine().trim();
-            if ("0".equals(this.tenSP))
-                return false;
-            if ("0".equals(this.tenSP) || this.tenSP.isEmpty()) {
-                System.out.println("❌ Tên sản phẩm không được để trống!");
+            if ("0".equals(this.tenSP)) return false;
+            if (!ValidatorUtil.isValidString(this.tenSP)) {
+                System.out.println("❌ Tên sản phẩm không hợp lệ!");
                 return false;
             }
+            
 
             while (true) {
                 System.out.print("Nhập loại sản phẩm ('0' để hủy): ");
@@ -144,8 +145,7 @@ public class SanPhamDTO {
             while (true) {
                 System.out.print("Nhập giá bán (hoặc '0' để hủy): ");
                 String input = scanner.nextLine().trim();
-                if ("0".equals(input))
-                    return false;
+                if ("0".equals(input)) return false;
 
                 try {
                     this.giaBan = Integer.parseInt(input);
@@ -157,7 +157,7 @@ public class SanPhamDTO {
                     System.out.println("❌ Vui lòng nhập số!");
                 }
             }
-            return true; // Nhập thành công
+            return true; 
         } catch (Exception e) {
             System.err.println("❌ Lỗi không mong muốn: " + e.getMessage());
             return false;
@@ -215,14 +215,16 @@ public class SanPhamDTO {
         System.out.println("(Nhấn Enter để giữ nguyên, nhập '0' để hủy)");
         System.out.println();
 
-        System.out.println("Sửa tên sản phẩm: ");
+        System.out.print("Sửa tên sản phẩm: ");
         String newTenSP = scanner.nextLine().trim();
         if (newTenSP.equals("0"))
             return false;
-        if (!newTenSP.isEmpty())
-            this.tenSP = newTenSP;
+        if (!ValidatorUtil.isValidString(newTenSP)) 
+            System.out.println("❌ Tên sản phẩm không hợp lệ! Giữ nguyên tên sản phẩm.");
+        else this.tenSP = newTenSP;
 
-        System.out.println("Sửa loại sản phẩm (1-10): ");
+
+        System.out.print("Sửa loại sản phẩm (1-10): ");
         String inputLoai = scanner.nextLine().trim();
         if (inputLoai.equals("0"))
             return false;
@@ -238,7 +240,7 @@ public class SanPhamDTO {
             }
         }
 
-        System.out.println("Sửa đơn vị tính (1-11): ");
+        System.out.print("Sửa đơn vị tính (1-11): ");
         String inputDonVi = scanner.nextLine().trim();
         if (inputDonVi.equals("0"))
             return false;
@@ -254,7 +256,7 @@ public class SanPhamDTO {
             }
         }
 
-        System.out.println("Sửa giá bán: ");
+        System.out.print("Sửa giá bán: ");
         String inputGia = scanner.nextLine().trim();
         if (inputGia.equals("0"))
             return false;
@@ -270,14 +272,16 @@ public class SanPhamDTO {
             }
         }
 
-        System.out.println("Sửa mô tả: ");
+        System.out.print("Sửa mô tả: ");
         String newMoTa = scanner.nextLine().trim();
         if (newMoTa.equals("0"))
             return false;
-        if (!newMoTa.isEmpty())
-            this.moTa = newMoTa;
+        if (!ValidatorUtil.isValidString(newMoTa)) {
+            System.out.println("❌ Mô tả không hợp lệ! Giữ nguyên mô tả.");
+        } else this.moTa = newMoTa;
+        
 
-        System.out.println("Sửa trạng thái (active / inactive): ");
+        System.out.print("Sửa trạng thái (active / inactive): ");
         String newTrangThai = scanner.nextLine().trim().toLowerCase();
         if (newTrangThai.equals("0"))
             return false;
