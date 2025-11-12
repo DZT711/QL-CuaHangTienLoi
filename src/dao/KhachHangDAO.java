@@ -435,10 +435,10 @@ public class KhachHangDAO {
             System.out.println("\n╔═══════════════════════════════════════════════════╗");
             System.out.println("║            KẾT QUẢ IMPORT KHÁCH HÀNG              ║");
             System.out.println("╠═══════════════════════════════════════════════════╣");
-            System.out.printf("║  📁 File           : %-28s║\n", new File(filePath).getName());
-            System.out.printf("║  📊 Tổng dòng đọc  : %-28d║\n", lineNumber);
-            System.out.printf("║  ✅ Thêm thành công: %-28d║\n", added);
-            System.out.printf("║  ⚠️  Bỏ qua        : %-28d║\n", skipped);
+            System.out.printf("║  📁 File           : %-29s║\n", new File(filePath).getName());
+            System.out.printf("║  📊 Tổng dòng đọc  : %-29d║\n", lineNumber);
+            System.out.printf("║  ✅ Thêm thành công: %-29d║\n", added);
+            System.out.printf("║  ⚠️  Bỏ qua         : %-29d║\n", skipped);
             System.out.println("╚═══════════════════════════════════════════════════╝");
 
         } catch (IOException e) {
