@@ -356,7 +356,7 @@ public class QuanLyTaiKhoan {
     private void xemDanhSachTaiKhoan() {
         System.out.println("\n" + "═".repeat(80));
         System.out
-                .println("📋                              DANH SÁCH TÀI KHOẢN                                     📋");
+                .println("📋                              DANH SÁCH TÀI KHOẢN                            📋");
         System.out.println("═".repeat(80));
 
         // Yêu cầu mật khẩu Admin để xem thông tin chi tiết
@@ -455,7 +455,7 @@ public class QuanLyTaiKhoan {
     private void datLaiMatKhau() {
         System.out.println("\n" + "═".repeat(80));
         System.out.println(
-                "🔄                              ĐẶT LẠI MẬT KHẨU TÀI KHOẢN                                🔄");
+                "🔄                              ĐẶT LẠI MẬT KHẨU TÀI KHOẢN                       🔄");
         System.out.println("═".repeat(80));
 
         System.out.println("⚠️  CHỨC NĂNG ADMIN: Đặt lại mật khẩu cho bất kỳ tài khoản nào");
@@ -575,7 +575,7 @@ public class QuanLyTaiKhoan {
     // ================ TÌM KIẾM TÀI KHOẢN ==================
     private void timKiemTaiKhoan() {
         System.out.println("\n" + "═".repeat(80));
-        System.out.println("🔍                              TÌM KIẾM TÀI KHOẢN                                     🔍");
+        System.out.println("🔍                              TÌM KIẾM TÀI KHOẢN                            🔍");
         System.out.println("═".repeat(80));
 
         System.out.println("🔍 CHỨC NĂNG ADMIN: Tìm kiếm tài khoản theo từ khóa");
