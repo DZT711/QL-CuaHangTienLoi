@@ -359,7 +359,7 @@ public class SanPhamDAO {
             
             try (ResultSet rs = stmt.executeQuery()) {
                 System.out.println("\n╔════════════════════════════════════════════════════════════════════════════════════════════╗");
-                System.out.println("║              DANH SÁCH SẢN PHẨM SẮP HẾT TỒN KHO (≤ " + soLuong + " sản phẩm)                          ║");
+                System.out.println("║                  DANH SÁCH SẢN PHẨM SẮP HẾT TỒN KHO (≤ " + soLuong + " sản phẩm)                      ║");
                 System.out.println("╠════════════╤══════════════════════╤══════════════════╤══════════════════╤══════════════════╣");
                 System.out.printf("║ %-10s │ %-20s │ %-16s │ %-16s │ %-16s ║\n",
                         "MÃ SP", "TÊN SẢN PHẨM", "LOẠI", "SỐ LƯỢNG TỒN", "GIÁ BÁN");

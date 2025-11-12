@@ -37,57 +37,15 @@ Xây dựng hệ thống quản lý bán hàng cho cửa hàng tiện lợi, h�
 ---
 
 ## Sản Phẩm (SanPham)
-
-### ✅ Hoàn thành
-
-- Kiếm được tên sản phẩm bằng tiếng Việt
-- Thêm ràng buộc khi nhập ngày (29/02 năm nhuận hợp lệ, 31/02 không hợp lệ)
-- Menu sửa sản phẩm (thêm / sửa / đổi trạng thái)
-- Đổi trạng thái sản phẩm từ `inactive → active`
-
-### ⏳ Cần làm (ưu tiên)
-
-- **[CAO]** Fix lỗi `No operations allowed after connection closed` khi xuất danh sách sản phẩm
-  - Lỗi: DAO method không giữ Connection mở khi trả List
-  - Fix: dùng try-with-resources, map ResultSet → DTO trước khi close Connection
-- **[CAO]** Lỗi thống kê sản phẩm (thống kê theo loại / bán chạy)
-- **[TRUNG]** Thống nhất 1 ngôn ngữ cho data: loại bỏ `active/inactive` → `có sẵn/hết hàng/vô hiệu hóa`
-- **[TRUNG]** Format bảng danh sách sản phẩm (đồng bộ với bảng khác)
-- **[THẤP]** HSD sản phẩm tối thiểu 1 tháng kể từ ngày nhập
-
-### Ghi chú
-
-- Dùng cột `TrangThai` thay vì xóa thật
-- NSX không được vượt quá ngày tạo phiếu nhập
+- Format lại table thống kê sản phẩm sắp hết trong kho
+- HSD sản phẩm tối thiểu 1 tháng kể từ ngày nhập (hàng hóa)
+- NSX không được vượt quá ngày tạo phiếu nhập (hàng hóa)
 
 ---
 
 ## Khách Hàng (KhachHang)
+-- format lại phần header khi xuất danh sách khách hàng, thêm cột trạng thái
 
-### ✅ Hoàn thành
-
-- Menu khách hàng cơ bản
-- Xác nhận trước khi xóa / chỉnh sửa
-
-### ⏳ Cần làm (ưu tiên)
-
-- **[CAO]** Lỗi thêm danh sách khách hàng: `FileNotFoundException: data\khachhang.txt`
-  - Nguyên nhân: thư mục `data/` không tồn tại
-  - Fix: tạo thư mục `data/` trong project root; kiểm tra đường dẫn absolute
-- **[CAO]** Fix lỗi xóa khách hàng (xuất hiện lỗi sau khi xóa)
-  - Thêm cột `Status` thay vì xóa thực sự
-- **[TRUNG]** Thống nhất giao diện cho các kết quả tìm kiếm khách hàng
-- **[TRUNG]** Kiểm tra input Mã KH, Tên (không chứa số / ký tự đặc biệt)
-- **[TRUNG]** Tuổi KH tối thiểu 5 (năm sinh tối đa 2019)
-- **[THẤP]** Địa chỉ không chứa ký tự đặc biệt (ngoại trừ `\`, `,`, `.`)
-
-### Ghi chú
-
-- Scanner exception khi input sai: `java.util.NoSuchElementException`
-  - Fix: đặt check `hasNextInt()` trước `nextInt()`
-- Import file: kiểm tra encoding UTF-8
-
----
 
 ## Nhân Viên (NhanVien)
 
