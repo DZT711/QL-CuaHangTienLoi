@@ -209,12 +209,7 @@ public class SanPhamDTO {
 
     public boolean sua() {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("═══════════════════════════════════════════════");
-        System.out.println("       SỬA THÔNG TIN SẢN PHẨM: " + maSP);
-        System.out.println("═══════════════════════════════════════════════");
-        System.out.println("(Nhấn Enter để giữ nguyên, nhập '0' để hủy)");
-        System.out.println();
-
+        
         System.out.print("Sửa tên sản phẩm: ");
         String newTenSP = scanner.nextLine().trim();
         if (newTenSP.equals("0"))

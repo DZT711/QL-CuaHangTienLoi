@@ -186,7 +186,7 @@ public class QuanLyKhachHang {
             }
             
             System.out.println("\n📝 THÔNG TIN KHÁCH HÀNG VỪA NHẬP:");
-            hienThiThongTinKhachHang(kh);
+            kh.inThongTinKhachHang();
             
             Scanner scanner = new Scanner(System.in);
             System.out.print("\n→ Xác nhận thêm khách hàng? (Y/N): ");
@@ -212,82 +212,64 @@ public class QuanLyKhachHang {
 
     public void sua() {
         Scanner scanner = new Scanner(System.in);
+        System.out.println("\n╔════════════════════════════════════════════════════╗");
+        System.out.println("║             SỬA THÔNG TIN KHÁCH HÀNG               ║");
+        System.out.println("╚════════════════════════════════════════════════════╝");
         
         while (true) {
-            System.out.println("\n╔════════════════════════════════════════════════════╗");
-            System.out.println("║           SỬA THÔNG TIN KHÁCH HÀNG                 ║");
-            System.out.println("╚════════════════════════════════════════════════════╝");
 
             System.out.print("→ Nhập mã khách hàng cần sửa (hoặc '0' để thoát): ");
             String maKH = scanner.nextLine().trim();
             
             if ("0".equals(maKH)) {
-                System.out.println("✓ Thoát sửa khách hàng.");
+                System.out.println("✓ Thoát chức năng sửa khách hàng.");
                 break;
             }
 
-            if (!KhachHangDAO.kiemTraMaKH(maKH)) {
-                System.out.println("❌ Mã khách hàng không tồn tại! Vui lòng nhập lại.");
+            if (maKH.isEmpty()) {
+                System.out.println("❌ Mã khách hàng không được để trống!");
                 continue;
             }
             
             KhachHangDTO kh = KhachHangDAO.timKhachHangTheoMa(maKH);
             if (kh == null) {
-                System.out.println("❌ Không thể tải thông tin khách hàng!");
+                System.out.println("❌ Mã khách hàng không tồn tại!");
+                System.out.print("Bạn có muốn thử lại không? (Y/N): ");
+                if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) break;
                 continue;
             }
 
             System.out.println("\n📝 THÔNG TIN HIỆN TẠI:");
-            hienThiThongTinKhachHang(kh);
+            kh.inThongTinKhachHang();
             
-            System.out.println("\n📝 NHẬP THÔNG TIN MỚI:");
             if (!kh.suaThongTinKhachHang()) {
                 System.out.println("⚠️  Đã hủy sửa khách hàng.");
-                continue;
+                System.out.print("\n→ Bạn có muốn sửa khách hàng khác? (Y/N): ");
+                if (!"Y".equalsIgnoreCase(scanner.nextLine().trim()))
+                break;
             }
 
             System.out.println("\n📝 THÔNG TIN SAU KHI SỬA:");
-            hienThiThongTinKhachHang(kh);
+            kh.inThongTinKhachHang();
             
-            System.out.print("\n→ Xác nhận cập nhật? (Y/N): ");
+            System.out.print("\n→ Xác nhận lưu thay đổi? (Y/N): ");
             String confirm = scanner.nextLine().trim().toUpperCase();
-            
             if (!"Y".equals(confirm)) {
                 System.out.println("⚠️  Đã hủy cập nhật.");
+                System.out.print("\n→ Bạn có muốn sửa khách hàng khác? (Y/N): ");
+                if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) break;
                 continue;
             }
             
             if (KhachHangDAO.suaKhachHang(kh)) {
-                System.out.println("\n✅ Sửa khách hàng thành công!");
+                System.out.println("\n✅ Cập nhật khách hàng thành công!");
             } else {
-                System.out.println("\n❌ Sửa khách hàng thất bại!");
+                System.out.println("\n❌ Cập nhật khách hàng thất bại!");
             }
             
             System.out.print("\n→ Bạn có muốn sửa khách hàng khác? (Y/N): ");
-            String choice = scanner.nextLine().trim().toUpperCase();
-            if (!"Y".equals(choice)) break;
+            if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) break;
         }
-    }
-
-    private void hienThiThongTinKhachHang(KhachHangDTO kh) {
-        System.out.println("┌────────────────────────────────────────────────────┐");
-        System.out.printf("│ %-18s : %-28s │\n", "Mã KH", kh.getMaKH());
-        System.out.printf("│ %-18s : %-28s │\n", "Họ tên", kh.getHo() + " " + kh.getTen());
-        System.out.printf("│ %-18s : %-28s │\n", "Giới tính", kh.getGioiTinh());
-        
-        String ngaySinhStr = (kh.getNgaySinh() != null) ? 
-                            kh.getNgaySinh().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : 
-                            "(Chưa cập nhật)";
-        System.out.printf("│ %-18s : %-28s │\n", "Ngày sinh", ngaySinhStr);
-        
-
-        String diaChiStr = (kh.getDiaChi() != null && !kh.getDiaChi().isEmpty()) ? 
-                        kh.getDiaChi() : 
-                        "(Chưa cập nhật)";
-        System.out.printf("│ %-18s : %-28s │\n", "Địa chỉ", diaChiStr);
-        
-        System.out.printf("│ %-18s : %-28s │\n", "Điện thoại", kh.getDienThoai());
-        System.out.println("└────────────────────────────────────────────────────┘");
     }
 
     public void xoa() {
@@ -295,7 +277,7 @@ public class QuanLyKhachHang {
     
         while (true) {
             System.out.println("\n╔════════════════════════════════════════════════════╗");
-            System.out.println("║           XÓA KHÁCH HÀNG                           ║");
+            System.out.println("║                    XÓA KHÁCH HÀNG                  ║");
             System.out.println("╚════════════════════════════════════════════════════╝");
             
             System.out.print("→ Nhập mã khách hàng cần xóa (hoặc '0' để thoát): ");
@@ -318,7 +300,7 @@ public class QuanLyKhachHang {
             }
             
             System.out.println("\n⚠️  THÔNG TIN KHÁCH HÀNG SẼ BỊ XÓA:");
-            hienThiThongTinKhachHang(kh);
+            kh.inThongTinKhachHang();
             
             System.out.print("\n⚠️  Bạn có CHẮC CHẮN muốn xóa khách hàng này? (YES/NO): ");
             String confirm1 = scanner.nextLine().trim().toUpperCase();
@@ -351,7 +333,7 @@ public class QuanLyKhachHang {
     public void timKiemTheoMa() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("\n╔════════════════════════════════════════════════════╗");
-        System.out.println("║           TÌM KHÁCH HÀNG THEO MÃ                   ║");
+        System.out.println("║                TÌM KHÁCH HÀNG THEO MÃ              ║");
         System.out.println("╚════════════════════════════════════════════════════╝");
 
         while (true) {
@@ -372,7 +354,7 @@ public class QuanLyKhachHang {
     
             if (kh != null) {
                 System.out.println("\n✅ Tìm thấy khách hàng: " + maKH);
-                hienThiThongTinKhachHang(kh);
+                kh.inThongTinKhachHang();
             } else {
                 System.out.println("❌ Không tìm thấy khách hàng với mã: " + maKH);
             }
@@ -389,7 +371,7 @@ public class QuanLyKhachHang {
         while (true) {
 
             System.out.println("\n╔════════════════════════════════════════════════════╗");
-            System.out.println("║           TÌM KHÁCH HÀNG THEO TÊN                  ║");
+            System.out.println("║               TÌM KHÁCH HÀNG THEO TÊN              ║");
             System.out.println("╚════════════════════════════════════════════════════╝");
     
             System.out.print("→ Nhập tên khách hàng cần tìm (hoặc '0' để thoát): ");
@@ -447,7 +429,7 @@ public class QuanLyKhachHang {
     
         while (true) {
             System.out.println("\n╔════════════════════════════════════════════════════╗");
-            System.out.println("║        TÌM KHÁCH HÀNG THEO SỐ ĐIỆN THOẠI           ║");
+            System.out.println("║          TÌM KHÁCH HÀNG THEO SỐ ĐIỆN THOẠI         ║");
             System.out.println("╚════════════════════════════════════════════════════╝");
             
             System.out.print("→ Nhập số điện thoại (hoặc '0' để thoát): ");
@@ -470,7 +452,7 @@ public class QuanLyKhachHang {
                 System.out.println("\n❌ Không tìm thấy khách hàng với số điện thoại: " + soDienThoai);
             } else {
                 System.out.println("\n✅ Tìm thấy khách hàng với số điện thoại: " + soDienThoai);
-                hienThiThongTinKhachHang(kh);
+                kh.inThongTinKhachHang();
             }
             
             System.out.print("\n→ Tìm khách hàng khác? (Y/N): ");

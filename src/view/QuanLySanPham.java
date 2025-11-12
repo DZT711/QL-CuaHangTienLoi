@@ -229,39 +229,54 @@ public class QuanLySanPham {
 
     public void suaSanPham() {
         Scanner scanner = new Scanner(System.in);
+        System.out.println("\n╔════════════════════════════════════════════════════╗");
+        System.out.println("║               SỬA THÔNG TIN SẢN PHẨM               ║");
+        System.out.println("╚════════════════════════════════════════════════════╝");
+
         while (true) {
-            System.out.print("Nhập mã sản phẩm cần sửa: ");
+
+            System.out.print("-> Nhập mã sản phẩm cần sửa (hoặc '0' để thoát): ");
             String maSP = scanner.nextLine().trim();
+
             if (maSP.equals("0")) {
                 System.out.println("Thoát chức năng sửa sản phẩm.");
                 break;
             }
 
+            if (maSP.isEmpty()) {
+                System.out.println("❌ Mã sản phẩm không được để trống!");
+                continue;
+            }
+
             SanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
 
             if (sp == null) {
-                System.out.println("❌ Không tìm thấy sản phẩm với mã: " + maSP);
+                System.out.println("❌ Mã sản phẩm không tồn tại!");
                 System.out.print("Bạn có muốn thử lại không? (Y/N): ");
                 if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) break;
                 continue;
             }
 
-            System.out.println("\n Thông tin sản phẩm hiện tại: ");
+            System.out.println("\n📝 THÔNG TIN HIỆN TẠI:");
             sp.inThongTinSanPham();
 
             if (!sp.sua()) {
                 System.out.println("Đã hủy sửa sản phẩm.");
-                break;
+                System.out.print("\n→ Bạn có muốn sửa sản phẩm khác? (Y/N): ");
+                if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) break;
+                continue;
             }
 
-            System.out.println("\n Thông tin sau khi sửa:");
+            System.out.println("\n📝 THÔNG TIN SAU KHI SỬA:");
             sp.inThongTinSanPham();
 
-            System.out.print("\n Xác nhận lưu thay đổi? (Y/N): ");
+            System.out.print("\n→ Xác nhận lưu thay đổi? (Y/N): ");
             String confirm = scanner.nextLine().trim().toUpperCase();
-            if (!"Y".equalsIgnoreCase(confirm)) {
-                System.out.println("Đã hủy lưu thay đổi.");
-                break;
+            if (!"Y".equals(confirm)) {
+                System.out.println("⚠️  Đã hủy cập nhật.");
+                System.out.print("\n→ Bạn có muốn sửa sản phẩm khác? (Y/N): ");
+                if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) break;
+                continue;
             }
 
             if (SanPhamDAO.suaSanPham(sp)) {
