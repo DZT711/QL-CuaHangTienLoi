@@ -230,7 +230,7 @@ public class QuanLySanPham {
 
             if (!sp.sua()) {
                 System.out.println("Đã hủy sửa sản phẩm.");
-                continue;
+                break;
             }
 
             System.out.println("\n Thông tin sau khi sửa:");
@@ -238,9 +238,9 @@ public class QuanLySanPham {
 
             System.out.print("\n Xác nhận lưu thay đổi? (Y/N): ");
             String confirm = scanner.nextLine().trim().toUpperCase();
-            if (!"Y".equals(confirm)) {
+            if (!"Y".equalsIgnoreCase(confirm)) {
                 System.out.println("Đã hủy lưu thay đổi.");
-                continue;
+                break;
             }
 
             if (SanPhamDAO.suaSanPham(sp)) {
@@ -257,7 +257,7 @@ public class QuanLySanPham {
     public void doiTrangThaiSanPham() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("\n════════════════════════════════════════════");
-        System.out.println("       ĐỔI TRẠNG THÁI SẢN PHẨM");
+        System.out.println("          ĐỔI TRẠNG THÁI SẢN PHẨM");
         System.out.println("════════════════════════════════════════════");
 
         System.out.print("Nhập mã sản phẩm (hoặc '0' để thoát): ");
@@ -283,8 +283,8 @@ public class QuanLySanPham {
             System.out.println("\n⚠ Sản phẩm đang ở trạng thái ngừng kinh doanh.");
             System.out.print("→ Bạn có muốn kích hoạt lại sản phẩm này? (Y/N): ");
         
-            String confirm = scanner.nextLine().trim().toUpperCase();
-            if (!"Y".equals(confirm)) {
+            String confirm = scanner.nextLine().trim();
+            if (!"Y".equalsIgnoreCase(confirm)) {
                 System.out.println("❌ Đã hủy thao tác.");
                 return;
             }
@@ -304,9 +304,9 @@ public class QuanLySanPham {
             }
             
             System.out.print("→ Xác nhận ngừng kinh doanh? (Y/N): ");
-            String confirm = scanner.nextLine().trim().toUpperCase();
+            String confirm = scanner.nextLine().trim();
             
-            if (!"Y".equals(confirm)) {
+            if (!"Y".equalsIgnoreCase(confirm)) {
                 System.out.println("❌ Đã hủy thao tác.");
                 return;
             }
@@ -344,7 +344,7 @@ public class QuanLySanPham {
     public void timKiemSanPhamTheoTen() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("\n╔════════════════════════════════════════════════════════════════╗");
-        System.out.println("║             TÌM KIẾM SẢN PHẨM THEO TÊN                         ║");
+        System.out.println("║                    TÌM KIẾM SẢN PHẨM THEO TÊN                  ║");
         System.out.println("╚════════════════════════════════════════════════════════════════╝");
         System.out.println();
 
