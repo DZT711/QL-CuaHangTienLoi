@@ -96,23 +96,28 @@ Xây dựng hệ thống quản lý bán hàng cho cửa hàng tiện lợi, h�
 - Menu nhân viên
 - Xác nhận trước khi xóa / chỉnh sửa
 
+- **[THẤP]** Cho lương nv tối thiểu 1đ
+- **[THẤP]** Thêm phần enter bỏ qua cho địa chỉ nv khi thêm
+- **[THẤP]** Kiểm tra lại ràng buộc mã NV, tên, địa chỉ (case-insensitive)
+ **[TRUNG]** Địa chỉ không chứa ký tự đặc biệt (ngoại trừ `\`, `,`, `.`)
+- **[TRUNG]** Tên & Họ không chứa số & ký tự đặc biệt
+- **[TRUNG]** Nhân viên tối thiểu 18 tuổi (năm sinh tối đa 2006)
+- **[TRUNG]** Tự động tạo mã NV khi thêm NV (ví dụ: `NV001`, `NV002`, ...)
+- **[CAO]** Không thể thoát trong khi thêm NV (lặp vô tận)
+  - Fix: thêm option thoát (nhập `0` hoặc `n`)
+
 ### ⏳ Cần làm (ưu tiên)
 
 - **[CAO]** Lỗi ghi audit log: `data\auditnhanvien.txt (The system cannot find the path specified)`
   - Fix: tạo thư mục `data/`; kiểm tra quyền ghi
-- **[CAO]** Không thể thoát trong khi thêm NV (lặp vô tận)
-  - Fix: thêm option thoát (nhập `0` hoặc `n`)
-- **[TRUNG]** Tự động tạo mã NV khi thêm NV (ví dụ: `NV001`, `NV002`, ...)
-- **[TRUNG]** Nhân viên tối thiểu 18 tuổi (năm sinh tối đa 2006)
 - **[TRUNG]** SĐT hạn chế nhập chuỗi như `0000000000`
   - Check: SĐT phải có ít nhất 2 chữ số khác nhau, độ dài 10
-- **[TRUNG]** Tên & Họ không chứa số & ký tự đặc biệt
-- **[TRUNG]** Địa chỉ không chứa ký tự đặc biệt (ngoại trừ `\`, `,`, `.`)
+  nhân viên t làm dell có sdt :))
 - **[TRUNG]** Format DANH SÁCH NHÂN VIÊN (đồng bộ UI)
 - **[TRUNG]** Format THÔNG TIN NHÂN VIÊN
-- **[THẤP]** Kiểm tra lại ràng buộc mã NV, tên, địa chỉ (case-insensitive)
-- **[THẤP]** Thêm phần enter bỏ qua cho địa chỉ nv khi thêm
-- **[THẤP]** Cho lương nv tối thiểu 1đ
+
+
+
 
 ### Ghi chú
 
@@ -208,6 +213,7 @@ Xây dựng hệ thống quản lý bán hàng cho cửa hàng tiện lợi, h�
 
 - Đăng nhập với role (Admin / NV)
 - Thêm welcome message theo giờ (buổi sáng, trưa, chiều, tối)
+- **[THấP]** Nhập mk để đổi mk tài khoản
 
 ### ⏳ Cần làm (ưu tiên)
 
@@ -242,7 +248,7 @@ Xây dựng hệ thống quản lý bán hàng cho cửa hàng tiện lợi, h�
 - **[TRUNG]** DAO pattern: try-with-resources cho Connection/PreparedStatement/ResultSet
 - **[THẤP]** Unit test: parse date, validate input, DAO basic ops
 - **[TRUNG]** Format QuanLiTaiKhoan
-- **[THấP]** Nhập mk để đổi mk tài khoản
+
 - **[Không cần thiết]** MK mới khác mk cũ
 - **[Không cần thiết]** Che MK
 
