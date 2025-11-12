@@ -83,8 +83,11 @@ public class Main {
                         continue;
                     }
                 } else {
-                    // isDefaultPassword == false
-                    System.out.println("✅ Đăng nhập thành công!");
+                    String[] greetingInfo = getGreeting();
+                    System.out.println("✅ Đăng nhập thành công! Xin " + greetingInfo[1] + " " + taiKhoan.getRole() + " "
+                            + taiKhoan.getUsername() + "!");
+                    System.out.println(greetingInfo[0] + " Thời gian hiện tại của sever là " + greetingInfo[2]);
+                    System.out.println("═══════════════════════════════════════════════════════════");
                     System.out.println("✓ Mật khẩu đã được đổi - Bảo mật tốt!");
                 }
 
@@ -301,6 +304,34 @@ public class Main {
             System.out.println("   • Nên chứa chữ và số để tăng bảo mật");
             System.out.println("═".repeat(60));
 
+            // System.out.println("═".repeat(60));
+            // System.out.println("Nhập lựa chọn cho mật khẩu mới:");
+            // System.out.println("1. Tiếp tục đổi mật khẩu mới");
+            // System.out.println("2. Giữ nguyên mật khẩu cũ (không an toàn)");
+            // System.out.println("═".repeat(60));
+            // System.out.print("💡 Lựa chọn của bạn (1 hoặc 2): ");
+            // int choice = scanner.nextInt();
+            // scanner.nextLine(); // consume newline
+
+            // if (choice == 1) {
+            //     System.out.println("\n📋 YÊU CẦU MẬT KHẨU MỚI:");
+            //     System.out.println("   • Ít nhất 3 ký tự");
+            //     System.out.println("   • Không được trùng với mật khẩu mặc định (" + maNV + ")");
+            //     System.out.println("   • Nên chứa chữ và số để tăng bảo mật");
+            //     System.out.println("═".repeat(60));
+            // } else if (choice == 2) {
+            //     System.out.println("⚠️  Bạn đã chọn giữ nguyên mật khẩu cũ.");
+            //     System.out.println("   Giữ mật khẩu cũ có thể không an toàn bạn chắc chắn chứ ?(y/n): ");
+            //     String confirm = scanner.nextLine();
+            //     if (confirm.equalsIgnoreCase("y")) {
+            //         return; // Thoát khỏi vòng lặp và giữ mật khẩu cũ
+            //     } else {
+            //         continue; // Quay lại đầu vòng lặp để đổi mật khẩu
+            //     }
+            // } else {
+            //     System.out.println("❌ Lựa chọn không hợp lệ! Vui lòng chọn lại.");
+            //     continue;
+            // }
             System.out.print("🔑 Nhập mật khẩu mới: ");
             String newPassword = scanner.nextLine();
 
