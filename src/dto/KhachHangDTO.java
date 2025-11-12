@@ -5,6 +5,7 @@ import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Scanner;
+import util.ValidatorUtil;
 
 public class KhachHangDTO {
     private String maKH;
@@ -89,106 +90,108 @@ public class KhachHangDTO {
 
     public boolean nhapThongTinKhachHang() {
         Scanner scanner = new Scanner(System.in);
+        String input;
         
-        // 1. Nhập họ
-        System.out.print("→ Nhập họ khách hàng (hoặc '0' để hủy): ");
-        String input = scanner.nextLine().trim();
-        if ("0".equals(input)) return false;
-        while (input.isEmpty()) {
-            System.out.println("❌ Họ khách hàng không được để trống!");
-            System.out.print("→ Nhập họ khách hàng: ");
-            input = scanner.nextLine().trim();
-            if ("0".equals(input)) return false;
-        }
-        this.ho = input;
-        
-        // 2. Nhập tên
-        System.out.print("→ Nhập tên khách hàng (hoặc '0' để hủy): ");
-        input = scanner.nextLine().trim();
-        if ("0".equals(input)) return false;
-        while (input.isEmpty()) {
-            System.out.println("❌ Tên khách hàng không được để trống!");
-            System.out.print("→ Nhập tên khách hàng: ");
-            input = scanner.nextLine().trim();
-            if ("0".equals(input)) return false;
-        }
-        this.ten = input;
-        
-        // 3. Nhập giới tính (chấp nhận: Nam, Nữ, nam, nu)
-        System.out.print("→ Nhập giới tính (hoặc '0' để hủy): ");
-        input = scanner.nextLine().trim();
-        if ("0".equals(input)) return false;
-        while (true) {
-            String lower = input.toLowerCase();
-            if (lower.equals("nam")) {
-                this.gioiTinh = "Nam";
-                break;
-            } else if (lower.equals("nữ") || lower.equals("nu") || lower.equals("nư")) {
-                this.gioiTinh = "Nữ";
-                break;
-            } else {
-                System.out.println("❌ Giới tính không hợp lệ! Vui lòng nhập: Nam/Nữ/nam/nu");
-                System.out.print("→ Nhập giới tính: ");
+        try {
+            while (true) {
+                System.out.print("→ Nhập họ khách hàng (hoặc '0' để hủy): ");
                 input = scanner.nextLine().trim();
                 if ("0".equals(input)) return false;
-            }
-        }
-        
-        // 4. Nhập ngày sinh
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        System.out.print("→ Nhập ngày sinh (dd/MM/yyyy, Enter để bỏ qua, '0' để hủy): ");
-        while (true) {
-            input = scanner.nextLine().trim();
-            if ("0".equals(input)) return false;
-            
-            if (input.isEmpty()) {
-                this.ngaySinh = null;
-                break;
+
+                if (ValidatorUtil.isValidString(input)) {
+                    this.maKH = input;
+                    break;
+                }
+                System.out.println("❌ Họ khách hàng không hợp lệ! Vui lòng nhập lại.");
             }
             
-            try {
+            while (true) {
+                System.out.print("→ Nhập tên khách hàng (hoặc '0' để hủy): ");
+                input = scanner.nextLine().trim();
+                if ("0".equals(input)) return false;
+
+                if (ValidatorUtil.isValidString(input)) {
+                    this.ten = input;
+                    break;
+                }
+                System.out.println("❌ Tên khách hàng không hợp lệ! Vui lòng nhập lại.");
+            }
+
+            while (true) {
+                System.out.print("→ Nhập giới tính (hoặc '0' để hủy): ");
+                input = scanner.nextLine().trim();
+                if ("0".equals(input)) return false;
+
+                String lower = input.toLowerCase();
+                if (lower.equals("nam")) {
+                    this.gioiTinh = "Nam";
+                    break;
+                } else if (lower.equals("nữ") || lower.equals("nu") || lower.equals("nư")) {
+                    this.gioiTinh = "Nữ";
+                    break;
+                } else {
+                    System.out.println("❌ Giới tính không hợp lệ! Vui lòng nhập: Nam/Nữ/nam/nu");
+                }
+            }
+
+            while (true) {
+                System.out.print("→ Nhập ngày sinh (dd/MM/yyyy, hoặc '0' để hủy): ");
+                input = scanner.nextLine().trim();
+                if ("0".equals(input)) return false;
+
+                if (input.isEmpty()) {
+                    this.ngaySinh = null;
+                    break;
+                }
+
+                if (!ValidatorUtil.isValidateDate(input)) continue;
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
                 this.ngaySinh = LocalDate.parse(input, formatter);
-                
+
                 if (this.ngaySinh.isAfter(LocalDate.now())) {
                     System.out.println("❌ Ngày sinh không được lớn hơn ngày hiện tại!");
-                    System.out.print("→ Nhập lại ngày sinh (hoặc Enter để bỏ qua): ");
                     continue;
                 }
-                
+
                 int tuoi = Period.between(this.ngaySinh, LocalDate.now()).getYears();
-                if (tuoi > 100) {
-                    System.out.println("❌ Ngày sinh không hợp lý (quá 100 tuổi)!");
-                    System.out.print("→ Nhập lại ngày sinh (hoặc Enter để bỏ qua): ");
+                if (tuoi < 12 || tuoi > 100) {
+                    System.out.println("❌ Ngày sinh không hợp lý!");
                     continue;
                 }
-                
                 break;
-            } catch (DateTimeParseException e) {
-                System.out.println("❌ Sai định dạng! Vui lòng nhập: dd/MM/yyyy (VD: 25/10/2000)");
-                System.out.print("→ Nhập lại ngày sinh (hoặc Enter để bỏ qua): ");
             }
+
+            while (true) {
+                System.out.print("→ Nhập địa chỉ khách hàng (hoặc '0' để hủy): ");
+                input = scanner.nextLine().trim();
+                if ("0".equals(input)) return false;
+
+                if (input.isEmpty()) {
+                    this.diaChi = null;
+                    break;
+                }
+
+                if (!ValidatorUtil.isValidAddress(input)) continue;
+                this.diaChi = input;
+                break;
+            }
+
+            while (true) {
+                System.out.print("→ Nhập số điện thoại (10 số, hoặc '0' để hủy): ");
+                input = scanner.nextLine().trim();
+                if ("0".equals(input)) return false;
+
+                if (ValidatorUtil.isValidPhoneNumber(input)) {
+                    this.dienThoai = input;
+                    break;
+                }
+                System.out.println("❌ Số điện thoại không hợp lệ! Vui lòng nhập lại.");
+            }
+            return true;
+        } catch (Exception e) {
+            System.err.println("❌ Lỗi nhập thông tin khách hàng: " + e.getMessage());
+            return false;
         }
-        
-        // // 5. Nhập địa chỉ
-        System.out.print("→ Nhập địa chỉ khách hàng (Enter để bỏ qua, '0' để hủy): ");
-        input = scanner.nextLine().trim();
-        if ("0".equals(input)) return false;
-        
-        if (input.isEmpty()) this.diaChi = null;
-        else this.diaChi = input;
-        
-        // 6. Nhập điện thoại
-        System.out.print("→ Nhập số điện thoại (10 số, hoặc '0' để hủy): ");
-        input = scanner.nextLine().trim();
-        if ("0".equals(input)) return false;
-        while (!input.matches("\\d{10}")) {
-            System.out.println("❌ Số điện thoại không hợp lệ! Phải là 10 chữ số.");
-            System.out.print("→ Nhập số điện thoại: ");
-            input = scanner.nextLine().trim();
-            if ("0".equals(input)) return false;
-        }
-        this.dienThoai = input;
-        return true;
     }
 
     public boolean suaThongTinKhachHang() {
