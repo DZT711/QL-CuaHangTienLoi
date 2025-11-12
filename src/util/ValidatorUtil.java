@@ -114,4 +114,79 @@ public class ValidatorUtil {
         return true;
     }
 
+    public static boolean isValidAddress(String address) {
+        if (address == null || address.trim().isEmpty()) {
+            System.out.println("❌ Địa chỉ không được để trống!");
+            return false;
+        }
+        
+        if (address.length() < 5) {
+            System.out.println("❌ Địa chỉ quá ngắn! Phải có ít nhất 5 ký tự.");
+            return false;
+        }
+        
+        if (address.length() > 255) {
+            System.out.println("❌ Địa chỉ quá dài! Tối đa 255 ký tự.");
+            return false;
+        }
+        
+        String validPattern = "^[a-zA-Z0-9À-ỹĐđ\\s\\/\\,\\.\\-]+$";
+        if (!address.matches(validPattern)) {
+            System.out.println("❌ Địa chỉ chứa ký tự không hợp lệ!");
+            return false;
+        }
+        
+        if (!address.matches(".*[a-zA-ZÀ-ỹĐđ]+.*")) {
+            System.out.println("❌ Địa chỉ phải chứa ít nhất 1 chữ cái!");
+            return false;
+        }
+        
+        if (address.matches(".*\\s{2,}.*")) {
+            System.out.println("❌ Địa chỉ không được chứa nhiều khoảng trắng liên tiếp!");
+            return false;
+        }
+        
+        if (address.matches(".*[\\/\\,\\.\\-]{2,}.*")) {
+            System.out.println("❌ Không được có ký tự đặc biệt lặp liên tiếp!");
+            return false;
+        }
+        
+        if (address.matches("^[\\/\\,\\.\\-\\s].*") || address.matches(".*[\\/\\,\\.\\-\\s]$")) {
+            System.out.println("❌ Địa chỉ không được bắt đầu/kết thúc bằng ký tự đặc biệt!");
+            return false;
+        }
+        
+        return true;
+    }
+
+    public static boolean isValidPhoneNumber(String phoneNumber) {
+        if (phoneNumber == null || phoneNumber.isEmpty()) {
+            System.out.println("❌ Số điện thoại không được để trống!");
+            return false;
+        }
+        
+        if (!phoneNumber.matches("^[0-9\\s]+$")) {
+            System.out.println("❌ Số điện thoại chỉ được chứa chữ số và khoảng cách!");
+            return false;
+        }
+        
+        if (phoneNumber.matches(".*\\s{2,}.*")) {
+            System.out.println("❌ Số điện thoại không hợp lệ!");
+            return false;
+        }
+        
+        String digits = phoneNumber.replaceAll("\\s", "");
+    
+        if (digits.length() != 10) {
+            System.out.println("❌ Số điện thoại phải có đúng 10 chữ số!");
+            return false;
+        }
+        
+        if (digits.matches(".*(\\d)\\1\\1.*")) {
+            System.out.println("❌ Số điện thoại không hợp lệ");
+            return false;
+        }
+        
+        return true;
+    }
 }

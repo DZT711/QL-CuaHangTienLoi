@@ -1,6 +1,5 @@
 package view;
 
-import java.util.InputMismatchException;
 import java.util.Scanner;
 import dao.KhachHangDAO;
 import dto.KhachHangDTO;
@@ -181,7 +180,7 @@ public class QuanLyKhachHang {
 
     public void them() {
         System.out.println("\n╔════════════════════════════════════════════════════╗");
-        System.out.println("║           THÊM KHÁCH HÀNG MỚI                      ║");
+        System.out.println("║                 THÊM KHÁCH HÀNG MỚI                ║");
         System.out.println("╚════════════════════════════════════════════════════╝");
 
         try {
@@ -201,9 +200,9 @@ public class QuanLyKhachHang {
             
             Scanner scanner = new Scanner(System.in);
             System.out.print("\n→ Xác nhận thêm khách hàng? (Y/N): ");
-            String confirm = scanner.nextLine().trim().toUpperCase();
+            String confirm = scanner.nextLine().trim();
             
-            if (!"Y".equals(confirm)) {
+            if (!"Y".equalsIgnoreCase(confirm)) {
                 System.out.println("⚠️  Đã hủy thêm khách hàng.");
                 return;
             }
@@ -216,7 +215,7 @@ public class QuanLyKhachHang {
             }
         
         } catch (Exception e) {
-            System.err.println("❌ Đã xảy ra lỗi: " + e.getMessage());
+            System.err.println("❌ Lỗi khi thêm khách hàng: " + e.getMessage());
             e.printStackTrace();
         }
     }

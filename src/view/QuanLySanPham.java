@@ -51,23 +51,7 @@ public class QuanLySanPham {
 
             switch (choice) {
                 case 1:
-                    try {
-                        SanPhamDTO sp = new SanPhamDTO();
-                        
-                        if (!sp.nhapThongTinSanPham()) {
-                            System.out.println("⚠️ Đã hủy thêm sản phẩm.");
-                            break;
-                        }
-
-                        String MaSP = SanPhamDAO.generateMaSP();
-                        sp.setMaSP(MaSP);
-                        sp.setTrangThai("active");
-
-                        if (SanPhamDAO.themSanPham(sp)) System.out.println("✅ Thêm sản phẩm thành công!");
-                        else System.out.println("❌ Thêm sản phẩm thất bại! Vui lòng thử lại.");
-                    } catch (Exception e) {
-                        System.err.println("❌ Lỗi khi thêm sản phẩm: " + e.getMessage());
-                    }
+                    themSanPham();
                     break;
                 case 2:
                     suaSanPham();
@@ -204,6 +188,42 @@ public class QuanLySanPham {
                     System.out.println("Lựa chọn không hợp lệ.");
                     break;
             }
+        }
+    }
+
+    public void themSanPham() {
+        System.out.println("\n╔════════════════════════════════════════════════════╗");
+        System.out.println("║                 THÊM SẢN PHẨM MỚI                  ║");
+        System.out.println("╚════════════════════════════════════════════════════╝");
+
+        try {
+            String MaSP = SanPhamDAO.generateMaSP();
+            System.out.println("📋 Mã sản phẩm tự động: " + MaSP + "\n");
+
+            SanPhamDTO sp = new SanPhamDTO();
+            sp.setMaSP(MaSP);
+
+            if (!sp.nhapThongTinSanPham()) {
+                System.out.println("⚠️ Đã hủy thêm sản phẩm.");
+                return;
+            }
+
+            System.out.println("\n📝 THÔNG TIN SẢN PHẨM VỪA NHẬP:");
+            sp.inThongTinSanPham();
+
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("\n→ Xác nhận thêm sản phẩm này? (Y/N): ");
+            String confirm = scanner.nextLine().trim();   
+            if (!"Y".equalsIgnoreCase(confirm)) {
+                System.out.println("❌ Đã hủy thêm sản phẩm.");
+                return;
+            }
+
+            if (SanPhamDAO.themSanPham(sp)) System.out.println("✅ Thêm sản phẩm thành công!");
+            else System.out.println("❌ Thêm sản phẩm thất bại!");
+        } catch (Exception e) {
+            System.err.println("❌ Lỗi khi thêm sản phẩm: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
