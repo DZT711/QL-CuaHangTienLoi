@@ -66,18 +66,8 @@ public class QuanLyKhachHang {
                                 break;
                             case "2":
                                 System.out.println("\n╔════════════════════════════════════════════════════╗");
-                                System.out.println("║           IMPORT KHÁCH HÀNG TỪ FILE                ║");
+                                System.out.println("║            IMPORT DANH SÁCH KHÁCH HÀNG             ║");
                                 System.out.println("╚════════════════════════════════════════════════════╝");
-                                /*
-                                    System.out.print("→ Nhập đường dẫn file (VD: D:\\data\\khachhang.txt): ");
-                                    String filePath = scanner.nextLine().trim();
-                                    
-                                    File file = new File(filePath);
-                                    if (!file.exists()) {
-                                        System.out.println("❌ File không tồn tại: " + filePath);
-                                        return;
-                                    }
-                                */
                                 KhachHangDAO.importDSKH("data/khachhang.txt");
                                 break;
                             default:
