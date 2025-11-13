@@ -31,12 +31,13 @@ Xây dựng hệ thống quản lý bán hàng cho cửa hàng tiện lợi, h�
 4. [Phiếu Nhập (PhieuNhap)](#phiếu-nhập-phieunhap)
 5. [Nhà Cung Cấp (NhaCungCap)](#nhà-cung-cấp-nhacungcap)
 6. [Hóa Đơn (HoaDon)](#hóa-đơn-hoadon)
-7. [Tài Khoản (TaiKhoan)](#tài-khoản)
+7. [Tài Khoản (TaiKhoan)](#tài-khoản-taikhoan)
 8. [Chung (All)](#chung-all)
 
 ---
 
 ## Sản Phẩm (SanPham)
+
 - Format lại table thống kê sản phẩm sắp hết trong kho
 - HSD sản phẩm tối thiểu 1 tháng kể từ ngày nhập (hàng hóa)
 - NSX không được vượt quá ngày tạo phiếu nhập (hàng hóa)
@@ -44,8 +45,11 @@ Xây dựng hệ thống quản lý bán hàng cho cửa hàng tiện lợi, h�
 ---
 
 ## Khách Hàng (KhachHang)
--- format lại phần header khi xuất danh sách khách hàng, thêm cột trạng thái
 
+-- format lại phần header khi xuất danh sách khách hàng, thêm cột trạng thái
+- in thông tin khách hàng vừa nhập bị sai, 
+- báo lõi nhập số điện thoại 2 lần 
+- check lại validate ngày khi nhập khách hàng năm 9x
 
 ## Nhân Viên (NhanVien)
 
