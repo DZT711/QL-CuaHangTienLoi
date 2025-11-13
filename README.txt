@@ -43,13 +43,5 @@ IV. Kiến trúc & công nghệ sử dụng
 
 
 --------------------------------------------
-V. Ghi chú & hướng phát triển
-
-- Có thể thêm chức năng khuyến mãi, giảm giá theo chương trình, tích điểm khách hàng.  
-- Cải thiện giao diện, thêm báo cáo chi tiết / biểu đồ.  
-- Bổ sung bảo mật (log out, xác thực session, mã hoá kết nối).  
-- Cải thiện hiệu năng: paging, caching, Query tối ưu.
-- Thêm rollback(),commit() cho phần sử lý với database để tránh lỗi phát sinh trong quá trình sửa đổi dữ liệu
---------------------------------------------
 
 
