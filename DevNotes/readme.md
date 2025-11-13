@@ -18,6 +18,8 @@ Xây dựng hệ thống quản lý bán hàng cho cửa hàng tiện lợi, h�
 - Quản lý tài khoản (login, phân quyền)  ✔
 - Báo cáo doanh thu, tồn kho, sản phẩm bán chạy   ⏳
 - Đảm bảo tính nhất quán, xử lý đồng thời, audit, rollback, status thay vì xóa thật  ⏳
+- Các chức năng cho menu nhân viên (bán hàng, xem sản phẩm,....)
+- Các chứa năng cho menu admin (xem báo cáo / thống kê)
 
 ---
 
@@ -31,7 +33,7 @@ Xây dựng hệ thống quản lý bán hàng cho cửa hàng tiện lợi, h�
 4. [Phiếu Nhập (PhieuNhap)](#phiếu-nhập-phieunhap)
 5. [Nhà Cung Cấp (NhaCungCap)](#nhà-cung-cấp-nhacungcap)
 6. [Hóa Đơn (HoaDon)](#hóa-đơn-hoadon)
-7. [Tài Khoản (TaiKhoan)](#tài-khoản)
+7. [Tài Khoản (TaiKhoan)](#tài-khoản-TaiKhoan)
 8. [Chung (All)](#chung-all)
 
 ---
@@ -160,7 +162,7 @@ Xây dựng hệ thống quản lý bán hàng cho cửa hàng tiện lợi, h�
 
 ---
 
-## Tài Khoản 
+## Tài Khoản (TaiKhoan)
 
 ### ✅ Hoàn thành
 
