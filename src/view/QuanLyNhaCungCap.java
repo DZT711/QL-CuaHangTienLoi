@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Scanner;
 import dao.NhaCungCapDAO;
 import dto.NhaCungCapDTO;
+import util.ValidatorUtil;
 
 public class QuanLyNhaCungCap {
 
@@ -24,6 +25,7 @@ public class QuanLyNhaCungCap {
             System.out.println("▒ [3] ➜ Xóa nhà cung cấp                                                       ▒");
             System.out.println("▒ [4] ➜ Tìm kiếm nhà cung cấp                                                  ▒");
             System.out.println("▒ [5] ➜ Xuất danh sách nhà cung cấp                                            ▒");
+            System.out.println("▒ [6] ➜ Thống kê nhà cung cấp                                                  ▒");
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ");
             System.out.println("░ [0] ✗ Quay lại menu chính                                                    ░");
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ");
@@ -34,8 +36,8 @@ public class QuanLyNhaCungCap {
                 if (scanner.hasNextInt()) {
                     choice = scanner.nextInt();
                     scanner.nextLine();
-                    if (choice >= 0 && choice <= 5) break;
-                    System.out.print("⚠️  Vui lòng nhập số trong khoảng 0–5: ");
+                    if (choice >= 0 && choice <= 6) break;
+                    System.out.print("⚠️  Vui lòng nhập số trong khoảng 0–6: ");
                 } else {
                     System.out.print("⚠️  Nhập không hợp lệ. Vui lòng nhập lại: ");
                     scanner.next();
@@ -87,6 +89,9 @@ public class QuanLyNhaCungCap {
                 case 5 :
                 NhaCungCapDAO.xuatDanhSachNCC();
                 break;
+                case 6:
+                menuThongKe();
+                break;
                 case 0:
                     System.out.println("Thoát chương trình thành công!");
                     return;
@@ -108,24 +113,16 @@ public class QuanLyNhaCungCap {
         while (true) {
             System.out.print("→ Tên NCC: ");
             tenNCC = scanner.nextLine().trim();
-            
             if (isExist(scanner, tenNCC)) return;
+            
+            // Kiểm tra chuỗi hợp lệ (không rỗng, không ký tự đặc biệt, v.v.)
+            if (!ValidatorUtil.isValidString(tenNCC)) {
+                System.out.println("❌ Tên NCC không hợp lệ! Vui lòng nhập lại.");
+                continue;
+            }   
 
-            if (tenNCC.isEmpty()) {
-                System.out.println("  ❌ Tên NCC không được để trống!");
-                continue;
-            }
-            if (tenNCC.length() > 255) {
-                System.out.println("  ❌ Tên NCC không được quá 255 ký tự!");
-                continue;
-            }
-            if (tenNCC.matches(".*[<>\"'%;()&+].*")) {
-                System.out.println("  ❌ Tên NCC không được chứa ký tự đặc biệt!");
-                continue;
-            }
             break;
         }
-        
 
         String diaChi;
         while (true) {
@@ -134,13 +131,9 @@ public class QuanLyNhaCungCap {
 
             if (isExist(scanner, diaChi)) return;
             
-            if (diaChi.isEmpty()) {
-                System.out.println("  ❌ Địa chỉ không được để trống!");
-                continue;
-            }
-            if (diaChi.length() > 255) {
-                System.out.println("  ❌ Địa chỉ không được quá 255 ký tự!");
-                continue;
+            // Gọi hàm validator
+            if (!ValidatorUtil.isValidAddress(diaChi)) {
+                continue; // Hàm validator đã tự in lỗi
             }
             break;
         }
@@ -152,23 +145,15 @@ public class QuanLyNhaCungCap {
 
             if (isExist(scanner, dienThoai)) return;
             
-            if (dienThoai.isEmpty()) {
-                System.out.println("  ❌ Điện thoại không được để trống!");
-                continue;
+            if (!ValidatorUtil.isValidPhoneNumber(dienThoai)) {
+                continue; 
             }
-            
-            if (!dienThoai.matches("^0\\d{9}$")) {
-                System.out.println("  ❌ Điện thoại phải là 10 chữ số và bắt đầu bằng số 0!");
-                System.out.println("     (VD: 0901234567)");
-                continue;
-            }
-            
             
             // Viết trong DAO thêm hàm tìm nhà cung cấp bằng số điện thoại để kiểm tra trùng
-            // if (NhaCungCapDAO.getInstance().checkDienThoaiExist(dienThoai)) {
-            //     System.out.println("  ❌ Số điện thoại đã tồn tại trong hệ thống!");
-            //     continue;
-            // }
+            if (NhaCungCapDAO.checkDienThoaiExist(dienThoai)) {
+                System.out.println("  ❌ Số điện thoại đã tồn tại trong hệ thống!");
+                continue;
+            }
             
             break;
         }
@@ -197,10 +182,10 @@ public class QuanLyNhaCungCap {
             }
             
             // Viết trong DAO thêm hàm tìm nhà cung cấp bằng email để kiểm tra trùng
-            // if (NhaCungCapDAO.getInstance().checkEmailExist(email)) {
-            //     System.out.println("  ❌ Email đã tồn tại trong hệ thống!");
-            //     continue;
-            // }
+            if (NhaCungCapDAO.checkEmailExist(email)) {
+                System.out.println("  ❌ Email đã tồn tại trong hệ thống!");
+                continue;
+            }
             
             break;
         }
@@ -239,14 +224,14 @@ public class QuanLyNhaCungCap {
         
         while (true) {
             System.out.print("\n→ Xác nhận thêm nhà cung cấp? (Y/N): ");
-            String confirm = scanner.nextLine().trim().toLowerCase();
+            String confirm = scanner.nextLine().trim();
             
             if (confirm.isEmpty()) {
                 System.out.println("  ⚠️  Vui lòng nhập Y (có) hoặc N (không)!");
                 continue;
             }
             
-            if (confirm.equals("Y")) {
+            if (confirm.equalsIgnoreCase("Y")) {
                 if (NhaCungCapDAO.themNCC(ncc)) {
                     System.out.println("✅ Thêm nhà cung cấp thành công!");
                 } else {
@@ -255,7 +240,7 @@ public class QuanLyNhaCungCap {
                 break;
             }
             
-            if (confirm.equals("N")) {
+            if (confirm.equalsIgnoreCase("N")) {
                 System.out.println("⚠️  Đã hủy thêm nhà cung cấp!");
                 break;
             }
@@ -407,6 +392,53 @@ public class QuanLyNhaCungCap {
             }
         }
 
+    }
+    // HÀM MỚI TINH: Dùng để làm menu con cho Thống Kê
+    public void menuThongKe() {
+        Scanner scanner = new Scanner(System.in); 
+
+        while (true) {
+            System.out.println("\n╔════════════════════════════════════════════╗");
+            System.out.println("║                                              ║");
+            System.out.println("║                MENU THỐNG KÊ                 ║");
+            System.out.println("║                                              ║");
+            System.out.println("╠══════════════════════════════════════════════╣");
+            System.out.println("║ [1] ➜ Thống kê theo Trạng Thái              ║");
+            System.out.println("║ [2] ➜ Thống kê theo Khu Vực                 ║");
+            System.out.println("║ [0] ➜ Quay lại menu chính                   ║");
+            System.out.println("╚══════════════════════════════════════════════╝");
+            System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+
+            int choice = -1;
+            while (true) {
+                if (scanner.hasNextInt()) {
+                    choice = scanner.nextInt();
+                    scanner.nextLine();
+                    if (choice >= 0 && choice <= 2) break;
+                    System.out.print("⚠️  Vui lòng nhập số trong khoảng 0–2: ");
+                } else {
+                    System.out.print("⚠️  Nhập không hợp lệ. Vui lòng nhập lại: ");
+                    scanner.next();
+                }
+            }
+
+            switch (choice) {
+                case 1:
+                    NhaCungCapDAO.thongKeTheoTrangThai();
+                    System.out.print("\n→ Nhấn Enter để tiếp tục...");
+                    scanner.nextLine();
+                    break; 
+                case 2:
+                    NhaCungCapDAO.thongKeTheoKhuVuc();
+                    System.out.print("\n→ Nhấn Enter để tiếp tục...");
+                    scanner.nextLine();
+                    break; 
+                case 0:
+                    return; 
+                default:
+                    System.out.println("Lựa chọn không hợp lệ.");
+            }
+        }
     }
 
 }

@@ -1,6 +1,7 @@
 package dto;
 
 import java.util.Scanner;
+import dao.NhaCungCapDAO;
 
 public class NhaCungCapDTO {
     private String maNCC;
@@ -102,6 +103,10 @@ public class NhaCungCapDTO {
                     System.out.println("  Số điện thoại không hợp lệ (phải có 9–11 chữ số). Vui lòng nhập lại hoặc nhấn ENTER để giữ nguyên:");
                     continue; // 
                 }
+                if (!sdt.equals(this.dienThoai) && NhaCungCapDAO.checkDienThoaiExist(sdt)) {
+                    System.out.println("  ❌ Số điện thoại này đã thuộc về một NCC khác. Vui lòng nhập lại!");
+                    continue; // Yêu cầu nhập lại
+                }
 
                 this.dienThoai = sdt; 
                 break; 
@@ -115,6 +120,10 @@ public class NhaCungCapDTO {
                 if (!mail.matches("^[\\w-.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
                     System.out.println("Email không hợp lệ. Vui lòng nhập lại hoặc nhấn ENTER để giữ nguyên");
                     continue;
+                }
+                if (!mail.equals(this.email) && NhaCungCapDAO.checkEmailExist(mail)) {
+                    System.out.println("  ❌ Email này đã thuộc về một NCC khác. Vui lòng nhập lại!");
+                    continue; // Yêu cầu nhập lại
                 }
                 this.email = mail;
                 break;
@@ -142,9 +151,5 @@ public class NhaCungCapDTO {
             return false;
         }
     }
+    
 }
-
-
-
-
-
