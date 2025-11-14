@@ -97,12 +97,16 @@ public class SanPhamDTO {
         Scanner scanner = new Scanner(System.in);
 
         try {
-            System.out.print("Nhập tên sản phẩm (hoặc '0' để hủy): ");
-            this.tenSP = scanner.nextLine().trim();
-            if ("0".equals(this.tenSP)) return false;
-            if (!ValidatorUtil.isValidString(this.tenSP)) {
-                System.out.println("❌ Tên sản phẩm không hợp lệ!");
-                return false;
+            while (true) {
+                System.out.print("Nhập tên sản phẩm (hoặc '0' để hủy): ");
+                String input = scanner.nextLine().trim();
+                
+                if ("0".equals(input)) return false;
+                if (ValidatorUtil.isValidString(input)) {
+                    this.tenSP = input; 
+                    break;
+                }
+                System.out.println("❌ Tên sản phẩm không hợp lệ! Vui lòng nhập lại.");
             }
 
             System.out.println("\n╔════════════════════════════════════╗");
@@ -122,8 +126,7 @@ public class SanPhamDTO {
             while (true) {
                 System.out.print("Nhập loại sản phẩm ('0' để hủy): ");
                 String input = scanner.nextLine().trim();
-                if ("0".equals(input))
-                    return false;
+                if ("0".equals(input)) return false;
 
                 try {
                     this.loaiSP = Integer.parseInt(input);
@@ -136,7 +139,7 @@ public class SanPhamDTO {
                 }
             }
 
-            System.out.println("\n╔════════════════════════════════════════════════════════════════════════╗");
+            System.out.println("\n╔═════════════════════════════════════════════════════════════════════════╗");
             System.out.println("║                               ĐƠN VỊ TÍNH                                ║");
             System.out.println("╠══════════════════════════════════════════════════════════════════════════╣");
             System.out.println("║  1. Chai      2. Gói       3. Lon       4. Hộp       5. Thùng      6. Bộ ║");
@@ -166,10 +169,10 @@ public class SanPhamDTO {
 
                 try {
                     this.giaBan = Integer.parseInt(input);
-                    if (this.giaBan > 0)
+                    if (this.giaBan > 0 && this.giaBan <= 1_000_000)
                         break;
                     else
-                        System.out.println("❌ Giá bán phải lớn hơn 0!");
+                        System.out.println("❌ Giá bán phải lớn hơn 0 và không vượt quá 1 triệu!");
                 } catch (NumberFormatException e) {
                     System.out.println("❌ Vui lòng nhập số!");
                 }
@@ -183,6 +186,7 @@ public class SanPhamDTO {
                 
                 if (input.isEmpty()) {
                     this.moTa = null; 
+                    System.out.println("ℹ️  Đã bỏ qua mô tả.");
                     break;
                 }
                 
