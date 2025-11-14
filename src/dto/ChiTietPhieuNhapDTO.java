@@ -100,34 +100,31 @@ public class ChiTietPhieuNhapDTO {
             }
         }
 
-        System.out.print("→ Nhập số lượng: ");
         int soLuong;
-        try {
-            soLuong = Integer.parseInt(scanner.nextLine().trim());
-            if (soLuong <= 0 || soLuong > 5000) {
+        while (true) {
+            System.out.print("→ Nhập số lượng: ");
+            try {
+                soLuong = Integer.parseInt(scanner.nextLine().trim());
+                
+                if (soLuong <= 0 || soLuong > 5000)  break;
+                
                 System.out.println("❌ Số lượng không hợp lệ! (1-5000)");
-                return true;
+
+            } catch (NumberFormatException e) {
+                System.out.println("❌ Vui lòng nhập số hợp lệ cho số lượng!");
             }
-        } catch (NumberFormatException e) {
-            System.out.println("❌ Vui lòng nhập số hợp lệ cho số lượng!");
-            return true;
         }
 
-        System.out.print("→ Nhập giá nhập: ");
         int giaNhap;
-        try {
-            giaNhap = Integer.parseInt(scanner.nextLine().trim());
-            if (giaNhap <= 0) {
-                System.out.println("❌ Giá nhập phải lớn hơn 0!");
-                return true;
+        while (true) {
+            System.out.print("→ Nhập giá nhập: ");
+            try {
+                giaNhap = Integer.parseInt(scanner.nextLine().trim());
+                if (giaNhap > 0 && giaNhap <= 1_000_000) break;
+                System.out.println("❌ Giá nhập không hợp lệ!");
+            } catch (NumberFormatException e) {
+                System.out.println("❌ Vui lòng nhập số hợp lệ cho giá nhập!");
             }
-            if (giaNhap > 1_000_000) {
-                System.out.println("❌ Giá nhập không được vượt quá 1.000.000!");
-                return true;
-            }
-        } catch (NumberFormatException e) {
-            System.out.println("❌ Vui lòng nhập số hợp lệ cho giá nhập!");
-            return true;
         }
 
         this.maPhieu = maPhieu;

@@ -294,9 +294,7 @@ public class QuanLyNhapHang {
                     if (hanSuDung.isBefore(LocalDate.now())) {
                         System.out.println("⚠️  Cảnh báo: Sản phẩm đã hết hạn!");
                         System.out.print("→ Bạn có chắc muốn tiếp tục? (Y/N): ");
-                        if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) {
-                            break;
-                        }
+                        if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) continue;
                     }
                     
                     try {
