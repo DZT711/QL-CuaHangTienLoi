@@ -39,6 +39,7 @@ Xây dựng hệ thống quản lý bán hàng cho cửa hàng tiện lợi, h�
 ---
 
 ## Sản Phẩm (SanPham)
+
 - Format lại table thống kê sản phẩm sắp hết trong kho
 - HSD sản phẩm tối thiểu 1 tháng kể từ ngày nhập (hàng hóa)
 - NSX không được vượt quá ngày tạo phiếu nhập (hàng hóa)
@@ -46,8 +47,8 @@ Xây dựng hệ thống quản lý bán hàng cho cửa hàng tiện lợi, h�
 ---
 
 ## Khách Hàng (KhachHang)
--- format lại phần header khi xuất danh sách khách hàng, thêm cột trạng thái
 
+-- format lại phần header khi xuất danh sách khách hàng, thêm cột trạng thái
 
 ## Nhân Viên (NhanVien)
 
