@@ -104,8 +104,21 @@ public class SanPhamDTO {
                 System.out.println("❌ Tên sản phẩm không hợp lệ!");
                 return false;
             }
-            
 
+            System.out.println("\n╔════════════════════════════════════╗");
+            System.out.println("║       DANH SÁCH LOẠI SẢN PHẨM      ║");
+            System.out.println("╠════╦═══════════════════════════════╣");
+            System.out.println("║  1 ║ Đồ uống                       ║");
+            System.out.println("║  2 ║ Thực phẩm ăn liền             ║");
+            System.out.println("║  3 ║ Bánh kẹo & Snack              ║");
+            System.out.println("║  4 ║ Sữa & sản phẩm từ sữa         ║");
+            System.out.println("║  5 ║ Thực phẩm khô & gia vị        ║");
+            System.out.println("║  6 ║ Đồ gia dụng & vệ sinh cá nhân ║");
+            System.out.println("║  7 ║ Mỹ phẩm & chăm sóc cơ thể     ║");
+            System.out.println("║  8 ║ Đồ dùng văn phòng & tiện ích  ║");
+            System.out.println("║  9 ║ Thức ăn & phụ kiện thú cưng   ║");
+            System.out.println("║ 10 ║ Đồ y tế & chăm sóc sức khỏe   ║");
+            System.out.println("╚════╩═══════════════════════════════╝");
             while (true) {
                 System.out.print("Nhập loại sản phẩm ('0' để hủy): ");
                 String input = scanner.nextLine().trim();
@@ -123,7 +136,12 @@ public class SanPhamDTO {
                 }
             }
 
-            // Nhập đơn vị tính (1-11)
+            System.out.println("\n╔════════════════════════════════════════════════════════════════════════╗");
+            System.out.println("║                               ĐƠN VỊ TÍNH                                ║");
+            System.out.println("╠══════════════════════════════════════════════════════════════════════════╣");
+            System.out.println("║  1. Chai      2. Gói       3. Lon       4. Hộp       5. Thùng      6. Bộ ║");
+            System.out.println("║  7. Vỉ        8. Cuộn      9. Túi      10. Can      11. Bao              ║");
+            System.out.println("╚══════════════════════════════════════════════════════════════════════════╝");
             while (true) {
                 System.out.print("Nhập đơn vị tính ('0' để hủy): ");
                 String input = scanner.nextLine().trim();
@@ -141,7 +159,6 @@ public class SanPhamDTO {
                 }
             }
 
-            // Nhập giá bán (phải > 0)
             while (true) {
                 System.out.print("Nhập giá bán (hoặc '0' để hủy): ");
                 String input = scanner.nextLine().trim();
@@ -156,6 +173,24 @@ public class SanPhamDTO {
                 } catch (NumberFormatException e) {
                     System.out.println("❌ Vui lòng nhập số!");
                 }
+            }
+
+            while (true) {
+                System.out.print("Nhập mô tả sản phẩm (hoặc '0' để hủy): ");
+                String input = scanner.nextLine().trim();
+
+                if ("0".equals(input)) return false;
+                
+                if (input.isEmpty()) {
+                    this.moTa = null; 
+                    break;
+                }
+                
+                if (ValidatorUtil.isValidString(input)) {
+                    this.moTa = input;
+                    break;
+                } 
+                System.out.println("❌ Mô tả không hợp lệ! Vui lòng nhập lại.");
             }
             return true; 
         } catch (Exception e) {
@@ -203,7 +238,6 @@ public class SanPhamDTO {
         System.out.printf("│ Số lượng tồn  : %-63d│\n", soLuongTon);
         System.out.printf("│ Giá bán       : %-63s│\n", FormatUtil.formatVND(giaBan));
         System.out.printf("│ Mô tả         : %-63s│\n", moTa != null ? moTa : "(Không có)");
-        System.out.printf("│ Trạng thái    : %-63s│\n", getTrangThai());
         System.out.println("└────────────────────────────────────────────────────────────────────────────────┘");
     }
 
