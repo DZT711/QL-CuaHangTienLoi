@@ -341,6 +341,12 @@ public class KhachHangDAO {
                         continue;
                     }
                     
+                    if (!maKH.matches("^KH\\d{3,$}")) {
+                        System.out.println("❌ Dòng " + lineNumber + ": Mã KH không hợp lệ: " + maKH);
+                        skipped++;
+                        continue;
+                    }
+
                     if (kiemTraMaKH(maKH)) {
                         System.out.println("⚠️  Dòng " + lineNumber + ": Mã KH đã tồn tại (" + maKH + ")");
                         skipped++;
@@ -388,19 +394,21 @@ public class KhachHangDAO {
                         }
 
                         int tuoi = Period.between(ngaySinh, LocalDate.now()).getYears();
-                        if (tuoi < 0 || tuoi > 100) {
-                            System.out.println("❌ Dòng " + lineNumber + ": Tuổi khách hàng không hợp lệ: " + tuoi);
+                        if (tuoi < 12 || tuoi > 80) {
+                            System.out.println("❌ Dòng " + lineNumber + ": Khách hàng phải từ 12 đến 80 tuổi!" );
                             skipped++;
                             continue;
                         }
                     }
 
-                    if (dienThoai.isEmpty() || !ValidatorUtil.isValidPhoneNumber(dienThoai.replaceAll("\\s", ""))) {
+                    dienThoai = dienThoai.replaceAll("\\s", "");
+                    if (!ValidatorUtil.isValidPhoneNumber(dienThoai)) {
                         System.out.println("❌ Dòng " + lineNumber + ": Số điện thoại không hợp lệ: " + dienThoai);
                         skipped++;
                         continue;
                     }
-                    KhachHangDTO existing = timKhachHangTheoDienThoai(dienThoai.replaceAll("\\s", ""));
+
+                    KhachHangDTO existing = timKhachHangTheoDienThoai(dienThoai);
                     if (existing != null) {
                         System.out.println("⚠️  Dòng " + lineNumber + ": SĐT đã tồn tại (" + dienThoai + ")");
                         skipped++;

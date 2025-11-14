@@ -55,11 +55,11 @@ public class ValidatorUtil {
             return false;
         }
 
-        int currentYear = LocalDate.now().getYear();
-        if (year < 2000 || year > currentYear) {
-            System.out.println("❌ Năm phải từ 2000 đến " + currentYear + "!");
-            return false;
-        }
+        // int currentYear = LocalDate.now().getYear();
+        // if (year < 2000 || year > currentYear) {
+        //     System.out.println("❌ Năm phải từ 2000 đến " + currentYear + "!");
+        //     return false;
+        // }
 
         if (month < 1 || month > 12) {
             System.out.println("❌ Tháng phải từ 1 đến 12!");

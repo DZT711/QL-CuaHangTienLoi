@@ -102,7 +102,7 @@ public class KhachHangDTO {
                 if ("0".equals(input)) return false;
 
                 if (ValidatorUtil.isValidString(input)) {
-                    this.maKH = input;
+                    this.ho = input;
                     break;
                 }
                 System.out.println("❌ Họ khách hàng không hợp lệ! Vui lòng nhập lại.");
@@ -157,8 +157,8 @@ public class KhachHangDTO {
                 }
 
                 int tuoi = Period.between(this.ngaySinh, LocalDate.now()).getYears();
-                if (tuoi < 12 || tuoi > 100) {
-                    System.out.println("❌ Ngày sinh không hợp lý!");
+                if (tuoi < 12 || tuoi > 80) {
+                    System.out.println("❌ Khách hàng phải từ 12 đến 80 tuổi!");
                     continue;
                 }
                 break;
@@ -291,7 +291,7 @@ public class KhachHangDTO {
     }
 
     public void inThongTinKhachHang() {
-        System.out.println("┌────────────────────────────────────────────────────┐");
+        System.out.println("┌───────────────────────────────────────────────────┐");
         System.out.printf("│ %-18s : %-28s │\n", "Mã KH", maKH);
         System.out.printf("│ %-18s : %-28s │\n", "Họ tên", ho + " " + ten);
         System.out.printf("│ %-18s : %-28s │\n", "Giới tính", gioiTinh);
@@ -307,6 +307,6 @@ public class KhachHangDTO {
         System.out.printf("│ %-18s : %-28s │\n", "Địa chỉ", diaChiStr);
 
         System.out.printf("│ %-18s : %-28s │\n", "Điện thoại", dienThoai);
-        System.out.println("└────────────────────────────────────────────────────┘");
+        System.out.println("└───────────────────────────────────────────────────┘");
     }
 }
