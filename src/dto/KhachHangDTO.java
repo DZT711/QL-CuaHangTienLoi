@@ -3,11 +3,7 @@ package dto;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.Scanner;
-
-import javax.xml.validation.Validator;
-
 import util.ValidatorUtil;
 
 public class KhachHangDTO {
@@ -18,10 +14,11 @@ public class KhachHangDTO {
     private LocalDate ngaySinh;
     private String diaChi;
     private String dienThoai;
+    private String trangThai;
 
     public KhachHangDTO() {}
 
-    public KhachHangDTO(String maKH, String ho, String ten, String gioiTinh, LocalDate ngaySinh, String diaChi, String dienThoai) {
+    public KhachHangDTO(String maKH, String ho, String ten, String gioiTinh, LocalDate ngaySinh, String diaChi, String dienThoai, String trangThai) {
         this.maKH = maKH;
         this.ho = ho;
         this.ten = ten;
@@ -29,6 +26,7 @@ public class KhachHangDTO {
         this.ngaySinh = ngaySinh;
         this.diaChi = diaChi;
         this.dienThoai = dienThoai;
+        this.trangThai = trangThai;
     }
 
     public String getMaKH() {
@@ -90,6 +88,14 @@ public class KhachHangDTO {
     public void setDienThoai(String dienThoai) {
         this.dienThoai = dienThoai;
     }   
+
+    public String getTrangThai() {
+        return trangThai;
+    }
+
+    public void setTrangThai(String trangThai) {
+        this.trangThai = trangThai;
+    }
 
     public boolean nhapThongTinKhachHang() {
         Scanner scanner = new Scanner(System.in);
@@ -310,6 +316,9 @@ public class KhachHangDTO {
         System.out.printf("│ %-18s : %-28s │\n", "Địa chỉ", diaChiStr);
 
         System.out.printf("│ %-18s : %-28s │\n", "Điện thoại", dienThoai);
+
+        String trangThaiStr = (trangThai.equals("active") ? "Hoạt động" : "Không hoạt động");
+        System.out.printf("│ %-18s : %-28s │\n", "Trạng thái", trangThaiStr);
         System.out.println("└───────────────────────────────────────────────────┘");
     }
 }
