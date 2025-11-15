@@ -26,7 +26,7 @@ public class QuanLySanPham {
             System.out.println("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ MENU CHỨC NĂNG ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓");
             System.out.println("▒ [1] ➜ Thêm sản phẩm                                                          ▒");
             System.out.println("▒ [2] ➜ Chỉnh sửa thông tin sản phẩm                                           ▒");
-            System.out.println("▒ [3] ➜ Đổi trạng thái sản phẩm                                                ▒");
+            System.out.println("▒ [3] ➜ Xóa sản phẩm                                                           ▒");
             System.out.println("▒ [4] ➜ Tìm kiếm sản phẩm                                                      ▒");
             System.out.println("▒ [5] ➜ Thống kê sản phẩm                                                      ▒");
             System.out.println("▒ [6] ➜ Xuất danh sách sản phẩm                                                ▒");
@@ -293,7 +293,7 @@ public class QuanLySanPham {
     public void doiTrangThaiSanPham() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("\n════════════════════════════════════════════");
-        System.out.println("          ĐỔI TRẠNG THÁI SẢN PHẨM");
+        System.out.println("          XÓA SẢN PHẨM");
         System.out.println("════════════════════════════════════════════");
 
         while (true) {

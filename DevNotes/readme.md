@@ -49,9 +49,7 @@ Xây dựng hệ thống quản lý bán hàng cho cửa hàng tiện lợi, h�
 ## Khách Hàng (KhachHang)
 
 -- format lại phần header khi xuất danh sách khách hàng, thêm cột trạng thái
-- in thông tin khách hàng vừa nhập bị sai, 
-- báo lõi nhập số điện thoại 2 lần 
-- check lại validate ngày khi nhập khách hàng năm 9x
+
 
 ## Nhân Viên (NhanVien)
 
