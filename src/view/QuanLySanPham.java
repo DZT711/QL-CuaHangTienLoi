@@ -232,14 +232,15 @@ public class QuanLySanPham {
         System.out.println("\n╔════════════════════════════════════════════════════╗");
         System.out.println("║               SỬA THÔNG TIN SẢN PHẨM               ║");
         System.out.println("╚════════════════════════════════════════════════════╝");
+        System.out.println("Nhập Enter để bỏ qua hoặc '0' để thoát chức năng");
 
         while (true) {
 
-            System.out.print("-> Nhập mã sản phẩm cần sửa (hoặc '0' để thoát): ");
+            System.out.print("→ Nhập mã sản phẩm cần sửa (hoặc '0' để thoát): ");
             String maSP = scanner.nextLine().trim();
 
             if (maSP.equals("0")) {
-                System.out.println("Thoát chức năng sửa sản phẩm.");
+                System.out.println("✓ Thoát chức năng sửa sản phẩm.");
                 break;
             }
 
@@ -261,7 +262,7 @@ public class QuanLySanPham {
             sp.inThongTinSanPham();
 
             if (!sp.sua()) {
-                System.out.println("Đã hủy sửa sản phẩm.");
+                System.out.println("⚠️ Đã hủy sửa sản phẩm.");
                 System.out.print("\n→ Bạn có muốn sửa sản phẩm khác? (Y/N): ");
                 if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) break;
                 continue;

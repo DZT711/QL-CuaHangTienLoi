@@ -101,7 +101,7 @@ public class KhachHangDTO {
                 input = scanner.nextLine().trim();
                 if ("0".equals(input)) return false;
 
-                if (ValidatorUtil.isValidString(input)) {
+                if (ValidatorUtil.isValidName(input)) {
                     this.ho = input;
                     break;
                 }
@@ -113,7 +113,7 @@ public class KhachHangDTO {
                 input = scanner.nextLine().trim();
                 if ("0".equals(input)) return false;
 
-                if (ValidatorUtil.isValidString(input)) {
+                if (ValidatorUtil.isValidName(input)) {
                     this.ten = input;
                     break;
                 }
@@ -200,23 +200,30 @@ public class KhachHangDTO {
     public boolean suaThongTinKhachHang() {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Sửa họ: ");
+        // sửa họ
+        System.out.print("Sửa họ khách hàng: ");
         String newHo = scanner.nextLine().trim();
         if ("0".equals(newHo)) return false;
-        if (!ValidatorUtil.isValidString(newHo) && !newHo.isEmpty()) {
-            System.out.println("❌ Họ không hợp lệ! Giữ nguyên họ");
-        } else this.ho = newHo;
+        if (!newHo.isEmpty()) {
+            if (!ValidatorUtil.isValidName(newHo)) {
+                System.out.println("❌ Họ khách hàng không hợp lệ! Giữ nguyên họ");
+            } else this.ho = newHo;
+        }
 
 
-        System.out.println("Sửa tên: ");
+        // sửa tên
+        System.out.print("Sửa tên khách hàng: ");
         String newTen = scanner.nextLine().trim();
         if ("0".equals(newTen)) return false;
-        if (!ValidatorUtil.isValidString(newTen) && !newTen.isEmpty()) {
-            System.out.println("❌ Tên không hợp lệ! Giữ nguyên tên");
-        } else this.ten = newTen;
+        if (!newTen.isEmpty()) {
+            if (!ValidatorUtil.isValidName(newTen)) {
+                System.out.println("❌ Tên khách hàng không hợp lệ! Giữ nguyên tên khách hàng");
+            } else this.ten = newTen;
+        }
 
 
-        System.out.print("→ Sửa giới tính: ");
+        // sửa giới tính    
+        System.out.print("Sửa giới tính (Nam/Nữ): ");
         String newGioiTinh = scanner.nextLine().trim();
         if ("0".equals(newGioiTinh)) return false;
 
@@ -229,13 +236,11 @@ public class KhachHangDTO {
             } else {
                 System.out.println("❌ Giới tính không hợp lệ! Giữ nguyên giới tính");
             }
-        } else System.out.println("❌ Giới tính không hợp lệ! Giữ nguyên giới tính");
+        } 
 
 
-        String ngaySinhHienTai = (this.ngaySinh != null) ? 
-                            this.ngaySinh.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : 
-                            "(Chưa có)";
-        System.out.print("→ Sửa ngày sinh [" + ngaySinhHienTai + "] (dd/MM/yyyy): ");
+        // sửa ngày sinh
+        System.out.print("Sửa ngày sinh (dd/MM/yyyy): ");
         String newNgaySinh = scanner.nextLine().trim();
         if ("0".equals(newNgaySinh)) return false;
         if (!newNgaySinh.isEmpty()) {
@@ -249,8 +254,8 @@ public class KhachHangDTO {
                     System.out.println("❌ Ngày sinh không được lớn hơn ngày hiện tại! Giữ nguyên ngày sinh");
                 } else {
                     int tuoi = Period.between(ngaySinh, LocalDate.now()).getYears();
-                    if (tuoi < 12 || tuoi > 100) {
-                        System.out.println("❌ Ngày sinh không hợp lý! Giữ nguyên ngày sinh");
+                    if (tuoi < 12 || tuoi > 80) {
+                        System.out.println("❌ Khách hàng phải từ 12 đến 80 tuổi! Giữ nguyên ngày sinh");
                     } else {
                         this.ngaySinh = ngaySinh;
                     }
@@ -258,10 +263,8 @@ public class KhachHangDTO {
             }
         }
 
-
-        String diaChiHienTai = (this.diaChi != null && !this.diaChi.isEmpty()) ? 
-                        this.diaChi : "(Chưa có)";
-        System.out.print("→ Sửa địa chỉ [" + diaChiHienTai + "]: ");
+        // sửa địa chỉ
+        System.out.print("Sửa địa chỉ: ");
         String newDiaChi = scanner.nextLine().trim();
 
         if ("0".equals(newDiaChi)) return false;
@@ -274,7 +277,7 @@ public class KhachHangDTO {
             }
         }
 
-        System.out.print("→ Sửa số điện thoại [" + this.dienThoai + "] (10 số): ");
+        System.out.print("Sửa số điện thoại (10 số): ");
         String newSdt = scanner.nextLine().trim();
 
         if ("0".equals(newSdt)) return false;
