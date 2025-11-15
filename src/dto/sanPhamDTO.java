@@ -256,11 +256,13 @@ public class SanPhamDTO {
         String newTenSP = scanner.nextLine().trim();
         if (newTenSP.equals("0"))
             return false;
-        if (!ValidatorUtil.isValidString(newTenSP))
-            System.out.println("❌ Tên sản phẩm không hợp lệ! Giữ nguyên tên sản phẩm.");
-        else
-            this.tenSP = newTenSP;
+        if (!newTenSP.isEmpty()) {
+            if (!ValidatorUtil.isValidString(newTenSP)) 
+                System.out.println("❌ Tên sản phẩm không hợp lệ! Giữ nguyên tên sản phẩm.");
+            else this.tenSP = newTenSP;
+        }
 
+        // sửa loại sản phẩm
         System.out.print("Sửa loại sản phẩm (1-10): ");
         String inputLoai = scanner.nextLine().trim();
         if (inputLoai.equals("0"))
@@ -313,20 +315,24 @@ public class SanPhamDTO {
         String newMoTa = scanner.nextLine().trim();
         if (newMoTa.equals("0"))
             return false;
-        if (!ValidatorUtil.isValidString(newMoTa)) {
-            System.out.println("❌ Mô tả không hợp lệ! Giữ nguyên mô tả.");
-        } else
-            this.moTa = newMoTa;
+        if (!newMoTa.isEmpty()) {
+            if (!ValidatorUtil.isValidString(newMoTa)) {
+                System.out.println("❌ Mô tả không hợp lệ! Giữ nguyên mô tả.");
+            } else this.moTa = newMoTa;
+        }
+        
 
         System.out.print("Sửa trạng thái (active / inactive): ");
         String newTrangThai = scanner.nextLine().trim().toLowerCase();
         if (newTrangThai.equals("0"))
             return false;
 
-        if ("active".equals(newTrangThai) || "inactive".equals(newTrangThai)) {
-            this.trangThai = newTrangThai;
-        } else if (!newTrangThai.isEmpty()) {
-            System.out.println("❌ Trạng thái không hợp lệ, giữ nguyên trạng thái");
+        if (!newTrangThai.isEmpty()) {
+            if ("active".equals(newTrangThai) || "inactive".equals(newTrangThai)) {
+                this.trangThai = newTrangThai;
+            } else if (!newTrangThai.isEmpty()) {
+                System.out.println("❌ Trạng thái không hợp lệ, giữ nguyên trạng thái");
+            }
         }
 
         return true;
