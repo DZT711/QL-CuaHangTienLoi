@@ -239,9 +239,9 @@ public class SanPhamDAO {
                 return;
             }
 
-            System.out.println("\n╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
-            System.out.println("║                                                   THỐNG KÊ SẢN PHẨM THEO LOẠI                                                ║");
-            System.out.println("╠══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣");
+            System.out.println("\n╔═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗");
+            System.out.println("║                                                      THỐNG KÊ SẢN PHẨM THEO LOẠI                                                  ║");
+            System.out.println("╠═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣");
             System.out.printf("║  %-35s │ %-19s │ %-19s │ %-25s │ %-19s ║\n", 
                             "LOẠI SẢN PHẨM",  "SỐ LƯỢNG SẢN PHẨM", "SỐ LƯỢNG TỒN KHO",  "GIÁ TRỊ TỒN KHO",  "GIÁ TB (1 SP)");
             System.out.println("╠══════════════════════════════════════╪═════════════════════╪═════════════════════╪═══════════════════════════╪═════════════════════╣");
@@ -359,7 +359,7 @@ public class SanPhamDAO {
             
             try (ResultSet rs = stmt.executeQuery()) {
                 System.out.println("\n╔════════════════════════════════════════════════════════════════════════════════════════════╗");
-                System.out.println("║              DANH SÁCH SẢN PHẨM SẮP HẾT TỒN KHO (≤ " + soLuong + " sản phẩm)                          ║");
+                System.out.println("║                    DANH SÁCH SẢN PHẨM SẮP HẾT TỒN KHO (≤ " + soLuong + " sản phẩm)                      ║");
                 System.out.println("╠════════════╤══════════════════════╤══════════════════╤══════════════════╤══════════════════╣");
                 System.out.printf("║ %-10s │ %-20s │ %-16s │ %-16s │ %-16s ║\n",
                         "MÃ SP", "TÊN SẢN PHẨM", "LOẠI", "SỐ LƯỢNG TỒN", "GIÁ BÁN");
@@ -393,10 +393,10 @@ public class SanPhamDAO {
                     System.out.println("║         Không có sản phẩm nào có tồn kho ≤ " + soLuong + " sản phẩm                           ║");
                 } else {
                     System.out.println("╠════════════╧══════════════════════╧══════════════════╧══════════════════╧══════════════════╣");
-                    System.out.printf("║ %-20s │ Tổng số SP: %-8d │ Tổng giá trị: %18s ║\n",
+                    System.out.printf("║ %-14s │ Tổng số SP: %-8d │ Tổng giá trị: %18s ║\n",
                         "", count, FormatUtil.formatVND(tongGiaTri));
                 }
-                System.out.println("╚════════════╧══════════════════════╧══════════════════╧══════════════════╧══════════════════╝");
+                System.out.println("╚════════════════════════════════════════════════════════════════════════════════════════════╝");
             }
         } catch (SQLException e) {
             System.err.println("Lỗi khi thống kê sản phẩm sắp hết trong kho: " + e.getMessage());
