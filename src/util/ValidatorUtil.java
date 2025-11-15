@@ -8,21 +8,29 @@ import java.time.temporal.ChronoUnit;
 public class ValidatorUtil {
     public static boolean isValidString(String input) {
         // tình huống nhập 0 để thoát
-        if (input == null || input.isEmpty()) return false;
+        if (input == null || input.isEmpty())
+            return false;
 
-        if (input.length() < 3 || input.length() > 200) return false;
+        if (input.length() < 3 || input.length() > 200)
+            return false;
 
-        if (input.matches(".*\\s{2,}.*")) return false;
-        
-        if (input.matches("^[0-9\\s\\-\\.\\,]+$")) return false;
-        
-        if (input.matches(".*[!@#$%^&*()_+={}\\[\\]|\\\\:;\"'<>?/~`].*")) return false;
-        
-        if (input.matches(".*[^a-zA-Z0-9À-ỹĐđ][^a-zA-Z0-9À-ỹĐđ].*")) return false;
+        if (input.matches(".*\\s{2,}.*"))
+            return false;
 
-        if (input.matches(".*\\s{2,}.*")) return false;
-        
-        if (!input.matches(".*[a-zA-ZÀ-ỹĐđ]+.*")) return false; 
+        if (input.matches("^[0-9\\s\\-\\.\\,]+$"))
+            return false;
+
+        if (input.matches(".*[!@#$%^&*()_+={}\\[\\]|\\\\:;\"'<>?/~`].*"))
+            return false;
+
+        if (input.matches(".*[^a-zA-Z0-9À-ỹĐđ][^a-zA-Z0-9À-ỹĐđ].*"))
+            return false;
+
+        if (input.matches(".*\\s{2,}.*"))
+            return false;
+
+        if (!input.matches(".*[a-zA-ZÀ-ỹĐđ]+.*"))
+            return false;
 
         return true;
     }
@@ -57,8 +65,8 @@ public class ValidatorUtil {
 
         // int currentYear = LocalDate.now().getYear();
         // if (year < 2000 || year > currentYear) {
-        //     System.out.println("❌ Năm phải từ 2000 đến " + currentYear + "!");
-        //     return false;
+        // System.out.println("❌ Năm phải từ 2000 đến " + currentYear + "!");
+        // return false;
         // }
 
         if (month < 1 || month > 12) {
@@ -246,41 +254,82 @@ public class ValidatorUtil {
         return true;
     }
 
-    public static boolean isValidName(String name) {
-        if (name == null || name.trim().isEmpty()) {
-            System.out.println("❌ Họ/Tên không được để trống!");
+    public static boolean isValidLastName(String lastName) {
+        if (lastName == null || lastName.trim().isEmpty()) {
+            System.out.println("❌ Họ không được để trống!");
             return false;
         }
 
-        name = name.trim();
+        lastName = lastName.trim();
 
-        if (name.length() < 2 || name.length() > 200) {
-            System.out.println("❌ Họ/Tên phải có độ dài hơn 2  ký tự!");
+        // Kiểm tra độ dài
+        if (lastName.length() < 2 || lastName.length() > 50) {
+            System.out.println("❌ Họ phải có độ dài từ 2 đến 50 ký tự!");
             return false;
         }
 
-        // Kiểm tra không được chứa số
-        if (name.matches(".*[0-9].*")) {
-            System.out.println("❌ Họ/Tên không được chứa số!");
+        // Kiểm tra chỉ chứa chữ cái và khoảng trắng (đã bao gồm: không có số, ký tự đặc
+        // biệt, dấu gạch ngang, khoảng trắng liên tiếp)
+        if (!lastName.matches("^[a-zA-ZÀ-ỹĐđ]+(\\s[a-zA-ZÀ-ỹĐđ]+)*$")) {
+            System.out.println("❌ Họ không hợp lệ!");
             return false;
         }
 
-        // Kiểm tra không được chỉ chứa số và khoảng trắng
-        if (name.matches("^[0-9\\s\\-\\.\\,]+$")) {
-            System.out.println("❌ Họ/Tên không hợp lệ!");
+        // Kiểm tra số từ và độ dài mỗi từ
+        String[] words = lastName.split("\\s+");
+        if (words.length > 5) {
+            System.out.println("❌ Họ không được quá 5 từ!");
             return false;
         }
 
-        // Kiểm tra không chứa ký tự đặc biệt không hợp lệ
-        if (name.matches(".*[!@#$%^&*()_+={}\\[\\]|\\\\:;\"'<>?/~`].*")) {
-            System.out.println("❌ Họ/Tên không được chứa ký tự đặc biệt!");
+        for (String word : words) {
+            if (word.length() < 2) {
+                System.out.println("❌ Mỗi từ trong họ phải có ít nhất 2 ký tự!");
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static boolean isValidFirstName(String firstName) {
+        if (firstName == null || firstName.trim().isEmpty()) {
+            System.out.println("❌ Tên không được để trống!");
             return false;
         }
 
-        // Kiểm tra không có 2 ký tự không phải chữ/số liên tiếp
-        if (name.matches(".*[^a-zA-ZÀ-ỹĐđ][^a-zA-ZÀ-ỹĐđ].*")) {
-            System.out.println("❌ Họ/Tên không hợp lệ!");
+        firstName = firstName.trim();
+
+        // Kiểm tra độ dài
+        if (firstName.length() < 2 || firstName.length() > 100) {
+            System.out.println("❌ Tên phải có độ dài từ 2 đến 100 ký tự!");
             return false;
+        }
+
+        // Kiểm tra chỉ chứa chữ cái và khoảng trắng (đã bao gồm: không có số, ký tự đặc
+        // biệt, dấu gạch ngang, khoảng trắng liên tiếp)
+        if (!firstName.matches("^[a-zA-ZÀ-ỹĐđ]+(\\s[a-zA-ZÀ-ỹĐđ]+)*$")) {
+            System.out.println("❌ Tên không hợp lệ!");
+            return false;
+        }
+
+        // Kiểm tra số từ và độ dài mỗi từ
+        String[] words = firstName.split("\\s+");
+        if (words.length > 5) {
+            System.out.println("❌ Tên không được quá 5 từ!");
+            return false;
+        }
+
+        for (String word : words) {
+            if (word.length() < 2) {
+                System.out.println("❌ Mỗi từ trong tên phải có ít nhất 2 ký tự!");
+                return false;
+            }
+
+            if (word.length() > 30) {
+                System.out.println("❌ Mỗi từ trong tên không được quá 30 ký tự!");
+                return false;
+            }
         }
 
         return true;
