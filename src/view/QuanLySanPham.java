@@ -232,7 +232,6 @@ public class QuanLySanPham {
         System.out.println("\n╔════════════════════════════════════════════════════╗");
         System.out.println("║               SỬA THÔNG TIN SẢN PHẨM               ║");
         System.out.println("╚════════════════════════════════════════════════════╝");
-        System.out.println("Nhập Enter để bỏ qua hoặc '0' để thoát chức năng");
 
         while (true) {
 
@@ -281,7 +280,7 @@ public class QuanLySanPham {
             }
 
             if (SanPhamDAO.suaSanPham(sp)) {
-                System.out.println("✅ Cập nhật sản phẩm thành công!");
+                System.out.println("\n✅ Cập nhật sản phẩm thành công!");
             } else {
                 System.out.println("❌ Cập nhật sản phẩm thất bại!");
             }

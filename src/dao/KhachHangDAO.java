@@ -23,7 +23,7 @@ public class KhachHangDAO {
     public static List<KhachHangDTO> getAllKhachHang() {
         
         String query = """
-            SELECT MaKH, Ho, Ten, GioiTinh, NgaySinh, DienThoai, DiaChi
+            SELECT MaKH, Ho, Ten, GioiTinh, NgaySinh, DienThoai, DiaChi, TrangThai
             FROM KHACHHANG
             ORDER BY MaKH ASC        
         """;
@@ -40,6 +40,7 @@ public class KhachHangDAO {
                 String ten = rs.getString("Ten");
                 String gioiTinh = rs.getString("GioiTinh");
                 String dienThoai = rs.getString("DienThoai");
+                String trangThai = rs.getString("TrangThai");
                 
                 LocalDate ngaySinh = null;
                 java.sql.Date sqlDate = rs.getDate("NgaySinh");
@@ -49,7 +50,7 @@ public class KhachHangDAO {
                 
                 String diaChi = rs.getString("DiaChi");
                 
-                list.add(new KhachHangDTO(maKH, ho, ten, gioiTinh, ngaySinh, diaChi, dienThoai));
+                list.add(new KhachHangDTO(maKH, ho, ten, gioiTinh, ngaySinh, diaChi, dienThoai, trangThai));
             }
             
         } catch (SQLException e) {
@@ -60,49 +61,49 @@ public class KhachHangDAO {
     }
 
     public static boolean themKhachHang(KhachHangDTO kh) {
-    // Check trùng SĐT
-    KhachHangDTO existing = timKhachHangTheoDienThoai(kh.getDienThoai());
-    if (existing != null) {
-        System.out.println("❌ Số điện thoại đã tồn tại trong hệ thống!");
-        System.out.println("📋 Khách hàng: " + existing.getHo() + " " + existing.getTen() + 
-                           " (Mã: " + existing.getMaKH() + ")");
-        return false;
-    }
-    
-    String query = "INSERT INTO KHACHHANG (MaKH, Ho, Ten, GioiTinh, NgaySinh, DienThoai, DiaChi) " +
-                   "VALUES (?, ?, ?, ?, ?, ?, ?)";
-
-    try (Connection conn = JDBCUtil.getConnection();
-        PreparedStatement stmt = conn.prepareStatement(query)) {
-
-        stmt.setString(1, kh.getMaKH());
-        stmt.setString(2, kh.getHo());
-        stmt.setString(3, kh.getTen());
-        stmt.setString(4, kh.getGioiTinh());
-        
-        if (kh.getNgaySinh() != null) {
-            stmt.setDate(5, java.sql.Date.valueOf(kh.getNgaySinh()));
-        } else {
-            stmt.setNull(5, java.sql.Types.DATE);
+        // Check trùng SĐT
+        KhachHangDTO existing = timKhachHangTheoDienThoai(kh.getDienThoai());
+        if (existing != null) {
+            System.out.println("❌ Số điện thoại đã tồn tại trong hệ thống!");
+            System.out.println("📋 Khách hàng: " + existing.getHo() + " " + existing.getTen() + 
+                            " (Mã: " + existing.getMaKH() + ")");
+            return false;
         }
-        stmt.setString(6, kh.getDienThoai());
         
+        String query = "INSERT INTO KHACHHANG (MaKH, Ho, Ten, GioiTinh, NgaySinh, DienThoai, DiaChi) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        if (kh.getDiaChi() != null && !kh.getDiaChi().isEmpty()) {
-            stmt.setString(7, kh.getDiaChi());
-        } else {
-            stmt.setNull(7, java.sql.Types.VARCHAR);
+        try (Connection conn = JDBCUtil.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, kh.getMaKH());
+            stmt.setString(2, kh.getHo());
+            stmt.setString(3, kh.getTen());
+            stmt.setString(4, kh.getGioiTinh());
+            
+            if (kh.getNgaySinh() != null) {
+                stmt.setDate(5, java.sql.Date.valueOf(kh.getNgaySinh()));
+            } else {
+                stmt.setNull(5, java.sql.Types.DATE);
+            }
+            stmt.setString(6, kh.getDienThoai());
+            
+
+            if (kh.getDiaChi() != null && !kh.getDiaChi().isEmpty()) {
+                stmt.setString(7, kh.getDiaChi());
+            } else {
+                stmt.setNull(7, java.sql.Types.VARCHAR);
+            }
+
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+            
+        } catch (SQLException e) {
+            System.err.println("❌ Lỗi khi thêm khách hàng: " + e.getMessage());
+            e.printStackTrace();
+            return false;
         }
-
-        int rowsAffected = stmt.executeUpdate();
-        return rowsAffected > 0;
-        
-    } catch (SQLException e) {
-        System.err.println("❌ Lỗi khi thêm khách hàng: " + e.getMessage());
-        e.printStackTrace();
-        return false;
     }
-}
 
     public static boolean suaKhachHang(KhachHangDTO kh) {
         
@@ -166,7 +167,7 @@ public class KhachHangDAO {
     public static List<KhachHangDTO> timKhachHangTheoTen(String tenKH) {
         
         String query = """
-            SELECT MaKH, Ho, Ten, GioiTinh, NgaySinh, DienThoai, DiaChi
+            SELECT MaKH, Ho, Ten, GioiTinh, NgaySinh, DienThoai, DiaChi, TrangThai
             FROM KHACHHANG
             WHERE CONCAT(Ho, ' ', Ten) COLLATE utf8mb4_unicode_ci LIKE ?
         """;
@@ -193,8 +194,9 @@ public class KhachHangDAO {
                     }
                     
                     String diaChi = rs.getString("DiaChi");
+                    String trangThai = rs.getString("TrangThai");
                     
-                    list.add(new KhachHangDTO(maKH, ho, ten, gioiTinh, ngaySinh, diaChi, dienThoai));
+                    list.add(new KhachHangDTO(maKH, ho, ten, gioiTinh, ngaySinh, diaChi, dienThoai, trangThai));
                 }
             }
         } catch (SQLException e) {
@@ -205,7 +207,7 @@ public class KhachHangDAO {
     }
 
     public static KhachHangDTO timKhachHangTheoMa(String maKH) {
-        String query = "SELECT MaKH, Ho, Ten, GioiTinh, NgaySinh, DienThoai, DiaChi FROM KHACHHANG WHERE MaKH = ?";
+        String query = "SELECT MaKH, Ho, Ten, GioiTinh, NgaySinh, DienThoai, DiaChi, TrangThai FROM KHACHHANG WHERE MaKH = ?";
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -226,8 +228,9 @@ public class KhachHangDAO {
                     }
                     
                     String diaChi = rs.getString("DiaChi");
+                    String trangThai = rs.getString("TrangThai");
                     
-                    return new KhachHangDTO(maKH, ho, ten, gioiTinh, ngaySinh, diaChi, dienThoai);
+                    return new KhachHangDTO(maKH, ho, ten, gioiTinh, ngaySinh, diaChi, dienThoai, trangThai);
                 }
             }
             
@@ -244,7 +247,7 @@ public class KhachHangDAO {
             return null;
         }
 
-        String query = "SELECT MaKH, Ho, Ten, GioiTinh, NgaySinh, DienThoai, DiaChi FROM KHACHHANG WHERE DienThoai = ?";
+        String query = "SELECT MaKH, Ho, Ten, GioiTinh, NgaySinh, DienThoai, DiaChi, TrangThai FROM KHACHHANG WHERE DienThoai = ?";
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -265,8 +268,9 @@ public class KhachHangDAO {
                     }
                     
                     String diaChi = rs.getString("DiaChi");
+                    String trangThai = rs.getString("TrangThai");
                     
-                    return new KhachHangDTO(maKH, ho, ten, gioiTinh, ngaySinh, diaChi, dienThoai);
+                    return new KhachHangDTO(maKH, ho, ten, gioiTinh, ngaySinh, diaChi, dienThoai, trangThai);
                 }
             }
         } catch (SQLException e) {
@@ -425,7 +429,7 @@ public class KhachHangDAO {
                         diaChi = null;
                     }
 
-                    KhachHangDTO kh = new KhachHangDTO(maKH, ho, ten, gioiTinh, ngaySinh, diaChi, dienThoai.replaceAll("\\s", ""));
+                    KhachHangDTO kh = new KhachHangDTO(maKH, ho, ten, gioiTinh, ngaySinh, diaChi, dienThoai.replaceAll("\\s", ""), null);
 
                     if (themKhachHang(kh)) {
                         added++;
@@ -553,7 +557,7 @@ public class KhachHangDAO {
             PreparedStatement stmt = conn.prepareStatement(query);
             ResultSet rs = stmt.executeQuery()) {
 
-            System.out.println("\n╔═══════════════════════════════════════════════════════════╗");
+            System.out.println("\n╔══════════════════════════════════════════════════════════╗");
             System.out.println("║       THỐNG KÊ KHÁCH HÀNG THEO SỐ LƯỢNG ĐƠN HÀNG         ║");
             System.out.println("╠════════════╤══════════════════╤═══════════════╤══════════╣");
             System.out.printf("║ %-10s │ %-16s │ %-13s │ %-8s ║\n",
@@ -577,7 +581,7 @@ public class KhachHangDAO {
             
             System.out.println("╠════════════╧══════════════════╧═══════════════╪══════════╣");
             System.out.printf("║ %-42s    │ %-8d ║\n", "Tổng đơn hàng", tongDon);
-            System.out.println("╚════════════════════════════════════════════════╧══════════╝");
+            System.out.println("╚═══════════════════════════════════════════════╧══════════╝");
             System.out.println("📊 Tổng số khách hàng: " + soKH);
             
         } catch (SQLException e) {
@@ -599,8 +603,8 @@ public class KhachHangDAO {
             PreparedStatement stmt = conn.prepareStatement(query);
             ResultSet rs = stmt.executeQuery()) {
 
-            System.out.println("\n╔═══════════════════════════════════════════════════════════════════╗");
-            System.out.println("║          THỐNG KÊ KHÁCH HÀNG THEO TỔNG CHI TIÊU                  ║");
+            System.out.println("\n╔══════════════════════════════════════════════════════════════════╗");
+            System.out.println("║               THỐNG KÊ KHÁCH HÀNG THEO TỔNG CHI TIÊU             ║");
             System.out.println("╠════════════╤══════════════════╤═══════════════╤══════════════════╣");
             System.out.printf("║ %-10s │ %-16s │ %-13s │ %-16s ║\n",
                     "Mã KH", "Họ", "Tên", "Tổng chi tiêu");
@@ -622,9 +626,9 @@ public class KhachHangDAO {
             }
             
             System.out.println("╠════════════╧══════════════════╧═══════════════╪══════════════════╣");
-            System.out.printf("║ %-42s │ %-16s ║\n", "Tổng cộng", 
+            System.out.printf("║ %-46s │ %-16s ║\n", "Tổng cộng", 
                     FormatUtil.formatVND(tongChiTieuTatCa));
-            System.out.println("╚════════════════════════════════════════════════╧══════════════════╝");
+            System.out.println("╚═══════════════════════════════════════════════╧══════════════════╝");
             System.out.println("📊 Tổng số khách hàng: " + soKH);
             
         } catch (SQLException e) {
