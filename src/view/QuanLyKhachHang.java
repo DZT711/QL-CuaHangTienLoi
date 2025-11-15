@@ -217,6 +217,7 @@ public class QuanLyKhachHang {
         System.out.println("\n╔════════════════════════════════════════════════════╗");
         System.out.println("║             SỬA THÔNG TIN KHÁCH HÀNG               ║");
         System.out.println("╚════════════════════════════════════════════════════╝");
+        System.out.println("Nhập Enter để bỏ qua hoặc '0' để thoát chức năng");
         
         while (true) {
 
@@ -247,8 +248,8 @@ public class QuanLyKhachHang {
             if (!kh.suaThongTinKhachHang()) {
                 System.out.println("⚠️  Đã hủy sửa khách hàng.");
                 System.out.print("\n→ Bạn có muốn sửa khách hàng khác? (Y/N): ");
-                if (!"Y".equalsIgnoreCase(scanner.nextLine().trim()))
-                break;
+                if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) break;
+                continue;
             }
 
             System.out.println("\n📝 THÔNG TIN SAU KHI SỬA:");
@@ -264,9 +265,9 @@ public class QuanLyKhachHang {
             }
             
             if (KhachHangDAO.suaKhachHang(kh)) {
-                System.out.println("\n✅ Cập nhật khách hàng thành công!");
+                System.out.println("✅ Cập nhật khách hàng thành công!");
             } else {
-                System.out.println("\n❌ Cập nhật khách hàng thất bại!");
+                System.out.println("❌ Cập nhật khách hàng thất bại!");
             }
             
             System.out.print("\n→ Bạn có muốn sửa khách hàng khác? (Y/N): ");
