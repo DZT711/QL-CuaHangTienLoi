@@ -85,7 +85,13 @@ public class ChiTietPhieuNhapDTO {
 
         SanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
         if (sp == null) {
-            System.out.println("❌ Sản phẩm không tồn tại!");
+            System.out.println("❌ Không tìm thấy sản phẩm với mã: " + maSP);
+            return true;
+        }
+
+        if ("inactive".equalsIgnoreCase(sp.getTrangThai())) {
+            System.out.println("❌ Sản phẩm này đã ngừng kinh doanh!");
+            System.out.println("💡 Không thể nhập hàng cho sản phẩm ngừng kinh doanh.");
             return true;
         }
 
@@ -106,8 +112,7 @@ public class ChiTietPhieuNhapDTO {
             try {
                 soLuong = Integer.parseInt(scanner.nextLine().trim());
                 
-                if (soLuong <= 0 || soLuong > 5000)  break;
-                
+                if (soLuong > 0 && soLuong <= 5000)  break;
                 System.out.println("❌ Số lượng không hợp lệ! (1-5000)");
 
             } catch (NumberFormatException e) {

@@ -27,14 +27,14 @@ public class QuanLyChiTietPhieuNhap {
         while (true) {
             System.out.println("\n████████████████████████████████████████████████████████████████████████████████");
             System.out.println("██                                                                            ██");
-            System.out.println("██                      HỆ THỐNG QUẢN LÝ CHI TIẾT PHIẾU NHẬP                      ██");
+            System.out.println("██                      HỆ THỐNG QUẢN LÝ CHI TIẾT PHIẾU NHẬP                  ██");
             System.out.println("██                                                                            ██");
             System.out.println("████████████████████████████████████████████████████████████████████████████████");
             System.out.println("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ MENU CHỨC NĂNG ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓");
-            System.out.println("▒ [1] ➜ Thêm chi tiết vào phiếu nhập                                         ▒");
-            System.out.println("▒ [2] ➜ Tìm kiếm chi tiết phiếu nhập                                        ▒");
-            System.out.println("▒ [3] ➜ Xem danh sách chi tiết phiếu nhập                                  ▒");
-            System.out.println("▒ [4] ➜ Thống kê sản phẩm nhập nhiều nhất                                  ▒");
+            System.out.println("▒ [1] ➜ Thêm chi tiết vào phiếu nhập                                           ▒");
+            System.out.println("▒ [2] ➜ Tìm kiếm chi tiết phiếu nhập                                           ▒");
+            System.out.println("▒ [3] ➜ Xem danh sách chi tiết phiếu nhập                                      ▒");
+            System.out.println("▒ [4] ➜ Thống kê sản phẩm nhập nhiều nhất                                      ▒");
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░");
             System.out.println("░ [0] ✗ Quay lại menu chính                                                    ░");
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░");
@@ -83,22 +83,29 @@ public class QuanLyChiTietPhieuNhap {
         System.out.println("║          THÊM CHI TIẾT VÀO PHIẾU NHẬP              ║");
         System.out.println("╚════════════════════════════════════════════════════╝");
 
-        System.out.print("\n→ Nhập mã phiếu nhập (hoặc '0' để hủy): ");
-        String ma = scanner.nextLine().trim();
-        if ("0".equals(ma)) {
-            System.out.println("⚠️  Đã hủy thao tác.");
-            return;
-        }
-        if (ma.isEmpty()) {
-            System.out.println("❌ Mã phiếu nhập không được để trống!");
-            return;
+        String ma;
+        NhapHangDTO phieuNhap = null;
+        while (true) {
+            System.out.print("\n→ Nhập mã phiếu nhập (hoặc '0' để hủy): ");
+            ma = scanner.nextLine().trim();
+            
+            if ("0".equals(ma)) {
+                System.out.println("⚠️  Đã hủy thao tác.");
+                return;
+            }
+            if (ma.isEmpty()) {
+                System.out.println("❌ Mã phiếu nhập không được để trống!");
+                continue;
+            }
+
+            phieuNhap = NhapHangDAO.timPhieuNhapTheoMa(ma);
+            if (phieuNhap == null) {
+                System.out.println("❌ Không tìm thấy phiếu nhập với mã: " + ma);
+                continue;
+            }
+            break;
         }
 
-        NhapHangDTO phieuNhap = NhapHangDAO.timPhieuNhapTheoMa(ma);
-        if (phieuNhap == null) {
-            System.out.println("❌ Không tìm thấy phiếu nhập với mã: " + ma);
-            return;
-        }
 
         System.out.println("\n✅ Tìm thấy phiếu nhập:");
         System.out.println("   Mã phiếu: " + phieuNhap.getMaPhieu());
@@ -111,6 +118,7 @@ public class QuanLyChiTietPhieuNhap {
         String maNCC = phieuNhap.getMaNCC();
 
         Connection conn = null;
+        boolean canceled = false;
         try {
             conn = util.JDBCUtil.getConnection();
             conn.setAutoCommit(false);
@@ -118,15 +126,27 @@ public class QuanLyChiTietPhieuNhap {
             int tongTienThem = 0;
             int countSuccess = 0;
 
-            System.out.println("\n📦 NHẬP CHI TIẾT HÀNG HÓA");
+            System.out.println("\n📦 NHẬP CHI TIẾT HÀNG HÓA  (nhập '0' để kết thúc)");
+            productLoop:
             while (true) {
                 System.out.print("\n -> Nhập mã sản phẩm (hoặc '0' để kết thúc): ");
                 String maSP = scanner.nextLine().trim();
                 if (maSP.equals("0")) break;
 
+                if (maSP.isEmpty()) {
+                    System.out.println("❌ Mã sản phẩm không được để trống!");
+                    continue;
+                }
+
                 SanPhamDTO sanPham = SanPhamDAO.timSanPhamTheoMa(maSP);
                 if (sanPham == null) {
-                    System.out.println("❌ Không tìm thấy sản phẩm: " + maSP);
+                    System.out.println("❌ Không tìm thấy sản phẩm với mã: " + maSP);
+                    continue;
+                }
+
+                if ("inactive".equals(sanPham.getTrangThai())) {
+                    System.out.println("❌ Sản phẩm đã ngừng kinh doanh!");
+                    System.out.println("💡 Không thể nhập hàng cho sản phẩm ngừng kinh doanh.");
                     continue;
                 }
                 
@@ -144,17 +164,20 @@ public class QuanLyChiTietPhieuNhap {
 
                 int soLuong;
                 while (true) {
-                    System.out.print("→ Số lượng: ");
+                    System.out.print("→ Số lượng (1 - 5000): ");
                     String slStr = scanner.nextLine().trim();
-                    
+
+                    if ("0".equals(slStr)) {
+                        canceled = true;
+                        break productLoop;
+                    }
+
                     try {
                         soLuong = Integer.parseInt(slStr);
-                        if (soLuong > 0 && soLuong <= 5000) {
-                            break; 
-                        }
-                        System.out.println("❌ Số lượng phải lớn hơn 0!");
+                        if (soLuong > 0 && soLuong <= 5000) break; 
+                        System.out.println("❌ Số lượng phải từ 1 đến 5000!");
                     } catch (NumberFormatException e) {
-                        System.out.println("❌ Số lượng không hợp lệ!");
+                        System.out.println("❌ Vui lòng nhập số nguyên hợp lệ!");
                     }
                 }
 
@@ -162,13 +185,18 @@ public class QuanLyChiTietPhieuNhap {
                 while (true) {
                     System.out.print("→ Giá nhập: ");
                     String giaStr = scanner.nextLine().trim();
-                    
+
+                    if ("0".equals(giaStr)) {
+                        canceled = true;
+                        break productLoop;
+                    }
+
                     try {
                         giaNhap = Integer.parseInt(giaStr);
                         if (giaNhap > 0 && giaNhap <= 1_000_000) break; 
-                        System.out.println("❌ Giá nhập phải lớn hơn 0!");
+                        System.out.println("❌ Giá nhập phải từ 1 đến 1,000,000!");
                     } catch (NumberFormatException e) {
-                        System.out.println("❌ Giá nhập không hợp lệ!");
+                        System.out.println("❌ Vui lòng nhập số nguyên hợp lệ!");
                     }
                 }
 
@@ -177,12 +205,17 @@ public class QuanLyChiTietPhieuNhap {
                 while (true) {
                     System.out.print("→ Ngày sản xuất (dd/MM/yyyy): ");
                     String nsxStr = scanner.nextLine().trim();
+
+                    if ("0".equals(nsxStr)) {
+                        canceled = true;
+                        break productLoop;
+                    }
                     
                     if (!ValidatorUtil.isValidateDate(nsxStr)) continue;
                     ngaySanXuat = LocalDate.parse(nsxStr, formatter);
 
-                    if (!ngaySanXuat.isAfter(LocalDate.now())) {
-                        System.out.println("❌ Ngày sản xuất không được sau ngày hiện tại!");
+                    if (ngaySanXuat.isAfter(LocalDate.now())) {
+                        System.out.println("❌ Ngày sản xuất không được trong tương lai!");
                         continue;
                     }
                     break;
@@ -192,6 +225,11 @@ public class QuanLyChiTietPhieuNhap {
                 while (true) {
                     System.out.print("→ Hạn sử dụng (dd/MM/yyyy): ");
                     String hsdStr = scanner.nextLine().trim();
+
+                    if ("0".equals(hsdStr)) {
+                        canceled = true;
+                        break productLoop;
+                    }
                     
                     if (!ValidatorUtil.isValidateDate(hsdStr)) continue;
                     hanSuDung = LocalDate.parse(hsdStr, formatter);
@@ -240,6 +278,13 @@ public class QuanLyChiTietPhieuNhap {
                     System.out.println("⚠️  Lỗi: " + e.getMessage());
                     System.out.println("⚠️  Bỏ qua sản phẩm này.\n");
                 }
+            }
+
+            if (canceled) {
+                conn.rollback();
+                System.out.println("\n⚠️  Đã hủy thao tác và rollback toàn bộ!");
+                System.out.println("ℹ️  Không có thay đổi nào được lưu vào phiếu nhập.");
+                return;
             }
 
             if (countSuccess > 0) {

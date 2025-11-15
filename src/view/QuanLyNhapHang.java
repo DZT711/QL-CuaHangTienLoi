@@ -379,23 +379,33 @@ public class QuanLyNhapHang {
     public void timPhieuNhapTheoMa() {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("\n╔════════════════════════════════════════════════════╗");
-        System.out.println("║                 TÌM KIẾM PHIẾU NHẬP                ║");
-        System.out.println("╚════════════════════════════════════════════════════╝");
+        System.out.println("\n╔═══════════════════════════════════════════════════════════════╗");
+        System.out.println("║                    TÌM KIẾM PHIẾU NHẬP THEO MÃ                 ║");
+        System.out.println("╚════════════════════════════════════════════════════════════════╝");
+        System.out.println();
 
-        System.out.print("\n→ Nhập mã phiếu nhập (hoặc '0' để hủy): ");
-        String maPhieu = scanner.nextLine().trim();
+        while (true) {
+            System.out.print("\n→ Nhập mã phiếu nhập (hoặc '0' để hủy): ");
+            String maPhieu = scanner.nextLine().trim();
+            
+            if ("0".equals(maPhieu)) {
+                System.out.println("⚠️  Đã hủy tìm kiếm.");
+                return;
+            }
         
-        if ("0".equals(maPhieu)) {
-            System.out.println("⚠️  Đã hủy tìm kiếm.");
-            return;
+            if (maPhieu.isEmpty()) {
+                System.out.println("❌ Mã phiếu nhập không được để trống!");
+                return;
+            }
+
+            inPhieuNhap(maPhieu);
+
+            System.out.print("→ Tiếp tục tìm kiếm phiếu nhập khác? (Y/N): ");
+            if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) {
+                System.out.println("✅ Thoát chức năng tìm kiếm.");
+                break;
+            }
         }
-    
-        if (maPhieu.isEmpty()) {
-            System.out.println("❌ Mã phiếu nhập không được để trống!");
-            return;
-        }
-        inPhieuNhap(maPhieu);
     }
 
     public void timPhieuNhapTheoMaNCC() {
@@ -697,7 +707,7 @@ public class QuanLyNhapHang {
             if (pn == null) {
                 System.out.println("❌ Không tìm thấy phiếu nhập với mã: " + maPhieu);
                 return;
-            }
+            } 
 
             System.out.println("\n╔══════════════════════════════════════════════════════════════╗");
             System.out.println("║                        PHIẾU NHẬP HÀNG                       ║");
