@@ -28,6 +28,7 @@ public class QuanLyTaiKhoan {
             System.out.println("│  [4] ➜ Xem danh sách tài khoản                         │");
             System.out.println("│  [5] ➜ Tìm kiếm tài khoản                              │");
             System.out.println("│  [6] ➜ Đặt lại mật khẩu                                │");
+            System.out.println("│  [7] ➜ Vô hiệu hóa/Kích hoạt tài khoản                 │");
             System.out.println("│                                                        │");
             System.out.println("├─ HỆ THỐNG ─────────────────────────────────────────────┤");
             System.out.println("│                                                        │");
@@ -42,10 +43,10 @@ public class QuanLyTaiKhoan {
                 if (scanner.hasNextInt()) {
                     choice = scanner.nextInt();
                     scanner.nextLine();
-                    if (choice >= 0 && choice <= 6) {
+                    if (choice >= 0 && choice <= 7) {
                         break;
                     }
-                    System.out.println("Vui lòng nhập số trong khoảng 0–6.");
+                    System.out.println("Vui lòng nhập số trong khoảng 0–7.");
                     System.out.print("\n💡 Nhập lựa chọn của bạn: ");
                 } else {
                     System.out.println("Vui lòng nhập số hợp lệ.");
@@ -83,6 +84,13 @@ public class QuanLyTaiKhoan {
                         datLaiMatKhau();
                     } else {
                         System.out.println("❌ Chỉ Admin mới có quyền đặt lại mật khẩu!");
+                    }
+                    break;
+                case 7:
+                    if ("Admin".equals(Main.CURRENT_ACCOUNT.getRole())) {
+                        voHieuHoaTaiKhoan();
+                    } else {
+                        System.out.println("❌ Chỉ Admin mới có quyền vô hiệu hóa/kích hoạt tài khoản!");
                     }
                     break;
                 case 0:
@@ -458,7 +466,47 @@ public class QuanLyTaiKhoan {
                 "🔄                              ĐẶT LẠI MẬT KHẨU TÀI KHOẢN                       🔄");
         System.out.println("═".repeat(80));
 
-        System.out.println("⚠️  CHỨC NĂNG ADMIN: Đặt lại mật khẩu cho bất kỳ tài khoản nào");
+        // Xác thực mật khẩu của tài khoản hiện tại trước khi vào menu
+        String currentUsername = Main.CURRENT_ACCOUNT.getUsername();
+        System.out.println("🔐 XÁC THỰC BẢO MẬT");
+        System.out.println("⚠️  Vui lòng nhập mật khẩu của tài khoản hiện tại để tiếp tục");
+
+        int attempts = 0;
+        final int MAX_ATTEMPTS = 3;
+        boolean authenticated = false;
+
+        while (attempts < MAX_ATTEMPTS && !authenticated) {
+            System.out.print("🔑 Nhập mật khẩu của bạn (" + (MAX_ATTEMPTS - attempts) + " lần thử còn lại): ");
+            String password = scanner.nextLine().trim();
+
+            if (password.isEmpty()) {
+                System.out.println("❌ Mật khẩu không được để trống!");
+                attempts++;
+                continue;
+            }
+
+            // Kiểm tra mật khẩu bằng cách gọi hàm kiemTraTaiKhoan
+            TaiKhoanDTO checkResult = TaiKhoanDAO.kiemTraTaiKhoan(currentUsername, password);
+            if (checkResult != null) {
+                authenticated = true;
+                System.out.println("✅ Xác thực thành công!");
+            } else {
+                attempts++;
+                if (attempts < MAX_ATTEMPTS) {
+                    System.out.println("❌ Mật khẩu không đúng! Vui lòng thử lại.");
+                }
+            }
+        }
+
+        if (!authenticated) {
+            System.out.println("\n❌ Xác thực thất bại! Đã vượt quá số lần thử cho phép.");
+            System.out.println("🔒 Truy cập bị từ chối. Quay lại menu chính...");
+            System.out.print("\nNhấn Enter để tiếp tục...");
+            scanner.nextLine();
+            return;
+        }
+
+        System.out.println("\n⚠️  CHỨC NĂNG ADMIN: Đặt lại mật khẩu cho bất kỳ tài khoản nào");
         System.out.println("   Không cần mật khẩu hiện tại của tài khoản đó");
 
         System.out.println("\n" + "─".repeat(60));
@@ -678,6 +726,123 @@ public class QuanLyTaiKhoan {
         scanner.nextLine();
     }
 
+    // ================ VÔ HIỆU HÓA/KÍCH HOẠT TÀI KHOẢN ==================
+    private void voHieuHoaTaiKhoan() {
+        System.out.println("\n" + "═".repeat(80));
+        System.out.println(
+                "🔒                    VÔ HIỆU HÓA/KÍCH HOẠT TÀI KHOẢN                        🔒");
+        System.out.println("═".repeat(80));
+
+        System.out.print("👤 Nhập tên đăng nhập cần thay đổi trạng thái: ");
+        String username = scanner.nextLine().trim();
+
+        if (username.isEmpty()) {
+            System.out.println("❌ Tên đăng nhập không được để trống!");
+            System.out.print("\nNhấn Enter để tiếp tục...");
+            scanner.nextLine();
+            return;
+        }
+
+        // Kiểm tra tài khoản có tồn tại không
+        java.util.List<TaiKhoanDTO> danhSachTaiKhoan = TaiKhoanDAO.timKiemTaiKhoan(username);
+        if (danhSachTaiKhoan == null || danhSachTaiKhoan.isEmpty()) {
+            System.out.println("❌ Không tìm thấy tài khoản với tên đăng nhập: " + username);
+            System.out.print("\nNhấn Enter để tiếp tục...");
+            scanner.nextLine();
+            return;
+        }
+
+        TaiKhoanDTO taiKhoan = danhSachTaiKhoan.get(0);
+        String trangThaiHienTai = TaiKhoanDAO.layTrangThaiTaiKhoan(username);
+
+        System.out.println("\n📋 THÔNG TIN TÀI KHOẢN:");
+        System.out.println(
+                "┌─────────────────────────────────────────────────────────────────────────────────────────┐");
+        System.out.printf("│ Tên đăng nhập: %-62s │\n", taiKhoan.getUsername());
+        System.out.printf("│ Mã nhân viên: %-63s │\n", taiKhoan.getMaNV());
+        System.out.printf("│ Họ tên: %-68s │\n",
+                taiKhoan.getfullName() != null ? taiKhoan.getfullName() : "Chưa có");
+        System.out.printf("│ Vai trò: %-67s │\n", taiKhoan.getRole());
+        System.out.printf("│ Trạng thái hiện tại: %-58s │\n",
+                trangThaiHienTai != null ? trangThaiHienTai : "Không xác định");
+        System.out.println(
+                "└─────────────────────────────────────────────────────────────────────────────────────────┘");
+
+        // Kiểm tra không được vô hiệu hóa chính tài khoản của mình
+        if (username.equals(Main.CURRENT_ACCOUNT.getUsername())) {
+            System.out.println("\n⚠️  CẢNH BÁO: Bạn không thể vô hiệu hóa chính tài khoản của mình!");
+            System.out.print("\nNhấn Enter để tiếp tục...");
+            scanner.nextLine();
+            return;
+        }
+
+        System.out.println("\n" + "─".repeat(60));
+        System.out.println("🔧 TÙY CHỌN THAY ĐỔI TRẠNG THÁI:");
+        if ("Active".equalsIgnoreCase(trangThaiHienTai)) {
+            System.out.println("   [1] Vô hiệu hóa tài khoản (Inactive)");
+            System.out.println("   [0] Hủy bỏ");
+        } else {
+            System.out.println("   [1] Kích hoạt tài khoản (Active)");
+            System.out.println("   [0] Hủy bỏ");
+        }
+        System.out.print("💡 Chọn tùy chọn: ");
+
+        int choice = -1;
+        while (true) {
+            if (scanner.hasNextInt()) {
+                choice = scanner.nextInt();
+                scanner.nextLine();
+                if (choice >= 0 && choice <= 1) {
+                    break;
+                }
+                System.out.println("Vui lòng nhập số trong khoảng 0–1.");
+                System.out.print("\nChọn tùy chọn: ");
+            } else {
+                System.out.println("Vui lòng nhập số hợp lệ.");
+                scanner.next();
+                System.out.print("\nChọn tùy chọn: ");
+            }
+        }
+
+        boolean success = false;
+        switch (choice) {
+            case 1:
+                if ("Active".equalsIgnoreCase(trangThaiHienTai)) {
+                    // Vô hiệu hóa
+                    System.out.println("\n⚠️  CẢNH BÁO: Vô hiệu hóa tài khoản sẽ ngăn người dùng đăng nhập!");
+                    System.out.print("❓ Bạn có chắc chắn muốn vô hiệu hóa tài khoản này? (y/n): ");
+                    String confirm1 = scanner.nextLine().trim().toLowerCase();
+                    if (confirm1.equals("y") || confirm1.equals("yes")) {
+                        success = TaiKhoanDAO.voHieuHoaTaiKhoan(username);
+                    } else {
+                        System.out.println("❌ Hủy bỏ vô hiệu hóa tài khoản.");
+                    }
+                } else {
+                    // Kích hoạt
+                    System.out.println("\n✅ Kích hoạt tài khoản sẽ cho phép người dùng đăng nhập lại.");
+                    System.out.print("❓ Bạn có chắc chắn muốn kích hoạt tài khoản này? (y/n): ");
+                    String confirm2 = scanner.nextLine().trim().toLowerCase();
+                    if (confirm2.equals("y") || confirm2.equals("yes")) {
+                        success = TaiKhoanDAO.kichHoatTaiKhoan(username);
+                    } else {
+                        System.out.println("❌ Hủy bỏ kích hoạt tài khoản.");
+                    }
+                }
+                break;
+            case 0:
+                System.out.println("❌ Hủy bỏ thay đổi trạng thái tài khoản.");
+                break;
+        }
+
+        if (success) {
+            String trangThaiMoi = TaiKhoanDAO.layTrangThaiTaiKhoan(username);
+            System.out.println("\n🎉 THAY ĐỔI TRẠNG THÁI TÀI KHOẢN THÀNH CÔNG!");
+            System.out.println("✅ Trạng thái mới của tài khoản " + username + ": " + trangThaiMoi);
+        }
+
+        System.out.print("\nNhấn Enter để tiếp tục...");
+        scanner.nextLine();
+    }
     // ========================= NHÂN VIÊN ==================
 
     // ================ MENU TK NHÂN VIÊN ==================
@@ -994,4 +1159,5 @@ public class QuanLyTaiKhoan {
         System.out.print("\nNhấn Enter để tiếp tục...");
         scanner.nextLine();
     }
+
 }

@@ -15,6 +15,29 @@ import dto.NhanVienDTO;
 
 public class NhanVienDAO {
 
+    // Tạo mã nhân viên tự động
+    public static String generateMaNV() {
+        String prefix = "NV";
+        String newID = prefix + "001";
+        String query = "SELECT MaNV FROM NHANVIEN ORDER BY CAST(SUBSTRING(MaNV, 3) AS UNSIGNED) DESC LIMIT 1";
+
+        try (Connection conn = JDBCUtil.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(query);
+                ResultSet rs = stmt.executeQuery()) {
+
+            if (rs.next()) {
+                String lastID = rs.getString("MaNV");
+                int number = Integer.parseInt(lastID.substring(2)) + 1;
+                newID = prefix + String.format("%03d", number);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi tạo mã nhân viên: " + e.getMessage());
+        }
+
+        return newID;
+    }
+
     // Tìm nhân viên theo mã
 
     public static NhanVienDTO timNhanVienTheoMa(String maNV) {
