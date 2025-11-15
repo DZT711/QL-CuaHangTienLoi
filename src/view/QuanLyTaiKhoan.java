@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import util.FormatUtil;
+import util.ValidatorUtil;
 import dao.TaiKhoanDAO;
 import dto.NhanVienDTO;
 import dto.TaiKhoanDTO;
@@ -157,59 +158,110 @@ public class QuanLyTaiKhoan {
         System.out.println("📝 NHẬP THÔNG TIN MỚI (Enter để giữ nguyên):");
         System.out.println("─".repeat(80));
 
-        // Nhập họ
-        System.out.print("👤 Họ [" + currentInfo.getHo() + "]: ");
-        String ho = scanner.nextLine().trim();
-        if (ho.isEmpty()) {
-            ho = currentInfo.getHo();
-        }
-
-        // Nhập tên
-        System.out.print("👤 Tên [" + currentInfo.getTen() + "]: ");
-        String ten = scanner.nextLine().trim();
-        if (ten.isEmpty()) {
-            ten = currentInfo.getTen();
-        }
-
-        // Nhập giới tính
-        System.out.print("⚥ Giới tính [" + (currentInfo.getGioiTinh() != null ? currentInfo.getGioiTinh() : "Chưa có")
-                + "] (Nam/Nữ): ");
-        String gioiTinh = scanner.nextLine().trim();
-        if (gioiTinh.isEmpty()) {
-            gioiTinh = currentInfo.getGioiTinh();
-        } else if (!gioiTinh.equalsIgnoreCase("Nam") && !gioiTinh.equalsIgnoreCase("Nữ")) {
-            System.out.println("⚠️  Giới tính không hợp lệ, giữ nguyên giá trị cũ.");
-            gioiTinh = currentInfo.getGioiTinh();
-        }
-
-        // Nhập ngày sinh
-        LocalDate ngaySinh = currentInfo.getNgaySinh();
-        System.out.print("📅 Ngày sinh ["
-                + (ngaySinh != null ? ngaySinh.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "Chưa có")
-                + "] (dd/MM/yyyy): ");
-        String ngaySinhStr = scanner.nextLine().trim();
-        if (!ngaySinhStr.isEmpty()) {
-            try {
-                ngaySinh = LocalDate.parse(ngaySinhStr, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-            } catch (DateTimeParseException e) {
-                System.out.println("⚠️  Định dạng ngày không đúng, giữ nguyên giá trị cũ.");
-                ngaySinh = currentInfo.getNgaySinh();
+        // Nhập họ với validation
+        String ho;
+        while (true) {
+            System.out.print("👤 Họ [" + currentInfo.getHo() + "]: ");
+            String input = scanner.nextLine().trim();
+            if (input.isEmpty()) {
+                ho = currentInfo.getHo();
+                break;
+            }
+            if (ValidatorUtil.isValidLastName(input)) {
+                ho = input;
+                break;
             }
         }
 
-        // Nhập địa chỉ
-        System.out.print(
-                "🏠 Địa chỉ [" + (currentInfo.getDiaChi() != null ? currentInfo.getDiaChi() : "Chưa có") + "]: ");
-        String diaChi = scanner.nextLine().trim();
-        if (diaChi.isEmpty()) {
-            diaChi = currentInfo.getDiaChi();
+        // Nhập tên với validation
+        String ten;
+        while (true) {
+            System.out.print("👤 Tên [" + currentInfo.getTen() + "]: ");
+            String input = scanner.nextLine().trim();
+            if (input.isEmpty()) {
+                ten = currentInfo.getTen();
+                break;
+            }
+            if (ValidatorUtil.isValidFirstName(input)) {
+                ten = input;
+                break;
+            }
         }
 
-        // Nhập email
-        System.out.print("📧 Email [" + (currentInfo.getEmail() != null ? currentInfo.getEmail() : "Chưa có") + "]: ");
-        String email = scanner.nextLine().trim();
-        if (email.isEmpty()) {
-            email = currentInfo.getEmail();
+        // Nhập giới tính với validation
+        String gioiTinh;
+        while (true) {
+            System.out
+                    .print("⚥ Giới tính [" + (currentInfo.getGioiTinh() != null ? currentInfo.getGioiTinh() : "Chưa có")
+                            + "] (Nam/Nu): ");
+            String input = scanner.nextLine().trim();
+            if (input.isEmpty()) {
+                gioiTinh = currentInfo.getGioiTinh();
+                break;
+            }
+            if (input.equalsIgnoreCase("Nam") || input.equalsIgnoreCase("Nu")) {
+                gioiTinh = input.toUpperCase();
+                break;
+            }
+            System.out.println("❌ Giới tính chỉ được nhập 'Nam' hoặc 'Nu'!");
+        }
+
+        // Nhập ngày sinh với validation
+        LocalDate ngaySinh = currentInfo.getNgaySinh();
+        while (true) {
+            System.out.print("📅 Ngày sinh ["
+                    + (ngaySinh != null ? ngaySinh.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "Chưa có")
+                    + "] (dd/MM/yyyy): ");
+            String ngaySinhStr = scanner.nextLine().trim();
+            if (ngaySinhStr.isEmpty()) {
+                break;
+            }
+            if (!ValidatorUtil.isValidateDate(ngaySinhStr)) {
+                continue;
+            }
+            try {
+                LocalDate parsedDate = LocalDate.parse(ngaySinhStr, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+                // Kiểm tra tuổi tối thiểu 18
+                if (!ValidatorUtil.isValidAge(parsedDate)) {
+                    continue;
+                }
+                ngaySinh = parsedDate;
+                break;
+            } catch (DateTimeParseException e) {
+                System.out.println("❌ Định dạng ngày không đúng! Vui lòng nhập theo định dạng dd/MM/yyyy");
+            }
+        }
+
+        // Nhập địa chỉ với validation
+        String diaChi;
+        while (true) {
+            System.out.print(
+                    "🏠 Địa chỉ [" + (currentInfo.getDiaChi() != null ? currentInfo.getDiaChi() : "Chưa có") + "]: ");
+            String input = scanner.nextLine().trim();
+            if (input.isEmpty()) {
+                diaChi = currentInfo.getDiaChi();
+                break;
+            }
+            if (ValidatorUtil.isValidAddress(input)) {
+                diaChi = input;
+                break;
+            }
+        }
+
+        // Nhập email với validation
+        String email;
+        while (true) {
+            System.out.print(
+                    "📧 Email [" + (currentInfo.getEmail() != null ? currentInfo.getEmail() : "Chưa có") + "]: ");
+            String input = scanner.nextLine().trim();
+            if (input.isEmpty()) {
+                email = currentInfo.getEmail();
+                break;
+            }
+            if (ValidatorUtil.isValidEmail(input)) {
+                email = input;
+                break;
+            }
         }
 
         // Xác nhận cập nhật
@@ -1072,59 +1124,110 @@ public class QuanLyTaiKhoan {
         System.out.println("📝 NHẬP THÔNG TIN MỚI (Enter để giữ nguyên):");
         System.out.println("─".repeat(80));
 
-        // Nhập họ
-        System.out.print("👤 Họ [" + currentInfo.getHo() + "]: ");
-        String ho = scanner.nextLine().trim();
-        if (ho.isEmpty()) {
-            ho = currentInfo.getHo();
-        }
-
-        // Nhập tên
-        System.out.print("👤 Tên [" + currentInfo.getTen() + "]: ");
-        String ten = scanner.nextLine().trim();
-        if (ten.isEmpty()) {
-            ten = currentInfo.getTen();
-        }
-
-        // Nhập giới tính
-        System.out.print("⚥ Giới tính [" + (currentInfo.getGioiTinh() != null ? currentInfo.getGioiTinh() : "Chưa có")
-                + "] (Nam/Nữ): ");
-        String gioiTinh = scanner.nextLine().trim();
-        if (gioiTinh.isEmpty()) {
-            gioiTinh = currentInfo.getGioiTinh();
-        } else if (!gioiTinh.equalsIgnoreCase("Nam") && !gioiTinh.equalsIgnoreCase("Nữ")) {
-            System.out.println("⚠️  Giới tính không hợp lệ, giữ nguyên giá trị cũ.");
-            gioiTinh = currentInfo.getGioiTinh();
-        }
-
-        // Nhập ngày sinh
-        LocalDate ngaySinh = currentInfo.getNgaySinh();
-        System.out.print("📅 Ngày sinh ["
-                + (ngaySinh != null ? ngaySinh.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "Chưa có")
-                + "] (dd/MM/yyyy): ");
-        String ngaySinhStr = scanner.nextLine().trim();
-        if (!ngaySinhStr.isEmpty()) {
-            try {
-                ngaySinh = LocalDate.parse(ngaySinhStr, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-            } catch (DateTimeParseException e) {
-                System.out.println("⚠️  Định dạng ngày không đúng, giữ nguyên giá trị cũ.");
-                ngaySinh = currentInfo.getNgaySinh();
+        // Nhập họ với validation
+        String ho;
+        while (true) {
+            System.out.print("👤 Họ [" + currentInfo.getHo() + "]: ");
+            String input = scanner.nextLine().trim();
+            if (input.isEmpty()) {
+                ho = currentInfo.getHo();
+                break;
+            }
+            if (ValidatorUtil.isValidLastName(input)) {
+                ho = input;
+                break;
             }
         }
 
-        // Nhập địa chỉ
-        System.out.print(
-                "🏠 Địa chỉ [" + (currentInfo.getDiaChi() != null ? currentInfo.getDiaChi() : "Chưa có") + "]: ");
-        String diaChi = scanner.nextLine().trim();
-        if (diaChi.isEmpty()) {
-            diaChi = currentInfo.getDiaChi();
+        // Nhập tên với validation
+        String ten;
+        while (true) {
+            System.out.print("👤 Tên [" + currentInfo.getTen() + "]: ");
+            String input = scanner.nextLine().trim();
+            if (input.isEmpty()) {
+                ten = currentInfo.getTen();
+                break;
+            }
+            if (ValidatorUtil.isValidFirstName(input)) {
+                ten = input;
+                break;
+            }
         }
 
-        // Nhập email
-        System.out.print("📧 Email [" + (currentInfo.getEmail() != null ? currentInfo.getEmail() : "Chưa có") + "]: ");
-        String email = scanner.nextLine().trim();
-        if (email.isEmpty()) {
-            email = currentInfo.getEmail();
+        // Nhập giới tính với validation
+        String gioiTinh;
+        while (true) {
+            System.out
+                    .print("⚥ Giới tính [" + (currentInfo.getGioiTinh() != null ? currentInfo.getGioiTinh() : "Chưa có")
+                            + "] (Nam/Nu): ");
+            String input = scanner.nextLine().trim();
+            if (input.isEmpty()) {
+                gioiTinh = currentInfo.getGioiTinh();
+                break;
+            }
+            if (input.equalsIgnoreCase("Nam") || input.equalsIgnoreCase("Nu")) {
+                gioiTinh = input.toUpperCase();
+                break;
+            }
+            System.out.println("❌ Giới tính chỉ được nhập 'Nam' hoặc 'Nu'!");
+        }
+
+        // Nhập ngày sinh với validation
+        LocalDate ngaySinh = currentInfo.getNgaySinh();
+        while (true) {
+            System.out.print("📅 Ngày sinh ["
+                    + (ngaySinh != null ? ngaySinh.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "Chưa có")
+                    + "] (dd/MM/yyyy): ");
+            String ngaySinhStr = scanner.nextLine().trim();
+            if (ngaySinhStr.isEmpty()) {
+                break;
+            }
+            if (!ValidatorUtil.isValidateDate(ngaySinhStr)) {
+                continue;
+            }
+            try {
+                LocalDate parsedDate = LocalDate.parse(ngaySinhStr, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+                // Kiểm tra tuổi tối thiểu 18
+                if (!ValidatorUtil.isValidAge(parsedDate)) {
+                    continue;
+                }
+                ngaySinh = parsedDate;
+                break;
+            } catch (DateTimeParseException e) {
+                System.out.println("❌ Định dạng ngày không đúng! Vui lòng nhập theo định dạng dd/MM/yyyy");
+            }
+        }
+
+        // Nhập địa chỉ với validation
+        String diaChi;
+        while (true) {
+            System.out.print(
+                    "🏠 Địa chỉ [" + (currentInfo.getDiaChi() != null ? currentInfo.getDiaChi() : "Chưa có") + "]: ");
+            String input = scanner.nextLine().trim();
+            if (input.isEmpty()) {
+                diaChi = currentInfo.getDiaChi();
+                break;
+            }
+            if (ValidatorUtil.isValidAddress(input)) {
+                diaChi = input;
+                break;
+            }
+        }
+
+        // Nhập email với validation
+        String email;
+        while (true) {
+            System.out.print(
+                    "📧 Email [" + (currentInfo.getEmail() != null ? currentInfo.getEmail() : "Chưa có") + "]: ");
+            String input = scanner.nextLine().trim();
+            if (input.isEmpty()) {
+                email = currentInfo.getEmail();
+                break;
+            }
+            if (ValidatorUtil.isValidEmail(input)) {
+                email = input;
+                break;
+            }
         }
 
         // Xác nhận cập nhật

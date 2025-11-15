@@ -100,10 +100,11 @@ public class SanPhamDTO {
             while (true) {
                 System.out.print("Nhập tên sản phẩm (hoặc '0' để hủy): ");
                 String input = scanner.nextLine().trim();
-                
-                if ("0".equals(input)) return false;
+
+                if ("0".equals(input))
+                    return false;
                 if (ValidatorUtil.isValidString(input)) {
-                    this.tenSP = input; 
+                    this.tenSP = input;
                     break;
                 }
                 System.out.println("❌ Tên sản phẩm không hợp lệ! Vui lòng nhập lại.");
@@ -126,7 +127,8 @@ public class SanPhamDTO {
             while (true) {
                 System.out.print("Nhập loại sản phẩm ('0' để hủy): ");
                 String input = scanner.nextLine().trim();
-                if ("0".equals(input)) return false;
+                if ("0".equals(input))
+                    return false;
 
                 try {
                     this.loaiSP = Integer.parseInt(input);
@@ -165,7 +167,8 @@ public class SanPhamDTO {
             while (true) {
                 System.out.print("Nhập giá bán (hoặc '0' để hủy): ");
                 String input = scanner.nextLine().trim();
-                if ("0".equals(input)) return false;
+                if ("0".equals(input))
+                    return false;
 
                 try {
                     this.giaBan = Integer.parseInt(input);
@@ -182,21 +185,22 @@ public class SanPhamDTO {
                 System.out.print("Nhập mô tả sản phẩm (Enter để bỏ qua hoặc '0' để hủy): ");
                 String input = scanner.nextLine().trim();
 
-                if ("0".equals(input)) return false;
-                
+                if ("0".equals(input))
+                    return false;
+
                 if (input.isEmpty()) {
-                    this.moTa = null; 
+                    this.moTa = null;
                     System.out.println("ℹ️  Đã bỏ qua mô tả.");
                     break;
                 }
-                
+
                 if (ValidatorUtil.isValidString(input)) {
                     this.moTa = input;
                     break;
-                } 
+                }
                 System.out.println("❌ Mô tả không hợp lệ! Vui lòng nhập lại.");
             }
-            return true; 
+            return true;
         } catch (Exception e) {
             System.err.println("❌ Lỗi không mong muốn: " + e.getMessage());
             return false;
@@ -247,15 +251,15 @@ public class SanPhamDTO {
 
     public boolean sua() {
         Scanner scanner = new Scanner(System.in);
-        
+
         System.out.print("Sửa tên sản phẩm: ");
         String newTenSP = scanner.nextLine().trim();
         if (newTenSP.equals("0"))
             return false;
-        if (!ValidatorUtil.isValidString(newTenSP)) 
+        if (!ValidatorUtil.isValidString(newTenSP))
             System.out.println("❌ Tên sản phẩm không hợp lệ! Giữ nguyên tên sản phẩm.");
-        else this.tenSP = newTenSP;
-
+        else
+            this.tenSP = newTenSP;
 
         System.out.print("Sửa loại sản phẩm (1-10): ");
         String inputLoai = scanner.nextLine().trim();
@@ -311,8 +315,8 @@ public class SanPhamDTO {
             return false;
         if (!ValidatorUtil.isValidString(newMoTa)) {
             System.out.println("❌ Mô tả không hợp lệ! Giữ nguyên mô tả.");
-        } else this.moTa = newMoTa;
-        
+        } else
+            this.moTa = newMoTa;
 
         System.out.print("Sửa trạng thái (active / inactive): ");
         String newTrangThai = scanner.nextLine().trim().toLowerCase();

@@ -112,7 +112,7 @@ public class QuanLyNhanVien {
                 System.out.println("❌ Đã hủy thêm nhân viên!");
                 return;
             }
-            if (ValidatorUtil.isValidName(ho)) {
+            if (ValidatorUtil.isValidLastName(ho)) {
                 break;
             }
         }
@@ -126,7 +126,7 @@ public class QuanLyNhanVien {
                 System.out.println("❌ Đã hủy thêm nhân viên!");
                 return;
             }
-            if (ValidatorUtil.isValidName(ten)) {
+            if (ValidatorUtil.isValidFirstName(ten)) {
                 break;
             }
 
@@ -966,7 +966,7 @@ public class QuanLyNhanVien {
             String input = sc.nextLine().trim();
             if (input.isEmpty())
                 return giaTriCu;
-            if (ValidatorUtil.isValidName(input)) {
+            if (ValidatorUtil.isValidLastName(input)) {
                 return input;
             }
         }
@@ -978,7 +978,7 @@ public class QuanLyNhanVien {
             String input = sc.nextLine().trim();
             if (input.isEmpty())
                 return giaTriCu;
-            if (ValidatorUtil.isValidName(input)) {
+            if (ValidatorUtil.isValidFirstName(input)) {
                 return input;
             }
 
