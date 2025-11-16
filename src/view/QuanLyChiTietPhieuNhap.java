@@ -18,6 +18,7 @@ import dao.SanPhamDAO;
 import dto.ChiTietPhieuNhapDTO;
 import dto.NhapHangDTO;
 import dto.SanPhamDTO;
+import main.Main;
 import util.FormatUtil;
 import util.ValidatorUtil;
 
@@ -26,6 +27,9 @@ import java.util.Map;
 public class QuanLyChiTietPhieuNhap {
     public void menuQuanLyChiTietPhieuNhap() {
         Scanner scanner = new Scanner(System.in);
+        boolean isAdmin = !"nhanvien".equalsIgnoreCase(Main.CURRENT_ACCOUNT.getRole());
+        int maxChoice = isAdmin ? 4 : 3;  
+        String format = "▒ %-76s ▒%n";
 
         while (true) {
             System.out.println("\n████████████████████████████████████████████████████████████████████████████████");
@@ -34,10 +38,12 @@ public class QuanLyChiTietPhieuNhap {
             System.out.println("██                                                                            ██");
             System.out.println("████████████████████████████████████████████████████████████████████████████████");
             System.out.println("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ MENU CHỨC NĂNG ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓");
-            System.out.println("▒ [1] ➜ Thêm chi tiết vào phiếu nhập                                           ▒");
-            System.out.println("▒ [2] ➜ Tìm kiếm chi tiết phiếu nhập                                           ▒");
-            System.out.println("▒ [3] ➜ Xem danh sách chi tiết phiếu nhập                                      ▒");
-            System.out.println("▒ [4] ➜ Thống kê sản phẩm nhập nhiều nhất                                      ▒");
+            System.out.printf(format, "[1] ➜ Thêm chi tiết vào phiếu nhập");
+            System.out.printf(format, "[2] ➜ Tìm kiếm chi tiết phiếu nhập");
+            System.out.printf(format, "[3] ➜ Xem danh sách chi tiết phiếu nhập");
+
+            if (isAdmin) 
+                System.out.printf(format, "[4] ➜ Thống kê sản phẩm nhập nhiều nhất");
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░");
             System.out.println("░ [0] ✗ Quay lại menu chính                                                    ░");
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░");
@@ -49,12 +55,17 @@ public class QuanLyChiTietPhieuNhap {
                 if (scanner.hasNextInt()) {
                     choice = scanner.nextInt();
                     scanner.nextLine();
-                    if (choice >= 0 && choice <= 4) break;
-                    System.out.print("Vui lòng nhập số trong khoảng 0–4: ");
+                    if (choice >= 0 && choice <= maxChoice) break;
+                    System.out.print("❌ Vui lòng nhập số trong khoảng 0 – " + maxChoice + ": ");
                 } else {
-                    System.out.print("Nhập không hợp lệ. Vui lòng nhập lại: ");
+                    System.out.print("❌ Nhập không hợp lệ. Vui lòng nhập lại: ");
                     scanner.next();
                 }
+            }
+
+            if (choice == 0) {
+                System.out.println("✅ Quay lại menu chính thành công.");
+                break;
             }
 
             switch (choice) {
@@ -68,11 +79,8 @@ public class QuanLyChiTietPhieuNhap {
                     xemDanhSachChiTietPhieuNhap();
                     break;
                 case 4:
-                    thongKeSanPhamNhap(scanner);
+                    if (isAdmin) thongKeSanPhamNhap(scanner);
                     break;
-                case 0:
-                    System.out.println("Quay lại menu chính thành công.");
-                    return;
                 default:
                     System.out.println("Lựa chọn không hợp lệ!");
                     break;

@@ -16,11 +16,16 @@ import dao.HangHoaDAO;
 import dao.SanPhamDAO;
 import dto.HangHoaDTO;
 import dto.SanPhamDTO;
+import main.Main;
 import util.FormatUtil;
 
 public class QuanLyHangHoa {
     public void menuQuanLyHangHoa() {
         Scanner scanner = new Scanner(System.in);
+        boolean isAdmin = !"nhanvien".equalsIgnoreCase(Main.CURRENT_ACCOUNT.getRole());
+        int maxChoice = isAdmin ? 7 : 5;  
+        String format = "▒ %-76s ▒%n";
+
 
         while (true) {
             System.out.println("\n████████████████████████████████████████████████████████████████████████████████");
@@ -29,13 +34,17 @@ public class QuanLyHangHoa {
             System.out.println("██                                                                            ██");
             System.out.println("████████████████████████████████████████████████████████████████████████████████");
             System.out.println("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ MENU CHỨC NĂNG ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓");
-            System.out.println("▒ [1] ➜ Xem danh sách hàng hóa trong kho                                       ▒");
-            System.out.println("▒ [2] ➜ Tìm kiếm hàng hóa                                                      ▒");
-            System.out.println("▒ [3] ➜ Xem chi tiết lô hàng                                                   ▒");
-            System.out.println("▒ [4] ➜ Kiểm tra hàng sắp hết hạn                                              ▒");
-            System.out.println("▒ [5] ➜ Cập nhật trạng thái                                                    ▒");
-            System.out.println("▒ [6] ➜ Thống kê hàng hóa                                                      ▒");
-            System.out.println("▒ [7] ➜ Xuất báo cáo hàng tồn kho                                              ▒");
+            System.out.printf(format, "[1] ➜ Xem danh sách hàng hóa trong kho");
+            System.out.printf(format, "[2] ➜ Tìm kiếm hàng hóa");
+            System.out.printf(format, "[3] ➜ Xem chi tiết lô hàng");
+            System.out.printf(format, "[4] ➜ Kiểm tra hàng sắp hết hạn");
+            System.out.printf(format, "[5] ➜ Cập nhật trạng thái");
+
+            if (isAdmin) {
+                System.out.printf(format, "[6] ➜ Thống kê hàng hóa");
+                System.out.printf(format, "[7] ➜ Xuất báo cáo hàng tồn kho");
+            }
+
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░");
             System.out.println("░ [0] ✗ Quay lại menu chính                                                    ░");
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░");
@@ -47,12 +56,17 @@ public class QuanLyHangHoa {
                 if (scanner.hasNextInt()) {
                     choice = scanner.nextInt();
                     scanner.nextLine();
-                    if (choice >= 0 && choice <= 7) break;
-                    System.out.print("Vui lòng nhập số trong khoảng 0–7: ");
+                    if (choice >= 0 && choice <= maxChoice) break;
+                    System.out.print("❌ Vui lòng nhập số trong khoảng 0 – " + maxChoice + ": ");
                 } else {
-                    System.out.print("Nhập không hợp lệ. Vui lòng nhập lại: ");
+                    System.out.print("❌ Nhập không hợp lệ. Vui lòng nhập lại: ");
                     scanner.next();
                 }
+            }
+
+            if (choice == 0) {
+                System.out.println("✅ Quay lại menu chính thành công.");
+                return;
             }
 
             switch (choice) {
@@ -160,36 +174,38 @@ public class QuanLyHangHoa {
                     }
                     break;
                 case 6:
-                    System.out.println("\n════════════════════════════════════════════════");
-                    System.out.println("        📦 THỐNG KÊ HÀNG HÓA TRONG KHO     ");
-                    System.out.println("════════════════════════════════════════════════");
-                    System.out.println("1. Thống kê hàng sắp hết hạn ");
-                    System.out.println("2. Thống kê hàng hóa đã hết hạn");
-                    System.out.println("0. Quay lại");
-                    System.out.println("════════════════════════════════════════════════");
-                    System.out.print("\n💡 Nhập lựa chọn của bạn: ");
-                    while (true) {
-                        String opt = scanner.nextLine().trim();
-
-                        switch (opt) {
-                            case "0":
-                                System.out.println("Thoát thống kê hàng hóa thành công.");
-                                break;
-                            case "1":
-                                thongKeHangSapHetHan();
-                                break;
-                            case "2":
-                                thongKeHangDaHetHan();
-                                break;
-                            default: 
-                                System.out.print("Lựa chọn không hợp lệ! Vui lòng nhập lại: ");
-                                continue;
+                    if (isAdmin) {
+                        System.out.println("\n════════════════════════════════════════════════");
+                        System.out.println("        📦 THỐNG KÊ HÀNG HÓA TRONG KHO     ");
+                        System.out.println("════════════════════════════════════════════════");
+                        System.out.println("1. Thống kê hàng sắp hết hạn ");
+                        System.out.println("2. Thống kê hàng hóa đã hết hạn");
+                        System.out.println("0. Quay lại");
+                        System.out.println("════════════════════════════════════════════════");
+                        System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+                        while (true) {
+                            String opt = scanner.nextLine().trim();
+    
+                            switch (opt) {
+                                case "0":
+                                    System.out.println("Thoát thống kê hàng hóa thành công.");
+                                    break;
+                                case "1":
+                                    thongKeHangSapHetHan();
+                                    break;
+                                case "2":
+                                    thongKeHangDaHetHan();
+                                    break;
+                                default: 
+                                    System.out.print("Lựa chọn không hợp lệ! Vui lòng nhập lại: ");
+                                    continue;
+                            }
+                            break;
                         }
-                        break;
                     }
                     break;
                 case 7:
-                    xuatBaoCaoTonKho();
+                    if (isAdmin) xuatBaoCaoTonKho();
                     break;
                 case 0:
                     System.out.println("✅ Quay lại menu chính.");

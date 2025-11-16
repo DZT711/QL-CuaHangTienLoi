@@ -3,6 +3,8 @@ package view;
 import java.util.Scanner;
 import dao.KhachHangDAO;
 import dto.KhachHangDTO;
+import main.Main;
+
 import java.util.List;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -12,6 +14,9 @@ import util.tablePrinter;
 public class QuanLyKhachHang {
     public void menuQuanLyKhachHang() {
         Scanner scanner = new Scanner(System.in);
+        boolean isAdmin = !"nhanvien".equalsIgnoreCase(Main.CURRENT_ACCOUNT.getRole());
+        int maxChoice = isAdmin ? 6 : 4;
+        String format = "▒ %-76s ▒%n";
 
         while (true) {
             System.out.println("\n████████████████████████████████████████████████████████████████████████████████");
@@ -20,12 +25,15 @@ public class QuanLyKhachHang {
             System.out.println("██                                                                            ██");
             System.out.println("████████████████████████████████████████████████████████████████████████████████");
             System.out.println("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ MENU CHỨC NĂNG ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓");
-            System.out.println("▒ [1] ➜ Thêm khách hàng                                                        ▒");
-            System.out.println("▒ [2] ➜ Chỉnh sửa thông tin khách hàng                                         ▒");
-            System.out.println("▒ [3] ➜ Xóa khách hàng khỏi danh sách                                          ▒");
-            System.out.println("▒ [4] ➜ Tìm kiếm khách hàng                                                    ▒");
-            System.out.println("▒ [5] ➜ Thống kê khách hàng                                                    ▒");
-            System.out.println("▒ [6] ➜ Xem danh sách khách hàng                                               ▒");
+            System.out.printf(format, "[1] ➜ Thêm khách hàng");
+            System.out.printf(format, "[2] ➜ Chỉnh sửa thông tin khách hàng");
+            if (isAdmin) 
+                System.out.printf(format, "[3] ➜ Xóa khách hàng khỏi danh sách");
+            System.out.printf(format, String.format("[%d] ➜ Tìm kiếm khách hàng", isAdmin ? 4 : 3));
+
+            if (isAdmin) 
+                System.out.printf(format, "[5] ➜ Thống kê khách hàng");
+            System.out.printf(format, String.format("[%d] ➜ Xem danh sách khách hàng", isAdmin ? 6 : 4));
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ");
             System.out.println("░ [0] ✗ Quay lại menu chính                                                    ░");
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ");
@@ -37,12 +45,17 @@ public class QuanLyKhachHang {
                 if (scanner.hasNextInt()) {
                     choice = scanner.nextInt();
                     scanner.nextLine();
-                    if (choice >= 0 && choice <= 6) break;
-                    System.out.print("Vui lòng nhập số trong khoảng 0–6: ");
+                    if (choice >= 0 && choice <= maxChoice) break;
+                    System.out.print("❌ Vui lòng nhập số trong khoảng 0 – " + maxChoice + ": ");
                 } else {
-                    System.out.print("Nhập không hợp lệ. Vui lòng nhập lại: ");
+                    System.out.print("❌ Nhập không hợp lệ. Vui lòng nhập lại: ");
                     scanner.next();
                 }
+            }
+
+            if (choice == 0) {
+                System.out.println("✅ Quay lại menu chính thành công.");
+                return;
             }
 
             switch (choice) {
@@ -83,86 +96,121 @@ public class QuanLyKhachHang {
                     sua();
                     break;
                 case 3:
-                    xoa();
-                    break;
-                case 4:
-                    System.out.println("\n");
-                    System.out.println("    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
-                    System.out.println("    ┃                           TÌM KIẾM KHÁCH HÀNG                      ┃");
-                    System.out.println("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
-                    System.out.println("    ┃ [1] ➜ Tìm kiếm khách hàng theo mã khách hàng                       ┃");
-                    System.out.println("    ┃ [2] ➜ Tìm kiếm khách hàng theo tên                                 ┃");
-                    System.out.println("    ┃ [3] ➜ Tìm kiếm khách hàng theo số điện thoại                       ┃");
-                    System.out.println("    ┃ [0] ➜ Thoát                                                        ┃");
-                    System.out.println("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
-                    System.out.print("\n💡 Nhập lựa chọn của bạn: ");
-                    while (true) {
-                        String opt = scanner.nextLine().trim();
+                    if (isAdmin) xoa();
+                    else {
+                        System.out.println("\n");
+                        System.out.println("    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+                        System.out.println("    ┃                           TÌM KIẾM KHÁCH HÀNG                      ┃");
+                        System.out.println("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                        System.out.println("    ┃ [1] ➜ Tìm kiếm khách hàng theo mã khách hàng                       ┃");
+                        System.out.println("    ┃ [2] ➜ Tìm kiếm khách hàng theo tên                                 ┃");
+                        System.out.println("    ┃ [3] ➜ Tìm kiếm khách hàng theo số điện thoại                       ┃");
+                        System.out.println("    ┃ [0] ➜ Thoát                                                        ┃");
+                        System.out.println("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                        System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+                        while (true) {
+                            String opt = scanner.nextLine().trim();
 
-                        switch (opt) {
-                            case "0":
-                                System.out.println("Thoát tìm kiếm khách hàng thành công.");
-                                break;
-                            case "1":
-                                timKiemTheoMa();
-                                break;
-                            case "2":
-                                timKiemTheoTen();
-                                break;
-                            case "3":
-                                timKiemTheoSDT();
-                                break;
-                            default: 
-                                System.out.print("Lựa chọn không hợp lệ. Vui lòng nhập lại: ");
-                                continue;
+                            switch (opt) {
+                                case "0":
+                                    System.out.println("Thoát tìm kiếm khách hàng thành công.");
+                                    break;
+                                case "1":
+                                    timKiemTheoMa();
+                                    break;
+                                case "2":
+                                    timKiemTheoTen();
+                                    break;
+                                case "3":
+                                    timKiemTheoSDT();
+                                    break;
+                                default: 
+                                    System.out.print("Lựa chọn không hợp lệ. Vui lòng nhập lại: ");
+                                    continue;
+                            }
+                            break;
                         }
-                        break;
                     }
                     break;
-                case 5: 
-                    System.out.println("\n");
-                    System.out.println("    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
-                    System.out.println("    ┃                           THỐNG KÊ KHÁCH HÀNG                      ┃");
-                    System.out.println("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
-                    System.out.println("    ┃ [1] ➜ Thống kê khách hàng theo giới tính                           ┃");
-                    System.out.println("    ┃ [2] ➜ Thống kê khách hàng theo độ tuổi                             ┃");
-                    System.out.println("    ┃ [3] ➜ Thống kê khách hàng theo số lượng hóa đơn                    ┃");
-                    System.out.println("    ┃ [4] ➜ Thống kê khách hàng theo tổng chi tiêu                       ┃");
-                    System.out.println("    ┃ [0] ➜ Thoát                                                        ┃");
-                    System.out.println("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
-                    System.out.print("\n💡 Nhập lựa chọn của bạn: ");
-                    while (true) {
-                        String opt = scanner.nextLine().trim();
-
-                        switch (opt) {
-                            case "0":
-                                System.out.println("Thoát thống kê khách hàng thành công.");
-                                break;
-                            case "1":
-                                KhachHangDAO.thongKeTheoGioiTinh();
-                                break;
-                            case "2":
-                                KhachHangDAO.thongKeTheoDoTuoi();
-                                break;
-                            case "3":
-                                KhachHangDAO.thongKeTheoSohd();
-                                break;
-                            case "4":
-                                KhachHangDAO.thongKeTheoTongChiTieu();
-                                break;
-                            default:
-                                System.out.print("Lựa chọn không hợp lệ. Vui lòng nhập lại: ");
-                                continue;
+                case 4:
+                    if (isAdmin) {
+                        System.out.println("\n");
+                        System.out.println("    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+                        System.out.println("    ┃                           TÌM KIẾM KHÁCH HÀNG                      ┃");
+                        System.out.println("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                        System.out.println("    ┃ [1] ➜ Tìm kiếm khách hàng theo mã khách hàng                       ┃");
+                        System.out.println("    ┃ [2] ➜ Tìm kiếm khách hàng theo tên                                 ┃");
+                        System.out.println("    ┃ [3] ➜ Tìm kiếm khách hàng theo số điện thoại                       ┃");
+                        System.out.println("    ┃ [0] ➜ Thoát                                                        ┃");
+                        System.out.println("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                        System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+                        while (true) {
+                            String opt = scanner.nextLine().trim();
+    
+                            switch (opt) {
+                                case "0":
+                                    System.out.println("Thoát tìm kiếm khách hàng thành công.");
+                                    break;
+                                case "1":
+                                    timKiemTheoMa();
+                                    break;
+                                case "2":
+                                    timKiemTheoTen();
+                                    break;
+                                case "3":
+                                    timKiemTheoSDT();
+                                    break;
+                                default: 
+                                    System.out.print("Lựa chọn không hợp lệ. Vui lòng nhập lại: ");
+                                    continue;
+                            }
+                            break;
                         }
-                        break;
+                    } else xuat();
+                    break;
+                case 5: 
+                    if (isAdmin) {
+                        System.out.println("\n");
+                        System.out.println("    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+                        System.out.println("    ┃                           THỐNG KÊ KHÁCH HÀNG                      ┃");
+                        System.out.println("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                        System.out.println("    ┃ [1] ➜ Thống kê khách hàng theo giới tính                           ┃");
+                        System.out.println("    ┃ [2] ➜ Thống kê khách hàng theo độ tuổi                             ┃");
+                        System.out.println("    ┃ [3] ➜ Thống kê khách hàng theo số lượng hóa đơn                    ┃");
+                        System.out.println("    ┃ [4] ➜ Thống kê khách hàng theo tổng chi tiêu                       ┃");
+                        System.out.println("    ┃ [0] ➜ Thoát                                                        ┃");
+                        System.out.println("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                        System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+                        while (true) {
+                            String opt = scanner.nextLine().trim();
+    
+                            switch (opt) {
+                                case "0":
+                                    System.out.println("Thoát thống kê khách hàng thành công.");
+                                    break;
+                                case "1":
+                                    KhachHangDAO.thongKeTheoGioiTinh();
+                                    break;
+                                case "2":
+                                    KhachHangDAO.thongKeTheoDoTuoi();
+                                    break;
+                                case "3":
+                                    KhachHangDAO.thongKeTheoSohd();
+                                    break;
+                                case "4":
+                                    KhachHangDAO.thongKeTheoTongChiTieu();
+                                    break;
+                                default:
+                                    System.out.print("Lựa chọn không hợp lệ. Vui lòng nhập lại: ");
+                                    continue;
+                            }
+                            break;
+                        }
                     }
                     break;
                 case 6:
-                    xuat();
+                    if (isAdmin) xuat();
                     break;
-                case 0:
-                    System.out.println("Thoát khỏi menu quản lý khách hàng.");
-                    return;
                 default:
                     System.out.println("Lựa chọn không hợp lệ.");
                     break;
