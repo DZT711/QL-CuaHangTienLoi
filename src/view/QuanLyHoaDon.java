@@ -31,6 +31,8 @@ public class QuanLyHoaDon {
         Scanner scanner = new Scanner(System.in);
         boolean isAdmin = !"nhanvien".equalsIgnoreCase(Main.CURRENT_ACCOUNT.getRole());
         int maxChoice = isAdmin ? 6 : 4;
+        String format = "▒ %-76s ▒%n";
+
 
         while (true) {
             System.out.println("\n████████████████████████████████████████████████████████████████████████████████");
@@ -39,13 +41,13 @@ public class QuanLyHoaDon {
             System.out.println("██                                                                            ██");
             System.out.println("████████████████████████████████████████████████████████████████████████████████");
             System.out.println("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ MENU CHỨC NĂNG ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓");
-            System.out.println("▒ [1] ➜ Thêm hóa đơn                                                           ▒");
-            if (isAdmin) System.out.println("▒ [2] ➜ Xóa hóa đơn                                                            ▒");
-            System.out.println("▒ [" + (isAdmin ? 3 : 2) + "] ➜ Tìm kiếm hóa đơn                             ▒");
-            System.out.println("▒ [" + (isAdmin ? 4 : 3) + "] ➜ Xem danh sách hóa đơn                         ▒");
-            if (isAdmin) System.out.println("▒ [5] ➜ Thống kê hóa đơn                                                       ▒");
-            System.out.println("▒ [" + (isAdmin ? 6 : 4) + "] ➜ Xuất hóa đơn                                 ▒");
-
+            System.out.printf(format, "[1] ➜ Thêm hóa đơn");
+            if (isAdmin) 
+                System.out.printf(format, "[2] ➜ Xóa hóa đơn");
+            System.out.printf(format, String.format("[%d] ➜ Tìm kiếm hóa đơn", isAdmin ? 3 : 2));
+            System.out.printf(format, String.format("[%d] ➜ Xem danh sách hóa đơn", isAdmin ? 4 : 3));
+            if (isAdmin) System.out.printf(format, "[5] ➜ Thống kê hóa đơn");
+            System.out.printf(format, String.format("[%d] ➜ Xuất hóa đơn", isAdmin ? 6 : 4));
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ");
             System.out.println("░ [0] ✗ Quay lại menu chính                                                    ░");
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ");

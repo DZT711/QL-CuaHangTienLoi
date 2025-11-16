@@ -20,8 +20,6 @@ import dto.ChiTietPhieuNhapDTO;
 import dto.NhaCungCapDTO;
 import dto.NhanVienDTO;
 import dto.NhapHangDTO;
-import dto.SanPhamDTO;
-import view.QuanLyChiTietPhieuNhap;
 import main.Main;
 import util.FormatUtil;
 import util.JDBCUtil;
@@ -33,6 +31,9 @@ import java.sql.SQLException;
 public class QuanLyNhapHang {
     public void menuQuanLyNhapHang() {
         Scanner scanner = new Scanner(System.in);
+        boolean isAdmin = !"nhanvien".equalsIgnoreCase(Main.CURRENT_ACCOUNT.getRole());
+        int maxChoice = isAdmin ? 7 : 4; 
+        String format = "▒ %-76s ▒%n";
 
         while (true) {
             System.out.println("\n████████████████████████████████████████████████████████████████████████████████");
@@ -41,13 +42,20 @@ public class QuanLyNhapHang {
             System.out.println("██                                                                            ██");
             System.out.println("████████████████████████████████████████████████████████████████████████████████");
             System.out.println("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ MENU CHỨC NĂNG ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓");
-            System.out.println("▒ [1] ➜ Tạo phiếu nhập hàng mới                                                ▒");
-            System.out.println("▒ [2] ➜ Tìm kiếm phiếu nhập                                                    ▒");
-            System.out.println("▒ [3] ➜ Chỉnh sửa phiếu nhập                                                   ▒");
-            System.out.println("▒ [4] ➜ Thống kê phiếu nhập                                                    ▒");
-            System.out.println("▒ [5] ➜ Quản lý chi tiết phiếu nhập hàng                                       ▒");
-            System.out.println("▒ [6] ➜ Xuất file phiếu nhập hàng                                              ▒");
-            System.out.println("▒ [7] ➜ Xuất báo cáo nhập hàng                                                 ▒");
+            System.out.printf(format, "[1] ➜ Tạo phiếu nhập hàng mới");
+            System.out.printf(format, "[2] ➜ Tìm kiếm phiếu nhập");
+
+            if (isAdmin) {
+                System.out.printf(format, "[3] ➜ Chỉnh sửa phiếu nhập");
+                System.out.printf(format, "[4] ➜ Thống kê phiếu nhập");
+            }
+
+            System.out.printf(format, String.format("[%d] ➜ Quản lý chi tiết phiếu nhập hàng", isAdmin ? 5 : 3));
+            System.out.printf(format, String.format("[%d] ➜ Xuất file phiếu nhập hàng", isAdmin ? 6 : 4));
+
+            if (isAdmin) {
+                System.out.printf(format, "[7] ➜ Xuất báo cáo nhập hàng");
+            }
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░");
             System.out.println("░ [0] ✗ Quay lại menu chính                                                    ░");
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░");
@@ -59,12 +67,17 @@ public class QuanLyNhapHang {
                 if (scanner.hasNextInt()) {
                     choice = scanner.nextInt();
                     scanner.nextLine();
-                    if (choice >= 0 && choice <= 7) break;
-                    System.out.print("Vui lòng nhập số trong khoảng 0–7: ");
+                    if (choice >= 0 && choice <= maxChoice) break;
+                    System.out.print("❌ Vui lòng nhập số trong khoảng 0 – " + maxChoice + ": ");
                 } else {
-                    System.out.print("Nhập không hợp lệ. Vui lòng nhập lại: ");
+                    System.out.print("❌ Nhập không hợp lệ. Vui lòng nhập lại: ");
                     scanner.next();
                 }
+            }
+
+            if (choice == 0) {
+                System.out.println("✅ Quay lại menu chính thành công.");
+                break;
             }
 
             switch (choice) {
@@ -119,75 +132,82 @@ public class QuanLyNhapHang {
                     }
                     break;
                 case 3: 
-                    suaPhieuNhap(); 
-                    break;
-                case 4: 
-                    System.out.println("\n");
-                    System.out.println(
-                            "    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
-                    System.out.println(
-                            "    ┃                        THỐNG KÊ PHIẾU NHẬP                         ┃");
-                    System.out.println(
-                            "    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
-                    System.out.println(
-                            "    ┃ [1] ➜ Thống kê phiếu nhập theo khoảng thời gian                    ┃");
-                    System.out.println(
-                            "    ┃ [2] ➜ Thống kê phiếu nhập theo nhà cung cấp                        ┃");
-                    System.out.println(
-                            "    ┃ [3] ➜ Thống kê phiếu nhập theo nhân viên nhập                      ┃");
-                    System.out.println(
-                            "    ┃ [4] ➜ Thống kê phiếu nhập theo sản phẩm nhập                       ┃");
-                    System.out.println(
-                            "    ┃ [5] ➜ Thống kê phiếu nhập theo tháng / năm                         ┃");
-                    System.out.println(
-                            "    ┃ [0] ➜ Thoát                                                        ┃");
-                    System.out.println(
-                            "    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
-                    System.out.print("\n💡 Nhập lựa chọn của bạn: ");
-                    while (true) {
-                        String opt = scanner.nextLine().trim();
-                        switch (opt) {
-                            case "0":
-                                System.out.println("Thoát thống kê phiếu nhập thành công.");
-                                break;
-                            case "1":
-                                thongKePhieuNhapTheoNgay();
-                                break;
-                            case "2":
-                                thongKePhieuNhapTheoNCC();
-                                break;
-                            case "3":
-                                thongKePhieuNhapTheoNV();
-                                break;
-                            case "4":
-                                thongKePhieuNhapTheoSanPham();
-                                break;
-                            case "5":
-                                thongKePhieuNhapTheoThang();
-                                break;
-                            default:
-                                System.out.print("Lựa chọn không hợp lệ. Vui lòng nhập lại: ");
-                                continue;
-                        }
-                        break;
+                    if (isAdmin) suaPhieuNhap(); 
+                    else {
+                        QuanLyChiTietPhieuNhap qlctpn = new QuanLyChiTietPhieuNhap();
+                        qlctpn.menuQuanLyChiTietPhieuNhap();
                     }
                     break;
+                case 4: 
+                    if (isAdmin) {
+                        System.out.println("\n");
+                        System.out.println(
+                                "    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+                        System.out.println(
+                                "    ┃                        THỐNG KÊ PHIẾU NHẬP                         ┃");
+                        System.out.println(
+                                "    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                        System.out.println(
+                                "    ┃ [1] ➜ Thống kê phiếu nhập theo khoảng thời gian                    ┃");
+                        System.out.println(
+                                "    ┃ [2] ➜ Thống kê phiếu nhập theo nhà cung cấp                        ┃");
+                        System.out.println(
+                                "    ┃ [3] ➜ Thống kê phiếu nhập theo nhân viên nhập                      ┃");
+                        System.out.println(
+                                "    ┃ [4] ➜ Thống kê phiếu nhập theo sản phẩm nhập                       ┃");
+                        System.out.println(
+                                "    ┃ [5] ➜ Thống kê phiếu nhập theo tháng / năm                         ┃");
+                        System.out.println(
+                                "    ┃ [0] ➜ Thoát                                                        ┃");
+                        System.out.println(
+                                "    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                        System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+                        while (true) {
+                            String opt = scanner.nextLine().trim();
+                            switch (opt) {
+                                case "0":
+                                    System.out.println("Thoát thống kê phiếu nhập thành công.");
+                                    break;
+                                case "1":
+                                    thongKePhieuNhapTheoNgay();
+                                    break;
+                                case "2":
+                                    thongKePhieuNhapTheoNCC();
+                                    break;
+                                case "3":
+                                    thongKePhieuNhapTheoNV();
+                                    break;
+                                case "4":
+                                    thongKePhieuNhapTheoSanPham();
+                                    break;
+                                case "5":
+                                    thongKePhieuNhapTheoThang();
+                                    break;
+                                default:
+                                    System.out.print("Lựa chọn không hợp lệ. Vui lòng nhập lại: ");
+                                    continue;
+                            }
+                            break;
+                        }
+
+                    }
+                    else xuatPhieuNhapTheoMaPhieuNhap();
+                    break;
                 case 5:
-                    QuanLyChiTietPhieuNhap qlctpn = new QuanLyChiTietPhieuNhap();
-                    qlctpn.menuQuanLyChiTietPhieuNhap();
+                    if (isAdmin) {
+                        QuanLyChiTietPhieuNhap qlctpn = new QuanLyChiTietPhieuNhap();
+                        qlctpn.menuQuanLyChiTietPhieuNhap();
+                    }
                     break;
                 case 6:
-                    xuatPhieuNhapTheoMaPhieuNhap();
+                    if (isAdmin) xuatPhieuNhapTheoMaPhieuNhap();
                     break;
                 case 7:
-                    xuatBaoCaoNhapHangTheoNgay();
+                    if (isAdmin) xuatBaoCaoNhapHangTheoNgay();
                     break;
                 default:
                     System.out.println("Lựa chọn không hợp lệ!");
                     break;
-                case 0: 
-                    System.out.println("Quay lại menu chính thành công.");
-                    return;
             }
         }
     }
