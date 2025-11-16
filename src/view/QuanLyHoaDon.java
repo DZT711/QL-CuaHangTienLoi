@@ -3,6 +3,10 @@ package view;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
+
+import javax.xml.validation.Validator;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -21,10 +25,15 @@ import dao.SanPhamDAO;
 import dto.SanPhamDTO;
 import java.time.format.DateTimeParseException;
 import util.FormatUtil;
+import util.JDBCUtil;
+import util.ValidatorUtil;
+
 import java.util.Map;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 public class QuanLyHoaDon {
     public void menuQuanLyHoaDon() {
@@ -328,15 +337,17 @@ public class QuanLyHoaDon {
 
         while (true) {
             try {
-                // tìm khách hàng theo số điện thoại
-                System.out.println("Nhập số điện thoại khách hàng: ");
+                // tìm khách hàng theo số điện thoại    
+                System.out.print("Nhập số điện thoại khách hàng (hoặc '0' để hủy): ");
                 String sdt = scanner.nextLine().trim();
 
-                if (sdt.isEmpty()) {
-                    System.out.println("❌ Số điện thoại không được để trống!");
-                    continue;
+                if ("0".equals(sdt)) {
+                    System.out.println("✅ Hủy tạo hóa đơn.");
+                    break;
                 }
 
+                if (!ValidatorUtil.isValidPhoneNumber(sdt)) continue;
+                
                 // thêm khách hàng mới nếu chưa có
                 KhachHangDTO kh = KhachHangDAO.timKhachHangTheoDienThoai(sdt);
                 if (kh == null) {
@@ -345,20 +356,31 @@ public class QuanLyHoaDon {
 
                     String maKH = KhachHangDAO.generateIDKhachHang();
 
-                    System.out.print("Nhập họ khách hàng: ");
-                    String ho = scanner.nextLine().trim();
-                    while (ho.isEmpty()) {
-                        System.out.println("❌ Họ không được để trống!");
-                        System.out.print("Nhập họ khách hàng: ");
+                    String ho;
+                    while (true) {
+                        System.out.print("Nhập họ khách hàng (hoặc '0' để hủy): ");
                         ho = scanner.nextLine().trim();
-                    }
 
-                    System.out.print("Nhập tên khách hàng: ");
-                    String ten = scanner.nextLine().trim();
-                    while (ten.isEmpty()) {
-                        System.out.println("❌ Tên không được để trống!");
-                        System.out.print("Nhập tên khách hàng: ");
+                        if ("0".equals(ho)) {
+                            System.out.println("✅ Hủy tạo hóa đơn.");
+                            return;
+                        }
+
+                        if (ValidatorUtil.isValidName(ho)) break;
+                    }
+                    
+
+                    String ten;
+                    while (true) {
+                        System.out.print("Nhập tên khách hàng (hoặc '0' để hủy): ");
                         ten = scanner.nextLine().trim();
+
+                        if ("0".equals(ten)) {
+                            System.out.println("✅ Hủy tạo hóa đơn.");
+                            return;
+                        }
+
+                        if (ValidatorUtil.isValidName(ten)) break;
                     }
 
                     KhachHangDTO customer = new KhachHangDTO();
@@ -374,8 +396,7 @@ public class QuanLyHoaDon {
                         System.out.println("❌ Lỗi khi thêm khách hàng! Vui lòng thử lại.");
                         continue;
                     }
-                }
-                else System.out.println("✅ Tìm thấy: " + kh.getHo() + " " + kh.getTen());
+                } else System.out.println("✅ Tìm thấy: " + kh.getHo() + " " + kh.getTen());
                 
                 String maHD = HoaDonDAO.generateIDHoaDon();
                 String maNV = Main.CURRENT_ACCOUNT.getMaNV();
@@ -388,11 +409,20 @@ public class QuanLyHoaDon {
                 System.out.println("║                    📦 THÊM SẢN PHẨM VÀO HÓA ĐƠN                ║");
                 System.out.println("╚════════════════════════════════════════════════════════════════╝");
 
+                boolean huyHoaDon = false;
+
                 while (true) {
-                    System.out.print("Nhập mã hàng hóa: ");
+                    System.out.print("\nNhập mã hàng hóa (hoặc 'x' để hoàn tất, '0' để hủy): ");
                     String maHang = scanner.nextLine().trim();
-                    if ("0".equals(maHang)) break;
+
+                    if ("0".equals(maHang)) {
+                        System.out.println("✅ Hủy tạo hóa đơn.");
+                        huyHoaDon = true;
+                        break;
+                    }
                     
+                    if ("x".equalsIgnoreCase(maHang)) break;
+
                     if (maHang.isEmpty()) {
                         System.out.println("❌ Mã hàng không được để trống!");
                         continue;
@@ -401,14 +431,14 @@ public class QuanLyHoaDon {
                     // Kiểm tra hàng hóa tồn tại
                     HangHoaDTO hangHoa = HangHoaDAO.timHangHoaTheoMa(maHang);
                     if (hangHoa == null) {
-                        System.out.println("❌ Mã hàng không tồn tại! Vui lòng nhập lại.\n");
+                        System.out.println("❌ Mã hàng không tồn tại! Vui lòng nhập lại.");
                         continue;
                     }
 
                     // Chặn bán nếu lô hàng không được phép bán (inactive hoặc expired)
                     String trangThai = hangHoa.getTrangThai();
                     if ("inactive".equalsIgnoreCase(trangThai)) {
-                        System.out.println("❌ LÔ HÀNG KHÔNG ĐƯỢC PHÉP BÁN (Inactive). Vui lòng chọn lô khác.\n");
+                        System.out.println("❌ LÔ HÀNG KHÔNG ĐƯỢC PHÉP BÁN (Inactive). Vui lòng chọn lô khác.");
                         continue;
                     }
 
@@ -416,13 +446,13 @@ public class QuanLyHoaDon {
                     if ("expired".equalsIgnoreCase(trangThai) || 
                         (hanSuDung != null && hanSuDung.isBefore(LocalDate.now()))) {
                         System.out.println("╔════════════════════════════════════════════════════════╗");
-                        System.out.println("║    ❌ KHÔNG THỂ BÁN - LÔ HÀNG ĐÃ HẾT HẠN!            ║");
+                        System.out.println("║          ❌ KHÔNG THỂ BÁN - LÔ HÀNG ĐÃ HẾT HẠN!        ║");
                         System.out.println("╚════════════════════════════════════════════════════════╝");
                         System.out.println("📦 Mã hàng: " + maHang);
                         if (hanSuDung != null) {
                             System.out.println("📅 HSD: " + hanSuDung.format(displayFmt));
                         }
-                        System.out.println("👉 Vui lòng chọn lô khác.\n");
+                        System.out.println("👉 Vui lòng chọn lô khác.");
                         continue;
                     }
 
@@ -430,7 +460,7 @@ public class QuanLyHoaDon {
                     String maSP = hangHoa.getMaSP();
                     SanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
                     if (sp == null) {
-                        System.out.println("❌ Lỗi: Không tìm thấy thông tin sản phẩm!\n");
+                        System.out.println("❌ Lỗi: Không tìm thấy thông tin sản phẩm!");
                         continue;
                     }
 
@@ -441,10 +471,16 @@ public class QuanLyHoaDon {
                     // nhập só lượng 
                     int soLuong = -1;
                     while (true) {
-                        System.out.print("Nhập số lượng (hoặc '0' để bỏ qua): ");
+                        System.out.print("Nhập số lượng (hoặc '0' để hủy hoặc 'x' để bỏ qua): ");
                         String slInput = scanner.nextLine().trim();
                         
                         if ("0".equals(slInput)) {
+                            System.out.println("✅ Hủy tạo hóa đơn.");
+                            huyHoaDon = true;
+                            break;
+                        }
+                        
+                        if ("x".equalsIgnoreCase(slInput)) {
                             soLuong = -1;
                             break;
                         }
@@ -468,13 +504,18 @@ public class QuanLyHoaDon {
                         }
                     }
 
+                    if (huyHoaDon) break;
                     if (soLuong == -1) continue;
 
                     int donGia = sp.getGiaBan();
                     int thanhTien = soLuong * donGia;
                     chiTietHoaDon.add(new ChiTietHoaDonDTO(maHD, maHang, sp.getTenSP(), soLuong, donGia, thanhTien));
                     tongTien += thanhTien;
+
+                    System.out.println("✅ Đã thêm: " + sp.getTenSP() + " x " + soLuong + " = " + FormatUtil.formatVND(thanhTien));
                 }
+
+                if (huyHoaDon) continue;
                 
                 // kiểm tra hóa đơn rỗng 
                 if (chiTietHoaDon.isEmpty()) {
@@ -504,13 +545,18 @@ public class QuanLyHoaDon {
                     String ptttInput = scanner.nextLine().trim();
 
                     if ("0".equals(ptttInput)) {
-                        System.out.println("❌ Hủy thanh toán!\n");
-                        thanhToanThanhCong = false;
+                        System.out.println("✅ Hủy thanh toán!");
                         break;
                     } else if ("1".equals(ptttInput)) {
+                        boolean nhapTienThanhCong = false;
                         while (true) {
-                            System.out.print("💵 Nhập tiền khách đưa: ");
+                            System.out.print("💵 Nhập tiền khách đưa (hoặc '0' để hủy): ");
                             String tienInput = scanner.nextLine().trim();
+
+                            if ("0".equals(tienInput)) {
+                                System.out.println("✅ Hủy thanh toán!");
+                                break;
+                            }
                             
                             try {
                                 int tienKhachDua = Integer.parseInt(tienInput);
@@ -527,13 +573,14 @@ public class QuanLyHoaDon {
                                 
                                 System.out.println("✅ Tiền thừa: " + FormatUtil.formatVND(tienKhachDua - tongTien));
                                 thanhToanThanhCong = true;
+                                nhapTienThanhCong = true;
                                 break;
                                 
                             } catch (NumberFormatException e) {
-                                System.out.println("❌ Số tiền không hợp lệ!");
+                                System.out.println("❌ Số tiền không hợp lệ! Vui lòng nhập số nguyên.");
                             }
                         }
-                        break;
+                        if (nhapTienThanhCong) break;
                     } else if ("2".equals(ptttInput)) {
                         hoaDon.setPhuongThucTT("Chuyển khoản");
                         hoaDon.setTienKhachDua(tongTien);
@@ -542,11 +589,14 @@ public class QuanLyHoaDon {
                         thanhToanThanhCong = true;
                         break;
                     } else {
-                        System.out.println("❌ Lựa chọn không hợp lệ!");
+                        System.out.println("❌ Lựa chọn không hợp lệ! Vui lòng nhập 0, 1 hoặc 2.");
                     }
                 }
 
-                if (!thanhToanThanhCong) continue;
+                if (!thanhToanThanhCong) {
+                    System.out.println("⚠️ Hủy tạo hóa đơn do không thanh toán.");
+                    continue;
+                }
 
                 // lưu hóa đơn và cập nhật tồn kho
                 boolean luuThanhCong = true;
@@ -564,7 +614,6 @@ public class QuanLyHoaDon {
                             break;
                         }
                         
-                    
                         String maHangCT = ctHoaDon.getMaHang();
                         HangHoaDTO hh = HangHoaDAO.timHangHoaTheoMa(maHangCT);
                         if (hh != null) {
@@ -583,7 +632,7 @@ public class QuanLyHoaDon {
                 }
 
                 if (!luuThanhCong) {
-                    System.out.println("❌ Lỗi khi lưu hóa đơn! Vui lòng thử lại.\n");
+                    System.out.println("❌ Lỗi khi lưu hóa đơn! Vui lòng thử lại.");
                     continue;
                 }
 
@@ -593,9 +642,9 @@ public class QuanLyHoaDon {
                     inHoaDon(hoaDonMoi);
                 }
 
-                System.out.print("\n💡 Bạn có muốn tạo hóa đơn khác? (y/n): ");
+                System.out.print("\n💡 Bạn có muốn tạo hóa đơn khác? (Y/N): ");
                 String choice = scanner.nextLine().trim();
-                if (!"y".equalsIgnoreCase(choice)) {
+                if (!"Y".equalsIgnoreCase(choice)) {
                     System.out.println("✅ Hoàn tất tạo hóa đơn.");
                     break;
                 }
@@ -608,6 +657,8 @@ public class QuanLyHoaDon {
 
     public void timHDTheoMaHD() {
         Scanner scanner = new Scanner(System.in);        
+        boolean isAdmin = !"nhanvien".equalsIgnoreCase(Main.CURRENT_ACCOUNT.getRole());
+
         while (true) {
             System.out.print("\n🔍 Nhập mã hóa đơn cần tìm (hoặc '0' để thoát): ");
             String maHD = scanner.nextLine().trim();
@@ -623,20 +674,23 @@ public class QuanLyHoaDon {
             }
             
             HoaDonDTO hd = HoaDonDAO.timHoaDon(maHD);
-            
-            if (hd != null) {
-                System.out.println("✅ Tìm thấy hóa đơn: " + maHD);
-                
-                // Hiển thị trạng thái hóa đơn trước khi in
-                String trangThai = hd.getTrangThai();
-                if ("cancelled".equalsIgnoreCase(trangThai)) {
-                    System.out.println("⚠️ CHÚ Ý: Hóa đơn này đã bị HỦY!");
-                    System.out.println("────────────────────────────────────────────────────────────────");
-                }
-                
-                inHoaDon(hd);
-            } else {
+
+            if (hd == null) {
                 System.out.println("❌ Không tìm thấy hóa đơn với mã: " + maHD);
+            } else {
+                if (!isAdmin && !"active".equalsIgnoreCase(hd.getTrangThai())) {
+                    System.out.println("❌ Bạn chỉ có quyền xem hóa đơn do mình lập!");
+                    System.out.println("💡 Hóa đơn này do nhân viên " + hd.getMaNV() + " lập.");
+                } else {
+                    System.out.println("✅ Tìm thấy hóa đơn: " + maHD);
+                
+                    String trangThai = hd.getTrangThai();
+                    if ("cancelled".equalsIgnoreCase(trangThai)) {
+                        System.out.println("⚠️ CHÚ Ý: Hóa đơn này đã bị HỦY!");
+                        System.out.println("────────────────────────────────────────────────────────────────");
+                    }
+                    inHoaDon(hd);
+                }
             }
             
             System.out.print("\n💡 Bạn có muốn tìm hóa đơn khác? (y/n): ");
@@ -651,6 +705,7 @@ public class QuanLyHoaDon {
     public void timHDTheoMaKH() {
         Scanner scanner = new Scanner(System.in);
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        boolean isAdmin = !"nhanvien".equalsIgnoreCase(Main.CURRENT_ACCOUNT.getRole());
 
         while (true) {
             System.out.print("\n🔍 Nhập mã khách hàng để tìm hóa đơn (hoặc '0' để thoát): ");
@@ -688,9 +743,22 @@ public class QuanLyHoaDon {
             boolean baoGomHuy = "Y".equalsIgnoreCase(showCancelled);
 
             List<Map<String, Object>> danhSachHD = HoaDonDAO.timHoaDonTheoMaKH(maKH, baoGomHuy);
-        
+
+            if (!isAdmin) {
+                String currentID = Main.CURRENT_ACCOUNT.getMaNV();
+                danhSachHD = danhSachHD.stream()
+                    .filter(hd -> currentID.equals(hd.get("MaNV")))
+                    .collect(Collectors.toList());
+
+                if (danhSachHD.isEmpty()) {
+                    System.out.println("\n⚠️  Bạn chưa lập hóa đơn nào cho khách hàng này.");
+                    continue;
+                }
+                System.out.println("📋 Hiển thị hóa đơn do BẠN lập cho khách hàng này.");
+            }
+
             if (danhSachHD.isEmpty()) {
-                System.out.println("\n⚠️ Khách hàng này chưa có hóa đơn nào.\n");
+                System.out.println("\n⚠️ Khách hàng này chưa có hóa đơn nào.");
                 continue;
             }
 
@@ -711,7 +779,7 @@ public class QuanLyHoaDon {
                 String pttt = (String) hd.get("PhuongThucTT");
                 String trangThai = (String) hd.get("TrangThai");
                 
-                String trangThaiIcon = "active".equals(trangThai) ? "✅" : "❌ Hủy";
+                String trangThaiIcon = "active".equals(trangThai) ? "✅" : "❌ Đã hủy";
                 
                 System.out.printf("%-12s %-20s %-20s %-15s %-15s %-12s%n",
                     maHD,
@@ -734,10 +802,7 @@ public class QuanLyHoaDon {
 
             while (true) {
                 System.out.print("💡 Bạn có muốn xem chi tiết hóa đơn nào không? (Y/N): ");
-                String xemChiTiet = scanner.nextLine().trim();
-                
-                if (!"Y".equalsIgnoreCase(xemChiTiet)) break;
-                
+                if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) break;
                 
                 System.out.print("Nhập mã hóa đơn cần xem chi tiết: ");
                 String maHD = scanner.nextLine().trim();
@@ -746,11 +811,21 @@ public class QuanLyHoaDon {
                     System.out.println("❌ Mã hóa đơn không được để trống!");
                     continue;
                 }
+
+                boolean found = danhSachHD.stream()
+                    .anyMatch(hd -> maHD.equalsIgnoreCase((String) hd.get("MaHD")));
+                
+                if (!found) {
+                    System.out.println("⚠️ Hóa đơn này không có trong danh sách!");
+                    continue;
+                }
                 
                 HoaDonDTO hoaDon = HoaDonDAO.timHoaDon(maHD);
                 if (hoaDon != null) {
-                    if (!maKH.equals(hoaDon.getMaKH())) {
+                    if (!maKH.equalsIgnoreCase(hoaDon.getMaKH())) {
                         System.out.println("⚠️ Hóa đơn này không thuộc khách hàng " + maKH + "!");
+                    } else if (!isAdmin && !Main.CURRENT_ACCOUNT.getMaNV().equalsIgnoreCase(hoaDon.getMaNV())) {
+                        System.out.println("⚠️ Bạn không có quyền xem hóa đơn này!");
                     } else {
                         inHoaDon(hoaDon);
                     }
@@ -771,6 +846,7 @@ public class QuanLyHoaDon {
     public void timHDTheoMaNV() {
         Scanner scanner = new Scanner(System.in);
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        boolean isAdmin = !"nhanvien".equalsIgnoreCase(Main.CURRENT_ACCOUNT.getRole());
         
         while (true) {
             System.out.print("\n🔍 Nhập mã nhân viên cần tìm (hoặc '0' để thoát): ");
@@ -783,6 +859,11 @@ public class QuanLyHoaDon {
             
             if (maNV.isEmpty()) {
                 System.out.println("❌ Mã nhân viên không được để trống!");
+                continue;
+            }
+
+            if (!isAdmin && !maNV.equals(Main.CURRENT_ACCOUNT.getMaNV())) {
+                System.out.println("❌ Bạn chỉ có quyền xem hóa đơn do mình lập!");
                 continue;
             }
             
@@ -1017,6 +1098,7 @@ public class QuanLyHoaDon {
                 System.out.println("   1. Đánh dấu hóa đơn là 'cancelled' (không xóa khỏi DB)");
                 System.out.println("   2. Hoàn lại số lượng hàng hóa vào kho");
                 System.out.println("   3. Hóa đơn vẫn được lưu để audit/kiểm tra");
+                System.out.println("   4. Hoàn tiền lại cho khách hàng nếu đã thanh toán");
                 System.out.print("\n❓ Bạn có chắc chắn muốn hủy? (Y/N): ");
                 String confirm = scanner.nextLine().trim();
                 
@@ -1033,9 +1115,8 @@ public class QuanLyHoaDon {
                     System.out.println("❌ Hủy hóa đơn thất bại!\n");
                 }
                 
-                System.out.print("💡 Bạn có muốn hủy hóa đơn khác? (y/n): ");
-                String choice = scanner.nextLine().trim();
-                if (!"y".equalsIgnoreCase(choice)) {
+                System.out.print("💡 Bạn có muốn hủy hóa đơn khác? (Y/N): ");
+                if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) {
                     System.out.println("✅ Hoàn tất chức năng hủy hóa đơn.");
                     break;
                 }
@@ -1051,6 +1132,7 @@ public class QuanLyHoaDon {
         DateTimeFormatter inputFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         DateTimeFormatter displayFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        boolean isAdmin = !"nhanvien".equalsIgnoreCase(Main.CURRENT_ACCOUNT.getRole());
 
         while (true) {
             LocalDate fromDate = null, toDate = null;
@@ -1106,6 +1188,23 @@ public class QuanLyHoaDon {
 
             List<HoaDonDTO> list = HoaDonDAO.timHoaDonTheoNgayLap(fromDate, toDate, baoGomHuy);
 
+            if (!isAdmin) {
+                String currentID = Main.CURRENT_ACCOUNT.getMaNV();
+                list = list.stream()
+                    .filter(hd -> currentID.equals(hd.getMaNV()))
+                    .collect(Collectors.toList());
+                
+                if (list.isEmpty()) {
+                    System.out.println("\n⚠️  Bạn chưa lập hóa đơn nào trong khoảng thời gian này.");
+                    System.out.print("\n💡 Bạn có muốn tìm tiếp không? (Y/N): ");
+                    if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) {
+                        System.out.println("✅ Hoàn tất chức năng tìm hóa đơn theo ngày.");
+                        break;
+                    }
+                    continue;
+                }
+            }
+
             System.out.println("\n╔════════════════════════════════════════════════════════════════════════════════════════╗");
             System.out.println("║                             📅 DANH SÁCH HÓA ĐƠN THEO NGÀY                             ║");
             System.out.println("╚════════════════════════════════════════════════════════════════════════════════════════╝");
@@ -1146,9 +1245,7 @@ public class QuanLyHoaDon {
 
                 while (true) {
                     System.out.print("💡 Bạn có muốn xem chi tiết hóa đơn nào không? (Y/N): ");
-                    String xemChiTiet = scanner.nextLine().trim();
-
-                    if (!"Y".equalsIgnoreCase(xemChiTiet)) break;
+                    if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) break;
 
                     System.out.print("Nhập mã hóa đơn cần xem chi tiết: ");
                     String maHD = scanner.nextLine().trim();
@@ -1160,6 +1257,11 @@ public class QuanLyHoaDon {
 
                     HoaDonDTO hoaDon = HoaDonDAO.timHoaDon(maHD);
                     if (hoaDon != null) {
+                        boolean found = list.stream().anyMatch(hd -> hd.getMaHD().equals(maHD));
+                        if (!found) {
+                            System.out.println("⚠️ Hóa đơn này không thuộc danh sách!");
+                            continue;
+                        }
                         inHoaDon(hoaDon);
                     } else {
                         System.out.println("❌ Không tìm thấy hóa đơn với mã: " + maHD);
@@ -1167,9 +1269,8 @@ public class QuanLyHoaDon {
                 }
             }
 
-            System.out.print("\n💡 Bạn có muốn tìm tiếp không? (y/n): ");
-            String choice = scanner.nextLine().trim();
-            if (!"y".equalsIgnoreCase(choice)) {
+            System.out.print("\n💡 Bạn có muốn tìm tiếp không? (Y/N): ");
+            if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) {
                 System.out.println("✅ Hoàn tất chức năng tìm hóa đơn theo ngày.");
                 break;
             }
@@ -1179,6 +1280,7 @@ public class QuanLyHoaDon {
     public void xemDanhSachHoaDon() {
         Scanner scanner = new Scanner(System.in);
         DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        boolean isAdmin = !"nhanvien".equalsIgnoreCase(Main.CURRENT_ACCOUNT.getRole());
 
         while (true) {
             System.out.print("\n💡 Hiển thị cả hóa đơn đã hủy? (Y/N): ");
@@ -1186,6 +1288,23 @@ public class QuanLyHoaDon {
             boolean baoGomHuy = "Y".equalsIgnoreCase(showCancelled);
 
             List<HoaDonDTO> list = HoaDonDAO.getAllHoaDon(baoGomHuy);
+
+            if (!isAdmin) {
+                String currentID = Main.CURRENT_ACCOUNT.getMaNV();
+                list = list.stream()
+                    .filter(hd -> currentID.equals(hd.getMaNV()))
+                    .collect(Collectors.toList());
+
+                if (list.isEmpty()) {
+                    System.out.println("\n⚠️  Bạn chưa lập hóa đơn nào trong hệ thống.");
+                    System.out.print("\n💡 Bạn có muốn xem lại không? (Y/N): ");
+                    if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) {
+                        System.out.println("✅ Hoàn tất xem danh sách hóa đơn.");
+                        break;
+                    }
+                    continue;
+                }
+            }
 
             System.out.println("\n╔════════════════════════════════════════════════════════════════════════════════════════╗");
             System.out.println("║                             📋 DANH SÁCH TẤT CẢ HÓA ĐƠN                                ║");
@@ -1248,9 +1367,8 @@ public class QuanLyHoaDon {
                 }
             }
 
-            System.out.print("\n💡 Bạn có muốn xem lại danh sách? (y/n): ");
-            String choice = scanner.nextLine().trim();
-            if (!"y".equalsIgnoreCase(choice)) {
+            System.out.print("\n💡 Bạn có muốn xem lại danh sách? (Y/N): ");
+            if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) {
                 System.out.println("✅ Hoàn tất xem danh sách hóa đơn.");
                 break;
             }
@@ -1833,6 +1951,7 @@ public class QuanLyHoaDon {
 
     public void xuatHoaDonTheoMaHD() {
         Scanner scanner = new Scanner(System.in);
+        boolean isAdmin = !"nhanvien".equalsIgnoreCase(Main.CURRENT_ACCOUNT.getRole());
 
         while (true) {
             System.out.print("\n📄 Nhập mã hóa đơn cần xuất (hoặc '0' để thoát): ");
@@ -1851,14 +1970,19 @@ public class QuanLyHoaDon {
             HoaDonDTO hoaDon = HoaDonDAO.timHoaDon(maHD);
             if (hoaDon == null) {
                 System.out.println("❌ Không tìm thấy hóa đơn với mã: " + maHD);
-                return;
+                continue;
+            }
+
+            if (!isAdmin && !hoaDon.getMaNV().equalsIgnoreCase(Main.CURRENT_ACCOUNT.getMaNV())) {
+                System.out.println("❌ Bạn chỉ có quyền xuất hóa đơn do chính bạn lập!");
+                System.out.println("💡 Hóa đơn này do nhân viên " + hoaDon.getMaNV() + " lập.");
+                continue;
             }
 
             if ("cancelled".equalsIgnoreCase(hoaDon.getTrangThai())) {
                 System.out.println("⚠️ CHÚ Ý: Hóa đơn này đã bị HỦY!");
                 System.out.print("Bạn có chắc chắn muốn xuất hóa đơn này? (Y/N): ");
-                String confirm = scanner.nextLine().trim();
-                if (!"Y".equalsIgnoreCase(confirm)) {
+                if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) {
                     System.out.println("ℹ️ Đã hủy thao tác xuất hóa đơn.");
                     continue;
                 }
@@ -1912,8 +2036,7 @@ public class QuanLyHoaDon {
             }
             
             System.out.print("\n💡 Bạn có muốn xuất hóa đơn khác? (y/n): ");
-            String choice = scanner.nextLine().trim();
-            if (!"y".equalsIgnoreCase(choice)) {
+            if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) {
                 System.out.println("✅ Hoàn tất xuất hóa đơn.");
                 break;
             }
@@ -1922,6 +2045,7 @@ public class QuanLyHoaDon {
 
     public void xuatChiTietHoaDonTheoMaHD() {
         Scanner scanner = new Scanner(System.in);
+        boolean isAdmin = !"nhanvien".equalsIgnoreCase(Main.CURRENT_ACCOUNT.getRole());
 
         while (true) {
             System.out.print("\n📄 Nhập mã hóa đơn muốn xuất chi tiết (hoặc '0' để thoát): ");
@@ -1934,6 +2058,18 @@ public class QuanLyHoaDon {
             
             if (maHD.isEmpty()) {
                 System.out.println("❌ Mã hóa đơn không được để trống!");
+                continue;
+            }
+
+            HoaDonDTO hoaDon = HoaDonDAO.timHoaDon(maHD);
+            if (hoaDon == null) {
+                System.out.println("❌ Không tìm thấy hóa đơn với mã: " + maHD);
+                continue;
+            }
+
+            if (!isAdmin && !hoaDon.getMaNV().equalsIgnoreCase(Main.CURRENT_ACCOUNT.getMaNV())) {
+                System.out.println("❌ Bạn chỉ có quyền xuất chi tiết hóa đơn do chính bạn lập!");
+                System.out.println("💡 Hóa đơn này do nhân viên " + hoaDon.getMaNV() + " lập.");
                 continue;
             }
 
@@ -1989,9 +2125,8 @@ public class QuanLyHoaDon {
                 e.printStackTrace();
             }
             
-            System.out.print("\n💡 Bạn có muốn xuất chi tiết hóa đơn khác? (y/n): ");
-            String choice = scanner.nextLine().trim();
-            if (!"y".equalsIgnoreCase(choice)) {
+            System.out.print("\n💡 Bạn có muốn xuất chi tiết hóa đơn khác? (Y/N): ");
+            if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) {
                 System.out.println("✅ Hoàn tất xuất chi tiết hóa đơn.");
                 break;
             }
@@ -2000,6 +2135,7 @@ public class QuanLyHoaDon {
 
     public void xuatHoaDonKemChiTietHoaDonTheoMaHD() {
         Scanner scanner = new Scanner(System.in);
+        boolean isAdmin = !"nhanvien".equalsIgnoreCase(Main.CURRENT_ACCOUNT.getRole());
         
         while (true) {
             System.out.print("\n📄 Nhập mã hóa đơn muốn xuất (hoặc '0' để thoát): ");
@@ -2020,12 +2156,17 @@ public class QuanLyHoaDon {
                 System.out.println("❌ Không tìm thấy hóa đơn với mã: " + maHD);
                 continue;
             }
+
+            if (!isAdmin && !hoaDon.getMaNV().equalsIgnoreCase(Main.CURRENT_ACCOUNT.getMaNV())) {
+                System.out.println("❌ Bạn chỉ có quyền xuất hóa đơn kèm chi tiết do chính bạn lập!");
+                System.out.println("💡 Hóa đơn này do nhân viên " + hoaDon.getMaNV() + " lập.");
+                continue;
+            }
             
             if ("cancelled".equalsIgnoreCase(hoaDon.getTrangThai())) {
                 System.out.println("⚠️ CHÚ Ý: Hóa đơn này đã bị HỦY!");
                 System.out.print("Bạn có chắc chắn muốn xuất? (Y/N): ");
-                String confirm = scanner.nextLine().trim();
-                if (!"Y".equalsIgnoreCase(confirm)) {
+                if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) {
                     System.out.println("ℹ️ Đã hủy thao tác.");
                     continue;
                 }
@@ -2104,8 +2245,7 @@ public class QuanLyHoaDon {
             }
             
             System.out.print("\n💡 Bạn có muốn xuất hóa đơn khác? (y/n): ");
-            String choice = scanner.nextLine().trim();
-            if (!"y".equalsIgnoreCase(choice)) {
+            if (!"y".equalsIgnoreCase(scanner.nextLine().trim())) {
                 System.out.println("✅ Hoàn tất xuất hóa đơn kèm chi tiết.");
                 break;
             }

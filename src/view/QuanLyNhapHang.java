@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
@@ -432,6 +433,7 @@ public class QuanLyNhapHang {
 
     public void timPhieuNhapTheoMaNCC() {
         Scanner scanner = new Scanner(System.in);
+        boolean isAdmin  = !"nhanvien".equalsIgnoreCase(Main.CURRENT_ACCOUNT.getRole());
 
         System.out.println("\n╔════════════════════════════════════════════════════╗");
         System.out.println("║          TÌM PHIẾU NHẬP THEO NHÀ CUNG CẤP          ║");
@@ -463,9 +465,28 @@ public class QuanLyNhapHang {
             }
     
             List<NhapHangDTO> pnList = NhapHangDAO.timPhieuNhapTheoMaNCC(maNCC);
+
+            if (!isAdmin) {
+                String currentID = Main.CURRENT_ACCOUNT.getMaNV();
+                List<NhapHangDTO> filteredList = pnList.stream()
+                        .filter(pn -> pn.getMaNV().equals(currentID))
+                        .collect(Collectors.toList());
+                
+                if (filteredList.isEmpty()) {
+                    System.out.println("⚠️  Bạn không có phiếu nhập nào từ nhà cung cấp này.");
+                    System.out.print("\nTiếp tục tìm kiếm phiếu nhập theo nhà cung cấp khác? (Y/N): ");
+                    if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) {
+                        System.out.println("✅ Hoàn tất chức năng tìm kiếm.");
+                        break;
+                    }
+                    continue;
+                }
+                pnList = filteredList;
+            }
+
             if (pnList == null || pnList.isEmpty()) {
                 System.out.println("⚠️  Nhà cung cấp này chưa có phiếu nhập nào.");
-                System.out.print("\nTiếp tục tìm kiếm phiếu nhập theo nhà cung cấp khác? (y/n): ");
+                System.out.print("\nTiếp tục tìm kiếm phiếu nhập theo nhà cung cấp khác? (Y/N): ");
                 if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) {
                     System.out.println("✅ Hoàn tất chức năng tìm kiếm.");
                     break;
@@ -545,6 +566,7 @@ public class QuanLyNhapHang {
 
     public void timPhieuNhapTheoMaNV() {
         Scanner scanner = new Scanner(System.in);
+        boolean isAdmin  = !"nhanvien".equalsIgnoreCase(Main.CURRENT_ACCOUNT.getRole());
 
         System.out.println("\n╔════════════════════════════════════════════════════╗");
         System.out.println("║            TÌM PHIẾU NHẬP THEO NHÂN VIÊN           ║");
@@ -561,6 +583,11 @@ public class QuanLyNhapHang {
             
             if (maNV.isEmpty()) {
                 System.out.println("❌ Mã nhân viên không được để trống!");
+                continue;
+            }
+
+            if (!isAdmin && !maNV.equals(Main.CURRENT_ACCOUNT.getMaNV())) {
+                System.out.println("❌ Bạn chỉ có thể tìm kiếm phiếu nhập của chính mình!");
                 continue;
             }
 
@@ -660,13 +687,13 @@ public class QuanLyNhapHang {
     public void timPhieuNhapTheoNgayNhap() {
         Scanner scanner = new Scanner(System.in);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        boolean continueSearch = true;
+        boolean isAdmin  = !"nhanvien".equalsIgnoreCase(Main.CURRENT_ACCOUNT.getRole());
         
         System.out.println("\n╔════════════════════════════════════════════════════╗");
         System.out.println("║        TÌM PHIẾU NHẬP THEO KHOẢNG THỜI GIAN        ║");
         System.out.println("╚════════════════════════════════════════════════════╝");
 
-        while (continueSearch) {
+        while (true) {
 
             LocalDate fromDate = null;
             while (true) {
@@ -675,16 +702,13 @@ public class QuanLyNhapHang {
 
                 if ("0".equals(from)) {
                     System.out.println("✅ Thoát chức năng tìm kiếm.");
-                    continueSearch = false;
-                    break;
+                    return;
                 }
 
                 if (!ValidatorUtil.isValidateDate(from))  continue;
                 fromDate = LocalDate.parse(from, formatter);
                 break; 
             }
-
-            if (!continueSearch) break;
 
             LocalDate toDate = null ;
             while (true) {
@@ -693,8 +717,7 @@ public class QuanLyNhapHang {
                 
                 if ("0".equals(to)) {
                     System.out.println("✅ Thoát chức năng tìm kiếm.");
-                    continueSearch = false;
-                    break;
+                    return;
                 }
 
                 if (!ValidatorUtil.isValidateDate(to))  continue;
@@ -708,9 +731,25 @@ public class QuanLyNhapHang {
                 break; 
             }
 
-            if (!continueSearch) break;
-
             List<NhapHangDTO> pnList = NhapHangDAO.timPhieuNhapTheoNgay(fromDate, toDate);
+
+            if (!isAdmin && pnList != null && !pnList.isEmpty()) {
+                String currentID = Main.CURRENT_ACCOUNT.getMaNV();
+                List<NhapHangDTO> filterList = pnList.stream()
+                        .filter(pn -> pn.getMaNV().equals(currentID))
+                        .collect(Collectors.toList());
+                
+                if (filterList.isEmpty()) {
+                    System.out.println("⚠️  Bạn không có phiếu nhập nào trong khoảng thời gian này.");
+                    System.out.print("\n💡 Bạn có muốn tìm kiếm khoảng thời gian khác? (Y/N): ");
+                    if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) {
+                        System.out.println("✅ Hoàn tất chức năng tìm kiếm.");
+                        break;
+                    }
+                    continue;
+                } 
+                pnList = filterList;
+            }
 
             System.out.println("\n╔════════════════════════════════════════════════════╗");
             System.out.println("║                  KẾT QUẢ TÌM KIẾM                  ║");
@@ -790,11 +829,19 @@ public class QuanLyNhapHang {
 
     public void inPhieuNhap(String maPhieu) {
         try {
+            boolean isAdmin = !"nhanvien".equalsIgnoreCase(Main.CURRENT_ACCOUNT.getRole());
             NhapHangDTO pn = NhapHangDAO.timPhieuNhapTheoMa(maPhieu);
             if (pn == null) {
                 System.out.println("❌ Không tìm thấy phiếu nhập với mã: " + maPhieu);
                 return;
             } 
+
+            if  (!isAdmin && !pn.getMaNV().equals(Main.CURRENT_ACCOUNT.getMaNV())) {
+                System.out.println("❌ Bạn không có quyền xem phiếu nhập này!");
+                System.out.println("💡 Phiếu này do nhân viên " + pn.getMaNV() + " tạo.");
+                System.out.println("💡 Vui lòng liên hệ quản lý nếu cần xem phiếu này.");
+                return;
+            }
 
             System.out.println("\n╔══════════════════════════════════════════════════════════════╗");
             System.out.println("║                        PHIẾU NHẬP HÀNG                       ║");
@@ -1539,6 +1586,8 @@ public class QuanLyNhapHang {
     public void xuatPhieuNhapTheoMaPhieuNhap() {
         Scanner scanner = new Scanner(System.in);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        boolean isAdmin = !"nhanvien".equalsIgnoreCase(Main.CURRENT_ACCOUNT.getRole());
+
         System.out.println("\n╔══════════════════════════════════════════════════════════════╗");
         System.out.println("║                     XUẤT PHIẾU NHẬP RA FILE                  ║");
         System.out.println("╚══════════════════════════════════════════════════════════════╝");
@@ -1560,6 +1609,13 @@ public class QuanLyNhapHang {
                 NhapHangDTO pn = NhapHangDAO.timPhieuNhapTheoMa(maPhieu);
                 if (pn == null) {
                     System.out.println("❌ Không tìm thấy phiếu nhập với mã: " + maPhieu);
+                    continue;
+                }
+
+                if (!isAdmin && !pn.getMaNV().equalsIgnoreCase(Main.CURRENT_ACCOUNT.getMaNV())) {
+                    System.out.println("❌ Bạn không có quyền xuất phiếu nhập này!");
+                    System.out.println("💡 Phiếu này do nhân viên " + pn.getMaNV() + " tạo.");
+                    System.out.println("💡 Vui lòng liên hệ quản lý nếu cần xuất phiếu này.");
                     continue;
                 }
 
@@ -1649,6 +1705,7 @@ public class QuanLyNhapHang {
 
                     writer.println();
                     writer.println("Ngày xuất file : " + LocalDateTime.now().format(formatter));
+                    writer.println("Nhân viên thực hiện     : " + Main.CURRENT_ACCOUNT.getfullName());
                     writer.println();
 
                     System.out.println("✅ Xuất phiếu nhập thành công!");

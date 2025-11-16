@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 import com.mysql.cj.xdevapi.Schema.Validation.ValidationLevel;
 
@@ -89,9 +90,10 @@ public class QuanLyChiTietPhieuNhap {
     }
 
     public static void themChiTietVaoPhieuNhap(Scanner scanner) {
+        boolean isAdmin = !"nhanvien".equalsIgnoreCase(Main.CURRENT_ACCOUNT.getRole());
 
         System.out.println("\n╔════════════════════════════════════════════════════╗");
-        System.out.println("║          THÊM CHI TIẾT VÀO PHIẾU NHẬP              ║");
+        System.out.println("║            THÊM CHI TIẾT VÀO PHIẾU NHẬP            ║");
         System.out.println("╚════════════════════════════════════════════════════╝");
 
         String ma;
@@ -114,9 +116,14 @@ public class QuanLyChiTietPhieuNhap {
                 System.out.println("❌ Không tìm thấy phiếu nhập với mã: " + ma);
                 continue;
             }
+
+            if (!isAdmin && !phieuNhap.getMaNV().equalsIgnoreCase(Main.CURRENT_ACCOUNT.getMaNV())) {
+                System.out.println("❌ Bạn chỉ có quyền thêm chi tiết vào phiếu do mình tạo!");
+                System.out.println("💡 Phiếu này do nhân viên " + phieuNhap.getMaNV() + " tạo.");
+                continue;
+            }
             break;
         }
-
 
         System.out.println("\n✅ Tìm thấy phiếu nhập:");
         System.out.println("   Mã phiếu: " + phieuNhap.getMaPhieu());
@@ -340,6 +347,7 @@ public class QuanLyChiTietPhieuNhap {
     }
 
     public static void timTheoMaPhieu(Scanner scanner) {
+        boolean isAdmin = !"nhanvien".equalsIgnoreCase(Main.CURRENT_ACCOUNT.getRole());
 
         System.out.println("\n╔════════════════════════════════════════════════════╗");
         System.out.println("║              TÌM CHI TIẾT PHIẾU NHẬP               ║");
@@ -362,6 +370,12 @@ public class QuanLyChiTietPhieuNhap {
             NhapHangDTO phieuNhap = NhapHangDAO.timPhieuNhapTheoMa(maPhieu);
             if (phieuNhap == null) {
                 System.out.println("❌ Không tìm thấy phiếu nhập với mã: " + maPhieu);
+                continue;
+            }
+
+            if(!isAdmin && !phieuNhap.getMaNV().equalsIgnoreCase(Main.CURRENT_ACCOUNT.getMaNV())) {
+                System.out.println("❌ Bạn chỉ có quyền xem chi tiết phiếu nhập này!");
+                System.out.println("💡 Phiếu này do nhân viên " + phieuNhap.getMaNV() + " tạo.");
                 continue;
             }
 
@@ -399,10 +413,35 @@ public class QuanLyChiTietPhieuNhap {
     }
 
     public static void xemDanhSachChiTietPhieuNhap() {
+        boolean isAdmin = !"nhanvien".equalsIgnoreCase(Main.CURRENT_ACCOUNT.getRole());
+
         System.out.println("\n╔════════════════════════════════════════════════════╗");
         System.out.println("║            DANH SÁCH CHI TIẾT PHIẾU NHẬP           ║");
         System.out.println("╚════════════════════════════════════════════════════╝");
         List<ChiTietPhieuNhapDTO> chiTietList = ChiTietPhieuNhapDAO.getAllChiTietPhieuNhap();
+
+        if (!isAdmin) {
+            String currentID = Main.CURRENT_ACCOUNT.getMaNV();
+
+            List<String> maPhieuCuaNV = chiTietList.stream()
+                .map(ChiTietPhieuNhapDTO::getMaPhieu)
+                .distinct()
+                .filter(maPhieu -> {
+                    NhapHangDTO pn = NhapHangDAO.timPhieuNhapTheoMa(maPhieu);
+                    return pn != null && currentID.equalsIgnoreCase(pn.getMaNV());
+                })
+                .collect(Collectors.toList());
+
+            chiTietList = chiTietList.stream()
+                .filter(ct -> maPhieuCuaNV.contains(ct.getMaPhieu()))
+                .collect(Collectors.toList());
+
+            if (chiTietList.isEmpty()) {
+                System.out.println("\n⚠️  Bạn chưa có chi tiết phiếu nhập nào.");
+                System.out.println("💡 Hãy tạo phiếu nhập mới và thêm chi tiết.");
+                return;
+            }
+        }
 
         if (chiTietList.isEmpty()) {
             System.out.println("\n⚠️Không có chi tiết phiếu nhập nào trong hệ thống.");
@@ -410,38 +449,38 @@ public class QuanLyChiTietPhieuNhap {
         }
 
         System.out.println("Danh sách tất cả chi tiết phiếu nhập:");
-    System.out.println("┌────────────┬────────────┬──────────────────────────┬────────────┬──────────┬─────────────┬───────────────┐");
-    System.out.printf("│ %-10s │ %-10s │ %-24s │ %-10s │ %-8s │ %-11s │ %-13s │%n",
-            "Mã phiếu", "Mã Hàng", "Tên SP", "Đơn vị", "SL", "Giá nhập", "Thành tiền");
-    System.out.println("├────────────┼────────────┼──────────────────────────┼────────────┼──────────┼─────────────┼───────────────┤");
+        System.out.println("┌────────────┬────────────┬──────────────────────────┬────────────┬──────────┬─────────────┬───────────────┐");
+        System.out.printf("│ %-10s │ %-10s │ %-24s │ %-10s │ %-8s │ %-11s │ %-13s │%n",
+                "Mã phiếu", "Mã Hàng", "Tên SP", "Đơn vị", "SL", "Giá nhập", "Thành tiền");
+        System.out.println("├────────────┼────────────┼──────────────────────────┼────────────┼──────────┼─────────────┼───────────────┤");
 
-    int tongSoLuong = 0;
-    long tongThanhTien = 0;
+        int tongSoLuong = 0;
+        long tongThanhTien = 0;
 
-    for (ChiTietPhieuNhapDTO ct : chiTietList) {
-        String tenSP = ct.getTenSP();
-        if (tenSP.length() > 24) {
-            tenSP = tenSP.substring(0, 21) + "...";
+        for (ChiTietPhieuNhapDTO ct : chiTietList) {
+            String tenSP = ct.getTenSP();
+            if (tenSP.length() > 24) {
+                tenSP = tenSP.substring(0, 21) + "...";
+            }
+            
+            System.out.printf("│ %-10s │ %-10s │ %-24s │ %-10s │ %8s │ %11s │ %13s │%n",
+                    ct.getMaPhieu(),
+                    ct.getMaHang(),
+                    tenSP,
+                    ct.getDonViTinh(),
+                    String.format("%,d", ct.getSoLuong()),
+                    FormatUtil.formatVND(ct.getGiaNhap()),
+                    FormatUtil.formatVND(ct.getThanhTien()));
+            
+            tongSoLuong += ct.getSoLuong();
+            tongThanhTien += ct.getThanhTien();
         }
-        
-        System.out.printf("│ %-10s │ %-10s │ %-24s │ %-10s │ %8s │ %11s │ %13s │%n",
-                ct.getMaPhieu(),
-                ct.getMaHang(),
-                tenSP,
-                ct.getDonViTinh(),
-                String.format("%,d", ct.getSoLuong()),
-                FormatUtil.formatVND(ct.getGiaNhap()),
-                FormatUtil.formatVND(ct.getThanhTien()));
-        
-        tongSoLuong += ct.getSoLuong();
-        tongThanhTien += ct.getThanhTien();
-    }
 
-    System.out.println("├────────────┴────────────┴──────────────────────────┴────────────┴──────────┼─────────────────────────────┤");
-    System.out.printf("│ %-74s │ %27s │%n", 
-            "TỔNG CỘNG: " + String.format("%,d", tongSoLuong) + " sản phẩm",
-            FormatUtil.formatVND(tongThanhTien));
-    System.out.println("└────────────────────────────────────────────────────────────────────────────┴─────────────────────────────┘");
+        System.out.println("├────────────┴────────────┴──────────────────────────┴────────────┴──────────┼─────────────────────────────┤");
+        System.out.printf("│ %-74s │ %27s │%n", 
+                "TỔNG CỘNG: " + String.format("%,d", tongSoLuong) + " sản phẩm",
+                FormatUtil.formatVND(tongThanhTien));
+        System.out.println("└────────────────────────────────────────────────────────────────────────────┴─────────────────────────────┘");
 
     }
 
