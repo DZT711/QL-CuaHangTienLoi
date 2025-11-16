@@ -59,7 +59,7 @@ public class QuanLyNhaCungCap {
                         try {
                             System.out.println("\n");
                             System.out.println("    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
-                            System.out.println("    ┃                           TÌM KIẾM SẢN PHẨM                        ┃");
+                            System.out.println("    ┃                         TÌM KIẾM NHÀ CUNG CẤP                      ┃");
                             System.out.println("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
                             System.out.println("    ┃ [1] ➜ Tìm kiếm nhà cung cấp theo mã                                ┃");
                             System.out.println("    ┃ [2] ➜ Tìm kiếm nhà cung cấp theo tên                               ┃");
@@ -356,7 +356,7 @@ public class QuanLyNhaCungCap {
         }
     }
 
-    public void timKiemNccTheoMa() {
+    public static void timKiemNccTheoMa() {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Nhập mã nhà cung cấp cần tìm: ");
         String maNCC = scanner.nextLine().trim();
@@ -375,7 +375,7 @@ public class QuanLyNhaCungCap {
     }
     
 
-    public void timKiemNccTheoTen () {
+    public static void timKiemNccTheoTen () {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Nhập tên nhà cung cấp cần tìm: ");
         String tenNCC = scanner.nextLine().trim();

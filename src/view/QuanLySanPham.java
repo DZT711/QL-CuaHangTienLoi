@@ -12,6 +12,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import main.Main;
 
 public class QuanLySanPham {
     public void menuQuanLySanPham() {
@@ -33,18 +34,31 @@ public class QuanLySanPham {
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ");
             System.out.println("░ [0] ⮐ Quay lại menu chính                                                    ░ ");
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ");
-            System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+            // Hiển thị menu tuỳ theo vai trò
+            boolean isAdmin = Main.CURRENT_ACCOUNT != null && "Admin".equals(Main.CURRENT_ACCOUNT.getRole());
+
+            if (isAdmin) {
+                System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+            } else {
+                System.out.println("\nLƯU Ý: Bạn đang đăng nhập với vai trò Nhân viên. Một số chức năng bị ẩn.");
+                System.out.print("\n💡 Nhập lựa chọn của bạn (0,1,3,4,6): ");
+            }
 
             int choice = -1;
-
             while (true) {
                 if (scanner.hasNextInt()) {
                     choice = scanner.nextInt();
                     scanner.nextLine();
-                    if (choice >= 0 && choice <= 6) break;
-                    System.out.print("❌ Vui lòng nhập số trong khoảng 0–6: ");
+                    if (isAdmin) {
+                        if (choice >= 0 && choice <= 6) break;
+                        System.out.print("Vui lòng nhập số trong khoảng 0–6: ");
+                    } else {
+                        // nhân viên chỉ được chọn 0,1,3,4,6
+                        if (choice == 0 || choice == 1 || choice == 3 || choice == 4 || choice == 6) break;
+                        System.out.print("Lựa chọn không hợp lệ cho vai trò Nhân viên. Vui lòng nhập một trong (0,1,3,4,6): ");
+                    }
                 } else {
-                    System.out.print("❌ Nhập không hợp lệ. Vui lòng nhập lại: ");
+                    System.out.print("Nhập không hợp lệ. Vui lòng nhập lại: ");
                     scanner.next();
                 }
             }
@@ -366,8 +380,7 @@ public class QuanLySanPham {
         }
     }
 
-
-    public void timKiemSanPhamTheoMa() {
+    public static void timKiemSanPhamTheoMa() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("\n╔════════════════════════════════════════════════════════════════╗");
         System.out.println("║                    TÌM KIẾM SẢN PHẨM THEO MÃ                   ║");
@@ -405,7 +418,7 @@ public class QuanLySanPham {
         }
     }
 
-    public void timKiemSanPhamTheoTen() {
+    public static void timKiemSanPhamTheoTen() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("\n╔════════════════════════════════════════════════════════════════╗");
         System.out.println("║                    TÌM KIẾM SẢN PHẨM THEO TÊN                  ║");

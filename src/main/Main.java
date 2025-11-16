@@ -10,6 +10,8 @@ import view.QuanLyNhaCungCap;
 import view.QuanLyNhanVien;
 import view.QuanLyNhapHang;
 import view.QuanLySanPham;
+import view.QuanLyChiTietPhieuNhap;
+import view.QuanLyHangHoa;
 import view.QuanLyHoaDon;
 import view.QuanLyTaiKhoan;
 import java.time.LocalDateTime;
@@ -131,15 +133,16 @@ public class Main {
             System.out.println("│  [3] ➜ Quản lý khách hàng                                  │");
             System.out.println("│  [4] ➜ Quản lý nhà cung cấp                                │");
             System.out.println("│  [5] ➜ Quản lý nhập hàng                                   │");
-            System.out.println("│  [6] ➜ Quản lý hóa đơn                                     │");
+            System.out.println("│  [6] ➜ Quản lý hàng hóa                                    │");
+            System.out.println("│  [7] ➜ Quản lý hóa đơn                                     │");
             System.out.println("│                                                            │");
             System.out.println("├─ BÁO CÁO & THỐNG KÊ ───────────────────────────────────────┤");
             System.out.println("│                                                            │");
-            System.out.println("│  [7] ➜ Xem báo cáo / thống kê                              │");
+            System.out.println("│  [8] ➜ Xem báo cáo / thống kê                              │");
             System.out.println("│                                                            │");
             System.out.println("├─ HỆ THỐNG ─────────────────────────────────────────────────┤");
             System.out.println("│                                                            │");
-            System.out.println("│  [8] ➜ Quản lý tài khoản                                   │");
+            System.out.println("│  [9] ➜ Quản lý tài khoản                                   │");
             System.out.println("│  [0] ✗ Đăng xuất                                           │");
             System.out.println("│                                                            │");
             System.out.println("└────────────────────────────────────────────────────────────┘");
@@ -152,10 +155,10 @@ public class Main {
                 if (scanner.hasNextInt()) {
                     choice = scanner.nextInt();
                     scanner.nextLine();
-                    if (choice >= 0 && choice <= 8) {
+                    if (choice >= 0 && choice <= 9) {
                         break;
                     }
-                    System.out.println("Vui lòng nhập số trong khoảng 0–8.");
+                    System.out.println("Vui lòng nhập số trong khoảng 0–9.");
                     System.out.print("\nNhập lựa chọn của bạn: ");
                 } else {
                     System.out.println("Vui lòng nhập số hợp lệ.");
@@ -185,25 +188,27 @@ public class Main {
                     QuanLyNhapHang qlnh = new QuanLyNhapHang();
                     qlnh.menuQuanLyNhapHang();
                     break;
-                case 6:
+                case 6: 
+                    QuanLyHangHoa qlhh = new QuanLyHangHoa();
+                    qlhh.menuQuanLyHangHoa();
+                    break;
+                case 7:
                     QuanLyHoaDon qlhd = new QuanLyHoaDon();
                     qlhd.menuQuanLyHoaDon();
                     break;
-                case 7:
+                case 8:
                     // xem báo cáo / thống kê
                     break;
-                case 8:
+                case 9:
                     QuanLyTaiKhoan qltk = new QuanLyTaiKhoan();
                     qltk.menuQuanLyTaiKhoan();
                     break;
-
                 case 0:
                     System.out.println("Đăng xuất thành công!");
-
                     System.out.println("╔═══════════════════════════════════════════════════╗");
                     System.out.println("║  CẢM ƠN BẠN ĐÃ SỬ DỤNG PHẦN MỀM, CHÀO TẠM BIỆT !  ║");
                     System.out.println("╚═══════════════════════════════════════════════════╝");
-                    return; // quay ra form login
+                    return; 
                 default:
                     System.out.println("Lựa chọn không hợp lệ.");
                     break;
@@ -227,14 +232,17 @@ public class Main {
             System.out.println("    │                                                            │");
             System.out.println("    ├─ CHỨC NĂNG CHÍNH ──────────────────────────────────────────┤");
             System.out.println("    │                                                            │");
-            System.out.println("    │  [1] ➜ Bán hàng                                            │");
-            System.out.println("    │  [2] ➜ Xem sản phẩm                                        │");
-            System.out.println("    │  [3] ➜ Quản lý khách hàng (cơ bản)                         │");
-            System.out.println("    │  [4] ➜ Xem hóa đơn đã lập                                  │");
+            System.out.println("    │  [1] ➜ Tạo / Tìm kiếm / Xem / Xuất hóa đơn                 │");
+            System.out.println("    │  [2] ➜ Tìm kiếm sản phẩm                                   │");
+            System.out.println("    │  [3] ➜ Thêm / Sửa / Tìm kiếm / Xem khách hàng              │");
+            System.out.println("    │  [4] ➜ Tìm / Xem / Kiểm tra / Cập nhật hàng hóa            │");
+            System.out.println("    │  [5] ➜ Tìm kiếm nhà cung cấp                               │");
+            System.out.println("    │  [6] ➜ Tạo / Tìm kiếm / Xuất file nhập hàng                │");
+            System.out.println("    │  [7] ➜ Thêm / Tìm kiếm / Xem chi tiết phiếu nhập           │");
             System.out.println("    │                                                            │");
             System.out.println("    ├─ HỆ THỐNG ─────────────────────────────────────────────────┤");
             System.out.println("    │                                                            │");
-            System.out.println("    │  [5] ➜ Quản lý tài khoản                                   │");
+            System.out.println("    │  [8] ➜ Thông tin tải khoản                                 │");
             System.out.println("    │  [0] ✗ Đăng xuất                                           │");
             System.out.println("    │                                                            │");
             System.out.println("    └────────────────────────────────────────────────────────────┘");
@@ -247,34 +255,105 @@ public class Main {
                 if (scanner.hasNextInt()) {
                     choice = scanner.nextInt();
                     scanner.nextLine();
-                    if (choice >= 0 && choice <= 6) {
+                    if (choice >= 0 && choice <= 8) {
                         break;
                     }
-                    System.out.println("Vui lòng nhập số trong khoảng 0–6.");
+                    System.out.println("Vui lòng nhập số trong khoảng 0–8.");
                     System.out.print("\nNhập lựa chọn của bạn: ");
                 } else {
                     System.out.println("Vui lòng nhập số hợp lệ.");
-                    scanner.next(); // bỏ token không phải số
+                    scanner.next(); 
                     System.out.print("\nNhập lựa chọn của bạn: ");
                 }
             }
 
             switch (choice) {
                 case 1:
-                    // bán hàng
+                    QuanLyHoaDon qlhd = new QuanLyHoaDon();
+                    qlhd.menuQuanLyHoaDon();
                     break;
                 case 2:
-                    // xem sản phẩm
+                    System.out.println("\n");
+                    System.out.println(
+                            "    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+                    System.out.println(
+                            "    ┃                           TÌM KIẾM SẢN PHẨM                        ┃");
+                    System.out.println(
+                            "    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                    System.out.println(
+                            "    ┃ [1] ➜ Tìm kiếm sản phẩm theo mã                                    ┃");
+                    System.out.println(
+                            "    ┃ [2] ➜ Tìm kiếm sản phẩm theo tên                                   ┃");
+                    System.out.println(
+                            "    ┃ [0] ➜ Thoát                                                        ┃");
+                    System.out.println(
+                            "    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                    System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+                    while (true) {
+                        String opt = scanner.nextLine().trim();
+                        switch (opt) {
+                            case "0":
+                                System.out.println("Thoát tìm kiếm sản phẩm thành công.");
+                                break;
+                            case "1":
+                                QuanLySanPham.timKiemSanPhamTheoMa();
+                                break;
+                            case "2":
+                                QuanLySanPham.timKiemSanPhamTheoTen();
+                                break;
+                            default:
+                                System.out.print("Lựa chọn không hợp lệ. Vui lòng nhập lại: ");
+                                continue;
+                        }
+                        break;
+                    }
                     break;
                 case 3:
                     QuanLyKhachHang qlkh = new QuanLyKhachHang();
                     qlkh.menuQuanLyKhachHang();
                     break;
                 case 4:
-                    // xem hóa đơn đã lập
+                    QuanLyHangHoa qlhh = new QuanLyHangHoa();
+                    qlhh.menuQuanLyHangHoa();
                     break;
                 case 5:
-                    // quản lý tài khoản cá nhân
+                    System.out.println("\n");
+                    System.out.println("    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+                    System.out.println("    ┃                         TÌM KIẾM NHÀ CUNG CẤP                      ┃");
+                    System.out.println("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                    System.out.println("    ┃ [1] ➜ Tìm kiếm nhà cung cấp theo mã                                ┃");
+                    System.out.println("    ┃ [2] ➜ Tìm kiếm nhà cung cấp theo tên                               ┃");
+                    System.out.println("    ┃ [0] ➜ Thoát                                                        ┃");
+                    System.out.println("    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                    System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+                    while (true) {
+                        String opt = scanner.nextLine().trim();
+                        switch (opt) {
+                            case "0":
+                                System.out.println("Thoát tìm kiếm nhà cung cấp thành công.");
+                                break;
+                            case "1":
+                                QuanLyNhaCungCap.timKiemNccTheoMa();
+                                break;
+                            case "2":
+                                QuanLyNhaCungCap.timKiemNccTheoTen();
+                                break;
+                            default:
+                                System.out.print("Lựa chọn không hợp lệ. Vui lòng nhập lại: ");
+                                continue;
+                        }
+                        break;
+                    }
+                    break;
+                case 6: 
+                    QuanLyNhapHang qlnh = new QuanLyNhapHang();
+                    qlnh.menuQuanLyNhapHang();
+                    break;
+                case 7:
+                    QuanLyChiTietPhieuNhap qlctpn = new QuanLyChiTietPhieuNhap();
+                    qlctpn.menuQuanLyChiTietPhieuNhap();
+                    break;
+                case 8:
                     QuanLyTaiKhoan qltk = new QuanLyTaiKhoan();
                     qltk.menuQuanLyTaiKhoanNhanVien();
                     break;

@@ -21,6 +21,7 @@ import dto.NhaCungCapDTO;
 import dto.NhanVienDTO;
 import dto.NhapHangDTO;
 import dto.SanPhamDTO;
+import view.QuanLyChiTietPhieuNhap;
 import main.Main;
 import util.FormatUtil;
 import util.JDBCUtil;
@@ -172,7 +173,8 @@ public class QuanLyNhapHang {
                     }
                     break;
                 case 5:
-                    view.QuanLyChiTietPhieuNhap.menuQuanLyChiTietPhieuNhap();
+                    QuanLyChiTietPhieuNhap qlctpn = new QuanLyChiTietPhieuNhap();
+                    qlctpn.menuQuanLyChiTietPhieuNhap();
                     break;
                 case 6:
                     xuatPhieuNhapTheoMaPhieuNhap();
