@@ -450,7 +450,7 @@ public class QuanLyKhachHang {
                 break;
             }
             
-            if (!ValidatorUtil.isValidName(tenKH)) {
+            if (!ValidatorUtil.isValidFirstName(tenKH)) {
                 System.out.println("❌ Tên khách hàng không hợp lệ!");
                 System.out.print("Bạn có muốn thử lại không? (Y/N): ");
                 if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) break;

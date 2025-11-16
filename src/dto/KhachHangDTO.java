@@ -107,7 +107,7 @@ public class KhachHangDTO {
                 input = scanner.nextLine().trim();
                 if ("0".equals(input)) return false;
 
-                if (ValidatorUtil.isValidName(input)) {
+                if (ValidatorUtil.isValidLastName(input)) {
                     this.ho = input;
                     break;
                 }
@@ -119,7 +119,7 @@ public class KhachHangDTO {
                 input = scanner.nextLine().trim();
                 if ("0".equals(input)) return false;
 
-                if (ValidatorUtil.isValidName(input)) {
+                if (ValidatorUtil.isValidFirstName(input)) {
                     this.ten = input;
                     break;
                 }
@@ -211,7 +211,7 @@ public class KhachHangDTO {
         String newHo = scanner.nextLine().trim();
         if ("0".equals(newHo)) return false;
         if (!newHo.isEmpty()) {
-            if (!ValidatorUtil.isValidName(newHo)) {
+            if (!ValidatorUtil.isValidLastName(newHo)) {
                 System.out.println("❌ Họ khách hàng không hợp lệ! Giữ nguyên họ");
             } else this.ho = newHo;
         }
@@ -222,7 +222,7 @@ public class KhachHangDTO {
         String newTen = scanner.nextLine().trim();
         if ("0".equals(newTen)) return false;
         if (!newTen.isEmpty()) {
-            if (!ValidatorUtil.isValidName(newTen)) {
+            if (!ValidatorUtil.isValidFirstName(newTen)) {
                 System.out.println("❌ Tên khách hàng không hợp lệ! Giữ nguyên tên khách hàng");
             } else this.ten = newTen;
         }

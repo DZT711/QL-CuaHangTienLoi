@@ -366,7 +366,7 @@ public class QuanLyHoaDon {
                             return;
                         }
 
-                        if (ValidatorUtil.isValidName(ho)) break;
+                        if (ValidatorUtil.isValidLastName(ho)) break;
                     }
                     
 
@@ -380,7 +380,7 @@ public class QuanLyHoaDon {
                             return;
                         }
 
-                        if (ValidatorUtil.isValidName(ten)) break;
+                        if (ValidatorUtil.isValidFirstName(ten)) break;
                     }
 
                     KhachHangDTO customer = new KhachHangDTO();
