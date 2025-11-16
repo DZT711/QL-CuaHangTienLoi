@@ -136,13 +136,9 @@ public class Main {
             System.out.println("│  [6] ➜ Quản lý hàng hóa                                    │");
             System.out.println("│  [7] ➜ Quản lý hóa đơn                                     │");
             System.out.println("│                                                            │");
-            System.out.println("├─ BÁO CÁO & THỐNG KÊ ───────────────────────────────────────┤");
-            System.out.println("│                                                            │");
-            System.out.println("│  [8] ➜ Xem báo cáo / thống kê                              │");
-            System.out.println("│                                                            │");
             System.out.println("├─ HỆ THỐNG ─────────────────────────────────────────────────┤");
             System.out.println("│                                                            │");
-            System.out.println("│  [9] ➜ Quản lý tài khoản                                   │");
+            System.out.println("│  [8] ➜ Quản lý tài khoản                                   │");
             System.out.println("│  [0] ✗ Đăng xuất                                           │");
             System.out.println("│                                                            │");
             System.out.println("└────────────────────────────────────────────────────────────┘");
@@ -197,9 +193,6 @@ public class Main {
                     qlhd.menuQuanLyHoaDon();
                     break;
                 case 8:
-                    // xem báo cáo / thống kê
-                    break;
-                case 9:
                     QuanLyTaiKhoan qltk = new QuanLyTaiKhoan();
                     qltk.menuQuanLyTaiKhoan();
                     break;
