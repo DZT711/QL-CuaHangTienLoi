@@ -19,7 +19,6 @@ import main.Main;
 import dao.KhachHangDAO;
 import dao.SanPhamDAO;
 import dto.SanPhamDTO;
-import java.util.InputMismatchException;
 import java.time.format.DateTimeParseException;
 import util.FormatUtil;
 import java.util.Map;
@@ -30,6 +29,8 @@ import java.io.PrintWriter;
 public class QuanLyHoaDon {
     public void menuQuanLyHoaDon() {
         Scanner scanner = new Scanner(System.in);
+        boolean isAdmin = !"nhanvien".equalsIgnoreCase(Main.CURRENT_ACCOUNT.getRole());
+        int maxChoice = isAdmin ? 6 : 4;
 
         while (true) {
             System.out.println("\n████████████████████████████████████████████████████████████████████████████████");
@@ -39,11 +40,12 @@ public class QuanLyHoaDon {
             System.out.println("████████████████████████████████████████████████████████████████████████████████");
             System.out.println("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ MENU CHỨC NĂNG ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓");
             System.out.println("▒ [1] ➜ Thêm hóa đơn                                                           ▒");
-            System.out.println("▒ [2] ➜ Xóa hóa đơn                                                            ▒");
-            System.out.println("▒ [3] ➜ Tìm kiếm hóa đơn                                                       ▒");
-            System.out.println("▒ [4] ➜ Xem danh sách hóa đơn                                                  ▒");
-            System.out.println("▒ [5] ➜ Thống kê hóa đơn                                                       ▒");
-            System.out.println("▒ [6] ➜ Xuất hóa đơn                                                           ▒");
+            if (isAdmin) System.out.println("▒ [2] ➜ Xóa hóa đơn                                                            ▒");
+            System.out.println("▒ [" + (isAdmin ? 3 : 2) + "] ➜ Tìm kiếm hóa đơn                             ▒");
+            System.out.println("▒ [" + (isAdmin ? 4 : 3) + "] ➜ Xem danh sách hóa đơn                         ▒");
+            if (isAdmin) System.out.println("▒ [5] ➜ Thống kê hóa đơn                                                       ▒");
+            System.out.println("▒ [" + (isAdmin ? 6 : 4) + "] ➜ Xuất hóa đơn                                 ▒");
+
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ");
             System.out.println("░ [0] ✗ Quay lại menu chính                                                    ░");
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ");
@@ -55,163 +57,263 @@ public class QuanLyHoaDon {
                 if (scanner.hasNextInt()) {
                     choice = scanner.nextInt();
                     scanner.nextLine();
-                    if (choice >= 0 && choice <= 6) break;
-                    System.out.print("Vui lòng nhập số trong khoảng 0–6: ");
+
+                    if (choice >= 0 && choice <= maxChoice) break;  
+                    System.out.print("❌ Vui lòng nhập số trong khoảng 0 – " + maxChoice + ": ");
                 } else {
-                    System.out.print("Nhập không hợp lệ. Vui lòng nhập lại: ");
+                    System.out.print("❌ Nhập không hợp lệ. Vui lòng nhập lại: ");
                     scanner.next();
                 }
             }
+
+            if (choice == 0) return;
 
             switch (choice) {
                 case 1:
                     themHoaDon();
                     break;
                 case 2:
-                    huyHoaDon();
-                    break;
-                case 3:
-                    System.out.println("\n");
-                    System.out.println(
-                            "    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
-                    System.out.println(
-                            "    ┃                         TÌM KIẾM HÓA ĐƠN                           ┃");
-                    System.out.println(
-                            "    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
-                    System.out.println(
-                            "    ┃ [1] ➜ Tìm kiếm hóa đơn theo mã hóa đơn                             ┃");
-                    System.out.println(
-                            "    ┃ [2] ➜ Tìm kiếm hóa đơn theo mã khách hàng                          ┃");
-                    System.out.println(
-                            "    ┃ [3] ➜ Tìm kiếm hóa đơn theo mã nhân viên                           ┃");
-                    System.out.println(
-                            "    ┃ [4] ➜ Tìm kiếm hóa đơn theo ngày lập                               ┃");
-                    System.out.println(
-                            "    ┃ [0] ➜ Thoát                                                        ┃");
-                    System.out.println(
-                            "    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
-                    System.out.print("\n💡 Nhập lựa chọn của bạn: ");
-                    while (true) {
-                        String opt = scanner.nextLine().trim();
+                    if (isAdmin) huyHoaDon();
+                    else {
+                        System.out.println("\n");
+                        System.out.println(
+                                "    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+                        System.out.println(
+                                "    ┃                         TÌM KIẾM HÓA ĐƠN                           ┃");
+                        System.out.println(
+                                "    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                        System.out.println(
+                                "    ┃ [1] ➜ Tìm kiếm hóa đơn theo mã hóa đơn                             ┃");
+                        System.out.println(
+                                "    ┃ [2] ➜ Tìm kiếm hóa đơn theo mã khách hàng                          ┃");
+                        System.out.println(
+                                "    ┃ [3] ➜ Tìm kiếm hóa đơn theo mã nhân viên                           ┃");
+                        System.out.println(
+                                "    ┃ [4] ➜ Tìm kiếm hóa đơn theo ngày lập                               ┃");
+                        System.out.println(
+                                "    ┃ [0] ➜ Thoát                                                        ┃");
+                        System.out.println(
+                                "    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                        System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+                        while (true) {
+                            String opt = scanner.nextLine().trim();
 
-                        switch (opt) {
-                            case "0":
-                                System.out.println("Thoát tìm kiếm hóa đơn thành công.");
-                                break;
-                            case "1":
-                                timHDTheoMaHD();
-                                continue;
-                            case "2":
-                                timHDTheoMaKH();
-                                continue;
-                            case "3":
-                                timHDTheoMaNV();
-                                continue;
-                            case "4":
-                                timHoaDonTheoNgay();
-                                continue;
-                            default:
-                                System.out.print("Lựa chọn không hợp lệ. Vui lòng nhập lại: ");
-                                continue;
+                            switch (opt) {
+                                case "0":
+                                    System.out.println("Thoát tìm kiếm hóa đơn thành công.");
+                                    break;
+                                case "1":
+                                    timHDTheoMaHD();
+                                    continue;
+                                case "2":
+                                    timHDTheoMaKH();
+                                    continue;
+                                case "3":
+                                    timHDTheoMaNV();
+                                    continue;
+                                case "4":
+                                    timHoaDonTheoNgay();
+                                    continue;
+                                default:
+                                    System.out.print("Lựa chọn không hợp lệ. Vui lòng nhập lại: ");
+                                    continue;
+                            }
+                            break;
                         }
-                        break;
                     }
                     break;
+                case 3:
+                    if (isAdmin) {
+                        System.out.println("\n");
+                        System.out.println(
+                                "    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+                        System.out.println(
+                                "    ┃                         TÌM KIẾM HÓA ĐƠN                           ┃");
+                        System.out.println(
+                                "    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                        System.out.println(
+                                "    ┃ [1] ➜ Tìm kiếm hóa đơn theo mã hóa đơn                             ┃");
+                        System.out.println(
+                                "    ┃ [2] ➜ Tìm kiếm hóa đơn theo mã khách hàng                          ┃");
+                        System.out.println(
+                                "    ┃ [3] ➜ Tìm kiếm hóa đơn theo mã nhân viên                           ┃");
+                        System.out.println(
+                                "    ┃ [4] ➜ Tìm kiếm hóa đơn theo ngày lập                               ┃");
+                        System.out.println(
+                                "    ┃ [0] ➜ Thoát                                                        ┃");
+                        System.out.println(
+                                "    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                        System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+                        while (true) {
+                            String opt = scanner.nextLine().trim();
+    
+                            switch (opt) {
+                                case "0":
+                                    System.out.println("Thoát tìm kiếm hóa đơn thành công.");
+                                    break;
+                                case "1":
+                                    timHDTheoMaHD();
+                                    continue;
+                                case "2":
+                                    timHDTheoMaKH();
+                                    continue;
+                                case "3":
+                                    timHDTheoMaNV();
+                                    continue;
+                                case "4":
+                                    timHoaDonTheoNgay();
+                                    continue;
+                                default:
+                                    System.out.print("Lựa chọn không hợp lệ. Vui lòng nhập lại: ");
+                                    continue;
+                            }
+                            break;
+                        }
+
+                    }
+                    else xemDanhSachHoaDon();
+                    break;
                 case 4:
-                    xemDanhSachHoaDon();
+                    if (isAdmin) xemDanhSachHoaDon();
+                    else {
+                        System.out.println("\n");
+                        System.out.println(
+                                "    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+                        System.out.println(
+                                "    ┃                            XUẤT HÓA ĐƠN                            ┃");
+                        System.out.println(
+                                "    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                        System.out.println(
+                                "    ┃ [1] ➜ Xuất hóa đơn theo mã hóa đơn                                 ┃");
+                        System.out.println(
+                                "    ┃ [2] ➜ Xuất chi tiết hóa đơn theo mã hóa đơn                        ┃");
+                        System.out.println(
+                                "    ┃ [3] ➜ Xuất hóa đơn kèm chi tiết hóa đơn theo mã hóa đơn            ┃");
+                        System.out.println(
+                                "    ┃ [0] ➜ Thoát                                                        ┃");
+                        System.out.println(
+                                "    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                        System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+                        while (true) {
+                            String opt = scanner.nextLine().trim();
+                            
+                            switch (opt) {
+                                case "0":
+                                    System.out.println("Thoát xuất hóa đơn thành công.");
+                                    break;
+                                case "1":
+                                    xuatHoaDonTheoMaHD();
+                                    break;
+                                case "2":
+                                    xuatChiTietHoaDonTheoMaHD();
+                                    break;
+                                case "3":
+                                    xuatHoaDonKemChiTietHoaDonTheoMaHD();
+                                    break;
+                                default:
+                                    System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
+                                    break;
+                            }
+                            break;
+                        }
+                    }
                     break;
                 case 5:
-                    System.out.println("\n");
-                    System.out.println(
-                            "    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
-                    System.out.println(
-                            "    ┃                         THỐNG KÊ HÓA ĐƠN                           ┃");
-                    System.out.println(
-                            "    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
-                    System.out.println(
-                            "    ┃ [1] ➜ Thống kê doanh thu theo khoảng thời gian                     ┃");
-                    System.out.println(
-                            "    ┃ [2] ➜ Thống kê hóa đơn theo nhân viên                              ┃");
-                    System.out.println(
-                            "    ┃ [3] ➜ Thống kê hóa đơn theo khách hàng                             ┃");
-                    System.out.println(
-                            "    ┃ [4] ➜ Thống kê hóa đơn theo năm                                    ┃");
-                    System.out.println(
-                            "    ┃ [5] ➜ Thống kê hóa đơn theo phương thức thanh toán                 ┃");
-                    System.out.println(
-                            "    ┃ [0] ➜ Thoát                                                        ┃");
-                    System.out.println(
-                            "    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
-                    System.out.print("\n💡 Nhập lựa chọn của bạn: ");
-                    while (true) {
-                        String opt = scanner.nextLine().trim();
-                        
-                        switch (opt) {
-                            case "0":
-                                System.out.println("Thoát thống kê hóa đơn thành công.");
-                                break;
-                            case "1":
-                                thongKeHDTheoNgay();
-                                break;
-                            case "2":
-                                thongKeHoaDonTheoNV();
-                                break;
-                            case "3":
-                                thongKeHoaDonTheoKH();
-                                break;
-                            case "4":
-                                thongKeHoaDonTheoNam();
-                                break;
-                            case "5":
-                                thongKeHoaDonTheoPTTT();
-                                break;
-                            default:
-                                System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
-                                break;
+                    if (isAdmin) {
+                        System.out.println("\n");
+                        System.out.println(
+                                "    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+                        System.out.println(
+                                "    ┃                         THỐNG KÊ HÓA ĐƠN                           ┃");
+                        System.out.println(
+                                "    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                        System.out.println(
+                                "    ┃ [1] ➜ Thống kê doanh thu theo khoảng thời gian                     ┃");
+                        System.out.println(
+                                "    ┃ [2] ➜ Thống kê hóa đơn theo nhân viên                              ┃");
+                        System.out.println(
+                                "    ┃ [3] ➜ Thống kê hóa đơn theo khách hàng                             ┃");
+                        System.out.println(
+                                "    ┃ [4] ➜ Thống kê hóa đơn theo năm                                    ┃");
+                        System.out.println(
+                                "    ┃ [5] ➜ Thống kê hóa đơn theo phương thức thanh toán                 ┃");
+                        System.out.println(
+                                "    ┃ [0] ➜ Thoát                                                        ┃");
+                        System.out.println(
+                                "    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                        System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+                        while (true) {
+                            String opt = scanner.nextLine().trim();
+                            
+                            switch (opt) {
+                                case "0":
+                                    System.out.println("Thoát thống kê hóa đơn thành công.");
+                                    break;
+                                case "1":
+                                    thongKeHDTheoNgay();
+                                    break;
+                                case "2":
+                                    thongKeHoaDonTheoNV();
+                                    break;
+                                case "3":
+                                    thongKeHoaDonTheoKH();
+                                    break;
+                                case "4":
+                                    thongKeHoaDonTheoNam();
+                                    break;
+                                case "5":
+                                    thongKeHoaDonTheoPTTT();
+                                    break;
+                                default:
+                                    System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
+                                    break;
+                            }
+                            break;
                         }
-                        break;
                     }
                     break;
                 case 6:
-                System.out.println("\n");
-                    System.out.println(
-                            "    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
-                    System.out.println(
-                            "    ┃                            XUẤT HÓA ĐƠN                            ┃");
-                    System.out.println(
-                            "    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
-                    System.out.println(
-                            "    ┃ [1] ➜ Xuất hóa đơn theo mã hóa đơn                                 ┃");
-                    System.out.println(
-                            "    ┃ [2] ➜ Xuất chi tiết hóa đơn theo mã hóa đơn                        ┃");
-                    System.out.println(
-                            "    ┃ [3] ➜ Xuất hóa đơn kèm chi tiết hóa đơn theo mã hóa đơn            ┃");
-                    System.out.println(
-                            "    ┃ [0] ➜ Thoát                                                        ┃");
-                    System.out.println(
-                            "    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
-                    System.out.print("\n💡 Nhập lựa chọn của bạn: ");
-                    while (true) {
-                        String opt = scanner.nextLine().trim();
-                        
-                        switch (opt) {
-                            case "0":
-                                System.out.println("Thoát xuất hóa đơn thành công.");
-                                break;
-                            case "1":
-                                xuatHoaDonTheoMaHD();
-                                break;
-                            case "2":
-                                xuatChiTietHoaDonTheoMaHD();
-                                break;
-                            case "3":
-                                xuatHoaDonKemChiTietHoaDonTheoMaHD();
-                                break;
-                            default:
-                                System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
-                                break;
+                    if (isAdmin) {
+                        System.out.println("\n");
+                        System.out.println(
+                                "    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+                        System.out.println(
+                                "    ┃                            XUẤT HÓA ĐƠN                            ┃");
+                        System.out.println(
+                                "    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                        System.out.println(
+                                "    ┃ [1] ➜ Xuất hóa đơn theo mã hóa đơn                                 ┃");
+                        System.out.println(
+                                "    ┃ [2] ➜ Xuất chi tiết hóa đơn theo mã hóa đơn                        ┃");
+                        System.out.println(
+                                "    ┃ [3] ➜ Xuất hóa đơn kèm chi tiết hóa đơn theo mã hóa đơn            ┃");
+                        System.out.println(
+                                "    ┃ [0] ➜ Thoát                                                        ┃");
+                        System.out.println(
+                                "    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+                        System.out.print("\n💡 Nhập lựa chọn của bạn: ");
+                        while (true) {
+                            String opt = scanner.nextLine().trim();
+                            
+                            switch (opt) {
+                                case "0":
+                                    System.out.println("Thoát xuất hóa đơn thành công.");
+                                    break;
+                                case "1":
+                                    xuatHoaDonTheoMaHD();
+                                    break;
+                                case "2":
+                                    xuatChiTietHoaDonTheoMaHD();
+                                    break;
+                                case "3":
+                                    xuatHoaDonKemChiTietHoaDonTheoMaHD();
+                                    break;
+                                default:
+                                    System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập lại");
+                                    break;
+                            }
+                            break;
                         }
-                        break;
                     }
                     break;
             }

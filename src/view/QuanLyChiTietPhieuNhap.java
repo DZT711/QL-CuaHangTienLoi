@@ -24,7 +24,7 @@ import util.ValidatorUtil;
 import java.util.Map;
 
 public class QuanLyChiTietPhieuNhap {
-    public static void menuQuanLyChiTietPhieuNhap() {
+    public void menuQuanLyChiTietPhieuNhap() {
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
