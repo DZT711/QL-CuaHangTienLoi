@@ -135,13 +135,13 @@ public class QuanLyNhanVien {
         // Nhập giới tính
         String gioiTinh;
         while (true) {
-            System.out.print("📝 Nhập giới tính (Nam/Nu, 0 để thoát): ");
+            System.out.print("📝 Nhập giới tính (Nam/Nu/nữ, 0 để thoát): ");
             gioiTinh = sc.nextLine().trim();
             if (gioiTinh.equals("0")) {
                 System.out.println("❌ Đã hủy thêm nhân viên!");
                 return;
             }
-            if (!gioiTinh.equalsIgnoreCase("Nam") && !gioiTinh.equalsIgnoreCase("Nu")) {
+            if (!gioiTinh.equalsIgnoreCase("Nam") && !gioiTinh.equalsIgnoreCase("Nu") && !gioiTinh.equalsIgnoreCase("Nữ")) {
                 System.out.println("❌ Giới tính chỉ được nhập 'Nam' hoặc 'Nu'!");
                 continue;
             }
@@ -224,7 +224,7 @@ public class QuanLyNhanVien {
             try {
                 luong = Integer.parseInt(luongStr);
                 if (luong < 1) {
-                    System.out.println("❌ Lương phải lớn hơn 1đ!");
+                    System.out.println("❌ Lương phải từ 1đ trở lên!");
                     continue;
                 }
                 break;
@@ -315,7 +315,7 @@ public class QuanLyNhanVien {
                     }
 
                     // Hiển thị thông tin hiện tại
-                    System.out.println("\n--- THÔNG TIN HIỆN TẠI ---");
+                    // System.out.println("\n--- THÔNG TIN HIỆN TẠI ---");
                     inThongTinNhanVienChiTiet(nvCanSua);
 
                     System.out.println("\n--- NHẬP THÔNG TIN MỚI (Enter để giữ nguyên) ---");

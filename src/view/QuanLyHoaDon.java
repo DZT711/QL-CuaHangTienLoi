@@ -1247,22 +1247,31 @@ public class QuanLyHoaDon {
                     System.out.print("💡 Bạn có muốn xem chi tiết hóa đơn nào không? (Y/N): ");
                     if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) break;
 
-                    System.out.print("Nhập mã hóa đơn cần xem chi tiết: ");
-                    String maHD = scanner.nextLine().trim();
+                    System.out.print("Nhập mã hóa đơn cần xem chi tiết (hoặc '0' để thoát): ");
+                    String maHD = scanner.nextLine().trim().toUpperCase(); 
+
+                    if ("0".equals(maHD)) break;
 
                     if (maHD.isEmpty()) {
                         System.out.println("❌ Mã hóa đơn không được để trống!");
                         continue;
                     }
 
+                    boolean found = list.stream()
+                        .anyMatch(hd -> maHD.equals(hd.getMaHD()));
+
+                    if (!found) {
+                        System.out.println("⚠️ Hóa đơn này không có trong danh sách!");
+                        continue;
+                    }
+
                     HoaDonDTO hoaDon = HoaDonDAO.timHoaDon(maHD);
                     if (hoaDon != null) {
-                        boolean found = list.stream().anyMatch(hd -> hd.getMaHD().equals(maHD));
-                        if (!found) {
-                            System.out.println("⚠️ Hóa đơn này không thuộc danh sách!");
-                            continue;
+                        if (!isAdmin && !Main.CURRENT_ACCOUNT.getMaNV().equals(hoaDon.getMaNV())) {
+                            System.out.println("⚠️ Bạn không có quyền xem hóa đơn này!");
+                        } else {
+                            inHoaDon(hoaDon);
                         }
-                        inHoaDon(hoaDon);
                     } else {
                         System.out.println("❌ Không tìm thấy hóa đơn với mã: " + maHD);
                     }

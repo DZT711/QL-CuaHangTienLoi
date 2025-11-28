@@ -246,11 +246,14 @@ public class SanPhamDTO {
         System.out.printf("│ Số lượng tồn  : %-63d│\n", soLuongTon);
         System.out.printf("│ Giá bán       : %-63s│\n", FormatUtil.formatVND(giaBan));
         System.out.printf("│ Mô tả         : %-63s│\n", moTa != null ? moTa : "(Không có)");
+        System.out.printf("│ Trạng thái    : %-63s│\n", "active".equals(trangThai) ? "Đang kinh doanh" : "Ngừng kinh doanh");
         System.out.println("└────────────────────────────────────────────────────────────────────────────────┘");
     }
 
     public boolean sua() {
         Scanner scanner = new Scanner(System.in);
+        System.out.println("Nhập Enter để bỏ qua hoặc '0' để thoát");
+
 
         System.out.print("Sửa tên sản phẩm: ");
         String newTenSP = scanner.nextLine().trim();

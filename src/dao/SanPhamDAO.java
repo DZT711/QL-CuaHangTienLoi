@@ -107,8 +107,8 @@ public class SanPhamDAO {
 }
 
     public static boolean themSanPham(SanPhamDTO sp) {
-        String query = "INSERT INTO SANPHAM (MaSP, TenSP, Loai, DonViTinh, GiaBan) " +
-                        "VALUES (?, ?, ?, ?, ?)";
+        String query = "INSERT INTO SANPHAM (MaSP, TenSP, Loai, DonViTinh, GiaBan, MoTa) " +
+                        "VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = JDBCUtil.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -118,6 +118,7 @@ public class SanPhamDAO {
             stmt.setInt(3, sp.getLoaiSP());
             stmt.setInt(4, sp.getDonViTinh());
             stmt.setInt(5, sp.getGiaBan());
+            stmt.setString(6, sp.getMoTa());
             
             int rowAffected = stmt.executeUpdate();
             return rowAffected > 0;  
