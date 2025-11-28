@@ -44,18 +44,18 @@ public class Main {
             System.out.println("                                                          ");
             System.out.println("═══════════════════════════════════════════════════════════");
 
-            /*
-             * System.out.print("\nVui lòng chờ 1 lát , hệ thống đang xác thực");
-             * for (int i = 0; i < 3; i++) {
-             * try {
-             * Thread.sleep(1000);
-             * System.out.print(".");
-             * } catch (InterruptedException e) {
-             * e.printStackTrace();
-             * }
-             * }
-             * System.out.println("\n");
-             */
+            
+            System.out.print("\nVui lòng chờ 1 lát , hệ thống đang xác thực");
+            for (int i = 0; i < 3; i++) {
+                try {
+                    Thread.sleep(1000);
+                    System.out.print(".");
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            System.out.println("\n");
+            
 
             // Xác thực - Kiểm tra username và password
             TaiKhoanDTO taiKhoan = TaiKhoanDAO.kiemTraTaiKhoan(username, password);

@@ -295,7 +295,7 @@ public class KhachHangDTO {
                 System.out.println("❌ Số điện thoại không hợp lệ! Giữ nguyên số điện thoại");
             }
         }
-
+        this.trangThai = "active";
         return true;
     }
 
@@ -317,7 +317,8 @@ public class KhachHangDTO {
 
         System.out.printf("│ %-18s : %-28s │\n", "Điện thoại", dienThoai);
 
-        String trangThaiStr = (trangThai.equals("active") ? "Hoạt động" : "Không hoạt động");
+        String trangThaiStr = (trangThai != null && "active".equals(trangThai)) ? 
+        "Hoạt động" : "Không hoạt động";
         System.out.printf("│ %-18s : %-28s │\n", "Trạng thái", trangThaiStr);
         System.out.println("└───────────────────────────────────────────────────┘");
     }

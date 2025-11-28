@@ -234,22 +234,22 @@ public class QuanLySanPham {
         System.out.println("\n╔════════════════════════════════════════════════════╗");
         System.out.println("║               SỬA THÔNG TIN SẢN PHẨM               ║");
         System.out.println("╚════════════════════════════════════════════════════╝");
-
+        
         while (true) {
-
+            
             System.out.print("→ Nhập mã sản phẩm cần sửa (hoặc '0' để thoát): ");
             String maSP = scanner.nextLine().trim();
-
+            
             if (maSP.equals("0")) {
                 System.out.println("✓ Thoát chức năng sửa sản phẩm.");
                 break;
             }
-
+            
             if (maSP.isEmpty()) {
                 System.out.println("❌ Mã sản phẩm không được để trống!");
                 continue;
             }
-
+            
             SanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
 
             if (sp == null) {
@@ -295,7 +295,7 @@ public class QuanLySanPham {
     public void doiTrangThaiSanPham() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("\n════════════════════════════════════════════");
-        System.out.println("          XÓA SẢN PHẨM");
+        System.out.println("                XÓA SẢN PHẨM");
         System.out.println("════════════════════════════════════════════");
 
         while (true) {
@@ -438,8 +438,7 @@ public class QuanLySanPham {
                 continue;
             }
 
-            System.out.println("\n✅ Tìm thấy " + danhSachSP.size() + " sản phẩm");
-            System.out.println("════════════════════════════════════════════════════════════════════════════════");
+            System.out.println("\n✅ Tìm thấy " + danhSachSP.size() + " sản phẩm\n");
 
             List<String> headers = List.of(
                     "Mã SP", "Tên Sản Phẩm", "Loại", "Số lượng tồn", "Đơn vị",
@@ -506,8 +505,14 @@ public class QuanLySanPham {
                         System.out.println("✅ Thoát thống kê sản phẩm bán chạy.");
                         return;
                     }
-    
+
                     if (!ValidatorUtil.isValidateDate(to)) continue;
+
+                    toDate = LocalDate.parse(to, dateFormatter);
+                    if (toDate.isAfter(LocalDate.now())) {
+                        System.out.println("❌ Ngày kết thúc không được sau ngày hôm nay.");
+                        continue;
+                    }
     
                     toDate = LocalDate.parse(to, dateFormatter);
     
@@ -639,7 +644,7 @@ public class QuanLySanPham {
             List<String> row = new ArrayList<>();
 
             long giaTriTon = (long) sp.getGiaBan() * sp.getSoLuongTon();
-            String ttIcon = "active".equals(sp.getTrangThai()) ? "✅ Active" : "❌ Inactive";
+            String ttIcon = "active".equals(sp.getTrangThai()) ? "✅ Đang kinh doanh" : "❌ Ngừng kinh doanh";
 
             row.add(sp.getMaSP());
             row.add(sp.getTenSP());
