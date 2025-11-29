@@ -5,12 +5,12 @@ Cơ sở dữ liệu: MySQL
 
 --------------------------------------------
 I. Thành viên thực hiện:
-| STT | MSSV       | Họ và tên            | % Đóng góp |
-|-----|------------|----------------------|------------|
-| 1   | 3123411122 | Nguyễn Sĩ Huy        |            |
-| 2   | 3123411328 | Trương Văn Tuấn      |            |
-| 3   | 3123411258 | Đặng Thành Sơn       |            |
-| 4   | 3123411045 | Nguyễn Văn Cường     |            |
+| STT | MSSV       | Họ và tên            | 
+|-----|------------|----------------------|
+| 1   | 3123411122 | Nguyễn Sĩ Huy        |          
+| 2   | 3123411328 | Trương Văn Tuấn      |          
+| 3   | 3123411258 | Đặng Thành Sơn       |          
+| 4   | 3123411045 | Nguyễn Văn Cường     |       
 
 --------------------------------------------
 II. Đề bài / mô tả hệ thống
@@ -43,5 +43,7 @@ IV. Kiến trúc & công nghệ sử dụng
 
 
 --------------------------------------------
+V. Hướng dẫn cài đặt và sử dụng phần mềm 
 
-
+- Sau khi giải nén file thì vào folder src/main/main.java rồi bấm open with VSCode (đề xuất sử dụng IDE này) , IntelliJ , Cusor, Eclipse,... sau đó nên run bằng extension Code Runner để chạy hệ thống
+Lưu ý : trước khi chạy nên chắc chắn đã đã cấu hình Reference Library trong extension Java Project đã có đường dẫn của mysql connector và bcrypt trong folder lib/ của chương trình thì mới chạy được còn nếu chauw thì hãy thêm vào
