@@ -4,6 +4,7 @@ import java.util.Scanner;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import util.FormatUtil;
+import util.ValidatorUtil;
 import java.time.format.DateTimeParseException;
 import java.util.InputMismatchException;
 import java.util.List;
@@ -98,102 +99,132 @@ public class QuanLyNhanVien {
         System.out
                 .println("╚════════════════════════════════════════════════════════════════════════════════════╝");
 
-        // Nhập mã nhân viên
-        String maNV;
-        while (true) {
-            System.out.print("📝 Nhập mã nhân viên (VD: NV001): ");
-            maNV = sc.nextLine().trim();
-            if (maNV.isEmpty()) {
-                System.out.println("❌ Mã nhân viên không được để trống!");
-                continue;
-            }
-            if (NhanVienDAO.timNhanVienTheoMa(maNV) != null) {
-                System.out.println("❌ Mã nhân viên đã tồn tại! Vui lòng nhập mã khác.");
-                continue;
-            }
-            break;
-        }
+        // Tạo mã nhân viên tự động
+        String maNV = NhanVienDAO.generateMaNV();
+        System.out.println("✅ Mã nhân viên tự động: " + maNV);
 
         // Nhập họ
         String ho;
         while (true) {
-            System.out.print("📝 Nhập họ: ");
+            System.out.print("📝 Nhập họ (0 để thoát): ");
             ho = sc.nextLine().trim();
-            if (ho.isEmpty()) {
-                System.out.println("❌ Họ không được để trống!");
-                continue;
+            if (ho.equals("0")) {
+                System.out.println("❌ Đã hủy thêm nhân viên!");
+                return;
             }
-            break;
+            if (ValidatorUtil.isValidLastName(ho)) {
+                break;
+            }
         }
 
         // Nhập tên
         String ten;
         while (true) {
-            System.out.print("📝 Nhập tên: ");
+            System.out.print("📝 Nhập tên (0 để thoát): ");
             ten = sc.nextLine().trim();
-            if (ten.isEmpty()) {
-                System.out.println("❌ Tên không được để trống!");
-                continue;
+            if (ten.equals("0")) {
+                System.out.println("❌ Đã hủy thêm nhân viên!");
+                return;
             }
-            break;
+            if (ValidatorUtil.isValidFirstName(ten)) {
+                break;
+            }
+
         }
 
         // Nhập giới tính
         String gioiTinh;
         while (true) {
-            System.out.print("📝 Nhập giới tính (Nam/Nu): ");
+            System.out.print("📝 Nhập giới tính (Nam/Nu/nữ, 0 để thoát): ");
             gioiTinh = sc.nextLine().trim();
-            if (!gioiTinh.equalsIgnoreCase("Nam") && !gioiTinh.equalsIgnoreCase("Nu")) {
+            if (gioiTinh.equals("0")) {
+                System.out.println("❌ Đã hủy thêm nhân viên!");
+                return;
+            }
+            if (!gioiTinh.equalsIgnoreCase("Nam") && !gioiTinh.equalsIgnoreCase("Nu") && !gioiTinh.equalsIgnoreCase("Nữ")) {
                 System.out.println("❌ Giới tính chỉ được nhập 'Nam' hoặc 'Nu'!");
                 continue;
             }
+            // Chuyển thành chữ hoa để lưu
+            gioiTinh = gioiTinh.toUpperCase();
             break;
         }
 
         // Nhập ngày sinh (có thể bỏ trống)
         LocalDate ngaySinh = null;
         while (true) {
-            System.out.print("📝 Nhập ngày sinh (dd/MM/yyyy) - Enter để bỏ qua: ");
+            System.out.print("📝 Nhập ngày sinh (dd/MM/yyyy, Enter để bỏ qua, 0 để thoát): ");
             String ngaySinhStr = sc.nextLine().trim();
+            if (ngaySinhStr.equals("0")) {
+                System.out.println("❌ Đã hủy thêm nhân viên!");
+                return;
+            }
             if (ngaySinhStr.isEmpty()) {
                 break;
             }
+            if (!ValidatorUtil.isValidateDate(ngaySinhStr)) {
+                continue;
+            }
             try {
-                ngaySinh = LocalDate.parse(ngaySinhStr, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+                LocalDate parsedDate = LocalDate.parse(ngaySinhStr, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+                // Kiểm tra tuổi tối thiểu 18
+                if (!ValidatorUtil.isValidAge(parsedDate)) {
+                    continue;
+                }
+                ngaySinh = parsedDate;
                 break;
             } catch (DateTimeParseException e) {
                 System.out.println("❌ Định dạng ngày không đúng! Vui lòng nhập theo định dạng dd/MM/yyyy");
             }
         }
 
-        // Nhập địa chỉ
-        System.out.print("📝 Nhập địa chỉ: ");
-        String diaChi = sc.nextLine().trim();
+        // Nhập địa chỉ (có thể bỏ trống)
+        String diaChi;
+        while (true) {
+            System.out.print("📝 Nhập địa chỉ (Enter để bỏ qua, 0 để thoát): ");
+            diaChi = sc.nextLine().trim();
+            if (diaChi.equals("0")) {
+                System.out.println("❌ Đã hủy thêm nhân viên!");
+                return;
+            }
+            if (diaChi.isEmpty()) {
+                diaChi = null;
+                break;
+            }
+            if (ValidatorUtil.isValidAddress(diaChi)) {
+                break;
+            }
+            // Nếu không hợp lệ, tiếp tục vòng lặp để nhập lại
+        }
 
         // Nhập email
         String email;
         while (true) {
-            System.out.print("📝 Nhập email: ");
+            System.out.print("📝 Nhập email (0 để thoát): ");
             email = sc.nextLine().trim();
-            if (email.isEmpty()) {
-                System.out.println("❌ Email không được để trống!");
-                continue;
+            if (email.equals("0")) {
+                System.out.println("❌ Đã hủy thêm nhân viên!");
+                return;
             }
-            if (!email.contains("@")) {
-                System.out.println("❌ Email không hợp lệ!");
-                continue;
+            if (ValidatorUtil.isValidEmail(email)) {
+                break;
             }
-            break;
+            // Thông báo lỗi đã được in trong hàm isValidEmail()
         }
 
         // Nhập lương
         int luong;
         while (true) {
-            System.out.print("📝 Nhập lương: ");
+            System.out.print("📝 Nhập lương (0 để thoát): ");
+            String luongStr = sc.nextLine().trim();
+            if (luongStr.equals("0")) {
+                System.out.println("❌ Đã hủy thêm nhân viên!");
+                return;
+            }
             try {
-                luong = Integer.parseInt(sc.nextLine().trim());
-                if (luong < 0) {
-                    System.out.println("❌ Lương phải >= 0!");
+                luong = Integer.parseInt(luongStr);
+                if (luong < 1) {
+                    System.out.println("❌ Lương phải từ 1đ trở lên!");
                     continue;
                 }
                 break;
@@ -205,12 +236,18 @@ public class QuanLyNhanVien {
         // Nhập chức vụ
         String chucVu;
         while (true) {
-            System.out.print("📝 Nhập chức vụ (QL/NV): ");
+            System.out.print("📝 Nhập chức vụ (QL/NV, 0 để thoát): ");
             chucVu = sc.nextLine().trim();
-            if (!chucVu.equals("QL") && !chucVu.equals("NV")) {
+            if (chucVu.equals("0")) {
+                System.out.println("❌ Đã hủy thêm nhân viên!");
+                return;
+            }
+            if (!chucVu.equalsIgnoreCase("QL") && !chucVu.equalsIgnoreCase("NV")) {
                 System.out.println("❌ Chức vụ chỉ được nhập 'QL' hoặc 'NV'!");
                 continue;
             }
+            // Chuyển thành chữ hoa để lưu
+            chucVu = chucVu.toUpperCase();
             break;
         }
 
@@ -221,6 +258,7 @@ public class QuanLyNhanVien {
         int contentWidth = 60;
         String hoTen = ho + " " + ten;
         String ngaySinhStr = ngaySinh != null ? ngaySinh.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "Không có";
+        String diaChiStr = diaChi != null ? diaChi : "Không có";
         String luongStr = FormatUtil.formatVND(luong);
 
         System.out.println("\n╔════════════════════════════════════════════════════════════════════════════════════╗");
@@ -232,7 +270,7 @@ public class QuanLyNhanVien {
         System.out.println("│ 👤 Họ và tên      │ " + String.format("%-" + contentWidth + "s", hoTen) + " │");
         System.out.println("│ ⚧ Giới tính       │ " + String.format("%-" + contentWidth + "s", gioiTinh) + " │");
         System.out.println("│ 🎂 Ngày sinh      │ " + String.format("%-" + contentWidth + "s", ngaySinhStr) + " │");
-        System.out.println("│ 🏠 Địa chỉ        │ " + String.format("%-" + contentWidth + "s", diaChi) + " │");
+        System.out.println("│ 🏠 Địa chỉ        │ " + String.format("%-" + contentWidth + "s", diaChiStr) + " │");
         System.out.println("│ 📧 Email          │ " + String.format("%-" + contentWidth + "s", email) + " │");
         System.out.println("│ 💰 Lương          │ " + String.format("%-" + contentWidth + "s", luongStr) + " │");
         System.out.println("│ 💼 Chức vụ        │ " + String.format("%-" + contentWidth + "s", chucVu) + " │");
@@ -277,14 +315,14 @@ public class QuanLyNhanVien {
                     }
 
                     // Hiển thị thông tin hiện tại
-                    System.out.println("\n--- THÔNG TIN HIỆN TẠI ---");
+                    // System.out.println("\n--- THÔNG TIN HIỆN TẠI ---");
                     inThongTinNhanVienChiTiet(nvCanSua);
 
                     System.out.println("\n--- NHẬP THÔNG TIN MỚI (Enter để giữ nguyên) ---");
 
                     // Sửa họ tên
-                    String hoMoi = nhapVoiGiuNguyen(sc, "Họ mới", nvCanSua.getHo());
-                    String tenMoi = nhapVoiGiuNguyen(sc, "Tên mới", nvCanSua.getTen());
+                    String hoMoi = nhapHoVoiGiuNguyen(sc, nvCanSua.getHo());
+                    String tenMoi = nhapTenVoiGiuNguyen(sc, nvCanSua.getTen());
 
                     // Sửa giới tính
                     String gioiTinhMoi = nhapGioiTinhVoiGiuNguyen(sc, nvCanSua.getGioiTinh());
@@ -293,7 +331,7 @@ public class QuanLyNhanVien {
                     LocalDate ngaySinhMoi = nhapNgaySinhVoiGiuNguyen(sc, nvCanSua.getNgaySinh());
 
                     // Sửa địa chỉ
-                    String diaChiMoi = nhapVoiGiuNguyen(sc, "Địa chỉ mới", nvCanSua.getDiaChi());
+                    String diaChiMoi = nhapDiaChiVoiGiuNguyen(sc, nvCanSua.getDiaChi());
 
                     // Sửa email
                     String emailMoi = nhapEmailVoiGiuNguyen(sc, nvCanSua.getEmail());
@@ -922,14 +960,41 @@ public class QuanLyNhanVien {
         return input.isEmpty() ? giaTriCu : input;
     }
 
+    private String nhapHoVoiGiuNguyen(Scanner sc, String giaTriCu) {
+        while (true) {
+            System.out.print("📝 Họ mới (Enter để giữ nguyên): ");
+            String input = sc.nextLine().trim();
+            if (input.isEmpty())
+                return giaTriCu;
+            if (ValidatorUtil.isValidLastName(input)) {
+                return input;
+            }
+        }
+    }
+
+    private String nhapTenVoiGiuNguyen(Scanner sc, String giaTriCu) {
+        while (true) {
+            System.out.print("📝 Tên mới (Enter để giữ nguyên): ");
+            String input = sc.nextLine().trim();
+            if (input.isEmpty())
+                return giaTriCu;
+            if (ValidatorUtil.isValidFirstName(input)) {
+                return input;
+            }
+
+        }
+    }
+
     private String nhapGioiTinhVoiGiuNguyen(Scanner sc, String giaTriCu) {
         while (true) {
             System.out.print("📝 Giới tính mới (Nam/Nu) - Enter để giữ nguyên: ");
             String input = sc.nextLine().trim();
             if (input.isEmpty())
                 return giaTriCu;
-            if (input.equals("Nam") || input.equals("Nu"))
-                return input;
+            if (input.equalsIgnoreCase("Nam") || input.equalsIgnoreCase("Nu")) {
+                // Chuyển thành chữ hoa để lưu
+                return input.toUpperCase();
+            }
             System.out.println("❌ Chỉ được nhập 'Nam' hoặc 'Nu'!");
         }
     }
@@ -940,11 +1005,32 @@ public class QuanLyNhanVien {
             String input = sc.nextLine().trim();
             if (input.isEmpty())
                 return giaTriCu;
-            try {
-                return LocalDate.parse(input, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-            } catch (DateTimeParseException e) {
-                System.out.println("❌ Định dạng ngày không đúng! (dd/MM/yyyy)");
+            if (!ValidatorUtil.isValidateDate(input)) {
+                continue;
             }
+            try {
+                LocalDate parsedDate = LocalDate.parse(input, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+                // Kiểm tra tuổi tối thiểu 18
+                if (!ValidatorUtil.isValidAge(parsedDate)) {
+                    continue;
+                }
+                return parsedDate;
+            } catch (DateTimeParseException e) {
+                System.out.println("❌ Định dạng ngày không đúng! Vui lòng nhập theo định dạng dd/MM/yyyy");
+            }
+        }
+    }
+
+    private String nhapDiaChiVoiGiuNguyen(Scanner sc, String giaTriCu) {
+        while (true) {
+            System.out.print("📝 Địa chỉ mới (Enter để giữ nguyên): ");
+            String input = sc.nextLine().trim();
+            if (input.isEmpty())
+                return giaTriCu;
+            if (ValidatorUtil.isValidAddress(input)) {
+                return input;
+            }
+            // Nếu không hợp lệ, tiếp tục vòng lặp để nhập lại
         }
     }
 
@@ -954,9 +1040,10 @@ public class QuanLyNhanVien {
             String input = sc.nextLine().trim();
             if (input.isEmpty())
                 return giaTriCu;
-            if (input.contains("@"))
+            if (ValidatorUtil.isValidEmail(input)) {
                 return input;
-            System.out.println("❌ Email không hợp lệ!");
+            }
+            // Thông báo lỗi đã được in trong hàm isValidEmail()
         }
     }
 
@@ -968,9 +1055,9 @@ public class QuanLyNhanVien {
                 return giaTriCu;
             try {
                 int luong = Integer.parseInt(input);
-                if (luong >= 0)
+                if (luong >= 1)
                     return luong;
-                System.out.println("❌ Lương phải >= 0!");
+                System.out.println("❌ Lương phải lớn hơn 1đ!");
             } catch (NumberFormatException e) {
                 System.out.println("❌ Lương phải là số nguyên!");
             }
@@ -983,8 +1070,10 @@ public class QuanLyNhanVien {
             String input = sc.nextLine().trim();
             if (input.isEmpty())
                 return giaTriCu;
-            if (input.equals("QL") || input.equals("NV"))
-                return input;
+            if (input.equalsIgnoreCase("QL") || input.equalsIgnoreCase("NV")) {
+                // Chuyển thành chữ hoa để lưu
+                return input.toUpperCase();
+            }
             System.out.println("❌ Chỉ được nhập 'QL' hoặc 'NV'!");
         }
     }

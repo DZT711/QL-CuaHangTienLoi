@@ -3,6 +3,7 @@ package dao;
 import java.sql.*;
 
 import dto.ChiTietHoaDonDTO;
+import dto.HangHoaDTO;
 import dto.HoaDonDTO;
 import util.FormatUtil;
 import util.JDBCUtil;
@@ -113,25 +114,40 @@ public class HoaDonDAO {
             // lấy chi tiết hóa đơn
             List<ChiTietHoaDonDTO> chiTietList = ChiTietHoaDonDAO.timChiTietHoaDon(maHD);
 
-            // hoàn lại tồn kho 
-            for (ChiTietHoaDonDTO ctHoaDon : chiTietList) {
-                String maHang = ctHoaDon.getMaHang();
-                int soLuong = ctHoaDon.getSoLuong();
-                
-                // cập nhật thuộc tính soLuongConLai của hàng hóa
-                if (!HangHoaDAO.congSoLuongConLai(conn, maHang, soLuong)) {
-                    System.err.println("❌ Lỗi khi cộng số lượng lô hàng!");
-                    conn.rollback();
-                    return false;
-                }
-                
-                // cập nhật tồn kho của sản phẩm
-                if (!SanPhamDAO.congSoLuongTon(conn, maHang, soLuong)) {
-                    System.err.println("❌ Lỗi khi cộng số lượng tồn!");
-                    conn.rollback();
-                    return false;
+            if (chiTietList == null || chiTietList.isEmpty()) {
+                System.out.println("⚠️ Hóa đơn không có chi tiết.");
+            } else {
+                // hoàn lại tồn kho 
+                for (ChiTietHoaDonDTO ctHoaDon : chiTietList) {
+                    String maHang = ctHoaDon.getMaHang();
+                    int soLuong = ctHoaDon.getSoLuong();
+                    
+                    // ✅ QUAN TRỌNG: Lấy maSP từ HangHoaDTO
+                    HangHoaDTO hangHoa = HangHoaDAO.timHangHoaTheoMa(maHang);
+                    if (hangHoa == null) {
+                        System.err.println("❌ Không tìm thấy hàng hóa: " + maHang);
+                        conn.rollback();
+                        return false;
+                    }
+                    
+                    String maSP = hangHoa.getMaSP();
+                    
+                    // cập nhật số lượng còn lại của lô hàng
+                    if (!HangHoaDAO.congSoLuongConLai(conn, maHang, soLuong)) {
+                        System.err.println("❌ Lỗi khi cộng số lượng lô hàng!");
+                        conn.rollback();
+                        return false;
+                    }
+                    
+                    // cập nhật tồn kho sản phẩm với maSP
+                    if (!SanPhamDAO.congSoLuongTon(conn, maSP, soLuong)) {
+                        System.err.println("❌ Lỗi khi cộng số lượng tồn!");
+                        conn.rollback();
+                        return false;
+                    }
                 }
             }
+
             
             // cập nhật trạng thái hóa đơn thành 'cancelled'
             String queryHuyHD = "UPDATE HOADON SET TrangThai = 'cancelled' WHERE MaHD = ?";

@@ -33,9 +33,9 @@ public class tablePrinter {
 
         // Tạo định dạng printf cho mỗi cột, căn trái
         StringBuilder fmtBuilder = new StringBuilder();
-        fmtBuilder.append("|");
+        fmtBuilder.append("│");
         for (int i = 0; i < cols; i++) {
-            fmtBuilder.append(" %-").append(colWidths[i]).append("s |");
+            fmtBuilder.append(" %-").append(colWidths[i]).append("s │");
         }
         String fmt = fmtBuilder.toString();
 
@@ -49,7 +49,7 @@ public class tablePrinter {
             totalWidth += 1 + w + 1 + 1; // " space" + nội dung + " space" + "|"
         }
         for (int i = 0; i < totalWidth; i++) {
-            System.out.print("-");
+            System.out.print("═");
         }
         System.out.println();
 

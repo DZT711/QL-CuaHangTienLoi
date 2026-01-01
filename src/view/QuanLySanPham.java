@@ -1,6 +1,8 @@
 package view;
 
 import java.util.Scanner;
+
+import dao.ChiTietPhieuNhapDAO;
 import dao.SanPhamDAO;
 import dto.SanPhamDTO;
 import util.FormatUtil;
@@ -12,6 +14,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import main.Main;
 
 public class QuanLySanPham {
     public void menuQuanLySanPham() {
@@ -34,17 +37,16 @@ public class QuanLySanPham {
             System.out.println("░ [0] ⮐ Quay lại menu chính                                                    ░ ");
             System.out.println("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ");
             System.out.print("\n💡 Nhập lựa chọn của bạn: ");
-
+            
             int choice = -1;
-
             while (true) {
                 if (scanner.hasNextInt()) {
                     choice = scanner.nextInt();
                     scanner.nextLine();
                     if (choice >= 0 && choice <= 6) break;
-                    System.out.print("Vui lòng nhập số trong khoảng 0–6: ");
+                    System.out.print("❌ Vui lòng nhập số trong khoảng 0–6: ");
                 } else {
-                    System.out.print("Nhập không hợp lệ. Vui lòng nhập lại: ");
+                    System.out.print("❌ Nhập không hợp lệ. Vui lòng nhập lại: ");
                     scanner.next();
                 }
             }
@@ -232,22 +234,22 @@ public class QuanLySanPham {
         System.out.println("\n╔════════════════════════════════════════════════════╗");
         System.out.println("║               SỬA THÔNG TIN SẢN PHẨM               ║");
         System.out.println("╚════════════════════════════════════════════════════╝");
-
+        
         while (true) {
-
-            System.out.print("-> Nhập mã sản phẩm cần sửa (hoặc '0' để thoát): ");
+            
+            System.out.print("→ Nhập mã sản phẩm cần sửa (hoặc '0' để thoát): ");
             String maSP = scanner.nextLine().trim();
-
+            
             if (maSP.equals("0")) {
-                System.out.println("Thoát chức năng sửa sản phẩm.");
+                System.out.println("✓ Thoát chức năng sửa sản phẩm.");
                 break;
             }
-
+            
             if (maSP.isEmpty()) {
                 System.out.println("❌ Mã sản phẩm không được để trống!");
                 continue;
             }
-
+            
             SanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
 
             if (sp == null) {
@@ -261,7 +263,7 @@ public class QuanLySanPham {
             sp.inThongTinSanPham();
 
             if (!sp.sua()) {
-                System.out.println("Đã hủy sửa sản phẩm.");
+                System.out.println("⚠️ Đã hủy sửa sản phẩm.");
                 System.out.print("\n→ Bạn có muốn sửa sản phẩm khác? (Y/N): ");
                 if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) break;
                 continue;
@@ -280,7 +282,7 @@ public class QuanLySanPham {
             }
 
             if (SanPhamDAO.suaSanPham(sp)) {
-                System.out.println("✅ Cập nhật sản phẩm thành công!");
+                System.out.println("\n✅ Cập nhật sản phẩm thành công!");
             } else {
                 System.out.println("❌ Cập nhật sản phẩm thất bại!");
             }
@@ -293,91 +295,118 @@ public class QuanLySanPham {
     public void doiTrangThaiSanPham() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("\n════════════════════════════════════════════");
-        System.out.println("          XÓA SẢN PHẨM");
+        System.out.println("                XÓA SẢN PHẨM");
         System.out.println("════════════════════════════════════════════");
 
-        System.out.print("Nhập mã sản phẩm (hoặc '0' để thoát): ");
-        String maSP = scanner.nextLine().trim();
+        while (true) {
+            System.out.print("Nhập mã sản phẩm (hoặc '0' để thoát): ");
+            String maSP = scanner.nextLine().trim();
 
-        if ("0".equals(maSP)) {
-            System.out.println("✓ Thoát chức năng xóa.");
-            return;
-        }
-
-        SanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
-
-        if (sp == null) {
-            System.out.println("❌ Không tìm thấy sản phẩm với mã: " + maSP);
-            return;
-        }
-
-        System.out.println("\n📋 Thông tin sản phẩm:");
-        sp.inThongTinSanPham();
-
-        // inactive -> active
-        if ("inactive".equals(sp.getTrangThai())) {
-            System.out.println("\n⚠ Sản phẩm đang ở trạng thái ngừng kinh doanh.");
-            System.out.print("→ Bạn có muốn kích hoạt lại sản phẩm này? (Y/N): ");
-        
-            String confirm = scanner.nextLine().trim();
-            if (!"Y".equalsIgnoreCase(confirm)) {
-                System.out.println("❌ Đã hủy thao tác.");
-                return;
+            if ("0".equals(maSP)) {
+                System.out.println("✅ Thoát chức năng đổi trạng thái.");
+                break;
             }
-            if (SanPhamDAO.kichHoatSanPham(maSP)) {
-                System.out.println("✅ Kích hoạt sản phẩm thành công!");
-            } else {
-                System.out.println("❌ Kích hoạt sản phẩm thất bại!");
+
+            if (maSP.isEmpty()) {
+                System.out.println("❌ Mã sản phẩm không được để trống.");
+                continue;
             }
-        } else {  // active -> inactive
-            System.out.println("\n⚠ Bạn muốn ngừng kinh doanh sản phẩm này?");
-            
-            if (sp.getSoLuongTon() > 0) {
-                System.out.println("❌ Không thể ngừng kinh doanh!");
-                System.out.println("   Lý do: Sản phẩm còn " + sp.getSoLuongTon() + " trong kho.");
-                System.out.println("   → Vui lòng bán hết hàng trước khi ngừng kinh doanh.");
-                return;
+
+            SanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
+    
+            if (sp == null) {
+                System.out.println("❌ Không tìm thấy sản phẩm với mã: " + maSP);
+                System.out.print("→ Bạn có muốn thử lại không? (Y/N): ");
+                if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) break;
+                continue;
             }
-            
-            System.out.print("→ Xác nhận ngừng kinh doanh? (Y/N): ");
-            String confirm = scanner.nextLine().trim();
-            
-            if (!"Y".equalsIgnoreCase(confirm)) {
-                System.out.println("❌ Đã hủy thao tác.");
-                return;
-            }
-            
-            if (SanPhamDAO.ngungKinhDoanhSanPham(maSP)) {
-                System.out.println("✅ Ngừng kinh doanh sản phẩm thành công!");
-            } else {
-                System.out.println("❌ Ngừng kinh doanh sản phẩm thất bại!");
-            }
-        }
-    }
 
-    public void timKiemSanPhamTheoMa() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("\nNhập mã sản phẩm (hoặc '0' để thoát): ");
-        String maSP = scanner.nextLine().trim();
-
-        if ("0".equals(maSP)) return;
-
-        if (maSP.isEmpty()) {
-            System.out.println("Mã sản phẩm không được để trống.");
-            return;
-        }
-
-        SanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
-
-        if (sp == null) {
-            System.out.println("❌ Không tìm thấy sản phẩm với mã: " + maSP);
-        } else {
-            System.out.println("\n✅ Đã tìm thấy sản phẩm:");
+            System.out.println("\n📋 THÔNG TIN SẢN PHẨM:");
             sp.inThongTinSanPham();
+
+            // inactive -> active
+            if ("inactive".equals(sp.getTrangThai())) {
+                System.out.println("\n⚠️ Sản phẩm đang ở trạng thái ngừng kinh doanh.");
+                System.out.print("→ Bạn có muốn kích hoạt lại sản phẩm này? (Y/N): ");
+        
+                if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) {
+                    System.out.println("❌ Đã hủy thao tác kích hoạt.");
+                } else {
+                    if (SanPhamDAO.kichHoatSanPham(maSP)) {
+                        System.out.println("✅ Kích hoạt sản phẩm thành công!");
+                    } else {
+                        System.out.println("❌ Kích hoạt sản phẩm thất bại!");
+                    }
+                }
+            } 
+            else {  // active -> inactive
+                System.out.println("\n⚠️ Bạn muốn ngừng kinh doanh sản phẩm này?");
+                
+                if (sp.getSoLuongTon() > 0) {
+                    System.out.println("❌ Không thể ngừng kinh doanh!");
+                    System.out.println("   Lý do: Sản phẩm còn " + sp.getSoLuongTon() + " trong kho.");
+                    System.out.println("   → Vui lòng bán hết hàng trước khi ngừng kinh doanh.");
+                } else {
+                    System.out.print("→ Xác nhận ngừng kinh doanh? (Y/N): ");
+                    
+                    if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) {
+                        System.out.println("❌ Đã hủy thao tác ngừng kinh doanh.");
+                    } else {
+                        if (SanPhamDAO.ngungKinhDoanhSanPham(maSP)) {
+                            System.out.println("✅ Ngừng kinh doanh sản phẩm thành công!");
+                        } else {
+                            System.out.println("❌ Ngừng kinh doanh sản phẩm thất bại!");
+                        }
+                    }    
+                }
+            }
+            System.out.print("\n→ Tiếp tục đổi trạng thái sản phẩm khác? (Y/N): ");
+            if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) {
+                System.out.println("✅ Thoát chức năng đổi trạng thái.");
+                break;
+            }
         }
     }
 
-    public void timKiemSanPhamTheoTen() {
+    public static void timKiemSanPhamTheoMa() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("\n╔════════════════════════════════════════════════════════════════╗");
+        System.out.println("║                    TÌM KIẾM SẢN PHẨM THEO MÃ                   ║");
+        System.out.println("╚════════════════════════════════════════════════════════════════╝");
+        System.out.println();
+
+        while (true) {
+            System.out.print("\nNhập mã sản phẩm (hoặc '0' để thoát): ");
+            String maSP = scanner.nextLine().trim();
+    
+            if ("0".equals(maSP)) {
+                System.out.println("✅ Thoát chức năng tìm kiếm.");
+                break;
+            }
+    
+            if (maSP.isEmpty()) {
+                System.out.println("❌ Mã sản phẩm không được để trống.");
+                continue;
+            }
+
+            SanPhamDTO sp = SanPhamDAO.timSanPhamTheoMa(maSP);
+
+            if (sp == null) {
+                System.out.println("❌ Không tìm thấy sản phẩm với mã: " + maSP);
+            } else {
+                System.out.println("\n✅ Đã tìm thấy sản phẩm:");
+                sp.inThongTinSanPham();
+            }
+
+            System.out.print("\n→ Tiếp tục tìm kiếm sản phẩm khác? (Y/N): ");
+            if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) {
+                System.out.println("✅ Thoát chức năng tìm kiếm.");
+                break;
+            }
+        }
+    }
+
+    public static void timKiemSanPhamTheoTen() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("\n╔════════════════════════════════════════════════════════════════╗");
         System.out.println("║                    TÌM KIẾM SẢN PHẨM THEO TÊN                  ║");
@@ -385,12 +414,12 @@ public class QuanLySanPham {
         System.out.println();
 
         while (true) {
-            System.out.print("-> Nhập tên sản phẩm (hoặc '0' để thoát): ");
+            System.out.print("→ Nhập tên sản phẩm (hoặc '0' để thoát): ");
             String tenSP = scanner.nextLine().trim();
 
             if ("0".equals(tenSP)) {
-                System.out.println("✓ Hủy tìm kiếm");
-                return;
+                System.out.println("✅ Thoát chức năng tìm kiếm.");
+                break;
             }
 
             if (tenSP.isEmpty()) {
@@ -402,16 +431,14 @@ public class QuanLySanPham {
 
             if (danhSachSP.isEmpty()) {
                 System.out.println("\n❌ Không tìm thấy sản phẩm nào có tên chứa: \"" + tenSP + "\"");
-                System.out.println();
 
                 System.out.print("→ Bạn có muốn thử lại không? (Y/N): ");
                 String choice = scanner.nextLine().trim().toUpperCase();
-                if (!"Y".equals(choice)) return;
+                if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) break;
                 continue;
             }
 
-            System.out.println("\n Tìm thấy " + danhSachSP.size() + "sản phẩm");
-            System.out.println("════════════════════════════════════════════════════════════════════════════════");
+            System.out.println("\n✅ Tìm thấy " + danhSachSP.size() + " sản phẩm\n");
 
             List<String> headers = List.of(
                     "Mã SP", "Tên Sản Phẩm", "Loại", "Số lượng tồn", "Đơn vị",
@@ -421,7 +448,7 @@ public class QuanLySanPham {
             List <List<String>> rows = new ArrayList<>();
             for (SanPhamDTO sanPham : danhSachSP) {
                 List<String> row = new ArrayList<>();
-                String ttIcon = "active".equals(sanPham.getTrangThai()) ? "✅" : "❌";
+                String ttIcon = "active".equals(sanPham.getTrangThai()) ? "✅ Đang kinh doanh" : "❌ Ngừng kinh doanh";
                 
                 row.add(sanPham.getMaSP());
                 row.add(sanPham.getTenSP());
@@ -437,7 +464,7 @@ public class QuanLySanPham {
 
             System.out.print("\n→ Tiếp tục tìm kiếm sản phẩm khác? (Y/N): ");
             if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) {
-                System.out.println("✓ Kết thúc tìm kiếm.");
+                System.out.println("✅ Thoát chức năng tìm kiếm.");
                 break;
             }
         }
@@ -446,113 +473,131 @@ public class QuanLySanPham {
     public void thongKeTopSanPhamBanChay() {
         Scanner scanner = new Scanner(System.in);
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        System.out.println("\n╔════════════════════════════════════════════════════════════════════════════╗");
+        System.out.println("║                           THỐNG KÊ SẢN PHẨM BÁN CHẠY                       ║");
+        System.out.println("╚════════════════════════════════════════════════════════════════════════════╝");
 
-        try {
-            LocalDate fromDate;
-            while (true) {
-                System.out.print("\nNhập ngày bắt đầu (dd/MM/yyyy): ");
-                String from = scanner.nextLine().trim();
-                
-                if ("0".equals(from)) {
-                    System.out.println("✓ Hủy thống kê sản phẩm bán chạy.");
-                    return;
+        while (true) {
+
+            try {
+                LocalDate fromDate;
+                while (true) {
+                    System.out.print("\nNhập ngày bắt đầu (dd/MM/yyyy) hoặc '0' để thoát: ");
+                    String from = scanner.nextLine().trim();
+                    
+                    if ("0".equals(from)) {
+                        System.out.println("✅ Thoát thống kê sản phẩm bán chạy.");
+                        return;
+                    }
+                    
+                    if (!ValidatorUtil.isValidateDate(from)) continue;
+    
+                    fromDate = LocalDate.parse(from, dateFormatter);
+                    break;
+                }
+    
+                LocalDate toDate;
+                while (true) {
+                    System.out.print("Nhập ngày kết thúc (dd/MM/yyyy) hoặc '0' để thoát: ");
+                    String to = scanner.nextLine().trim();
+    
+                    if ("0".equals(to)) {
+                        System.out.println("✅ Thoát thống kê sản phẩm bán chạy.");
+                        return;
+                    }
+
+                    if (!ValidatorUtil.isValidateDate(to)) continue;
+
+                    toDate = LocalDate.parse(to, dateFormatter);
+                    if (toDate.isAfter(LocalDate.now())) {
+                        System.out.println("❌ Ngày kết thúc không được sau ngày hôm nay.");
+                        continue;
+                    }
+    
+                    toDate = LocalDate.parse(to, dateFormatter);
+    
+                    if (!ValidatorUtil.isValidDateRange  (fromDate, toDate)) continue;
+                    
+                    break;
+                }
+    
+                int limit;
+                while (true) {
+                    System.out.print("→ Nhập số lượng sản phẩm top bán chạy: ");
+                    String limitInput = scanner.nextLine().trim();
+    
+                    if ("0".equals(limitInput)) {
+                        System.out.println("✅ Thoát thống kê sản phẩm bán chạy.");
+                        return;
+                    }
+    
+                    try {
+                        limit = Integer.parseInt(limitInput);
+                        if (limit > 0) break;
+                        else System.out.println("❌ Số lượng phải lớn hơn 0.");
+                    } catch (NumberFormatException e) {
+                        System.out.println("❌ Vui lòng nhập số hợp lệ.");
+                    }
+                }
+    
+                List<Map<String, Object>> topProducts = SanPhamDAO.thongKeSanPhamBanChayNhat(fromDate, toDate, limit);
+    
+                if (topProducts.isEmpty()) {
+                    System.out.println("❌ Không có sản phẩm nào được bán trong khoảng thời gian này.");
+                } else {
+                    System.out.println("\n╔════════════════════════════════════════════════════════════════════════════╗");
+                    System.out.println(
+                            "║                        TOP " + limit + " SẢN PHẨM BÁN CHẠY NHẤT                       ║");
+                    System.out.println("║                        Từ " + fromDate.format(dateFormatter) + " đến "
+                            + toDate.format(dateFormatter) + "                        ║");
+                    System.out.println("╚════════════════════════════════════════════════════════════════════════════╝");
+                    
+                    List<String> headers = List.of("Top", "Mã SP", "Tên Sản Phẩm", "Số Lượng Bán", "Doanh Thu");
+                    List<List<String>> rows = new ArrayList<>();
+        
+                    int rank = 1;
+                    long tongDoanhThu = 0;
+                    long tongSoLuongBan = 0;
+        
+                    for (Map<String, Object> product : topProducts) {
+                        List<String> row = new ArrayList<>();
+        
+                        String maSP = (String) product.get("maSP");
+                        String tenSP = (String) product.get("tenSP");
+                        Integer soLuongBan = (Integer) product.get("tongSoLuongBan");
+                        Long doanhThu = (Long) product.get("doanhThu");
+                        
+                        if (soLuongBan == null) soLuongBan = 0;
+                        if (doanhThu == null) doanhThu = 0L;
+        
+                        row.add(String.valueOf(rank++));
+                        row.add(maSP);
+                        row.add(tenSP);
+                        row.add(String.format("%,d", soLuongBan));
+                        row.add(FormatUtil.formatVND(doanhThu));
+        
+                        rows.add(row);
+        
+                        tongDoanhThu += doanhThu;
+                        tongSoLuongBan += soLuongBan;
+                    }
+                    tablePrinter.printTable(headers, rows);
+        
+                    System.out.println("\n📊 TỔNG KẾT:");
+                    System.out.println("   • Tổng số lượng bán: " + String.format("%,d", tongSoLuongBan) + " sản phẩm");
+                    System.out.println("   • Tổng doanh thu: " + FormatUtil.formatVND(tongDoanhThu));
                 }
                 
-                if (!ValidatorUtil.isValidateDate(from)) continue;
-
-                fromDate = LocalDate.parse(from, dateFormatter);
-                break;
-            }
-
-            LocalDate toDate;
-            while (true) {
-                System.out.print("Nhập ngày kết thúc (dd/MM/yyyy): ");
-                String to = scanner.nextLine().trim();
-
-                if ("0".equals(to)) {
-                    System.out.println("✓ Hủy thống kê sản phẩm bán chạy.");
-                    return;
+                System.out.print("\n Bạn có muốn xem thống kê khoảng thời gian khác? (Y/N): ");
+                if (!"Y".equalsIgnoreCase(scanner.nextLine().trim())) {
+                    System.out.println("✅ Thoát thống kê sản phẩm bán chạy.");
+                    break;
                 }
-
-                if (!ValidatorUtil.isValidateDate(to)) continue;
-
-                toDate = LocalDate.parse(to, dateFormatter);
-
-                if (!ValidatorUtil.isValidDateRange  (fromDate, toDate)) continue;
-                
-                break;
+    
+            } catch (Exception e) {
+                System.out.println("❌ Đã xảy ra lỗi: " + e.getMessage());
+                e.printStackTrace();
             }
-
-            int limit;
-            while (true) {
-                System.out.print("-> Nhấp số lượng sản phẩm top bán chạy: ");
-                String limitInput = scanner.nextLine().trim();
-
-                if ("0".equals(limitInput)) {
-                    System.out.println("✓ Hủy thống kê sản phẩm bán chạy.");
-                    return;
-                }
-
-                try {
-                    limit = Integer.parseInt(limitInput);
-                    if (limit > 0) break;
-                    else System.out.println("❌ Số lượng phải lớn hơn 0.");
-                } catch (NumberFormatException e) {
-                    System.out.println("❌ Vui lòng nhập số hợp lệ.");
-                }
-            }
-
-            List<Map<String, Object>> topProducts = SanPhamDAO.thongKeSanPhamBanChayNhat(fromDate, toDate, limit);
-
-            if (topProducts.isEmpty()) {
-                System.out.println("❌ Không có sản phẩm nào được bán trong khoảng thời gian này.");
-                return;
-            }
-
-            System.out.println("\n╔════════════════════════════════════════════════════════════════════════════╗");
-            System.out.println(
-                    "║                        TOP " + limit + " SẢN PHẨM BÁN CHẠY NHẤT                       ║");
-            System.out.println("║                        Từ " + fromDate.format(dateFormatter) + " đến "
-                    + toDate.format(dateFormatter) + "                        ║");
-            System.out.println("╚════════════════════════════════════════════════════════════════════════════╝");
-            
-            List<String> headers = List.of("Top", "Mã SP", "Tên Sản Phẩm", "Số Lượng Bán", "Doanh Thu");
-            List<List<String>> rows = new ArrayList<>();
-
-            int rank = 1;
-            long tongDoanhThu = 0;
-            long tongSoLuongBan = 0;
-
-            for (Map<String, Object> product : topProducts) {
-                List<String> row = new ArrayList<>();
-
-                String maSP = (String) product.get("maSP");
-                String tenSP = (String) product.get("tenSP");
-                Integer soLuongBan = (Integer) product.get("tongSoLuongBan");
-                Long doanhThu = (Long) product.get("doanhThu");
-                
-                if (soLuongBan == null) soLuongBan = 0;
-                if (doanhThu == null) doanhThu = 0L;
-
-                row.add(String.valueOf(rank++));
-                row.add(maSP);
-                row.add(tenSP);
-                row.add(String.format("%,d", soLuongBan));
-                row.add(FormatUtil.formatVND(doanhThu));
-
-                rows.add(row);
-
-                tongDoanhThu += doanhThu;
-                tongSoLuongBan += soLuongBan;
-            }
-            tablePrinter.printTable(headers, rows);
-
-            System.out.println("\n📊 TỔNG KẾT:");
-            System.out.println("   • Tổng số lượng bán: " + String.format("%,d", tongSoLuongBan) + " sản phẩm");
-            System.out.println("   • Tổng doanh thu: " + FormatUtil.formatVND(tongDoanhThu));
-        } catch (Exception e) {
-            System.out.println("Đã xảy ra lỗi: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
@@ -565,19 +610,6 @@ public class QuanLySanPham {
         }
 
         inDanhSachSanPham(danhSach, "TẤT CẢ SẢN PHẨM HIỆN CÓ");
-
-        /*
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("\n→ Xuất ra file CSV? (Y/N): ");
-        String export = scanner.nextLine().trim().toUpperCase();
-        
-        if ("Y".equals(export)) {
-            String fileName = "active".equals(trangThai) ? 
-                            "DanhSach_SanPham_Active" : 
-                            "DanhSach_SanPham_Inactive";
-            xuatRaFile(danhSach, fileName);
-        }
-         */
     }
 
     public void xuatSanPhamTheoTrangThai(String trangThai) {
@@ -612,7 +644,7 @@ public class QuanLySanPham {
             List<String> row = new ArrayList<>();
 
             long giaTriTon = (long) sp.getGiaBan() * sp.getSoLuongTon();
-            String ttIcon = "active".equals(sp.getTrangThai()) ? "✅ Active" : "❌ Inactive";
+            String ttIcon = "active".equals(sp.getTrangThai()) ? "✅ Đang kinh doanh" : "❌ Ngừng kinh doanh";
 
             row.add(sp.getMaSP());
             row.add(sp.getTenSP());

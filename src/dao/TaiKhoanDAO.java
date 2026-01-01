@@ -580,4 +580,69 @@ public class TaiKhoanDAO {
         return ketQuaTimKiem;
     }
 
+    // ================ VÔ HIỆU HÓA/KÍCH HOẠT TÀI KHOẢN ==================
+    public static boolean voHieuHoaTaiKhoan(String username) {
+        if (username == null || username.trim().isEmpty()) {
+            System.out.println("❌ Tên đăng nhập không được để trống!");
+            return false;
+        }
+
+        String sql = "UPDATE TAIKHOAN SET TrangThai = 'Inactive' WHERE UserName = ?";
+        try (Connection conn = JDBCUtil.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, username);
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("✅ Vô hiệu hóa tài khoản thành công!");
+                return true;
+            } else {
+                System.out.println("❌ Không tìm thấy tài khoản với tên đăng nhập: " + username);
+                return false;
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi vô hiệu hóa tài khoản: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public static boolean kichHoatTaiKhoan(String username) {
+        if (username == null || username.trim().isEmpty()) {
+            System.out.println("❌ Tên đăng nhập không được để trống!");
+            return false;
+        }
+
+        String sql = "UPDATE TAIKHOAN SET TrangThai = 'Active' WHERE UserName = ?";
+        try (Connection conn = JDBCUtil.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, username);
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("✅ Kích hoạt tài khoản thành công!");
+                return true;
+            } else {
+                System.out.println("❌ Không tìm thấy tài khoản với tên đăng nhập: " + username);
+                return false;
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi kích hoạt tài khoản: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public static String layTrangThaiTaiKhoan(String username) {
+        String sql = "SELECT TrangThai FROM TAIKHOAN WHERE UserName = ?";
+        try (Connection conn = JDBCUtil.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, username);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("TrangThai");
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi lấy trạng thái tài khoản: " + e.getMessage());
+        }
+        return null;
+    }
+
 }
