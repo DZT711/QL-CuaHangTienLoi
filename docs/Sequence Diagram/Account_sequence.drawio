@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36" version="29.0.2">
   <diagram id="s2CrcuOWl7TuxG1rXYgS" name="Trang-1">
-    <mxGraphModel dx="2478" dy="1382" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" background="none" math="0" shadow="0">
+    <mxGraphModel dx="3698" dy="1685" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" background="none" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -16,7 +16,7 @@
         <mxCell id="GQ40oCuuzwu2k9MFFgjN-4" value="QLTaiKhoan" style="shape=umlBoundary;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="-100" y="-130" width="120" height="100" as="geometry" />
         </mxCell>
-        <mxCell id="GQ40oCuuzwu2k9MFFgjN-5" value="TaiKhoanDTO" style="ellipse;shape=umlEntity;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+        <mxCell id="GQ40oCuuzwu2k9MFFgjN-5" value="CSDL" style="ellipse;shape=umlEntity;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="670" y="-130" width="100" height="100" as="geometry" />
         </mxCell>
         <mxCell id="GQ40oCuuzwu2k9MFFgjN-6" value="TaiKhoanDAO" style="ellipse;shape=umlControl;whiteSpace=wrap;html=1;" parent="1" vertex="1">
@@ -457,12 +457,6 @@
             <mxPoint x="-375" y="1673" as="sourcePoint" />
             <mxPoint x="-40" y="1673" as="targetPoint" />
           </mxGeometry>
-        </mxCell>
-        <mxCell id="GI246g5CdxpJobqBT-f6-47" value="TaiKhoanDAO" style="ellipse;shape=umlControl;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="1000" y="-130" width="100" height="120" as="geometry" />
-        </mxCell>
-        <mxCell id="GI246g5CdxpJobqBT-f6-48" value="" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};participant=umlBoundary;size=0;" parent="1" vertex="1">
-          <mxGeometry x="1025" y="-10" width="50" height="2870" as="geometry" />
         </mxCell>
         <mxCell id="GI246g5CdxpJobqBT-f6-53" value="4.11. cập nhật thông tin thông tin TK vào CSDL" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;fontSize=12;startSize=8;endSize=8;" parent="1" edge="1">
           <mxGeometry x="0.0029" width="80" relative="1" as="geometry">
