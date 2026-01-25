@@ -8,12 +8,15 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
+import htsc.src_BE.dto.TaiKhoanDTO;
+
 /**
  * JavaFX App
  */
 public class App extends Application {
 
     private static Scene scene;
+    public static TaiKhoanDTO CURRENT_ACCOUNT;
 
     @Override
     public void start(Stage stage) throws IOException {

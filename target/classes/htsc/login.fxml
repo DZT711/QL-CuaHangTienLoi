@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<HBox prefHeight="500" prefWidth="900" style="-fx-background-color: #ffffff;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="htsc.LoginController">
+  <!-- Left Panel - Blue -->
+  <VBox alignment="CENTER" prefWidth="350" style="-fx-background-color: #6ba3d4;">
+    <VBox alignment="CENTER" spacing="20" VBox.vgrow="ALWAYS">
+       <Label style="-fx-font-size: 28; -fx-font-weight: bold;" text="LOGIN" textFill="WHITE">
+         <font>
+           <Font size="28.0" />
+         </font>
+       </Label>
+      <Label alignment="CENTER" style="-fx-font-size: 60;" text="👤" textFill="WHITE" />
+      <Label alignment="CENTER" style="-fx-font-size: 18; -fx-font-weight: bold;" text="SIGN IN" textFill="WHITE" />
+    </VBox>
+  </VBox>
+  <!-- Right Panel - White -->
+  <VBox alignment="TOP_CENTER" prefWidth="550" spacing="30" style="-fx-background-color: #ffffff; -fx-padding: 40;">
+    <!-- Title -->
+    <Label alignment="CENTER" style="-fx-font-size: 32; -fx-font-weight: bold;" text="ĐĂNG NHẬP" textFill="#4a90e2" />
+    <!-- Spacer -->
+    <VBox prefHeight="30" />
+    <!-- Username Label -->
+    <Label prefHeight="46.0" prefWidth="470.0" style="-fx-font-size: 14; -fx-font-weight: bold;" text="Tên đăng nhập:" textFill="#333333" />
+    <!-- Username TextField -->
+    <TextField fx:id="usernameField" prefHeight="40" promptText="Nhập tên đăng nhập" style="-fx-font-size: 14; -fx-padding: 10; -fx-border-color: #cccccc; -fx-border-radius: 4; -fx-text-fill: #333333;" />
+    <!-- Password Label -->
+    <Label prefHeight="20.0" prefWidth="468.0" style="-fx-font-size: 14; -fx-font-weight: bold;" text="Mật khẩu:" textFill="#333333" />
+    <!-- Password PasswordField -->
+    <PasswordField fx:id="passwordField" prefHeight="40" promptText="Nhập mật khẩu" style="-fx-font-size: 14; -fx-padding: 10; -fx-border-color: #cccccc; -fx-border-radius: 4; -fx-text-fill: #333333;" />
+    <!-- Error Message Label -->
+    <Label fx:id="errorMessageLabel" style="-fx-font-size: 12;" text="" textFill="#e74c3c" />
+    <!-- Spacer -->
+    <VBox prefHeight="15" />
+    <!-- Buttons HBox -->
+    <HBox alignment="CENTER" spacing="15">
+      <!-- Login Button -->
+      <Button fx:id="loginButton" onAction="#handleLogin" prefHeight="45" prefWidth="180" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-background-color: #6ba3d4; -fx-text-fill: white; -fx-cursor: hand; -fx-border-radius: 4; -fx-padding: 10;" text="Đăng nhập" />
+      <!-- Exit Button -->
+      <Button fx:id="exitButton" onAction="#handleExit" prefHeight="45" prefWidth="180" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-background-color: white; -fx-text-fill: #6ba3d4; -fx-border-color: #6ba3d4; -fx-border-width: 2; -fx-cursor: hand; -fx-border-radius: 4; -fx-padding: 10;" text="Thoát" />
+    </HBox>
+  </VBox>
+</HBox>
