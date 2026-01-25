@@ -1,5 +1,5 @@
 QUẢN LÝ CỬA HÀNG TIỆN LỢI
-Đồ án môn: Phát triển phần mềm hướng dịch vụ
+Đồ án môn: Phát triển phần mềm hướng đối tượng
 Ngôn ngữ: Java + JDBC
 Cơ sở dữ liệu: MySQL
 
