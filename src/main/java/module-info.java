@@ -7,9 +7,9 @@ module htsc {
     requires mysql.connector.j;
 
     opens htsc to javafx.fxml;
-    opens htsc.dao to javafx.fxml;
-    opens htsc.dto to javafx.fxml;
-    opens htsc.util to javafx.fxml;
+    opens htsc.src_BE.dao to javafx.fxml;
+    opens htsc.src_BE.dto to javafx.fxml;
+    opens htsc.src_BE.util to javafx.fxml;
 
     exports htsc;
     exports htsc.src_BE.dao;

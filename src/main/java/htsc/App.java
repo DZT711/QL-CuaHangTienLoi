@@ -5,10 +5,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import htsc.src_BE.dto.TaiKhoanDTO;
 
 import java.io.IOException;
-
-import htsc.src_BE.dto.TaiKhoanDTO;
 
 /**
  * JavaFX App
@@ -16,12 +15,15 @@ import htsc.src_BE.dto.TaiKhoanDTO;
 public class App extends Application {
 
     private static Scene scene;
+
     public static TaiKhoanDTO CURRENT_ACCOUNT;
 
     @Override
     public void start(Stage stage) throws IOException {
-        scene = new Scene(loadFXML("primary"), 640, 480);
+        scene = new Scene(loadFXML("login"), 900, 500);
+        stage.setTitle("Hệ Thống Quản Lý Cửa Hàng Tiện Lợi");
         stage.setScene(scene);
+        stage.setResizable(false);
         stage.show();
     }
 
