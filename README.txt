@@ -1,105 +1,76 @@
-# 🏪 QL-CuaHangTienLoi
-### Quản Lý Cửa Hàng Tiện Lợi — Convenience Store Management System
+QUẢN LÝ CỬA HÀNG TIỆN LỢI
+Đồ án môn: Phát triển phần mềm hướng dịch vụ
+Ngôn ngữ: Java + JDBC
+Cơ sở dữ liệu: MySQL
 
-*Đồ án môn Phát triển phần mềm hướng đối tượng (OOP Software Development)*
+--------------------------------------------
+I. Thành viên thực hiện:
+| STT | MSSV       | Họ và tên            | 
+|-----|------------|----------------------|
+| 1   | 3123411122 | Nguyễn Sĩ Huy        |          
+| 2   | 3123411328 | Trương Văn Tuấn      |          
+| 3   | 3123411258 | Đặng Thành Sơn       |          
+| 4   | 3123411045 | Nguyễn Văn Cường     |       
 
-![Java](https://img.shields.io/badge/Java-8%2B-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
-![MySQL](https://img.shields.io/badge/MySQL-InnoDB-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
-![JDBC](https://img.shields.io/badge/JDBC-PreparedStatement-F80000?style=for-the-badge&logo=oracle&logoColor=white)
-![Status](https://img.shields.io/badge/Status-Academic%20Project-success?style=for-the-badge)
-![License](https://img.shields.io/badge/License-Educational-lightgrey?style=for-the-badge)
+--------------------------------------------
+II. Đề bài / mô tả hệ thống
 
----
+Xây dựng một hệ thống quản lý bán hàng cho cửa hàng tiện lợi, hỗ trợ các chức năng chính:
+- Quản lý loại sản phẩm, đơn vị tính, nhà cung cấp.
+- Nhập hàng: lập phiếu nhập, chi tiết phiếu nhập, tính tổng tiền, cập nhật tồn kho.
+- Bán hàng: lập hoá đơn, chi tiết hoá đơn, tính tổng tiền, giảm tồn kho.
+- Quản lý khách hàng, nhân viên.
+- Quản lý tài khoản (login, phân quyền Admin / Nhân viên).
+- Báo cáo cơ bản (doanh thu theo ngày, tồn kho, sản phẩm bán chạy).
+- Đảm bảo tính nhất quán dữ liệu, xử lý đồng thời khi nhiều người bán cùng sản phẩm.
 
-## 📖 Overview
+--------------------------------------------
+III. Hướng dẫn cài đặt và chạy
 
-Desktop app (Java + JDBC + MySQL) managing sales for a convenience store. Multi-user, role-based (Admin / Staff), handles imports, sales invoices, inventory, reports.
+1. Cài đặt MySQL, tạo database (ví dụ: `qlcuahang`), import file `qlcuahangtienloi.sql` (phiên bản đã sửa).  
+2. Cấu hình file kết nối trong Java (JDBC): URL, username, mật khẩu.  
+3. Chạy chương trình Java (IDE hoặc jar).  
+4. Đăng nhập tài khoản admin để vào hệ thống.  
+5. Nhập dữ liệu mẫu nếu cần, rồi thử các chức năng: quản lý sản phẩm, nhập hàng, bán hàng.
 
-## ✨ Features
+--------------------------------------------
+IV. Kiến trúc & công nghệ sử dụng
 
-| Module | Desc |
-|---|---|
-| 🧾 Product mgmt | product types, units, suppliers |
-| 📥 Stock-in | import receipts, line items, auto total, stock update |
-| 💰 Sales | invoices, line items, auto total, stock deduction |
-| 👤 Customer/Staff | CRUD for customers & employees |
-| 🔐 Accounts | login + role-based access (Admin/Staff) |
-| 📊 Reports | daily revenue, stock levels, best-sellers |
-| ⚙️ Concurrency | data consistency when multiple sellers touch same product |
+- Java (phiên bản 8 trở lên)  
+- JDBC (PreparedStatement, Connection pooling)  
+- MySQL (InnoDB)  
+- Giao diện: (GUI / console)  
 
-## 🛠️ Tech Stack
 
-![Java](https://img.shields.io/badge/Java-JDK%208+-ED8B00?style=flat-square&logo=openjdk&logoColor=white)
-![MySQL](https://img.shields.io/badge/MySQL-InnoDB%20engine-4479A1?style=flat-square&logo=mysql&logoColor=white)
-![JDBC](https://img.shields.io/badge/JDBC-Connector%2FJ-F80000?style=flat-square&logo=oracle&logoColor=white)
-![Swing](https://img.shields.io/badge/GUI-Java%20Swing-orange?style=flat-square&logo=java&logoColor=white)
+--------------------------------------------
+V. Hướng dẫn cài đặt và sử dụng phần mềm 
 
-- **Lang:** Java (JDK 8+)
-- **DB access:** JDBC — `PreparedStatement`, connection pooling
-- **DB:** MySQL, InnoDB engine
-- **Driver:** `mysql-connector.jar` (in `lib/`)
-- **GUI:** Java desktop (Swing)
-- **IDE options:** Eclipse, IntelliJ IDEA, VS Code + Java extension pack
+Yêu cầu trước khi cài đặt
+Cài đặt MySQL (bản ổn định) trên máy của bạn.
+Có driver JDBC cho MySQL (ví dụ mysql-connector.jar) — thư mục lib/ trong repo chứa thư viện cần thiết.
+Có một IDE Java như Eclipse, IntelliJ IDEA, hoặc sử dụng Visual Studio Code + plugin Java.
+Java JDK (phiên bản 8 trở lên) — phù hợp với code Java của dự án.
 
-## 📂 Repo Structure
-
-```
-QL-CuaHangTienLoi/
-├── DevNotes/     # dev notes / progress logs
-├── SQL/          # qlcuahangtienloi.sql — schema + seed data
-├── data/         # sample/runtime data
-├── database/     # DB-related assets
-├── docs/         # docs
-├── lib/          # mysql-connector.jar (JDBC driver)
-├── src/          # Java source, entry: src/main/main.java
-└── README.txt    # original readme
-```
-
-## 🚀 Getting Started
-
-### Prereqs
-- MySQL (stable release) installed
-- Java JDK 8+
-- IDE: Eclipse / IntelliJ / VS Code + Java plugin
-
-### Setup
-
-```bash
-# 1. clone
+Bước 1 — Tải source về máy
 git clone https://github.com/DZT711/QL-CuaHangTienLoi.git
-```
+Hoặc tải file ZIP từ GitHub và giải nén vào thư mục bạn chọn.
 
-2. **Create DB** — new MySQL DB (e.g. `qlcuahang`), then import `SQL/qlcuahangtienloi.sql`.
-3. **Configure conn** — set URL / username / password in Java JDBC config file.
-4. **Add driver** — put `lib/mysql-connector.jar` on project classpath.
-5. **Run** — open in IDE, set run config main class → `src/main/main.java`.
+Bước 2 — Chuẩn bị cơ sở dữ liệu
+Mở MySQL, tạo một database mới — ví dụ đặt tên qlcuahang.
+Trong repo, tìm file SQL (file SQL/qlcuahangtienloi.sql). Import file này vào database "ql_chtienloi" bạn vừa tạo để tạo các bảng cần thiết và (nếu có) dữ liệu ban đầu.
 
-### Login (test accounts)
+Bước 3 — Cấu hình kết nối từ Java
+Mở file cấu hình kết nối (thường trong code: nơi khai báo URL, username, password để kết nối JDBC).
+Đảm bảo driver MySQL (ví dụ mysql-connector.jar) được thêm vào classpath / thư viện của project — tùy IDE bạn dùng, cách thêm có thể khác nhau.
+Ví dụ: trong IDE VSCode thì cài extension Java Project , sau đó thêm đường dãn tới driver đã có sẵn trong lib/mysql-connector.jar 
 
-| Role | Username | Password |
-|---|---|---|
-| Admin | `an` | `an` |
-| Staff | `anh` | `anh` |
+Bước 4 — Chạy ứng dụng
+Mở dự án trong IDE (Eclipse / IntelliJ / VSCode + plugin Java).
+Thiết lập cấu hình run: chọn main class đúng (src/main/main.java) .
+Nếu setup đúng — hệ thống sẽ kết nối tới database và chạy.
+Đăng nhập bằng tài khoản quản trị viên (username :an / password :an) để truy cập hệ thống
+hoặc
+Đăng nhập bằng tài khoản nhân viên test (username :anh / password :anh ) để truy cập hệ thống.
 
-## 🧠 What I Learned
-
-- OOP design applied to real inventory/sales domain (entities: product, unit, supplier, receipt, invoice, customer, staff, account)
-- JDBC fundamentals: `Connection`, `PreparedStatement`, connection pooling, avoiding SQL injection
-- MySQL schema design w/ InnoDB — foreign keys, transactions
-- Handling concurrent stock updates → data consistency (race conditions on shared inventory)
-- Role-based auth (Admin vs Staff) at app layer
-- Report generation (aggregation queries — revenue/day, stock, best-sellers)
-- Java desktop GUI dev + IDE/classpath/driver config across Eclipse/IntelliJ/VS Code
-
-## 👥 Team
-
-| MSSV | Name |
-|---|---|
-| 3123411122 | Nguyễn Sĩ Huy |
-| 3123411328 | Trương Văn Tuấn |
-| 3123411258 | Đặng Thành Sơn |
-| 3123411045 | Nguyễn Văn Cường |
-
----
-
-Made w/ ☕ + Java for OOP Software Development coursework
+Bước 5 — Kiểm tra và sử dụng
+Sau khi chạy thành công, bạn có thể thử các chức năng: quản lý sản phẩm, nhập hàng, bán hàng, quản lý khách/nhân viên, báo cáo,...
