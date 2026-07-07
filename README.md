@@ -89,15 +89,6 @@ git clone https://github.com/DZT711/QL-CuaHangTienLoi.git
 | Admin | `an` | `an` |
 | Staff | `anh` | `anh` |
 
-## 🧠 What I Learned
-
-- OOP design applied to real inventory/sales domain (entities: product, unit, supplier, receipt, invoice, customer, staff, account)
-- JDBC fundamentals: `Connection`, `PreparedStatement`, connection pooling, avoiding SQL injection
-- MySQL schema design w/ InnoDB — foreign keys, transactions
-- Handling concurrent stock updates → data consistency (race conditions on shared inventory)
-- Role-based auth (Admin vs Staff) at app layer
-- Report generation (aggregation queries — revenue/day, stock, best-sellers)
-- Java desktop GUI dev + IDE/classpath/driver config across Eclipse/IntelliJ/VS Code
 
 ## 👥 Team
 
