@@ -1,5 +1,3 @@
-<div align="center">
-
 # 🏪 QL-CuaHangTienLoi
 ### Quản Lý Cửa Hàng Tiện Lợi — Convenience Store Management System
 
@@ -10,8 +8,6 @@
 ![JDBC](https://img.shields.io/badge/JDBC-PreparedStatement-F80000?style=for-the-badge&logo=oracle&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Academic%20Project-success?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-Educational-lightgrey?style=for-the-badge)
-
-</div>
 
 ---
 
@@ -33,14 +29,10 @@ Desktop app (Java + JDBC + MySQL) managing sales for a convenience store. Multi-
 
 ## 🛠️ Tech Stack
 
-<div align="left">
-
 ![Java](https://img.shields.io/badge/Java-JDK%208+-ED8B00?style=flat-square&logo=openjdk&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-InnoDB%20engine-4479A1?style=flat-square&logo=mysql&logoColor=white)
 ![JDBC](https://img.shields.io/badge/JDBC-Connector%2FJ-F80000?style=flat-square&logo=oracle&logoColor=white)
 ![Swing](https://img.shields.io/badge/GUI-Java%20Swing-orange?style=flat-square&logo=java&logoColor=white)
-
-</div>
 
 - **Lang:** Java (JDK 8+)
 - **DB access:** JDBC — `PreparedStatement`, connection pooling
@@ -110,8 +102,4 @@ git clone https://github.com/DZT711/QL-CuaHangTienLoi.git
 
 ---
 
-<div align="center">
-
 Made w/ ☕ + Java for OOP Software Development coursework
-
-</div>
